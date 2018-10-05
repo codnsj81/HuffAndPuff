@@ -77,3 +77,31 @@
  - 기획문서 보강 (1번 항목)
  - 기획문서를 GitHub에 등록 (모든 문서, 파일, 프로그램은 다 GitHub에 올릴 것)
  - 10월 4일 목요일 6:30
+
+2018-10-04
+--------------
+1. 진행 상황
+ - 기획문서 : 캐릭터 상세설정, 장애물 상세 설정, 업어주기 시스템
+ - 튜토리얼 : 
+  - 서채원 :  2D Logue Like 까지 Adventure Tutorial 제외
+  - 손채영 :  2D UFO 까지
+  - 지은혜 : Tank Tutorial 까지 2D UFO와 Space Chinken 제외
+
+2. 남은 튜토리얼 
+ - 서채원 : Adventure Tutorial,  Tower Defence Template, Creating Believable, Procedual Cave Generation : 4개
+ - 손채영 : Space Chicken, Tanks Tutorial, Adventure Game, 2D Roguelike, Tower Defense Template, Creating Believable, Procedual Cave Generation : 7개
+ - 지은혜 : 2D UFO, Space Chinken, Adventure Game, 2D Roguelike, Tower Defense Template, Creating Believable, Procedual Cave Generation : 8개
+ - 10월까지 끝내기
+
+3. 다음 미팅
+ - 튜토리얼 남은 회수를 반으로 줄일것
+ - 기획 문서 : 스테이지 별 지도 : (동선과 방해꾼 배치) 그림. 유니티에서 배치한 후, 스크린 샷을 기획 문서에 첨부 (서채원)
+  * 아무데서나 모델을 가지고 와서 배치, 지형 작성
+  * Unity 파일도 git에 올리기 (Albatross-Programming-Unity-Unity로 다수의 인원이 개발할 때 알아두면 좋은 9가지.pdf 꼭 읽어보고 시키는 대로 할 것)
+     - 참조 : https://www.slideshare.net/holykss/git-24792958
+  * 유니티 버전은 : 2018.2.10f1으로 맞추기 (참고문서 폴더에 있음).
+ - 그래픽 작업 시작 : 도기, 더기, 장애물들, 맵 배치 물(나무, 바워, 건물)  (지은혜) 
+  * 도기 모델 3D Max (2018 버전)
+  * Max 파일과 텍스쳐 파일을 Git에 올리기
+ - 기획문서 업데이트 ( 손채영)
+ - 10월 25일 오후 6시 30분 

@@ -105,3 +105,30 @@
   * Max 파일과 텍스쳐 파일을 Git에 올리기
  - 기획문서 업데이트 ( 손채영)
  - 10월 25일 오후 6시 30분 
+
+2018-10-25
+-------------
+1. 진행 상황
+ - 기획문서 : 설정 변경, 동굴 스테이지 추가
+ - 유니티 작업
+  * 작업중인 내용을 GIt에 올릴 것. 전체 폴더를 올리는 것은 용량을 너무 많이 차지 하므로 지난 번에 올려준 pdf문서를 참고해서 필요한 파일들만 올릴 것
+    - 참조 : https://www.slideshare.net/holykss/git-24792958
+  * 3개의 스테이지의 대략적인 구조 완성
+ - MAX 작업
+  * 완성이 되지 않은 중간 작업이라도 반드시 git에 올릴 것
+  * 도기 몸통 제작 중
+
+2. 남은 튜토리얼
+  - 서채원 : Adventure Tutorial,  Tower Defence Template, Creating Believable, Procedual Cave Generation : 4개
+  - 손채영 : Tanks Tutorial, Adventure Game, 2D Roguelike, Tower Defense Template, Creating Believable, Procedual Cave Generation : 6개
+  - 지은혜 : Space Chinken, Adventure Game, 2D Roguelike, Tower Defense Template, Creating Believable, Procedual Cave Generation : 7 개
+
+3. 다음 미팅
+ - 11월 6일 화요일 오후 6시 30분
+ - 튜토리얼 끝내기
+ - 도기 모델링 : 얼굴과 꼬리 그리고 텍스쳐
+ - 기획 파트 : 스테이지 1 돌아다니기 (충돌 처리, 스카이박스 추가, 삼인칭 시점 구현)
+ - 중점연구분야 : 로우폴리곤(X), 게임라임 스타일의 그래픽(OK, 중점연구분야로 하기에는 부족함), 방대하고 아기자기한 3개의 스테이지, (아직도 부족하다 중점연구 과제를 좀더 추가하거나, 스테이지 테마를 더 추가하거나)
+ - 서버연동 : 서버 클라이언트 연동 체스 프로그램 숙제를 클라이언트를 C#으로 만들어 오기.
+ - 모든 작업을 GIT에 올릴 것.
+

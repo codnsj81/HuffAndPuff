@@ -165,7 +165,9 @@ void CGameFramework::CreateDirect3DDevice()
 	//뷰포트를 주 윈도우의 클라이언트 영역 전체로 설정한다.
 
 	m_d3dScissorRect = { 0, 0, m_nWndClientWidth, m_nWndClientHeight };
-	//씨저 사각형을 주 윈도우의 클라이언트 영역 전체로 설정한다. 	if (pd3dAdapter) pd3dAdapter->Release();
+	//씨저 사각형을 주 윈도우의 클라이언트 영역 전체로 설정한다. 
+	if (pd3dAdapter) pd3dAdapter->Release();
+
 
 }
 
@@ -178,7 +180,8 @@ void CGameFramework::CreateRtvAndDsvDescriptorHeaps()
 	d3dDescriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 	d3dDescriptorHeapDesc.NodeMask = 0;
 	HRESULT hResult = m_pd3dDevice->CreateDescriptorHeap(&d3dDescriptorHeapDesc,
-		__uuidof(ID3D12DescriptorHeap), (void **)&m_pd3dRtvDescriptorHeap);	//렌더 타겟 서술자 힙(서술자의 개수는 스왑체인 버퍼의 개수)을 생성한다. m_nRtvDescriptorIncrementSize =
+		__uuidof(ID3D12DescriptorHeap), (void **)&m_pd3dRtvDescriptorHeap);
+	//렌더 타겟 서술자 힙(서술자의 개수는 스왑체인 버퍼의 개수)을 생성한다. m_nRtvDescriptorIncrementSize =
 	m_pd3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 	//렌더 타겟 서술자 힙의 원소의 크기를 저장한다.
 
@@ -282,11 +285,14 @@ void CGameFramework::FrameAdvance()
 	d3dResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 	m_pd3dCommandList->ResourceBarrier(1, &d3dResourceBarrier);
 	/*현재 렌더 타겟에 대한 렌더링이 끝나기를 기다린다. GPU가 렌더 타겟(버퍼)을 더 이상 사용하지 않으면 렌더 타겟
-	의 상태는 프리젠트 상태(D3D12_RESOURCE_STATE_PRESENT)로 바뀔 것이다.*/	hResult = m_pd3dCommandList->Close();
+	의 상태는 프리젠트 상태(D3D12_RESOURCE_STATE_PRESENT)로 바뀔 것이다.*/
+
+	hResult = m_pd3dCommandList->Close();
 	//명령 리스트를 닫힌 상태로 만든다. 
 	ID3D12CommandList *ppd3dCommandLists[] = { m_pd3dCommandList };
 	m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
-	//명령 리스트를 명령 큐에 추가하여 실행한다.	WaitForGpuComplete();
+	//명령 리스트를 명령 큐에 추가하여 실행한다.
+	WaitForGpuComplete();
 	//GPU가 모든 명령 리스트를 실행할 때 까지 기다린다.
 	DXGI_PRESENT_PARAMETERS dxgiPresentParameters;
 	dxgiPresentParameters.DirtyRectsCount = 0;
@@ -309,7 +315,9 @@ void CGameFramework::WaitForGpuComplete()
 	if (m_pd3dFence->GetCompletedValue() < nFence)
 	{
 		//펜스의 현재 값이 설정한 값보다 작으면 펜스의 현재 값이 설정한 값이 될 때까지 기다린다. hResult = m_pd3dFence->SetEventOnCompletion(nFence, m_hFenceEvent);
-		::WaitForSingleObject(m_hFenceEvent, INFINITE);	}
+		::WaitForSingleObject(m_hFenceEvent, INFINITE);
+	}
+
 }
 
 void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
@@ -414,7 +422,8 @@ void CGameFramework::CreateDepthStencilView()
 	d3dHeapProperties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
 	d3dHeapProperties.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
 	d3dHeapProperties.CreationNodeMask = 1;
-	d3dHeapProperties.VisibleNodeMask = 1;
+	d3dHeapProperties.VisibleNodeMask = 1;
+
 	D3D12_CLEAR_VALUE d3dClearValue;
 	d3dClearValue.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 	d3dClearValue.DepthStencil.Depth = 1.0f;

@@ -81,7 +81,8 @@ public:
 		LPARAM lParam);
 
 	void CreateRenderTargetView();
-	void CreateDepthStencilView();
+	void CreateDepthStencilView();
+
 
 };
 

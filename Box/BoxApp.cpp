@@ -8,9 +8,10 @@
 //   Hold the right mouse button down and move the mouse to zoom in and out.
 //***************************************************************************************
 
-#include "../../Common/d3dApp.h"
-#include "../../Common/MathHelper.h"
-#include "../../Common/UploadBuffer.h"
+#include "../Common/d3dApp.h"
+#include "../Common/MathHelper.h"
+#include "../Common/UploadBuffer.h"
+
 
 using Microsoft::WRL::ComPtr;
 using namespace DirectX;
@@ -80,6 +81,9 @@ private:
     POINT mLastMousePos;
 };
 
+// global
+XMMATRIX g_mypos;
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 				   PSTR cmdLine, int showCmd)
 {
@@ -87,10 +91,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 #if defined(DEBUG) | defined(_DEBUG)
 	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
 #endif
+	ZeroMemory(&g_mypos, sizeof(XMMATRIX));
+	g_mypos = XMMatrixSet(1.f, 0.f, 0.f, 0.f,
+		0.f, 1.f, 0.f, 0.f,
+		0.f, 0.f, 1.f, 0.f,
+		0.f, 0.f, 0.f, 1.f);
 
     try
     {
         BoxApp theApp(hInstance);
+		// BoxApp theother(hInstance);
+
         if(!theApp.Initialize())
             return 0;
 
@@ -135,6 +146,7 @@ bool BoxApp::Initialize()
     // 초기화가 완료될 때까지 기다림.
     FlushCommandQueue();
 
+
 	return true;
 }
 
@@ -150,6 +162,27 @@ void BoxApp::OnResize()
 
 void BoxApp::Update(const GameTimer& gt)
 {
+	XMMATRIX horizontal = XMMatrixSet(0.f, 0.f, 0.f, 0.f,
+		0.f, 0.f, 0.f, 0.f,
+		0.f, 0.f, 0.f, 0.f,
+		0.001f, 0.f, 0.f, 0.f);
+
+	XMMATRIX vertical = XMMatrixSet(0.f, 0.f, 0.f, 0.f,
+		0.f, 0.f, 0.f, 0.f,
+		0.f, 0.f, 0.f, 0.f,
+		0.f, 0.001f, 0.f, 0.f);
+
+
+
+	if (GetAsyncKeyState(VK_RIGHT))
+		g_mypos += horizontal;
+	if (GetAsyncKeyState(VK_LEFT))
+		g_mypos -= horizontal;
+	if (GetAsyncKeyState(VK_UP))
+		g_mypos += vertical;
+	if (GetAsyncKeyState(VK_DOWN))
+		g_mypos -= vertical;
+
     // 구면 좌표를 데카르트 좌표(직교좌표)로 계산한다.
     float x = mRadius*sinf(mPhi)*cosf(mTheta);
     float z = mRadius*sinf(mPhi)*sinf(mTheta);
@@ -157,13 +190,12 @@ void BoxApp::Update(const GameTimer& gt)
 
     // 시야 행렬을 구축한다.
     XMVECTOR pos = XMVectorSet(x, y, z, 1.0f);
-    XMVECTOR target = XMVectorZero();
+	XMVECTOR target = XMVectorZero();
     XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-
     XMMATRIX view = XMMatrixLookAtLH(pos, target, up);
     XMStoreFloat4x4(&mView, view);
 
-    XMMATRIX world = XMLoadFloat4x4(&mWorld);
+    XMMATRIX world = /*XMLoadFloat4x4(&mWorld)*/ g_mypos;
     XMMATRIX proj = XMLoadFloat4x4(&mProj);
     XMMATRIX worldViewProj = world*view*proj;
 
@@ -176,7 +208,7 @@ void BoxApp::Update(const GameTimer& gt)
 void BoxApp::Draw(const GameTimer& gt)
 {
 	// 명령 기록에 관련된 메모리의 재활용을 위해 명령 할당자를
-	// 재설정안다. 재설정은 GPU가 관련 명령 목록들을
+	// 재설정한다. 재설정은 GPU가 관련 명령 목록들을
 	// 모두 처리한 후에 일어난다.
 	ThrowIfFailed(mDirectCmdListAlloc->Reset());
 
@@ -369,14 +401,14 @@ void BoxApp::BuildBoxGeometry()
 {
     std::array<Vertex, 8> vertices =
     {
-        Vertex({ XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT4(Colors::White) }),
-		Vertex({ XMFLOAT3(-1.0f, +1.0f, -1.0f), XMFLOAT4(Colors::Black) }),
-		Vertex({ XMFLOAT3(+1.0f, +1.0f, -1.0f), XMFLOAT4(Colors::Red) }),
-		Vertex({ XMFLOAT3(+1.0f, -1.0f, -1.0f), XMFLOAT4(Colors::Green) }),
-		Vertex({ XMFLOAT3(-1.0f, -1.0f, +1.0f), XMFLOAT4(Colors::Blue) }),
-		Vertex({ XMFLOAT3(-1.0f, +1.0f, +1.0f), XMFLOAT4(Colors::Yellow) }),
-		Vertex({ XMFLOAT3(+1.0f, +1.0f, +1.0f), XMFLOAT4(Colors::Cyan) }),
-		Vertex({ XMFLOAT3(+1.0f, -1.0f, +1.0f), XMFLOAT4(Colors::Magenta) })
+        Vertex({ XMFLOAT3(-0.5f, -0.5f, -0.5f), XMFLOAT4(Colors::Yellow) }),
+		Vertex({ XMFLOAT3(-0.5f, +0.5f, -0.5f), XMFLOAT4(Colors::Yellow) }),
+		Vertex({ XMFLOAT3(+0.5f, +0.5f, -0.5f), XMFLOAT4(Colors::Yellow) }),
+		Vertex({ XMFLOAT3(+0.5f, -0.5f, -0.5f), XMFLOAT4(Colors::Yellow) }),
+		Vertex({ XMFLOAT3(-0.5f, -0.5f, +0.5f), XMFLOAT4(Colors::Yellow) }),
+		Vertex({ XMFLOAT3(-0.5f, +0.5f, +0.5f), XMFLOAT4(Colors::Yellow) }),
+		Vertex({ XMFLOAT3(+0.5f, +0.5f, +0.5f), XMFLOAT4(Colors::Yellow) }),
+		Vertex({ XMFLOAT3(+0.5f, -0.5f, +0.5f), XMFLOAT4(Colors::Yellow) })
     };
 
 	std::array<std::uint16_t, 36> indices =

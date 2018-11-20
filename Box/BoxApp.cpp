@@ -13,6 +13,9 @@
 #include "../Common/UploadBuffer.h"
 
 
+#include "../Box/Headers/Include.h"
+#include "../Box/Headers/Protocol.h"
+
 using Microsoft::WRL::ComPtr;
 using namespace DirectX;
 using namespace DirectX::PackedVector;
@@ -79,32 +82,80 @@ private:
     float mRadius = 5.0f;
 
     POINT mLastMousePos;
-};
 
-// global
-XMMATRIX g_mypos;
-
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
-				   PSTR cmdLine, int showCmd)
-{
-	//디버그 빌드에서는 실행시점 메모리 점검 기능을 한다.
-#if defined(DEBUG) | defined(_DEBUG)
-	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
-#endif
-	ZeroMemory(&g_mypos, sizeof(XMMATRIX));
-	g_mypos = XMMatrixSet(1.f, 0.f, 0.f, 0.f,
+	// ----------------------
+	XMMATRIX mypos = XMMatrixSet(1.f, 0.f, 0.f, 0.f,
 		0.f, 1.f, 0.f, 0.f,
 		0.f, 0.f, 1.f, 0.f,
 		0.f, 0.f, 0.f, 1.f);
+	bool isme = false;
 
-    try
-    {
-        BoxApp theApp(hInstance);
-		// BoxApp theother(hInstance);
+public:
+	void setPos(XMFLOAT3 pos) {
+		mypos = XMMatrixSet(pos.x, 0.f, 0.f, 0.f,
+			0.f, pos.y, 0.f, 0.f,
+			0.f, 0.f, pos.z, 0.f,
+			0.f, 0.f, 0.f, 1.f);
+	}
+	void setIsme(bool b)  {
+		isme = b;
+	}
+};
 
-        if(!theApp.Initialize())
+// global
+
+// 서버 추가.
+SOCKET g_sock;
+PLAYERINFO g_myinfo;
+char buf[BUFSIZE];
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
+	PSTR cmdLine, int showCmd)
+{
+	//디버그 빌드에서는 실행시점 메모리 점검 기능을 한다.
+#if defined(DEBUG) | defined(_DEBUG)
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+#endif
+
+
+	try
+	{
+		BoxApp theApp(hInstance);
+		//BoxApp theother(hInstance);
+
+		if (!theApp.Initialize() /*|| !theother.Initialize()*/)
             return 0;
+		
+		theApp.setIsme(true);
 
+		//-------------------------------------------------------------------------------
+		// 서버 추가.
+
+		// 윈속 초기화.
+		WSADATA wsa;
+		if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
+			return false;
+
+		// 소켓 생성.
+		g_sock = socket(AF_INET, SOCK_STREAM, 0);
+		if (g_sock == INVALID_SOCKET)
+			MessageBox(nullptr, L"socket()", MB_OK, MB_OK);
+
+		// 서버와의 연결 설정.
+		int retval;
+		SOCKADDR_IN serveraddr;
+		ZeroMemory(&serveraddr, sizeof(serveraddr));
+		serveraddr.sin_family = AF_INET;
+		serveraddr.sin_addr.s_addr = inet_addr("127.0.0.1");
+		serveraddr.sin_port = htons(SERVERPORT);
+		retval = connect(g_sock, (SOCKADDR*)&serveraddr, sizeof(serveraddr));
+
+		if (retval == SOCKET_ERROR)
+			MessageBox(nullptr, L"connect()", L"connect()", MB_OK);
+
+
+
+		// theother.Run();
         return theApp.Run();
     }
     catch(DxException& e)
@@ -173,15 +224,16 @@ void BoxApp::Update(const GameTimer& gt)
 		0.f, 0.001f, 0.f, 0.f);
 
 
-
-	if (GetAsyncKeyState(VK_RIGHT))
-		g_mypos += horizontal;
-	if (GetAsyncKeyState(VK_LEFT))
-		g_mypos -= horizontal;
-	if (GetAsyncKeyState(VK_UP))
-		g_mypos += vertical;
-	if (GetAsyncKeyState(VK_DOWN))
-		g_mypos -= vertical;
+	if (isme) {
+		if (GetAsyncKeyState(VK_RIGHT))
+			mypos += horizontal;
+		if (GetAsyncKeyState(VK_LEFT))
+			mypos -= horizontal;
+		if (GetAsyncKeyState(VK_UP))
+			mypos += vertical;
+		if (GetAsyncKeyState(VK_DOWN))
+			mypos -= vertical;
+	}
 
     // 구면 좌표를 데카르트 좌표(직교좌표)로 계산한다.
     float x = mRadius*sinf(mPhi)*cosf(mTheta);
@@ -195,7 +247,7 @@ void BoxApp::Update(const GameTimer& gt)
     XMMATRIX view = XMMatrixLookAtLH(pos, target, up);
     XMStoreFloat4x4(&mView, view);
 
-    XMMATRIX world = /*XMLoadFloat4x4(&mWorld)*/ g_mypos;
+    XMMATRIX world = /*XMLoadFloat4x4(&mWorld)*/ mypos;
     XMMATRIX proj = XMLoadFloat4x4(&mProj);
     XMMATRIX worldViewProj = world*view*proj;
 

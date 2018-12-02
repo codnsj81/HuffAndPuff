@@ -19,10 +19,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{B590A678-E935-4AED-AF1F-3B6D02A4AE95}</ProjectGuid>
+    <ProjectGuid>{8713DCC9-E21C-485A-99E5-B8D1E5AD91B6}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>Box</RootNamespace>
+    <RootNamespace>LitColumns</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <ProjectName>Box</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -53,6 +54,8 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -86,8 +89,6 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../Common/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <SDLCheck>false</SDLCheck>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -116,8 +117,6 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../Common/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <SDLCheck>false</SDLCheck>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -131,7 +130,7 @@
       <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <Optimization>MaxSpeed</Optimization>
+      <Optimization>Disabled</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -146,16 +145,23 @@
   <ItemGroup>
     <ClCompile Include="..\Common\d3dApp.cpp" />
     <ClCompile Include="..\Common\d3dUtil.cpp" />
+    <ClCompile Include="..\Common\DDSTextureLoader.cpp" />
     <ClCompile Include="..\Common\GameTimer.cpp" />
+    <ClCompile Include="..\Common\GeometryGenerator.cpp" />
     <ClCompile Include="..\Common\MathHelper.cpp" />
-    <ClCompile Include="BoxApp.cpp" />
+    <ClCompile Include="FrameResource.cpp" />
+    <ClCompile Include="Box.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Common\d3dApp.h" />
-    <ClInclude Include="..\Common\d3dUtil.h" />
-    <ClInclude Include="..\Common\GameTimer.h" />
-    <ClInclude Include="..\Common\MathHelper.h" />
-    <ClInclude Include="..\Common\UploadBuffer.h" />
+    <ClInclude Include="..\..\Common\d3dApp.h" />
+    <ClInclude Include="..\..\Common\d3dUtil.h" />
+    <ClInclude Include="..\..\Common\d3dx12.h" />
+    <ClInclude Include="..\..\Common\DDSTextureLoader.h" />
+    <ClInclude Include="..\..\Common\GameTimer.h" />
+    <ClInclude Include="..\..\Common\GeometryGenerator.h" />
+    <ClInclude Include="..\..\Common\MathHelper.h" />
+    <ClInclude Include="..\..\Common\UploadBuffer.h" />
+    <ClInclude Include="FrameResource.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

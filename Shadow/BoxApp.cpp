@@ -492,7 +492,7 @@ void BoxApp::LoadTextures()
 {
 	auto planeTex = std::make_unique<Texture>();
 	planeTex->Name = "planeTex";
-	planeTex->Filename = L"plane.dds";
+	planeTex->Filename = L"grass.dds";
 	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
 		mCommandList.Get(), planeTex->Filename.c_str(),
 		planeTex->Resource, planeTex->UploadHeap));

@@ -1113,157 +1113,53 @@ CHeightMapTerrain::~CHeightMapTerrain(void)
 	if (m_pHeightMapImage) delete m_pHeightMapImage;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-CSkyBox::CSkyBox(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature) : CGameObject(1)
+CWater::CWater(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, ID3D12RootSignature * pd3dGraphicsRootSignature, int nWidth, int nLength, XMFLOAT3 xmfPosition)
 {
-	CSkyBoxMesh *pSkyBoxMesh = new CSkyBoxMesh(pd3dDevice, pd3dCommandList, 20.0f, 20.0f, 2.0f);
-	SetMesh(pSkyBoxMesh);
+	m_nWidth = nWidth;
+	m_nLength = nLength;
+	m_nMaterials = 2;
+	m_ppMaterials = new CMaterial*[m_nMaterials];
+	for (int i = 0; i < m_nMaterials; i++)
+		m_ppMaterials[i] = NULL;
 
-	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	CWaterMesh *pMesh = new CWaterMesh(pd3dDevice, pd3dCommandList, nWidth, nLength);
+	SetMesh(pMesh);
 
-	CTexture *pSkyBoxTexture = new CTexture(1, RESOURCE_TEXTURE_CUBE, 0);
-	pSkyBoxTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"SkyBox/SkyBox_0.dds", 0);
-//	pSkyBoxTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"SkyBox/SkyBox_1.dds", 0);
+	CTexture *pWaterTex = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	pWaterTex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/waternormal.tiff", 0, false);
+	
+	CWaterShader *pShader = new CWaterShader();
+	pShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	pShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
-	CSkyBoxShader *pSkyBoxShader = new CSkyBoxShader();
-	pSkyBoxShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	pSkyBoxShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	//SetShader(pShader);
 
-	CScene::CreateShaderResourceViews(pd3dDevice, pSkyBoxTexture, 10, false);
+	CMaterial *pMaterial = new CMaterial(1);
+	pMaterial->m_xmf4AlbedoColor = XMFLOAT4(1, 1, 1, 1);
+	pMaterial->SetTexture(pWaterTex, 0);
+	pMaterial->SetMaterialType(MATERIAL_NORMAL_MAP);
+	pMaterial->SetShader(pShader);
 
-	CMaterial *pSkyBoxMaterial = new CMaterial(1);
-	pSkyBoxMaterial->SetTexture(pSkyBoxTexture);
-	pSkyBoxMaterial->SetShader(pSkyBoxShader);
+	SetMaterial(0, pMaterial);
+	CScene::CreateShaderResourceViews(pd3dDevice, pWaterTex, 8, false);
 
-	SetMaterial(0, pSkyBoxMaterial);
+	pWaterTex = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	pWaterTex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/blue.tiff", 0, false);
+	
+	pMaterial = new CMaterial(1);
+	pMaterial->m_xmf4AlbedoColor = XMFLOAT4(1, 1, 1, 1);
+	pMaterial->SetTexture(pWaterTex, 0);
+	pMaterial->SetMaterialType(MATERIAL_ALBEDO_MAP);
+	pMaterial->SetShader(pShader);
+
+
+	SetMaterial(1, pMaterial);
+	CScene::CreateShaderResourceViews(pd3dDevice, pWaterTex, 9, false);
+
+
+	SetPosition(xmfPosition);
 }
 
-CSkyBox::~CSkyBox()
+CWater::~CWater()
 {
 }
-
-void CSkyBox::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
-{
-	XMFLOAT3 xmf3CameraPos = pCamera->GetPosition();
-	SetPosition(xmf3CameraPos.x, xmf3CameraPos.y, xmf3CameraPos.z);
-
-	CGameObject::Render(pd3dCommandList, pCamera);
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-CSuperCobraObject::CSuperCobraObject(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
-{
-}
-
-CSuperCobraObject::~CSuperCobraObject()
-{
-}
-
-void CSuperCobraObject::OnPrepareAnimate()
-{
-	m_pMainRotorFrame = FindFrame("MainRotor");
-	m_pTailRotorFrame = FindFrame("TailRotor");
-}
-
-void CSuperCobraObject::Animate(float fTimeElapsed)
-{
-	if (m_pMainRotorFrame)
-	{
-		XMMATRIX xmmtxRotate = XMMatrixRotationY(XMConvertToRadians(360.0f * 4.0f) * fTimeElapsed);
-		m_pMainRotorFrame->m_xmf4x4ToParent = Matrix4x4::Multiply(xmmtxRotate, m_pMainRotorFrame->m_xmf4x4ToParent);
-	}
-	if (m_pTailRotorFrame)
-	{
-		XMMATRIX xmmtxRotate = XMMatrixRotationX(XMConvertToRadians(360.0f * 4.0f) * fTimeElapsed);
-		m_pTailRotorFrame->m_xmf4x4ToParent = Matrix4x4::Multiply(xmmtxRotate, m_pTailRotorFrame->m_xmf4x4ToParent);
-	}
-
-	CGameObject::Animate(fTimeElapsed);
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-CGunshipObject::CGunshipObject(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
-{
-}
-
-CGunshipObject::~CGunshipObject()
-{
-}
-
-void CGunshipObject::OnPrepareAnimate()
-{
-	m_pMainRotorFrame = FindFrame("Rotor");
-	m_pTailRotorFrame = FindFrame("Back_Rotor");
-}
-
-void CGunshipObject::Animate(float fTimeElapsed)
-{
-	if (m_pMainRotorFrame)
-	{
-		XMMATRIX xmmtxRotate = XMMatrixRotationY(XMConvertToRadians(360.0f * 2.0f) * fTimeElapsed);
-		m_pMainRotorFrame->m_xmf4x4ToParent = Matrix4x4::Multiply(xmmtxRotate, m_pMainRotorFrame->m_xmf4x4ToParent);
-	}
-	if (m_pTailRotorFrame)
-	{
-		XMMATRIX xmmtxRotate = XMMatrixRotationX(XMConvertToRadians(360.0f * 4.0f) * fTimeElapsed);
-		m_pTailRotorFrame->m_xmf4x4ToParent = Matrix4x4::Multiply(xmmtxRotate, m_pTailRotorFrame->m_xmf4x4ToParent);
-	}
-
-	CGameObject::Animate(fTimeElapsed);
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-CMi24Object::CMi24Object(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
-{
-}
-
-CMi24Object::~CMi24Object()
-{
-}
-
-void CMi24Object::OnPrepareAnimate()
-{
-	m_pMainRotorFrame = FindFrame("Top_Rotor");
-	m_pTailRotorFrame = FindFrame("Tail_Rotor");
-}
-
-void CMi24Object::Animate(float fTimeElapsed)
-{
-	if (m_pMainRotorFrame)
-	{
-		XMMATRIX xmmtxRotate = XMMatrixRotationY(XMConvertToRadians(360.0f * 2.0f) * fTimeElapsed);
-		m_pMainRotorFrame->m_xmf4x4ToParent = Matrix4x4::Multiply(xmmtxRotate, m_pMainRotorFrame->m_xmf4x4ToParent);
-	}
-	if (m_pTailRotorFrame)
-	{
-		XMMATRIX xmmtxRotate = XMMatrixRotationX(XMConvertToRadians(360.0f * 4.0f) * fTimeElapsed);
-		m_pTailRotorFrame->m_xmf4x4ToParent = Matrix4x4::Multiply(xmmtxRotate, m_pTailRotorFrame->m_xmf4x4ToParent);
-	}
-
-	CGameObject::Animate(fTimeElapsed);
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-CAngrybotObject::CAngrybotObject(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
-{
-}
-
-CAngrybotObject::~CAngrybotObject()
-{
-}
-
-void CAngrybotObject::OnPrepareAnimate()
-{
-}
-
-void CAngrybotObject::Animate(float fTimeElapsed)
-{
-	CGameObject::Animate(fTimeElapsed);
-}
-
-

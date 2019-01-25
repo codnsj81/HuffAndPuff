@@ -199,6 +199,49 @@ float4 PSTerrain(VS_TERRAIN_OUTPUT input) : SV_TARGET
 	return(cColor);
 }
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+
+struct VS_WATER_INPUT
+{
+	float3 position : POSITION;
+	float4 color : COLOR;
+	float2 uv0 : TEXCOORD0;
+	float2 uv1 : TEXCOORD1;
+	//float3 normal : NORMAL;
+};
+
+struct VS_WATER_OUTPUT
+{
+	float4 position : SV_POSITION;
+	float4 color : COLOR;
+	float2 uv0 : TEXCOORD0;
+	float2 uv1 : TEXCOORD1;
+	//float3 normal : NORMAL;
+};
+
+VS_WATER_OUTPUT VSWater(VS_WATER_INPUT input)
+{
+	VS_WATER_OUTPUT output;
+
+	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
+	output.color = float4(0.2f, 1.f, 1.f, 0.4f);
+	output.uv0 = input.uv0;
+	output.uv1 = input.uv1;
+	//output.normal = input.normal;
+
+	return(output);
+}
+
+float4 PSWater(VS_WATER_OUTPUT input) : SV_TARGET
+{
+	float4 cColor = float4(0.2f,1.f,1.f,0.4f);
+	return(cColor);
+}
+
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 struct VS_SKYBOX_CUBEMAP_INPUT

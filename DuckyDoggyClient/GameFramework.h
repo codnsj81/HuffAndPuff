@@ -21,7 +21,7 @@ public:
 	void CreateCommandQueueAndList();
 
 	void CreateRtvAndDsvDescriptorHeaps();
-
+	
 	void CreateRenderTargetViews();
 	void CreateDepthStencilView();
 
@@ -29,6 +29,7 @@ public:
 
     void BuildObjects();
     void ReleaseObjects();
+	void CheckInWater();
 
     void ProcessInput();
     void AnimateObjects();

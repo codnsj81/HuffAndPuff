@@ -5,6 +5,30 @@
 #pragma once
 
 class CGameObject;
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+class CVertex
+{
+public:
+	XMFLOAT3						m_xmf3Position;
+
+public:
+	CVertex() { m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f); }
+	CVertex(XMFLOAT3 xmf3Position) { m_xmf3Position = xmf3Position; }
+	~CVertex() { }
+};
+
+class CDiffusedVertex : public CVertex
+{
+public:
+	XMFLOAT4						m_xmf4Diffuse;
+
+public:
+	CDiffusedVertex() { m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f); m_xmf4Diffuse = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f); }
+	CDiffusedVertex(float x, float y, float z, XMFLOAT4 xmf4Diffuse) { m_xmf3Position = XMFLOAT3(x, y, z); m_xmf4Diffuse = xmf4Diffuse; }
+	CDiffusedVertex(XMFLOAT3 xmf3Position, XMFLOAT4 xmf4Diffuse = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f)) { m_xmf3Position = xmf3Position; m_xmf4Diffuse = xmf4Diffuse; }
+	~CDiffusedVertex() { }
+};
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -29,6 +53,7 @@ class CGameObject;
 class CMesh
 {
 public:
+	CMesh();
 	CMesh(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	virtual ~CMesh();
 
@@ -82,6 +107,7 @@ public:
 	virtual void OnPostRender(ID3D12GraphicsCommandList *pd3dCommandList, void *pContext);
 };
 
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 class CHeightMapImage
@@ -131,7 +157,7 @@ protected:
 	D3D12_VERTEX_BUFFER_VIEW		m_d3dTextureCoord1BufferView;
 
 public:
-	CHeightMapGridMesh(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int xStart, int zStart, int nWidth, int nLength, XMFLOAT3 xmf3Scale = XMFLOAT3(1.0f, 1.0f, 1.0f), XMFLOAT4 xmf4Color = XMFLOAT4(1.0f, 1.0f, 0.0f, 0.0f), void *pContext = NULL);
+	CHeightMapGridMesh(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int xStart, int zStart, int nWidth, int nLength, XMFLOAT3 xmf3Scale = XMFLOAT3(1.0f, 1.0f, 1.0f), XMFLOAT4 xmf4Color = XMFLOAT4(0.0f, 1.0f, 0.0f, 0.0f), void *pContext = NULL);
 	virtual ~CHeightMapGridMesh();
 
 	XMFLOAT3 GetScale() { return(m_xmf3Scale); }
@@ -160,6 +186,7 @@ public:
 class CStandardMesh : public CMesh
 {
 public:
+	CStandardMesh();
 	CStandardMesh(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	virtual ~CStandardMesh();
 
@@ -249,4 +276,43 @@ public:
 	virtual void ReleaseUploadBuffers();
 
 	virtual void OnPreRender(ID3D12GraphicsCommandList *pd3dCommandList, void *pContext);
+};
+
+
+////////////////////////////////////////////////////////////////////////////////////////
+class CWaterMesh : public CMesh
+{
+public:
+	CWaterMesh(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nWidth = 5.f, int nLength = 5.f);
+	virtual ~CWaterMesh();
+	virtual void OnPreRender(ID3D12GraphicsCommandList *pd3dCommandList, void *pContext);
+
+	virtual void ReleaseUploadBuffers();
+
+protected:
+	int								m_nWidth;
+	int								m_nLength;
+	UINT							m_nStride = 0;
+	UINT							m_nOffset = 0;
+
+	UINT							m_nIndices = 0;
+	UINT							m_nStartIndex = 0;
+	int								m_nBaseVertex = 0;
+
+	XMFLOAT4						*m_pxmf4Colors = NULL;
+	XMFLOAT2						*m_pxmf2TextureCoords0 = NULL;
+	XMFLOAT2						*m_pxmf2TextureCoords1 = NULL;
+
+	ID3D12Resource					*m_pd3dColorBuffer = NULL;
+	ID3D12Resource					*m_pd3dColorUploadBuffer = NULL;
+	D3D12_VERTEX_BUFFER_VIEW		m_d3dColorBufferView;
+
+	ID3D12Resource					*m_pd3dTextureCoord0Buffer = NULL;
+	ID3D12Resource					*m_pd3dTextureCoord0UploadBuffer = NULL;
+	D3D12_VERTEX_BUFFER_VIEW		m_d3dTextureCoord0BufferView;
+
+	ID3D12Resource					*m_pd3dTextureCoord1Buffer = NULL;
+	ID3D12Resource					*m_pd3dTextureCoord1UploadBuffer = NULL;
+	D3D12_VERTEX_BUFFER_VIEW		m_d3dTextureCoord1BufferView;
+
 };

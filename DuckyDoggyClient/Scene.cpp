@@ -65,17 +65,11 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 
 	m_ppShaders[0] = pObjectsShader;
 
-	CGameObject *pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/ducky.bin", NULL, false);
+	m_nWaters = 1;
+	m_ppWaters = new CWater*[m_nWaters];
+	m_ppWaters[0] = new CWater(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 70, 70, XMFLOAT3(402.f, m_pTerrain->GetHeight(402.f, 425.f) +5, 425.f));
 
-	m_nGameObjects = 1;
-	m_ppGameObjects = new CGameObject*[m_nGameObjects];
-
-	m_ppGameObjects[0] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
-	m_ppGameObjects[0]->SetChild(pAngrybotModel, true);
-	m_ppGameObjects[0]->SetPosition(400.0f, m_pTerrain->GetHeight(400.0f, 700.0f), 700.0f);
-	m_ppGameObjects[0]->SetScale(7.0f, 7.0f, 7.0f); 
-
-
+	m_nGameObjects = 0;
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 
@@ -102,6 +96,12 @@ void CScene::ReleaseObjects()
 	{
 		for (int i = 0; i < m_nGameObjects; i++) if (m_ppGameObjects[i]) m_ppGameObjects[i]->Release();
 		delete[] m_ppGameObjects;
+	}
+
+	if (m_ppWaters)
+	{
+		for (int i = 0; i < m_nWaters; i++) if (m_ppWaters[i]) m_ppWaters[i]->Release();
+		delete[] m_ppWaters;
 	}
 
 	ReleaseShaderVariables();
@@ -330,6 +330,7 @@ void CScene::ReleaseUploadBuffers()
 
 	for (int i = 0; i < m_nShaders; i++) m_ppShaders[i]->ReleaseUploadBuffers();
 	for (int i = 0; i < m_nGameObjects; i++) m_ppGameObjects[i]->ReleaseUploadBuffers();
+	for (int i = 0; i < m_nWaters; i++) m_ppWaters[i]->ReleaseUploadBuffers();
 }
 
 void CScene::CreateCbvSrvDescriptorHeaps(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nConstantBufferViews, int nShaderResourceViews)

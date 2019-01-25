@@ -62,6 +62,7 @@ public:
     void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera=NULL);
 
 	void ReleaseUploadBuffers();
+	CWater** GetWaters() { return m_ppWaters; }
 
 	CPlayer								*m_pPlayer = NULL;
 
@@ -99,12 +100,15 @@ public:
 	int									m_nGameObjects = 0;
 	CGameObject							**m_ppGameObjects = NULL;
 
+	int									m_nWaters = 0;
+	CWater								**m_ppWaters = NULL;
+
+
 	float								m_fElapsedTime = 0.0f;
 
 	int									m_nShaders = 0;
 	CShader								**m_ppShaders = NULL;
 
-	CSkyBox								*m_pSkyBox = NULL;
 	CHeightMapTerrain					*m_pTerrain = NULL;
 
 	LIGHT								*m_pLights = NULL;

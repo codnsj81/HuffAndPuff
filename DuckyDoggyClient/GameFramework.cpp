@@ -34,7 +34,7 @@ CGameFramework::CGameFramework()
 	m_pScene = NULL;
 	m_pPlayer = NULL;
 
-	_tcscpy_s(m_pszFrameRate, _T("LabProject ("));
+	_tcscpy_s(m_pszFrameRate, _T("DuckyDoggy ("));
 }
 
 CGameFramework::~CGameFramework()
@@ -421,12 +421,13 @@ void CGameFramework::BuildObjects()
 	m_pScene = new CScene();
 	if (m_pScene) m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
 
+
 	m_pDoggy = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(),"Model/doggy.bin", m_pScene->m_pTerrain );
-	m_pDoggy->SetPosition(XMFLOAT3(350.0f, m_pScene->m_pTerrain->GetHeight(350.0f, 680.0f), 680.0f));
+	m_pDoggy->SetPosition(XMFLOAT3(341.0f, m_pScene->m_pTerrain->GetHeight(341.0f, 292.0f), 292.0f));
 	//m_pDoggy->SetScale(XMFLOAT3(7.0f, 7.0f, 7.0f));
 
 	m_pDucky = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), "Model/ducky.bin", m_pScene->m_pTerrain);
-	m_pDucky->SetPosition(XMFLOAT3(380.0f, m_pScene->m_pTerrain->GetHeight(380.0f, 680.0f), 680.0f));
+	m_pDucky->SetPosition(XMFLOAT3(341.0f, m_pScene->m_pTerrain->GetHeight(341.0f, 310.0f), 310.0f));
 	//m_pDucky->SetScale(XMFLOAT3(7.0f, 7.0f, 7.0f));
 
 	m_pDucky->SetParter(m_pDoggy);
@@ -440,6 +441,12 @@ void CGameFramework::BuildObjects()
 	m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
 
 	WaitForGpuComplete();
+
+	m_pDoggy->SetWaters(m_pScene->GetWaters());
+	m_pDucky->SetWaters(m_pScene->GetWaters());
+	m_pDoggy->SetnWaters(1);
+	m_pDucky->SetnWaters(1);
+
 
 	if (m_pScene) m_pScene->ReleaseUploadBuffers();
 	if (m_pDoggy) m_pDoggy->ReleaseUploadBuffers();
@@ -456,6 +463,7 @@ void CGameFramework::ReleaseObjects()
 	if (m_pScene) m_pScene->ReleaseObjects();
 	if (m_pScene) delete m_pScene;
 }
+
 
 void CGameFramework::ProcessInput()
 {
@@ -573,6 +581,14 @@ void CGameFramework::FrameAdvance()
 	if (m_pDucky) m_pDucky->Render(m_pd3dCommandList, m_pCamera);
 	if (m_pDoggy) m_pDoggy->Render(m_pd3dCommandList, m_pCamera);
 
+	CWater** m_ppWaters = m_pScene->GetWaters();
+	for (int i = 0; i < 1; i++)
+	{
+		if (m_ppWaters[i])
+		{
+			m_ppWaters[i]->Render(m_pd3dCommandList, m_pCamera);
+		}
+	}
 	d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
 	d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
 	d3dResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;

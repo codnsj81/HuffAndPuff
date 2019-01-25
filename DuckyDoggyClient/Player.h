@@ -43,11 +43,15 @@ protected:
 
 	CPlayer*					m_pParter = NULL;
 	CCamera						*m_pCamera = NULL;
+	bool						m_bInWater = false;
 
 	int							m_PiggybackState = PIGGYBACK_NONE;
 	int							m_moveState = STATE_GROUND;
 	float						m_fTime = 0.f;
+	float						m_fPreHeight = 0;
 
+	CWater						**m_ppWaters;
+	int							m_nWater;
 public:
 	CPlayer();
 	virtual ~CPlayer();
@@ -75,6 +79,9 @@ public:
 
 	CCamera *GetCamera() { return(m_pCamera); }
 	void SetCamera(CCamera *pCamera) { m_pCamera = pCamera; }
+
+	void SetWaters(CWater** waters) { m_ppWaters = waters; }
+	void SetnWaters(int n) { m_nWater = n; }
 
 	void Move(ULONG nDirection, float fDistance, bool bVelocity = false);
 	void Move(const XMFLOAT3& xmf3Shift, bool bVelocity = false);

@@ -30,6 +30,8 @@ CPlayer::CPlayer()
 
 	m_pPlayerUpdatedContext = NULL;
 	m_pCameraUpdatedContext = NULL;
+
+
 }
 
 CPlayer::~CPlayer()
@@ -92,14 +94,18 @@ void CPlayer::GivePiggyBack()
 
 void CPlayer::Move(const XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 {
+	
+
 	if (bUpdateVelocity)
 	{
 		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, xmf3Shift);
 	}
 	else
 	{
+		
 		m_xmf3Position = Vector3::Add(m_xmf3Position, xmf3Shift);
 		m_pCamera->Move(xmf3Shift);
+
 	}
 }
 
@@ -199,7 +205,6 @@ void CPlayer::Update(float fTimeElapsed)
 
 		XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed, false);
 
-
 		Move(xmf3Velocity, false);
 
 		if (m_pPlayerUpdatedContext) OnPlayerUpdateCallback(fTimeElapsed);
@@ -208,7 +213,7 @@ void CPlayer::Update(float fTimeElapsed)
 		float fDeceleration = (m_fFriction * fTimeElapsed);
 		if (fDeceleration > fLength) fDeceleration = fLength;
 		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Velocity, -fDeceleration, true));
-
+		
 	}
 	DWORD nCurrentCameraMode = m_pCamera->GetMode();
 	if (nCurrentCameraMode == THIRD_PERSON_CAMERA) m_pCamera->Update(m_xmf3Position, fTimeElapsed);
@@ -474,11 +479,13 @@ void CTerrainPlayer::OnPlayerUpdateCallback(float fTimeElapsed)
 	int z = (int)(xmf3PlayerPosition.z / xmf3Scale.z);
 	bool bReverseQuad = ((z % 2) != 0);
 	float fHeight = pTerrain->GetHeight(xmf3PlayerPosition.x, xmf3PlayerPosition.z, bReverseQuad) + 0.0f;
+	
 	if (xmf3PlayerPosition.y < fHeight)
 	{
 		m_fTime = 0;
 		if (m_moveState != STATE_GROUND)
 			m_moveState = STATE_GROUND;
+
 		XMFLOAT3 xmf3PlayerVelocity = GetVelocity();
 		xmf3PlayerVelocity.y = 0.0f;
 
@@ -486,6 +493,38 @@ void CTerrainPlayer::OnPlayerUpdateCallback(float fTimeElapsed)
 		xmf3PlayerPosition.y = fHeight;
 		SetPosition(xmf3PlayerPosition);
 	}
+
+	if (m_moveState == STATE_GROUND || m_PiggybackState != PIGGYBACK_CRRIED)
+	{
+		for (int i = 0; i < m_nWater; i++)
+		{
+			XMFLOAT3 waterspos = m_ppWaters[i]->GetPosition();
+			int halfwidth = m_ppWaters[i]->m_nWidth / 2;
+			int halflength = m_ppWaters[i]->m_nLength / 2;
+
+			float x = m_xmf3Position.x;
+			float y = m_xmf3Position.y;
+
+			if ((x < waterspos.x + halfwidth) && (x > waterspos.x - halfwidth) &&
+				(y < waterspos.y + halflength) && (y > waterspos.y - halflength))
+			{
+				float waterheight = m_ppWaters[i]->GetPosition().y;
+				float terrainheihgt = pTerrain->GetHeight(xmf3PlayerPosition.x, xmf3PlayerPosition.z, bReverseQuad) + 0.0f;
+				if ((waterheight - terrainheihgt) > 3)
+				{
+					m_xmf3Position.y = waterheight - 3;
+					m_bInWater = true;
+				}
+				else
+					m_bInWater = false;
+			}
+
+		}
+
+	}
+
+	m_fPreHeight = fHeight;
+
 }
 
 void CTerrainPlayer::OnCameraUpdateCallback(float fTimeElapsed)
@@ -495,7 +534,12 @@ void CTerrainPlayer::OnCameraUpdateCallback(float fTimeElapsed)
 	XMFLOAT3 xmf3CameraPosition = m_pCamera->GetPosition();
 	int z = (int)(xmf3CameraPosition.z / xmf3Scale.z);
 	bool bReverseQuad = ((z % 2) != 0);
-	float fHeight = pTerrain->GetHeight(xmf3CameraPosition.x, xmf3CameraPosition.z, bReverseQuad) + 5.0f;
+
+	float fHeight;
+	if(m_bInWater)
+		fHeight = m_xmf3Position.y + 10.0f;
+	else
+		fHeight = pTerrain->GetHeight(xmf3CameraPosition.x, xmf3CameraPosition.z, bReverseQuad) + 5.0f;
 	if (xmf3CameraPosition.y <= fHeight)
 	{
 		xmf3CameraPosition.y = fHeight;

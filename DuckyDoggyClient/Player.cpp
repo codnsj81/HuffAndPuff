@@ -96,14 +96,27 @@ void CPlayer::Move(const XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 {
 	
 
+
 	if (bUpdateVelocity)
 	{
 		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, xmf3Shift);
 	}
 	else
 	{
-		
-		m_xmf3Position = Vector3::Add(m_xmf3Position, xmf3Shift);
+		CHeightMapTerrain *pTerrain = (CHeightMapTerrain *)m_pPlayerUpdatedContext;
+		if (pTerrain && m_fPreHeight != 0)
+		{
+			XMFLOAT3 xmf3Scale = pTerrain->GetScale();
+			XMFLOAT3 pos = Vector3::Add(m_xmf3Position, xmf3Shift);
+			int z = (int)(pos.z / xmf3Scale.z);
+			bool bReverseQuad = ((z % 2) != 0);
+			float fHeight = pTerrain->GetHeight(pos.x, pos.z, bReverseQuad) + 0.0f;
+
+			if (fHeight - m_fPreHeight < 0.3f)
+				m_xmf3Position = Vector3::Add(m_xmf3Position, xmf3Shift);
+		}
+		else
+			m_xmf3Position = Vector3::Add(m_xmf3Position, xmf3Shift);
 		m_pCamera->Move(xmf3Shift);
 
 	}

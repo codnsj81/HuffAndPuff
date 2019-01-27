@@ -423,7 +423,7 @@ void CGameFramework::BuildObjects()
 
 
 	m_pDoggy = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(),"Model/doggy.bin", m_pScene->m_pTerrain );
-	m_pDoggy->SetPosition(XMFLOAT3(341.0f, m_pScene->m_pTerrain->GetHeight(341.0f, 292.0f), 292.0f));
+	m_pDoggy->SetPosition(XMFLOAT3(863.0f, m_pScene->m_pTerrain->GetHeight(863.0f, 326.0f), 326.0f));
 	//m_pDoggy->SetScale(XMFLOAT3(7.0f, 7.0f, 7.0f));
 
 	m_pDucky = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), "Model/ducky.bin", m_pScene->m_pTerrain);

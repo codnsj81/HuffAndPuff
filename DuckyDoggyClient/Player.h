@@ -15,12 +15,14 @@
 #define PIGGYBACK_CARRY	1
 #define PIGGYBACK_CRRIED 2
 
+
 #include "Object.h"
 #include "Camera.h"
 
 class CPlayer : public CGameObject
 {
 protected:
+	
 	XMFLOAT3					m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	XMFLOAT3					m_xmf3Right = XMFLOAT3(1.0f, 0.0f, 0.0f);
 	XMFLOAT3					m_xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f);
@@ -52,6 +54,8 @@ protected:
 
 	CWater						**m_ppWaters;
 	int							m_nWater;
+	int							m_playerKind;
+
 public:
 	CPlayer();
 	virtual ~CPlayer();
@@ -82,6 +86,8 @@ public:
 
 	void SetWaters(CWater** waters) { m_ppWaters = waters; }
 	void SetnWaters(int n) { m_nWater = n; }
+
+	bool CheckInWater(XMFLOAT3 pos, CHeightMapTerrain *pTerrain);
 
 	void Move(ULONG nDirection, float fDistance, bool bVelocity = false);
 	void Move(const XMFLOAT3& xmf3Shift, bool bVelocity = false);
@@ -129,7 +135,7 @@ public:
 class CTerrainPlayer : public CPlayer
 {
 public:
-	CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, char* name, void* pContext=NULL);
+	CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, char* name, int kind, void* pContext=NULL);
 	virtual ~CTerrainPlayer();
 
 public:

@@ -23,6 +23,9 @@
 #include <fstream>
 #include <vector>
 
+#define PLAYER_KIND_DUCKY	0
+#define	PLAYER_KIND_DOGGY	1
+
 using namespace std;
 
 #include <d3d12.h>

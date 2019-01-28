@@ -92,10 +92,34 @@ void CPlayer::GivePiggyBack()
 	}
 }
 
+bool CPlayer::CheckInWater(XMFLOAT3 pos, CHeightMapTerrain *pTerrain)
+{
+	for (int i = 0; i < m_nWater; i++)
+	{
+		XMFLOAT3 waterspos = m_ppWaters[i]->GetPosition();
+		int halfwidth = m_ppWaters[i]->m_nWidth / 2;
+		int halflength = m_ppWaters[i]->m_nLength / 2;
+
+		float x = pos.x;
+		float y = pos.y;
+
+		if ((x < waterspos.x + halfwidth) && (x > waterspos.x - halfwidth) &&
+			(y < waterspos.y + halflength) && (y > waterspos.y - halflength))
+		{
+			float waterheight = m_ppWaters[i]->GetPosition().y;
+			float terrainheihgt = pTerrain->GetHeight(pos.x, pos.z, true) + 0.0f;
+			if ((waterheight - terrainheihgt) > 3)
+			{
+				m_xmf3Position.y = waterheight - 3;
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
 void CPlayer::Move(const XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 {
-	
-
 
 	if (bUpdateVelocity)
 	{
@@ -112,8 +136,13 @@ void CPlayer::Move(const XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 			bool bReverseQuad = ((z % 2) != 0);
 			float fHeight = pTerrain->GetHeight(pos.x, pos.z, bReverseQuad) + 0.0f;
 
-			if (fHeight - m_fPreHeight < 0.3f)
+			if (m_playerKind == PLAYER_KIND_DOGGY && CheckInWater(pos,pTerrain))
+				return;
+
+			else if (fHeight - m_fPreHeight < 0.3f)
+			{
 				m_xmf3Position = Vector3::Add(m_xmf3Position, xmf3Shift);
+			}
 		}
 		else
 			m_xmf3Position = Vector3::Add(m_xmf3Position, xmf3Shift);
@@ -416,8 +445,9 @@ CCamera *CAirplanePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 
-CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, char* name, void *pContext)
+CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, char* name, int kind, void *pContext)
 {
+	m_playerKind = kind;
 	m_pCamera = ChangeCamera(THIRD_PERSON_CAMERA, 0.0f);
 
 	CGameObject *pGameObject = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, name, NULL, false);
@@ -509,33 +539,8 @@ void CTerrainPlayer::OnPlayerUpdateCallback(float fTimeElapsed)
 
 	if (m_moveState == STATE_GROUND || m_PiggybackState != PIGGYBACK_CRRIED)
 	{
-		for (int i = 0; i < m_nWater; i++)
-		{
-			XMFLOAT3 waterspos = m_ppWaters[i]->GetPosition();
-			int halfwidth = m_ppWaters[i]->m_nWidth / 2;
-			int halflength = m_ppWaters[i]->m_nLength / 2;
-
-			float x = m_xmf3Position.x;
-			float y = m_xmf3Position.y;
-
-			if ((x < waterspos.x + halfwidth) && (x > waterspos.x - halfwidth) &&
-				(y < waterspos.y + halflength) && (y > waterspos.y - halflength))
-			{
-				float waterheight = m_ppWaters[i]->GetPosition().y;
-				float terrainheihgt = pTerrain->GetHeight(xmf3PlayerPosition.x, xmf3PlayerPosition.z, bReverseQuad) + 0.0f;
-				if ((waterheight - terrainheihgt) > 3)
-				{
-					m_xmf3Position.y = waterheight - 3;
-					m_bInWater = true;
-				}
-				else
-					m_bInWater = false;
-			}
-
-		}
-
+		m_bInWater = CheckInWater(xmf3PlayerPosition, pTerrain);
 	}
-
 	m_fPreHeight = fHeight;
 
 }

@@ -67,7 +67,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 
 	m_nWaters = 1;
 	m_ppWaters = new CWater*[m_nWaters];
-	m_ppWaters[0] = new CWater(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 500, 500, XMFLOAT3(502.f, m_pTerrain->GetHeight(502.f, 425.f) +5, 478.f));
+	m_ppWaters[0] = new CWater(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 500, 500, XMFLOAT3(504.f, m_pTerrain->GetHeight(504.f, 459.f) +5, 359.f));
 
 	m_nGameObjects = 0;
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);

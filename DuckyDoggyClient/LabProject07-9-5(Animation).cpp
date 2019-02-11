@@ -4,19 +4,32 @@
 #include "stdafx.h"
 #include "LabProject07-9-5(Animation).h"
 #include "GameFramework.h"
+#include "../Headers/Function.h"
+#include <comdef.h>
 
 #define MAX_LOADSTRING 100
+
 
 HINSTANCE						ghAppInstance;
 TCHAR							szTitle[MAX_LOADSTRING];
 TCHAR							szWindowClass[MAX_LOADSTRING];
-
 CGameFramework					gGameFramework;
+
+// 서버와 통신
+SOCKET g_sock;
+char buf[BUFSIZE];	// 데이터 버퍼
+HANDLE hThread;
+HWND		g_hWnd;
+wchar_t		g_ipbuf[50];		// ip 입력 받는 버퍼
 
 ATOM MyRegisterClass(HINSTANCE hInstance);
 BOOL InitInstance(HINSTANCE, int);
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK About(HWND, UINT, WPARAM, LPARAM);
+int InitializeNetwork();
+void CloseNetwork();
+static DWORD WINAPI RecvThread(LPVOID arg);
+
 
 int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
 {
@@ -69,7 +82,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 	wcex.hIcon = ::LoadIcon(hInstance, MAKEINTRESOURCE(IDI_LABPROJECT0795ANIMATION));
 	wcex.hCursor = ::LoadCursor(NULL, IDC_ARROW);
 	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-	wcex.lpszMenuName = NULL;//MAKEINTRESOURCE(IDC_LABPROJECT0795ANIMATION);
+	wcex.lpszMenuName = MAKEINTRESOURCE(IDR_MENU1);//NULL;//MAKEINTRESOURCE(IDC_LABPROJECT0795ANIMATION);
 	wcex.lpszClassName = szWindowClass;
 	wcex.hIconSm = ::LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 
@@ -86,6 +99,9 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	HWND hMainWnd = CreateWindow(szWindowClass, szTitle, dwStyle, CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, NULL, NULL, hInstance, NULL);
 
 	if (!hMainWnd) return(FALSE);
+
+	// 생성한 hWnd를 글로벌 변수 g_hWnd에 넣어 준다. (0211)
+	g_hWnd = hMainWnd;
 
 	gGameFramework.OnCreate(hInstance, hMainWnd);
 
@@ -121,6 +137,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case IDM_ABOUT:
 			::DialogBox(ghAppInstance, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
 			break;
+		// menu 추가 (0211)
+		case ID_NETWORK_ACCESS_DEFAULT:
+		{
+			// 네트워크 접속, 접속 ip는 default 값
+			char p[128] = "127.0.0.1";
+			wcscpy(g_ipbuf, L"127.0.0.1");
+			InitializeNetwork();
+		}
+		break;
+		case ID_NETWORK_ACCESS_USER:
+		{
+			// 네트워크 접속, ip 입력 받음 -> 우선 X
+			// InitializeNetwork();
+		}
+		break;
 		case IDM_EXIT:
 			::DestroyWindow(hWnd);
 			break;
@@ -133,6 +164,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		EndPaint(hWnd, &ps);
 		break;
 	case WM_DESTROY:
+		CloseNetwork();
 		::PostQuitMessage(0);
 		break;
 	default:
@@ -157,4 +189,54 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 	}
 	return((INT_PTR)FALSE);
+}
+
+int InitializeNetwork()
+{
+	int retval;
+
+	// 윈속을 초기화 한다.
+	WSADATA wsa;
+	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
+		return 1;
+
+	// 소켓을 생성한다.
+	g_sock = socket(AF_INET, SOCK_STREAM, 0);
+	if (g_sock == INVALID_SOCKET) MessageBoxW(g_hWnd, L"socket()", MB_OK, MB_OK);
+
+	// recv 전용 스레드를 만든다.
+	hThread = CreateThread(NULL, 0, RecvThread, (LPVOID)g_sock, 0, NULL);
+	if (NULL == hThread)	CloseHandle(hThread);
+
+	// 서버와의 연결을 설정 한다. 
+	SOCKADDR_IN serveraddr;
+	ZeroMemory(&serveraddr, sizeof(serveraddr));
+	serveraddr.sin_family = AF_INET;
+	// convert wchar_t to char 
+	_bstr_t b(g_ipbuf);
+	serveraddr.sin_addr.s_addr = inet_addr(b);
+	serveraddr.sin_port = htons(SERVERPORT);
+	retval = connect(g_sock, (SOCKADDR*)&serveraddr, sizeof(serveraddr));
+
+	if (retval == SOCKET_ERROR)	MessageBoxW(g_hWnd, L"connect()", MB_OK, MB_OK);
+
+
+
+}
+
+void CloseNetwork()
+{
+	// closesocket()
+	closesocket(g_sock);
+
+	// 윈속 종료
+	WSACleanup();
+}
+
+DWORD __stdcall RecvThread(LPVOID arg)
+{
+	SOCKET client_sock = (SOCKET)arg;
+
+
+	return 0;
 }

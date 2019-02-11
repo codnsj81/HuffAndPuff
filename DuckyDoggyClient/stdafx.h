@@ -23,8 +23,12 @@
 #include <fstream>
 #include <vector>
 
+// DEFINE
 #define PLAYER_KIND_DUCKY	0
 #define	PLAYER_KIND_DOGGY	1
+
+#include "../Headers/Define.h"
+#include "../Headers/Include.h"
 
 using namespace std;
 

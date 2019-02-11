@@ -3,7 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.106
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LabProject07-9-5(Animation)", "LabProject07-9-5(Animation).vcxproj", "{156D8DA7-EA57-4221-93B3-516E1353E5FF}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DuckyDoggy", "LabProject07-9-5(Animation).vcxproj", "{156D8DA7-EA57-4221-93B3-516E1353E5FF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Headers", "Headers", "{F9696FFB-92FC-4422-9B37-2F8B3D768815}"
+	ProjectSection(SolutionItems) = preProject
+		..\Headers\Define.h = ..\Headers\Define.h
+		..\Headers\Extern.h = ..\Headers\Extern.h
+		..\Headers\Function.h = ..\Headers\Function.h
+		..\Headers\Include.h = ..\Headers\Include.h
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

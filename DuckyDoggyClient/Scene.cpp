@@ -68,8 +68,16 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	m_nWaters = 1;
 	m_ppWaters = new CWater*[m_nWaters];
 	m_ppWaters[0] = new CWater(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 500, 500, XMFLOAT3(504.f, m_pTerrain->GetHeight(504.f, 459.f) +5, 359.f));
+	
+	CGameObject *pStone = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Rock.bin", NULL, false);
 
-	m_nGameObjects = 0;
+	m_nGameObjects = 1;
+	m_ppGameObjects = new CGameObject*[m_nGameObjects];
+
+	m_ppGameObjects[0] = new CGameObject (1);
+	m_ppGameObjects[0]->SetChild(pStone, true);
+	m_ppGameObjects[0]->SetPosition(853.0f, m_pTerrain->GetHeight(853.0f, 326.0f) + 10 , 326.0f);
+	m_ppGameObjects[0]->SetScale(3.0f, 3.0f, 3.0f);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 

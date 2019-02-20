@@ -495,7 +495,11 @@ void CGameFramework::ProcessInput()
 			{
 					m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
 			}
-			if (dwDirection) m_pPlayer->Move(dwDirection, 3.25f, true);
+			if (dwDirection) {
+				m_pPlayer->Move(dwDirection, 3.25f, true);
+				// @ 0220
+
+			}
 		}
 	}
 	m_pDucky->Update(m_GameTimer.GetTimeElapsed());

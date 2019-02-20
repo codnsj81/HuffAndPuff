@@ -197,8 +197,10 @@ int InitializeNetwork()
 
 	// 윈속을 초기화 한다.
 	WSADATA wsa;
-	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
+	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
+		MessageBoxW(g_hWnd, L"Can not load 'winsock.dll' file", MB_OK, MB_OK);
 		return 1;
+	}
 
 	// 소켓을 생성한다.
 	g_sock = socket(AF_INET, SOCK_STREAM, 0);
@@ -208,17 +210,26 @@ int InitializeNetwork()
 	hThread = CreateThread(NULL, 0, RecvThread, (LPVOID)g_sock, 0, NULL);
 	if (NULL == hThread)	CloseHandle(hThread);
 
-	// 서버와의 연결을 설정 한다. 
+	// 서버 정보 객체를 설정 한다. 
 	SOCKADDR_IN serveraddr;
 	ZeroMemory(&serveraddr, sizeof(serveraddr));
 	serveraddr.sin_family = AF_INET;
-	// convert wchar_t to char 
+	/// convert wchar_t to char 
 	_bstr_t b(g_ipbuf);
+	///
 	serveraddr.sin_addr.s_addr = inet_addr(b);
-	serveraddr.sin_port = htons(SERVERPORT);
+	serveraddr.sin_port = htons(SERVERPORT); 
 	retval = connect(g_sock, (SOCKADDR*)&serveraddr, sizeof(serveraddr));
 
-	if (retval == SOCKET_ERROR)	MessageBoxW(g_hWnd, L"connect()", MB_OK, MB_OK);
+	if (retval == SOCKET_ERROR) {
+		// 소켓을 종료한다.
+		closesocket(g_sock);
+		// Winsock End
+		WSACleanup();
+		MessageBoxW(g_hWnd, L"connect()", MB_OK, MB_OK);
+	}
+	else
+		MessageBoxW(g_hWnd, L"Connected", L"알림", MB_OK);
 
 
 

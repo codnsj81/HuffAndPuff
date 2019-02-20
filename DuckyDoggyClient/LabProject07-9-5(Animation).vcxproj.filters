@@ -111,10 +111,10 @@
     <Image Include="LabProject07-9-5(Animation).ico">
       <Filter>리소스 파일</Filter>
     </Image>
-    <Image Include="Terrain\Base_Texture.dds">
+    <Image Include="Terrain\Detail_Texture_7.dds">
       <Filter>리소스 파일</Filter>
     </Image>
-    <Image Include="Terrain\Detail_Texture_7.dds">
+    <Image Include="Terrain\BASE2.dds">
       <Filter>리소스 파일</Filter>
     </Image>
   </ItemGroup>

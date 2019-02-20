@@ -189,7 +189,7 @@
   <ItemGroup>
     <Image Include="LabProject07-9-5(Animation).ico" />
     <Image Include="small.ico" />
-    <Image Include="Terrain\Base_Texture.dds" />
+    <Image Include="Terrain\BASE2.dds" />
     <Image Include="Terrain\Detail_Texture_7.dds" />
   </ItemGroup>
   <ItemGroup>

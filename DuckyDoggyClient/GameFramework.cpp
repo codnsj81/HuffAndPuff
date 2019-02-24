@@ -4,6 +4,7 @@
 
 #include "stdafx.h"
 #include "GameFramework.h"
+#include "../Headers/Include.h"
 
 CGameFramework::CGameFramework()
 {
@@ -421,11 +422,16 @@ void CGameFramework::BuildObjects()
 	m_pScene = new CScene();
 	if (m_pScene) m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
 
-
+	// 도기 생성
 	m_pDoggy = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(),"Model/doggy_walk.bin", PLAYER_KIND_DOGGY , true, m_pScene->m_pTerrain );
 	m_pDoggy->SetPosition(XMFLOAT3(505.0f, m_pScene->m_pTerrain->GetHeight(505.0f, 709.0f), 709.0f));
 	m_pDoggy->SetScale(XMFLOAT3(3.0f, 3.0f, 3.0f));
+	// @
+	g_myinfo.x = 505.0f;  g_myinfo.y = m_pScene->m_pTerrain->GetHeight(505.0f, 709.0f); g_myinfo.z = 709.0f;
 
+
+
+	// @ 더기 생성 나중에!!! 해야되는데
 	m_pDucky = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), "Model/ducky.bin", PLAYER_KIND_DUCKY, false, m_pScene->m_pTerrain);
 	m_pDucky->SetPosition(XMFLOAT3(873.0f, m_pScene->m_pTerrain->GetHeight(873.0f, 326.0f), 326.0f));
 	//m_pDucky->SetScale(XMFLOAT3(7.0f, 7.0f, 7.0f));
@@ -497,8 +503,7 @@ void CGameFramework::ProcessInput()
 			}
 			if (dwDirection) {
 				m_pPlayer->Move(dwDirection, 3.25f, true);
-				// @ 0220
-
+				// @ 
 			}
 		}
 	}

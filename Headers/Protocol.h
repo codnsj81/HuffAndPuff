@@ -54,10 +54,15 @@ struct packet_info {
 	WORD id;
 };
 
+enum player_type {
+	player_ducky, player_doggy
+};
 struct player_info{
+	bool connected = false;
 	float x;
 	float y;
 	float z;
+	player_type type;
 };
 
 #pragma pack (pop)

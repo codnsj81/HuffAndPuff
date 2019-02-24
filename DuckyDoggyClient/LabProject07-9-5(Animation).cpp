@@ -21,6 +21,7 @@ char buf[BUFSIZE];	// 데이터 버퍼
 HANDLE hThread;
 HWND		g_hWnd;
 wchar_t		g_ipbuf[50];		// ip 입력 받는 버퍼
+player_info g_myinfo;
 
 ATOM MyRegisterClass(HINSTANCE hInstance);
 BOOL InitInstance(HINSTANCE, int);
@@ -138,16 +139,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		//	::DialogBox(ghAppInstance, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
 			break;
 		// menu 추가 (0211)
-		case ID_NETWORK_ACCESS_DEFAULT:
+		case ID_NETWORK_ACCESS_DEFAULT: // 도기로 접속
 		{
+			g_myinfo.type = player_doggy;
 			// 네트워크 접속, 접속 ip는 default 값
 			char p[128] = "127.0.0.1";
 			wcscpy(g_ipbuf, L"127.0.0.1");
 			InitializeNetwork();
 		}
 		break;
-		case ID_NETWORK_ACCESS_USER:
+		case ID_NETWORK_ACCESS_USER: // 더기로 접속
 		{
+			g_myinfo.type = player_ducky;
 			// 네트워크 접속, ip 입력 받음 -> 우선 X
 			InitializeNetwork();
 		}
@@ -193,6 +196,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 int InitializeNetwork()
 {
+	// @
 	int retval;
 
 	// 윈속을 초기화 한다.
@@ -207,8 +211,8 @@ int InitializeNetwork()
 	if (g_sock == INVALID_SOCKET) MessageBoxW(g_hWnd, L"socket()", MB_OK, MB_OK);
 
 	// recv 전용 스레드를 만든다.
-	hThread = CreateThread(NULL, 0, RecvThread, (LPVOID)g_sock, 0, NULL);
-	if (NULL == hThread)	CloseHandle(hThread);
+	//hThread = CreateThread(NULL, 0, RecvThread, (LPVOID)g_sock, 0, NULL);
+	//if (NULL == hThread)	CloseHandle(hThread);
 
 	// 서버 정보 객체를 설정 한다. 
 	SOCKADDR_IN serveraddr;
@@ -228,9 +232,33 @@ int InitializeNetwork()
 		WSACleanup();
 		MessageBoxW(g_hWnd, L"connect()", MB_OK, MB_OK);
 	}
-	else
+	else {
 		MessageBoxW(g_hWnd, L"Connected", L"알림", MB_OK);
+		g_myinfo.connected = true;
 
+		// 서버에게 클라이언트 초기 정보를 보낸다.
+		if (true == g_myinfo.connected) {
+			int retval;
+			// 고정
+			packet_info packetinfo;
+			packetinfo.type = cs_put_player;
+			packetinfo.size = sizeof(player_info);
+			char buf[BUFSIZE];
+			memcpy(buf, &packetinfo, sizeof(packetinfo));
+			retval = send(g_sock, buf, BUFSIZE, 0);
+			if (retval == SOCKET_ERROR) {
+				MessageBoxW(g_hWnd, L"send()", L"send() - cs_put_player (고정)", MB_OK);
+			}
+			// 가변
+			player_info playerinfo = g_myinfo;
+			ZeroMemory(buf, sizeof(buf));
+			memcpy(buf, &playerinfo, sizeof(playerinfo));
+			retval = send(g_sock, buf, BUFSIZE, 0);
+			if (retval == SOCKET_ERROR) {
+				MessageBoxW(g_hWnd, L"send()", L"send() - cs_put_player (가변)", MB_OK);
+			}
+		}
+	}
 
 
 }

@@ -241,31 +241,31 @@ DWORD WINAPI WorkerThread(LPVOID arg)
 		printf("\n[TCP 서버] 클라이언트 접속: IP 주소=%s, 포트 번호=%d\n",
 			inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port));
 
-		//// 소켓 정보 구조체 할당과 초기화
-		//SOCKETINFO *ptr = new SOCKETINFO;
-		//if (ptr == NULL) {
-		//	cout << ("[오류] 메모리가 부족합니다!") << endl;
-		//	return 1;
-		//}
+		// 소켓 정보 구조체 할당과 초기화
+		SOCKETINFO *ptr = new SOCKETINFO;
+		if (ptr == NULL) {
+			cout << ("[오류] 메모리가 부족합니다!") << endl;
+			return 1;
+		}
 
-		//ZeroMemory(&ptr->overlapped, sizeof(ptr->overlapped));
-		//ptr->sock = g_clients[id].m_sock;
-		//SetEvent(hReadEvent); // client_sock 변수 값을 읽어가는 즉시 hReadEvent를 신호 상태로
-		//ptr->recvbytes = ptr->sendbytes = 0;
-		//ptr->wsabuf.buf = ptr->buf;
-		//ptr->wsabuf.len = BUFSIZE;
+		ZeroMemory(&ptr->overlapped, sizeof(ptr->overlapped));
+		ptr->sock = g_clients[id].m_sock;
+		SetEvent(hReadEvent); // client_sock 변수 값을 읽어가는 즉시 hReadEvent를 신호 상태로
+		ptr->recvbytes = ptr->sendbytes = 0;
+		ptr->wsabuf.buf = ptr->buf;
+		ptr->wsabuf.len = BUFSIZE;
 
-		//// 비동기 입출력 시작
-		//DWORD recvbytes;
-		//DWORD flags = 0;
-		//retval = WSARecv(ptr->sock, &ptr->wsabuf, 1, &recvbytes,
-		//	&flags, &ptr->overlapped, CompletionRoutine);
-		//if (retval == SOCKET_ERROR) {
-		//	if (WSAGetLastError() != WSA_IO_PENDING) {
-		//		err_display("WSARecv()");
-		//		return 1;
-		//	}
-		//}
+		// 비동기 입출력 시작
+		DWORD recvbytes;
+		DWORD flags = 0;
+		retval = WSARecv(ptr->sock, &ptr->wsabuf, 1, &recvbytes,
+			&flags, &ptr->overlapped, CompletionRoutine);
+		if (retval == SOCKET_ERROR) {
+			if (WSAGetLastError() != WSA_IO_PENDING) {
+				err_display("WSARecv()");
+				return 1;
+			}
+		}
 	}
 	return 0;
 }
@@ -299,7 +299,7 @@ void CALLBACK CompletionRoutine(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED ov
 		socketInfo->wsabuf.buf = socketInfo->buf;
 		socketInfo->wsabuf.len = socketInfo->recvbytes; /// 실제로 받은 데이터 만큼만 보내야 한다.
 		  
-		// cout << "TRACE - Receive message : " << socketInfo->buf << " ( " << dataBytes << " bytes) " << endl;
+		cout << "TRACE - Receive message : " << socketInfo->buf << " ( " << dataBytes << " bytes) " << endl;
 
 		// 데이터를 받고 난 후.
 		// 1. 받아 올 패킷의 정보를 알아내야 한다. (고정 길이)
@@ -314,21 +314,24 @@ void CALLBACK CompletionRoutine(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED ov
 			case cs_put_player:
 			{
 				if(packetinfo.id == 0){
-					// 클라 0 : connect 완료했으니까 나 들어왔다는 패킷도 보내야지
+					// 클라 0 : connect 완료했으니까 나 들어왔다는 패킷도 보낼게
 					// 서버 : 그럼 g_clients[0].m_pos 에 니 위치 정보를 갱신할게!! 
-					XMFLOAT3 pos;
-					memcpy(&pos, socketInfo->buf + sizeof(packetinfo), sizeof(pos));
-					g_clients[0].m_pos = pos;
+					{
+						XMFLOAT3 pos;
+						memcpy(&pos, socketInfo->buf + sizeof(packetinfo), sizeof(pos));
+						g_clients[0].m_pos = pos;
+					}
+					
 				}
 				else {
-					// 클라 1 : connect 완료했으니까 나 들어왔다는 패킷도 보내야지
+					// 클라 1 : connect 완료했으니까 나 들어왔다는 패킷도 보낼게
 					// 서버 : 그럼 g_clients[1].m_pos 에 니 위치 정보를 갱신할게!! 
 					{
 						XMFLOAT3 pos;
 						memcpy(&pos, socketInfo->buf + sizeof(packetinfo), sizeof(pos));
 						g_clients[1].m_pos = pos;
 					}
-					// 서버 : 클라 0한테 니 접속 정보 보낼게!
+					// 서버 : 클라 0한테 너의 접속 정보 보낼게!
 					{
 						// 1. 고정 길이
 						packet_info packetinfo;

@@ -1,48 +1,45 @@
-#pragma once
+//#pragma once
+//
 
-#pragma comment(lib, "ws2_32")
-#include <winsock2.h>
-#include <stdlib.h>
-#include <stdio.h>
-
-
-//// 소켓 함수 오류 출력 후 종료
-//void err_quit(char *msg)
-//{
-//	LPVOID lpMsgBuf;
 //
-//	// char* to LPWSTR (0211)
-//	wchar_t wtext[128];
-//	mbstowcs(wtext, msg, strlen(msg) + 1);
-//	LPWSTR ptr = wtext;
-//	// --------------------------
 //
-//	FormatMessage(
-//		FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-//		NULL, WSAGetLastError(),
-//		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-//		(LPTSTR)&lpMsgBuf, 0, NULL);
-//	MessageBox(NULL, (LPCTSTR)lpMsgBuf, /*(LPWSTR)msg*/wtext, MB_ICONERROR);
-//	LocalFree(lpMsgBuf);
+////// 소켓 함수 오류 출력 후 종료
+////void err_quit(char *msg)
+////{
+////	LPVOID lpMsgBuf;
+////
+////	// char* to LPWSTR (0211)
+////	wchar_t wtext[128];
+////	mbstowcs(wtext, msg, strlen(msg) + 1);
+////	LPWSTR ptr = wtext;
+////	// --------------------------
+////
+////	FormatMessage(
+////		FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+////		NULL, WSAGetLastError(),
+////		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+////		(LPTSTR)&lpMsgBuf, 0, NULL);
+////	MessageBox(NULL, (LPCTSTR)lpMsgBuf, /*(LPWSTR)msg*/wtext, MB_ICONERROR);
+////	LocalFree(lpMsgBuf);
+////
+////	
+////
+////	exit(1);
+////}
+////
+////// 소켓 함수 오류 출력
+////void err_display(char *msg)
+////{
+////	LPVOID lpMsgBuf;
+////	FormatMessage(
+////		FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+////		NULL, WSAGetLastError(),
+////		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+////		(LPTSTR)&lpMsgBuf, 0, NULL);
+////	printf("[%s] %s", msg, (char *)lpMsgBuf);
+////	LocalFree(lpMsgBuf);
+////}
 //
-//	
-//
-//	exit(1);
-//}
-//
-//// 소켓 함수 오류 출력
-//void err_display(char *msg)
-//{
-//	LPVOID lpMsgBuf;
-//	FormatMessage(
-//		FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-//		NULL, WSAGetLastError(),
-//		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-//		(LPTSTR)&lpMsgBuf, 0, NULL);
-//	printf("[%s] %s", msg, (char *)lpMsgBuf);
-//	LocalFree(lpMsgBuf);
-//}
-
 // 사용자 정의 데이터 수신 함수
 int recvn(SOCKET s, char *buf, int len, int flags)
 {

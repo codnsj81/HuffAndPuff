@@ -1,10 +1,63 @@
-#pragma once
+#pragma pack (push, 1)
 
-#pragma comment(lib, "ws2_32")
-#include <winsock2.h>
-#include <stdlib.h>
-#include <stdio.h>
+struct cs_packet_up {
+	BYTE size;
+	BYTE type;
+};
 
-#include "Function.h"
-#include "Extern.h"
-#include "Define.h"
+struct cs_packet_down {
+	BYTE size;
+	BYTE type;
+};
+
+struct cs_packet_left {
+	BYTE size;
+	BYTE type;
+};
+
+struct cs_packet_right {
+	BYTE size;
+	BYTE type;
+};
+
+struct sc_packet_pos {
+	BYTE size;
+	BYTE type;
+	WORD id;
+	BYTE x;
+	BYTE y;
+};
+
+struct sc_packet_put_player {
+	BYTE size;
+	BYTE type;
+	WORD id;
+	BYTE x;
+	BYTE y;
+};
+struct sc_packet_remove_player {
+	BYTE size;
+	BYTE type;
+	WORD id;
+};
+
+//
+enum packet_type {
+	cs_put_player,
+	sc_put_player,
+	cs_move_left, cs_move_top, cs_move_right, cs_move_bottom, cs_move,
+	sc_notify_pos, sc_notify_remove_player
+};
+struct packet_info {
+	BYTE size;
+	packet_type type;
+	WORD id;
+};
+
+struct player_info{
+	float x;
+	float y;
+	float z;
+};
+
+#pragma pack (pop)

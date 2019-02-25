@@ -443,6 +443,7 @@ void CGameFramework::BuildObjects()
 
 	m_pScene->m_pPlayer = m_pPlayer = m_pDoggy;
 	m_pCamera = m_pPlayer->GetCamera();
+	m_pScene->SetDuckyNDoggy(m_pDucky, m_pDoggy, m_pPlayer);
 
 	m_pd3dCommandList->Close();
 	ID3D12CommandList *ppd3dCommandLists[] = { m_pd3dCommandList };
@@ -505,6 +506,7 @@ void CGameFramework::ProcessInput()
 			}
 			if (dwDirection) {
 				m_pPlayer->Move(dwDirection, 3.25f, true);
+				AnimateObjects();
 				// @ 
 			}
 		}
@@ -517,7 +519,6 @@ void CGameFramework::AnimateObjects()
 {
 	float fTimeElapsed = m_GameTimer.GetTimeElapsed();
 
-	if (m_pScene) m_pScene->AnimateObjects(fTimeElapsed);
 
 	m_pPlayer->Animate(fTimeElapsed);
 	m_pPlayer->UpdateTransform(NULL);
@@ -584,6 +585,8 @@ void CGameFramework::FrameAdvance()
 
 	m_pd3dCommandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, TRUE, &d3dDsvCPUDescriptorHandle);
 
+	if (m_pScene) m_pScene->Update();
+
 	if (m_pScene) m_pScene->Render(m_pd3dCommandList, m_pCamera);
 
 #ifdef _WITH_PLAYER_TOP
@@ -600,8 +603,6 @@ void CGameFramework::FrameAdvance()
 			m_ppWaters[i]->Render(m_pd3dCommandList, m_pCamera);
 		}
 	}
-
-	if(m_pScene) m_pScene->Update();
 
 	d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
 	d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;

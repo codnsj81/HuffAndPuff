@@ -26,9 +26,10 @@ int BBCollision(float minX, float maxX, float minY, float maxY, float minZ, floa
 
 	if (maxY1 <= minY)
 		return COLLIDE_UNDER;
-	if (minY1 < maxY)
+	if ((maxY - minY1) < 0.5f && (maxY - minY1) >= 0.f)
 		return COLLIDE_ON;
-	return 0;
+
+	return COLLIDE_SIDE;
 }
 
 
@@ -597,6 +598,9 @@ int CGameObject::getCollision(CPlayer * player)
 		break;
 	case COLLIDE_UNDER:
 		player->SetState(STATE_FALLING);
+		break;
+	case COLLIDE_SIDE:
+		player->CollideSide();
 		break;
 	}
 	

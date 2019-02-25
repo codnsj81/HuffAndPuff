@@ -67,24 +67,30 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 
 	m_nWaters = 1;
 	m_ppWaters = new CWater*[m_nWaters];
-	m_ppWaters[0] = new CWater(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 10, 10, XMFLOAT3(1000.f, m_pTerrain->GetHeight(1000.0f, 719.0f) + 5.f, 719.0f));
-	
+	m_ppWaters[0] = new CWater(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 400, 150, XMFLOAT3(1509.f, m_pTerrain->GetHeight(1509.0f, 834.0f) + 20.f, 834.0f));
+	m_ppWaters[0]->Rotate(0, 10.f, 0);
 	CGameObject *pStone = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Rock.bin", NULL, false);
 
-	m_nGameObjects = 2;
+	m_nGameObjects = 3;
 	m_ppGameObjects = new CGameObject*[m_nGameObjects];
 
 	m_ppGameObjects[0] = new CGameObject();
 	m_ppGameObjects[0]->SetChild(pStone, true);
 	m_ppGameObjects[0]->SetPosition(505.0f, m_pTerrain->GetHeight(505.0f, 719.0f) + 5.f , 719.0f);
 	m_ppGameObjects[0]->SetScale(3.0f, 3.0f, 3.0f);
-	m_ppGameObjects[0]->SetHitBox(XMFLOAT3(11.f, 3.f, 11.f));
+	m_ppGameObjects[0]->SetHitBox(XMFLOAT3(11.f, 2.f, 11.f));
 
 	m_ppGameObjects[1] = new CGameObject();
 	m_ppGameObjects[1]->SetChild(pStone, true);
 	m_ppGameObjects[1]->SetPosition(515.0f, m_pTerrain->GetHeight(515.0f, 719.0f) + 13.f, 719.0f);
 	m_ppGameObjects[1]->SetScale(3.0f, 3.0f, 3.0f);
-	m_ppGameObjects[1]->SetHitBox(XMFLOAT3(11.f, 3.f, 11.f));
+	m_ppGameObjects[1]->SetHitBox(XMFLOAT3(11.f, 2.f, 11.f));
+
+	m_ppGameObjects[2] = new CGameObject();
+	m_ppGameObjects[2]->SetChild(pStone, true);
+	m_ppGameObjects[2]->SetPosition(495.0f, m_pTerrain->GetHeight(495.0f, 719.0f) , 719.0f);
+	m_ppGameObjects[2]->SetScale(3.0f, 3.0f, 3.0f);
+	m_ppGameObjects[2]->SetHitBox(XMFLOAT3(11.f, 2.f, 11.f));
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
@@ -131,12 +137,17 @@ void CScene::Update()
 	{
 		for (int i = 0; i < m_nGameObjects; i++)
 		{
-			if (m_ppGameObjects[i]->getCollision(m_pPlayer))
-			{
-				break;
-			}
+			m_ppGameObjects[i]->getCollision(m_pDucky);
+			m_ppGameObjects[i]->getCollision(m_pDoggy);
 		}
 	}
+}
+
+void CScene::SetDuckyNDoggy(CPlayer * ducky, CPlayer * doggy, CPlayer * player)
+{
+	m_pDoggy = doggy;
+	m_pDucky = ducky;
+	m_pPlayer = player;
 }
 
 ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevice)

@@ -54,6 +54,7 @@ public:
 	void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	void ReleaseObjects();
 	void Update();
+	void SetDuckyNDoggy(CPlayer* ducky, CPlayer* doggy, CPlayer* player);
 
 	ID3D12RootSignature *CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
 	ID3D12RootSignature *GetGraphicsRootSignature() { return(m_pd3dGraphicsRootSignature); }
@@ -66,6 +67,8 @@ public:
 	CWater** GetWaters() { return m_ppWaters; }
 
 	CPlayer								*m_pPlayer = NULL;
+	CPlayer								*m_pDoggy;
+	CPlayer								*m_pDucky;
 
 protected:
 	ID3D12RootSignature					*m_pd3dGraphicsRootSignature = NULL;

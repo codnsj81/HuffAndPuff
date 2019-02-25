@@ -92,6 +92,12 @@ void CPlayer::GivePiggyBack()
 	}
 }
 
+void CPlayer::CollideSide()
+{
+	m_xmf3Velocity.x = 0.f;
+	m_xmf3Velocity.z = 0.f;
+}
+
 bool CPlayer::CheckInWater(XMFLOAT3 pos, CHeightMapTerrain *pTerrain)
 {
 	for (int i = 0; i < m_nWater; i++)
@@ -221,7 +227,7 @@ void CPlayer::Update(float fTimeElapsed)
 	if (m_PiggybackState == PIGGYBACK_CRRIED)
 	{
 		XMFLOAT3 pos = m_pParter->GetPosition();
-		pos.y += 7.f;
+		pos.y += 5.f;
 		m_xmf3Position = pos;
 
 		m_xmf3Look = m_pParter->GetLookVector();

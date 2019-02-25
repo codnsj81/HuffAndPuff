@@ -4,7 +4,6 @@
 
 #include "stdafx.h"
 #include "GameFramework.h"
-#include "../Headers/Include.h"
 
 CGameFramework::CGameFramework()
 {
@@ -382,6 +381,39 @@ LRESULT CALLBACK CGameFramework::OnProcessingWindowMessage(HWND hWnd, UINT nMess
 	return(0);
 }
 
+void CGameFramework::SetPlayerType(player_type eType)
+{
+		switch (eType) {
+		case player_doggy:
+			m_pScene->m_pPlayer = m_pPlayer = m_pDoggy;
+			m_pCamera = m_pPlayer->GetCamera();
+			break;
+		case player_ducky:
+			m_pScene->m_pPlayer = m_pPlayer = m_pDucky;
+			m_pCamera = m_pPlayer->GetCamera();
+			break;
+		}
+
+}
+
+void CGameFramework::SetPlayerPos(player_type eType, XMFLOAT3 pos)
+{
+
+		switch (eType) {
+		case player_ducky:
+		{
+			m_pDucky->SetPosition(pos);
+		}
+		break;
+		case player_doggy:
+		{
+			m_pDoggy->SetPosition(pos);
+		}
+		break;
+		}
+
+}
+
 void CGameFramework::OnDestroy()
 {
     ReleaseObjects();
@@ -481,12 +513,45 @@ void CGameFramework::ProcessInput()
 	if (GetKeyboardState(pKeysBuffer) && m_pScene) bProcessedByScene = m_pScene->ProcessInput(pKeysBuffer);
 	if (!bProcessedByScene)
 	{
+		bool ismove = false;
 		DWORD dwDirection = 0;
-		if ((pKeysBuffer['W'] & 0xF0) || (pKeysBuffer['w'] & 0xF0)) dwDirection |= DIR_FORWARD;
-		if ((pKeysBuffer['S'] & 0xF0) || (pKeysBuffer['s'] & 0xF0)) dwDirection |= DIR_BACKWARD;
-		if ((pKeysBuffer['A'] & 0xF0) || (pKeysBuffer['a'] & 0xF0)) dwDirection |= DIR_LEFT;
-		if ((pKeysBuffer['D'] & 0xF0) || (pKeysBuffer['d'] & 0xF0)) dwDirection |= DIR_RIGHT;
+		if ((pKeysBuffer['W'] & 0xF0) || (pKeysBuffer['w'] & 0xF0)) {
+			dwDirection |= DIR_FORWARD;
+			ismove = true;
+		}
+		if ((pKeysBuffer['S'] & 0xF0) || (pKeysBuffer['s'] & 0xF0)) {
+			dwDirection |= DIR_BACKWARD;
+			ismove = true;
+		}
+		if ((pKeysBuffer['A'] & 0xF0) || (pKeysBuffer['a'] & 0xF0)) {
+			dwDirection |= DIR_LEFT;
+			ismove = true;
+		}
+		if ((pKeysBuffer['D'] & 0xF0) || (pKeysBuffer['d'] & 0xF0)) {
+			dwDirection |= DIR_RIGHT;
+			ismove = true;
+		}
 
+		//@ 서버한테 위치 보내기
+		if (true == ismove && true == g_myinfo.connected) {
+			player_info playerinfo;
+			XMFLOAT3 pos = m_pPlayer->GetPosition();
+			playerinfo.x = pos.x; playerinfo.y = pos.y; playerinfo.z = pos.z;
+			int retval;
+			/// 고정
+			packet_info packetinfo;
+			packetinfo.type = cs_move;
+			packetinfo.size = sizeof(player_info);
+			packetinfo.id = g_myinfo.id;
+			char buf[BUFSIZE];
+			memcpy(buf, &packetinfo, sizeof(packetinfo));
+			/// 가변 (고정 데이터에 가변 데이터 붙이는 형식으로)
+			memcpy(buf + sizeof(packetinfo), &playerinfo, sizeof(player_info));
+			retval = send(g_sock, buf, BUFSIZE, 0);
+			if (retval == SOCKET_ERROR) {
+				MessageBoxW(g_hWnd, L"send()", L"send() - cs_move", MB_OK);
+			}
+		}
 		float cxDelta = 0.0f, cyDelta = 0.0f;
 		POINT ptCursorPos;
 		if (GetCapture() == m_hWnd)
@@ -640,4 +705,5 @@ void CGameFramework::FrameAdvance()
 	_stprintf_s(m_pszFrameRate + nLength, 70 - nLength, _T("(%4f, %4f, %4f)"), xmf3Position.x, xmf3Position.y, xmf3Position.z);
 	::SetWindowText(m_hWnd, m_pszFrameRate);
 }
+
 

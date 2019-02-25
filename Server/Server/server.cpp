@@ -44,6 +44,7 @@ public:
 	SOCKET m_sock;
 	SOCKETINFO m_sockinfo;
 	XMFLOAT3 m_pos;
+	player_type m_type;
 	float m_velocity = 0.f;
 	bool m_connected = false;
 };
@@ -72,7 +73,7 @@ int main(int argc, char *argv[])
 	int retval;
 
 	// 윈속 초기화.
-	WSADATA WSAData; 
+	WSADATA WSAData;
 	if (WSAStartup(MAKEWORD(2, 2), &WSAData) != 0) {
 		cout << ("Error - Can not load 'winsock.dll' file") << endl;
 		return 1;
@@ -84,17 +85,17 @@ int main(int argc, char *argv[])
 	hWriteEvent = CreateEvent(NULL, FALSE, FALSE, NULL); /// 메인 스레드가 g_clients 변수 값을 변경했음을 alertable wait 상태인 WorkerThread 스레드에 알리는 용도
 	if (hWriteEvent == NULL) return 1;
 
-	// worker thread 생성
-	HANDLE hThread = CreateThread(NULL, 0, WorkerThread, NULL, 0, NULL);
+	// worker thread 생성 // 필요 없으니까 잠만 나와바
+	// HANDLE hThread = CreateThread(NULL, 0, WorkerThread, NULL, 0, NULL);
 	// accept thread 생성
 	HANDLE hThread2 = CreateThread(NULL, 0, AcceptThread, NULL, 0, NULL);
-	if (hThread == NULL || hThread2 == NULL) return 1;
+	if (/*hThread == NULL ||*/ hThread2 == NULL) return 1;
 
 
 	while (true) {
 		// 메인 함수가 끝나버려.. ㅜㅜ 
 	}
-	CloseHandle(hThread);
+	//CloseHandle(hThread);
 	CloseHandle(hThread2);
 	return 0;
 }
@@ -106,7 +107,7 @@ DWORD WINAPI AcceptThread(LPVOID arg)
 
 	// socket()
 	SOCKET listen_sock = socket(AF_INET, SOCK_STREAM, 0);
-	if (listen_sock == INVALID_SOCKET) 
+	if (listen_sock == INVALID_SOCKET)
 		err_quit("socket()");
 
 	// bind()
@@ -124,19 +125,20 @@ DWORD WINAPI AcceptThread(LPVOID arg)
 
 	int id{ -1 };
 
+	SOCKET client_sock;
 	while (1) {
-		WaitForSingleObject(hReadEvent, INFINITE); // 읽기 완료 대기
+		//WaitForSingleObject(hReadEvent, INFINITE); // 읽기 완료 대기
 
 		// accept 
 		/// 클라이언트가 접속할 때마다
-		SOCKET client_sock = accept(listen_sock, NULL, NULL);
+		client_sock = accept(listen_sock, NULL, NULL);
 		if (client_sock == INVALID_SOCKET) {
 			err_display("accept()");
 			break;
 		}
 		/// 클라이언트 id 부여
 		else {
-			for (int i = 0; i < NUM_OF_PLAYER; ++i) {  
+			for (int i = 0; i < NUM_OF_PLAYER; ++i) {
 				if (false == g_clients[i].m_connected) {
 					id = i;
 					break;
@@ -155,58 +157,33 @@ DWORD WINAPI AcceptThread(LPVOID arg)
 		// 넘겨주고, 받아서 쓰기.
 		// p->overlapped.hEvent = (HANDLE)p->sock;
 
-		// 여기서 할 필요가 없네!!
-		//if (id == 1) {
-		//	//  다른 클라이언트에게 새 클라이언트 1의 접속 정보를 전송한다.
-		//	// --------- Process --------------
-		//	// 1. 고정 길이 패킷 전송
-		//	{
-		//		packet_info packetinfo;
-		//		packetinfo.type = sc_put_player;
-		//		packetinfo.id = id;
-		//		packetinfo.size = sizeof(XMFLOAT3);
-		//		/// SOCKETINFO 할당, 초기화.
-		//		SOCKETINFO *p = new SOCKETINFO;
-		//		ZeroMemory(&p->overlapped, sizeof(p->overlapped));
-		//		p->sock = client_sock;
-		//		/// SetEvent(hReadEvent); //// 필요 없음.
-		//		p->recvbytes = p->sendbytes = 0;
-		//		// p->wsabuf.buf에 데이터 넣어줌.
-		//		memcpy(p->wsabuf.buf, &(packetinfo), sizeof(packetinfo));
-		//		p->wsabuf.len = BUFSIZE;
+		// 소켓 정보 구조체 할당과 초기화
+		SOCKETINFO *ptr = new SOCKETINFO;
+		if (ptr == NULL) {
+			cout << ("[오류] 메모리가 부족합니다") << endl;
+			return 1;
+		}
 
-		//		DWORD sendBytes;
-		//		if (WSASend(g_clients[id - 1].m_sock, &(p->wsabuf), 1, &sendBytes, 0, &(p->overlapped), PutPlayerPos) == SOCKET_ERROR) {
-		//			if (WSAGetLastError() != WSA_IO_PENDING) {
-		//				printf("Error - F ail WSASend(error_code : %d)\n", WSAGetLastError());
-		//			}
-		//		}
-		//	}
-		//	// 2. 가변 길이 패킷 전송
-		//	{
-		//		XMFLOAT3 playerpos;
-		//		playerpos = 
-		//		/// SOCKETINFO 할당, 초기화.
-		//		SOCKETINFO *p = new SOCKETINFO;
-		//		ZeroMemory(&p->overlapped, sizeof(p->overlapped));
-		//		p->sock = client_sock;
-		//		/// SetEvent(hReadEvent); //// 필요 없음.
-		//		p->recvbytes = p->sendbytes = 0;
-		//		// p->wsabuf.buf에 데이터 넣어줌.
-		//		memcpy(p->wsabuf.buf, &(packetinfo), sizeof(packetinfo));
-		//		p->wsabuf.len = BUFSIZE;
-		//		// 새 클라이언트에게 다른 클라이언트의 정보 리턴.
-		//		if (WSASend(p->sock, &(p->wsabuf), 1, &sendBytes, 0, &(p->overlapped), PutPlayerPos) == SOCKET_ERROR) {
-		//			if (WSAGetLastError() != WSA_IO_PENDING) {
-		//				printf("Error - F ail WSASend(error_code : %d)\n", WSAGetLastError());
-		//			}
-		//		}
-		//	}
+		ZeroMemory(&ptr->overlapped, sizeof(ptr->overlapped));
+		ptr->sock = g_clients[id].m_sock;
+		//SetEvent(hReadEvent); // client_sock 변수 값을 읽어가는 즉시 hReadEvent를 신호 상태로
+		ptr->recvbytes = ptr->sendbytes = 0;
+		ptr->wsabuf.buf = ptr->buf;
+		ptr->wsabuf.len = BUFSIZE;
 
-		//}
-		
+		memcpy(&(g_clients[id].m_sockinfo), ptr, sizeof(SOCKETINFO));
 
-		SetEvent(hWriteEvent);
+		// 비동기 입출력 시작.
+		DWORD recvbytes;
+		DWORD flags = 0;
+		retval = WSARecv(ptr->sock, &ptr->wsabuf, 1, &recvbytes,
+			&flags, &ptr->overlapped, CompletionRoutine);
+		if (retval == SOCKET_ERROR) {
+			if (WSAGetLastError() != WSA_IO_PENDING) {
+				err_display("WSARecv()");
+				return 1;
+			}
+		}
 	}
 
 	// 윈속 종료
@@ -221,10 +198,10 @@ DWORD WINAPI WorkerThread(LPVOID arg)
 
 	while (1) {
 		while (1) {
-			DWORD result = WaitForSingleObjectEx(hWriteEvent, INFINITE, TRUE); // 여기서부터 alertable wait상태.
+			//DWORD result = WaitForSingleObjectEx(hWriteEvent, INFINITE, TRUE); // 여기서부터 alertable wait상태.
 			// alertable wait 상태를 벗어나면
-			if (result == WAIT_OBJECT_0) break;  // 새 클라이언트가 접속한 경우 - 루프 벗어나야 함
-			if (result != WAIT_IO_COMPLETION) return 1; // 비동기 입출력 작업과 이에 따른 완료 루틴 호출이 끝난 경우 - 다시 alertable wait 상태에 진입
+			//if (result == WAIT_OBJECT_0) break;  // 새 클라이언트가 접속한 경우 - 루프 벗어나야 함
+			//if (result != WAIT_IO_COMPLETION) return 1; // 비동기 입출력 작업과 이에 따른 완료 루틴 호출이 끝난 경우 - 다시 alertable wait 상태에 진입
 		}
 
 		// 접속한 클라이언트 정보 출력
@@ -250,7 +227,7 @@ DWORD WINAPI WorkerThread(LPVOID arg)
 
 		ZeroMemory(&ptr->overlapped, sizeof(ptr->overlapped));
 		ptr->sock = g_clients[id].m_sock;
-		SetEvent(hReadEvent); // client_sock 변수 값을 읽어가는 즉시 hReadEvent를 신호 상태로
+		//SetEvent(hReadEvent); // client_sock 변수 값을 읽어가는 즉시 hReadEvent를 신호 상태로
 		ptr->recvbytes = ptr->sendbytes = 0;
 		ptr->wsabuf.buf = ptr->buf;
 		ptr->wsabuf.len = BUFSIZE;
@@ -298,7 +275,7 @@ void CALLBACK CompletionRoutine(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED ov
 		socketInfo->sendbytes = 0; /// 하나도 안 보냈음 아직 ㅇㅅㅇ
 		socketInfo->wsabuf.buf = socketInfo->buf;
 		socketInfo->wsabuf.len = socketInfo->recvbytes; /// 실제로 받은 데이터 만큼만 보내야 한다.
-		  
+
 		cout << "TRACE - Receive message : " << socketInfo->buf << " ( " << dataBytes << " bytes) " << endl;
 
 		// 데이터를 받고 난 후.
@@ -313,23 +290,81 @@ void CALLBACK CompletionRoutine(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED ov
 			switch (packetinfo.type) {
 			case cs_put_player:
 			{
-				if(packetinfo.id == 0){
-					// 클라 0 : connect 완료했으니까 나 들어왔다는 패킷도 보낼게
-					// 서버 : 그럼 g_clients[0].m_pos 에 니 위치 정보를 갱신할게!! 
+				if (false == g_clients[1].m_connected) {
+					// 클라 0 : connect 완료했으니까 나 들어왔다는 신호, 위치 정보 패킷 보낼게
+					// 서버 : g_clients[0].m_pos에 니 위치 정보를 갱신할게!! 
+					player_info playerinfo;
 					{
-						XMFLOAT3 pos;
-						memcpy(&pos, socketInfo->buf + sizeof(packetinfo), sizeof(pos));
-						g_clients[0].m_pos = pos;
+						memcpy(&playerinfo, socketInfo->buf + sizeof(packetinfo), sizeof(playerinfo));
+						g_clients[0].m_pos.x = playerinfo.x; g_clients[0].m_pos.y = playerinfo.y; g_clients[0].m_pos.z = playerinfo.z;
+						g_clients[0].m_type = playerinfo.type;
+						playerinfo.id = 0;
 					}
-					
-				}
-				else {
-					// 클라 1 : connect 완료했으니까 나 들어왔다는 패킷도 보낼게
-					// 서버 : 그럼 g_clients[1].m_pos 에 니 위치 정보를 갱신할게!! 
+					// 서버 : 너한테 id도 부여해서 갱신된 player_info를 알려 줄게!
 					{
-						XMFLOAT3 pos;
-						memcpy(&pos, socketInfo->buf + sizeof(packetinfo), sizeof(pos));
-						g_clients[1].m_pos = pos;
+						// 1. 고정 길이
+						packet_info packetinfo;
+						packetinfo.type = sc_your_playerinfo;
+						packetinfo.id = 0;
+						packetinfo.size = sizeof(player_info);
+						/*/// SOCKETINFO 할당, 초기화.
+						SOCKETINFO *p = new SOCKETINFO;*/
+						ZeroMemory(&(socketInfo->overlapped), sizeof(socketInfo->overlapped));
+						//p->sock = g_clients[0].m_sock;
+						//p->recvbytes = p->sendbytes = 0;
+						memcpy(socketInfo->wsabuf.buf, &(packetinfo), sizeof(packetinfo));
+						//p->wsabuf.len = BUFSIZE;
+						// 2. 가변 길이
+						playerinfo.x = g_clients[0].m_pos.x;
+						playerinfo.y = g_clients[0].m_pos.y;
+						playerinfo.z = g_clients[0].m_pos.z;
+						playerinfo.connected = true;
+						/// SOCKETINFO 할당, 초기화.
+						/*p->sock = g_clients[0].m_sock;
+						p->recvbytes = p->sendbytes = 0;*/
+						memcpy(socketInfo->wsabuf.buf + sizeof(packetinfo), &(playerinfo), sizeof(playerinfo));
+						socketInfo->wsabuf.len = BUFSIZE;
+						// 전송
+						if (WSASend(socketInfo->sock, &(socketInfo->wsabuf), 1, &sendBytes, 0, &(socketInfo->overlapped), PutPlayerPos) == SOCKET_ERROR) {
+							if (WSAGetLastError() != WSA_IO_PENDING) {
+								printf("Error - F ail WSASend(error_code : %d)\n", WSAGetLastError());
+							}
+						}
+					}
+
+				}
+				else if (true == g_clients[1].m_connected) {
+					// 클라 1 : connect 완료했으니까 나 들어왔다는 패킷도 보낼게
+					// 서버 : 그럼 g_clients[1]에 니 정보를 갱신할게!! 
+					player_info playerinfo;
+					{
+						memcpy(&playerinfo, socketInfo->buf + sizeof(packetinfo), sizeof(playerinfo));
+						g_clients[1].m_pos.x = playerinfo.x; g_clients[1].m_pos.y = playerinfo.y; g_clients[1].m_pos.z = playerinfo.z;
+						g_clients[1].m_type = playerinfo.type;
+						playerinfo.id = 1;
+					}
+					// 서버 : 너한테 id도 부여하고 갱신된 player_info를 보낼게!
+					{
+						// 1. 고정 길이
+						packet_info packetinfo;
+						packetinfo.type = sc_your_playerinfo;
+						packetinfo.id = 1;
+						packetinfo.size = sizeof(player_info);
+						ZeroMemory(&(socketInfo->overlapped), sizeof(socketInfo->overlapped));
+						memcpy(socketInfo->wsabuf.buf, &(packetinfo), sizeof(packetinfo));
+						// 2. 가변 길이
+						playerinfo.x = g_clients[1].m_pos.x;
+						playerinfo.y = g_clients[1].m_pos.y;
+						playerinfo.z = g_clients[1].m_pos.z;
+						playerinfo.connected = true;
+						memcpy(socketInfo->wsabuf.buf + sizeof(packetinfo), &(playerinfo), sizeof(playerinfo));
+						socketInfo->wsabuf.len = BUFSIZE;
+						// 전송
+						if (WSASend(socketInfo->sock, &(socketInfo->wsabuf), 1, &sendBytes, 0, &(socketInfo->overlapped), PutPlayerPos) == SOCKET_ERROR) {
+							if (WSAGetLastError() != WSA_IO_PENDING) {
+								printf("Error - F ail WSASend(error_code : %d)\n", WSAGetLastError());
+							}
+						}
 					}
 					// 서버 : 클라 0한테 너의 접속 정보 보낼게!
 					{
@@ -337,69 +372,44 @@ void CALLBACK CompletionRoutine(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED ov
 						packet_info packetinfo;
 						packetinfo.type = sc_put_player;
 						packetinfo.id = 1;
-						packetinfo.size = sizeof(XMFLOAT3);
+						packetinfo.size = sizeof(player_info);
 						/// SOCKETINFO 할당, 초기화.
 						SOCKETINFO *p = new SOCKETINFO;
+						memcpy(p, &(g_clients[0].m_sockinfo), sizeof(*p));
 						ZeroMemory(&p->overlapped, sizeof(p->overlapped));
-						p->sock = g_clients[1].m_sock;
 						p->recvbytes = p->sendbytes = 0;
 						memcpy(p->wsabuf.buf, &(packetinfo), sizeof(packetinfo));
 						p->wsabuf.len = BUFSIZE;
 
-						DWORD sendBytes;
-						if (WSASend(g_clients[0].m_sock, &(p->wsabuf), 1, &sendBytes, 0, &(p->overlapped), PutPlayerPos) == SOCKET_ERROR) {
-							if (WSAGetLastError() != WSA_IO_PENDING) {
-								printf("Error - F ail WSASend(error_code : %d)\n", WSAGetLastError());
-							}
-						}
 						// 2. 가변 길이
-						XMFLOAT3 pos = g_clients[1].m_pos;
-						/// SOCKETINFO 할당, 초기화.
-						ZeroMemory(&p, sizeof(p));
-						ZeroMemory(&(p->overlapped), sizeof(p->overlapped));
-						p->sock = g_clients[1].m_sock;
-						p->recvbytes = p->sendbytes = 0;
-						memcpy(p->wsabuf.buf, &(pos), sizeof(pos));
+						memcpy(p->wsabuf.buf + sizeof(packetinfo), &(playerinfo), sizeof(playerinfo));
 						p->wsabuf.len = BUFSIZE;
 						// 새 클라이언트에게 다른 클라이언트의 정보 리턴.
-						if (WSASend(g_clients[0].m_sock, &(p->wsabuf), 1, &sendBytes, 0, &(p->overlapped), PutPlayerPos) == SOCKET_ERROR) {
+						if (WSASend(p->sock, &(p->wsabuf), 1, &sendBytes, 0, &(p->overlapped), PutPlayerPos) == SOCKET_ERROR) {
 							if (WSAGetLastError() != WSA_IO_PENDING) {
 								printf("Error - F ail WSASend(error_code : %d)\n", WSAGetLastError());
 							}
 						}
 					}
-					// 서버 : 너한테 클라 0 정보 보낼게!
+					// 서버 : 너한테는 클라 0 의 정보 보낼게!
 					{
 						// 1. 고정 길이
 						packet_info packetinfo;
 						packetinfo.type = sc_put_player;
-						packetinfo.id = 0; // 0의 정보를 보내는 거니께,,
-						packetinfo.size = sizeof(XMFLOAT3);
-						/// SOCKETINFO 할당, 초기화.
-						SOCKETINFO *p = new SOCKETINFO;
-						ZeroMemory(&p->overlapped, sizeof(p->overlapped));
-						p->sock = g_clients[0].m_sock;
-						p->recvbytes = p->sendbytes = 0;
-						memcpy(p->wsabuf.buf, &(packetinfo), sizeof(packetinfo));
-						p->wsabuf.len = BUFSIZE;
-
-						DWORD sendBytes;
-						if (WSASend(g_clients[1].m_sock, &(p->wsabuf), 1, &sendBytes, 0, &(p->overlapped), PutPlayerPos) == SOCKET_ERROR) {
-							if (WSAGetLastError() != WSA_IO_PENDING) {
-								printf("Error - F ail WSASend(error_code : %d)\n", WSAGetLastError());
-							}
-						}
+						packetinfo.id = 0;
+						packetinfo.size = sizeof(player_info);
+						memcpy(socketInfo->wsabuf.buf, &(packetinfo), sizeof(packetinfo));
 						// 2. 가변 길이
-						XMFLOAT3 pos = g_clients[0].m_pos;
-						/// SOCKETINFO 할당, 초기화.
-						ZeroMemory(&p, sizeof(p));
-						ZeroMemory(&p->overlapped, sizeof(p->overlapped));
-						p->sock = g_clients[0].m_sock;
-						p->recvbytes = p->sendbytes = 0;
-						memcpy(p->wsabuf.buf, &(pos), sizeof(pos));
-						p->wsabuf.len = BUFSIZE;
-						// 새 클라이언트에게 다른 클라이언트의 정보 리턴.
-						if (WSASend(g_clients[1].m_sock, &(p->wsabuf), 1, &sendBytes, 0, &(p->overlapped), PutPlayerPos) == SOCKET_ERROR) {
+						playerinfo.x = g_clients[0].m_pos.x;
+						playerinfo.y = g_clients[0].m_pos.y;
+						playerinfo.z = g_clients[0].m_pos.z;
+						playerinfo.type = g_clients[0].m_type;
+						playerinfo.connected = true;
+						memcpy(socketInfo->wsabuf.buf + sizeof(packetinfo), &(playerinfo), sizeof(playerinfo));
+						socketInfo->wsabuf.len = BUFSIZE;
+						ZeroMemory(&(socketInfo->overlapped), sizeof(socketInfo->overlapped));
+						// 전송
+						if (WSASend(socketInfo->sock, &(socketInfo->wsabuf), 1, &sendBytes, 0, &(socketInfo->overlapped), PutPlayerPos) == SOCKET_ERROR) {
 							if (WSAGetLastError() != WSA_IO_PENDING) {
 								printf("Error - F ail WSASend(error_code : %d)\n", WSAGetLastError());
 							}
@@ -407,13 +417,51 @@ void CALLBACK CompletionRoutine(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED ov
 					}
 				}
 			}
+			break;
 			case cs_move:
 			{
 				// 해당 클라이언트의 이동 완료된 좌표를 받아온다.
-				XMFLOAT3 pos;
-				char buf[BUFSIZE];
-				memcpy(buf, socketInfo->buf + sizeof(packetinfo), sizeof(buf));
-				// 일단 서로 띄우는거부터 하고!!
+				player_info playerinfo;
+				{
+					memcpy(&playerinfo, socketInfo->buf + sizeof(packetinfo), sizeof(playerinfo));
+					g_clients[playerinfo.id].m_pos.x = playerinfo.x;
+					g_clients[playerinfo.id].m_pos.y = playerinfo.y;
+					g_clients[playerinfo.id].m_pos.z = playerinfo.z;
+				}
+
+				// 0이면 1한테, 1이면 0한테 sc_notify_pos 패킷을 보낸다.
+				{
+					// 0. 받을 클라이언트의 id 구하기.
+					int recvid{ -1 };
+					if (playerinfo.id == 0)
+						recvid = 1;
+					else
+						recvid = 0;
+
+					// 1. 고정 길이
+					packet_info packetinfo;
+					packetinfo.type = sc_notify_pos;
+					packetinfo.id = playerinfo.id;
+					packetinfo.size = sizeof(player_info);
+					/// SOCKETINFO 할당, 초기화.
+					SOCKETINFO *p = new SOCKETINFO;
+					memcpy(p, &(g_clients[recvid].m_sockinfo), sizeof(*p));
+					ZeroMemory(&p->overlapped, sizeof(p->overlapped));
+					p->recvbytes = p->sendbytes = 0;
+					memcpy(p->wsabuf.buf, &(packetinfo), sizeof(packetinfo));
+					p->wsabuf.len = BUFSIZE;
+
+					// 2. 가변 길이
+					memcpy(p->wsabuf.buf + sizeof(packetinfo), &(playerinfo), sizeof(playerinfo));
+					p->wsabuf.len = BUFSIZE;
+					// 새 클라이언트에게 다른 클라이언트의 정보 리턴.
+					if (WSASend(p->sock, &(p->wsabuf), 1, &sendBytes, 0, &(p->overlapped), PutPlayerPos) == SOCKET_ERROR) {
+						if (WSAGetLastError() != WSA_IO_PENDING) {
+							printf("Error - F ail WSASend(error_code : %d)\n", WSAGetLastError());
+						}
+					}
+
+				}
 			}
 			break;
 			case cs_move_left:
@@ -438,7 +486,7 @@ void CALLBACK CompletionRoutine(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED ov
 			break;
 			}
 		}
-		
+
 
 
 		// ------------------------------------------------
@@ -487,7 +535,7 @@ void CALLBACK PutPlayerPos(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED overlap
 	DWORD receiveBytes = 0;
 	DWORD flags = 0;
 
-	socketInfo = (struct SOCKETINFO *)overlapped; 
+	socketInfo = (struct SOCKETINFO *)overlapped;
 
 
 	if (dataBytes == 0) { // 접속된 클라이언트에서 소켓 접속을 끈 것 

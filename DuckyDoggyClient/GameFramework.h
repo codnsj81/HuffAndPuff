@@ -3,6 +3,7 @@
 #define FRAME_BUFFER_WIDTH		640
 #define FRAME_BUFFER_HEIGHT		480
 
+#include "../Headers/Include.h"
 #include "Timer.h"
 #include "Player.h"
 #include "Scene.h"
@@ -42,6 +43,9 @@ public:
 	void OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	LRESULT CALLBACK OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 
+	// @
+	void SetPlayerType(player_type eType);
+	void SetPlayerPos(player_type eType, XMFLOAT3 pos);
 private:
 	HINSTANCE					m_hInstance;
 	HWND						m_hWnd; 

@@ -44,12 +44,12 @@ struct sc_packet_remove_player {
 //
 enum packet_type {
 	cs_put_player,
-	sc_put_player,
+	sc_put_player, sc_your_playerinfo,
 	cs_move_left, cs_move_top, cs_move_right, cs_move_bottom, cs_move,
 	sc_notify_pos, sc_notify_remove_player
 };
 struct packet_info {
-	BYTE size;
+	short size;
 	packet_type type;
 	WORD id;
 };
@@ -57,7 +57,8 @@ struct packet_info {
 enum player_type {
 	player_ducky, player_doggy
 };
-struct player_info{
+struct player_info {
+	short id = 10;
 	bool connected = false;
 	float x;
 	float y;

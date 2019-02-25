@@ -25,6 +25,8 @@ class CStandardShader;
 #define RESOURCE_TEXTURE_CUBE		0x04
 #define RESOURCE_BUFFER				0x05
 
+
+
 struct CB_GAMEOBJECT_INFO
 {
 	XMFLOAT4X4						m_xmf4x4World;
@@ -290,6 +292,7 @@ public:
 
 	XMFLOAT4X4						m_xmf4x4ToParent;
 	XMFLOAT4X4						m_xmf4x4World;
+	XMFLOAT3						m_Hitbox;
 
 	CGameObject 					*m_pParent = NULL;
 	CGameObject 					*m_pChild = NULL;
@@ -299,10 +302,14 @@ public:
 	void SetShader(CShader *pShader);
 	void SetShader(int nMaterial, CShader *pShader);
 	void SetMaterial(int nMaterial, CMaterial *pMaterial);
+	void SetHitBox(XMFLOAT3 h) { m_Hitbox = h; }
+	XMFLOAT3 GetHitBox() { return m_Hitbox; }
 
 	void SetChild(CGameObject *pChild, bool bReferenceUpdate=false);
 
 	virtual void BuildMaterials(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList) { }
+
+	int getCollision(CPlayer* player);
 
 	virtual void OnPrepareAnimate() { }
 	virtual void Animate(float fTimeElapsed);

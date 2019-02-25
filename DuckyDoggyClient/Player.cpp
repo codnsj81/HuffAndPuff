@@ -210,6 +210,12 @@ void CPlayer::Rotate(float x, float y, float z)
 	m_xmf3Up = Vector3::CrossProduct(m_xmf3Look, m_xmf3Right, true);
 }
 
+void CPlayer::OnObject(float fy)
+{
+	m_moveState = STATE_ONOBJECTS;
+	m_ObjectHeight = fy;
+}
+
 void CPlayer::Update(float fTimeElapsed)
 {
 	if (m_PiggybackState == PIGGYBACK_CRRIED)
@@ -223,14 +229,17 @@ void CPlayer::Update(float fTimeElapsed)
 	}
 	else
 	{
-
 		float fDistance = 0;
-		if (m_moveState != STATE_GROUND)
+		if (m_moveState != STATE_GROUND && m_moveState != STATE_ONOBJECTS && m_moveState != STATE_FALLING)
 		{
 			m_fTime += fTimeElapsed;
 			fDistance = 30.f - 100.f * m_fTime;
+			if (fDistance < 0)
+				m_moveState = STATE_FALLING;
+
 			m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Up, fDistance);
 		}
+
 		if (fDistance >= 0)
 			m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Gravity);
 
@@ -521,8 +530,11 @@ void CTerrainPlayer::OnPlayerUpdateCallback(float fTimeElapsed)
 	XMFLOAT3 xmf3PlayerPosition = GetPosition();
 	int z = (int)(xmf3PlayerPosition.z / xmf3Scale.z);
 	bool bReverseQuad = ((z % 2) != 0);
-	float fHeight = pTerrain->GetHeight(xmf3PlayerPosition.x, xmf3PlayerPosition.z, bReverseQuad) + 0.0f;
-	
+	float fHeight;
+	if (m_moveState != STATE_ONOBJECTS)
+		fHeight = pTerrain->GetHeight(xmf3PlayerPosition.x, xmf3PlayerPosition.z, bReverseQuad) + 0.0f;
+	else
+		fHeight = m_ObjectHeight;
 	if (xmf3PlayerPosition.y < fHeight)
 	{
 		m_fTime = 0;

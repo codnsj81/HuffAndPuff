@@ -10,6 +10,8 @@
 #define STATE_GROUND	1
 #define STATE_JUMPING	2
 #define STATE_JUMPING2	3
+#define STATE_ONOBJECTS 4
+#define STATE_FALLING   5
 
 #define PIGGYBACK_NONE 0
 #define PIGGYBACK_CARRY	1
@@ -55,7 +57,7 @@ protected:
 	CWater						**m_ppWaters;
 	int							m_nWater;
 	int							m_playerKind;
-
+	float						m_ObjectHeight;
 public:
 	CPlayer();
 	virtual ~CPlayer();
@@ -87,6 +89,7 @@ public:
 	void SetWaters(CWater** waters) { m_ppWaters = waters; }
 	void SetnWaters(int n) { m_nWater = n; }
 
+	void SetState(int state) { m_moveState = state; }
 	bool CheckInWater(XMFLOAT3 pos, CHeightMapTerrain *pTerrain);
 
 	void Move(ULONG nDirection, float fDistance, bool bVelocity = false);
@@ -94,6 +97,7 @@ public:
 	void Move(float fxOffset = 0.0f, float fyOffset = 0.0f, float fzOffset = 0.0f);
 	void Rotate(float x, float y, float z);
 
+	void OnObject(float fy);
 	void Update(float fTimeElapsed);
 
 	virtual void OnPlayerUpdateCallback(float fTimeElapsed) { }

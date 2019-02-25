@@ -7,6 +7,31 @@
 #include "Shader.h"
 #include "Scene.h"
 
+
+int BBCollision(float minX, float maxX, float minY, float maxY, float minZ, float maxZ,
+	float minX1, float maxX1, float minY1, float maxY1, float minZ1, float maxZ1)
+{
+	if (minX > maxX1)
+		return COLLIDE_NONE;
+	if (maxX < minX1)
+		return COLLIDE_NONE;
+	if (minY > maxY1)
+		return COLLIDE_NONE;
+	if (maxY < minY1)
+		return COLLIDE_NONE;
+	if (maxZ < minZ1)
+		return COLLIDE_NONE;
+	if (minZ > minZ1)
+		return COLLIDE_NONE;
+
+	if (maxY1 <= minY)
+		return COLLIDE_UNDER;
+	if (minY1 < maxY)
+		return COLLIDE_ON;
+	return 0;
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 CTexture::CTexture(int nTextures, UINT nTextureType, int nSamplers)
@@ -533,6 +558,50 @@ void CGameObject::SetAnimationSet(int nAnimationSet)
 
 	if (m_pSibling) m_pSibling->SetAnimationSet(nAnimationSet);
 	if (m_pChild) m_pChild->SetAnimationSet(nAnimationSet);
+}
+
+int CGameObject::getCollision(CPlayer * player)
+{
+	float minX, maxX, minY, maxY, minZ, maxZ = 0.f; // i index
+	float minX1, maxX1, minY1, maxY1, minZ1, maxZ1 = 0.f;// j index
+
+	float pX, pY, sX, sY, sZ, pZ = 0.f;
+	pX = m_xmf4x4World._41;
+	pY = m_xmf4x4World._42;
+	pZ = m_xmf4x4World._43;
+	sX = m_Hitbox.x ;
+	sY = m_Hitbox.y;
+	sZ = m_Hitbox.z;
+
+	minX = pX - sX / 2.f; maxX = pX + sX / 2.f;
+	minY = pY; maxY = pY + sY;
+	minZ = pZ - sZ / 2.f; maxZ = pZ + sZ / 2.f;
+
+	XMFLOAT3 pPos = player->GetPosition();
+	pX = pPos.x;
+	pY = pPos.y;
+	pZ = pPos.z;
+	XMFLOAT3 pSize = player->GetHitBox();
+	sX = pSize.x;
+	sY = pSize.y;
+	sZ = pSize.z;
+
+	minX1 = pX - sX / 2.f; maxX1 = pX + sX / 2.f;
+	minY1 = pY ; maxY1 = pY + sY;
+	minZ1 = pZ ; maxZ1 = pZ + sZ ;
+	int result =  BBCollision(minX, maxX, minY, maxY, minZ, maxZ,minX1, maxX1, minY1, maxY1, minZ1, maxZ1);
+	switch (result)
+	{
+	case COLLIDE_ON:
+		player->OnObject(maxY);
+		break;
+	case COLLIDE_UNDER:
+		player->SetState(STATE_FALLING);
+		break;
+	}
+	
+	return result;
+
 }
 
 void CGameObject::Animate(float fTimeElapsed)

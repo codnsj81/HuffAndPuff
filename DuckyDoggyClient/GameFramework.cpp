@@ -425,15 +425,17 @@ void CGameFramework::BuildObjects()
 	// 도기 생성
 	m_pDoggy = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(),"Model/doggy_walk.bin", PLAYER_KIND_DOGGY , true, m_pScene->m_pTerrain );
 	m_pDoggy->SetPosition(XMFLOAT3(505.0f, m_pScene->m_pTerrain->GetHeight(505.0f, 709.0f), 709.0f));
-	m_pDoggy->SetScale(XMFLOAT3(3.0f, 3.0f, 3.0f));
+	m_pDoggy->SetScale(XMFLOAT3(4.0f, 4.0f, 4.0f));
+	m_pDoggy->SetHitBox(XMFLOAT3(5.f, 5.f, 5.f));
 	// @
 	g_myinfo.x = 505.0f;  g_myinfo.y = m_pScene->m_pTerrain->GetHeight(505.0f, 709.0f); g_myinfo.z = 709.0f;
-
+	
 
 
 	// @ 더기 생성 나중에!!! 해야되는데
 	m_pDucky = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), "Model/ducky.bin", PLAYER_KIND_DUCKY, false, m_pScene->m_pTerrain);
-	m_pDucky->SetPosition(XMFLOAT3(873.0f, m_pScene->m_pTerrain->GetHeight(873.0f, 326.0f), 326.0f));
+	m_pDucky->SetPosition(XMFLOAT3(505.0f, m_pScene->m_pTerrain->GetHeight(505, 709.0f), 709.0f));
+	m_pDucky->SetHitBox(XMFLOAT3(5.f, 5.f, 5.f));
 	//m_pDucky->SetScale(XMFLOAT3(7.0f, 7.0f, 7.0f));
 
 	m_pDucky->SetParter(m_pDoggy);
@@ -598,6 +600,9 @@ void CGameFramework::FrameAdvance()
 			m_ppWaters[i]->Render(m_pd3dCommandList, m_pCamera);
 		}
 	}
+
+	if(m_pScene) m_pScene->Update();
+
 	d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
 	d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
 	d3dResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;

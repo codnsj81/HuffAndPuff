@@ -22,6 +22,10 @@
 
 #include <fstream>
 #include <vector>
+#include <iostream>
+#include <list>
+
+using namespace std;
 
 // DEFINE
 #define PLAYER_KIND_DUCKY	0
@@ -292,3 +296,8 @@ namespace Plane
 		return(xmf4Result);
 	}
 }
+
+#define COLLIDE_NONE			0
+#define COLLIDE_ON				1
+#define COLLIDE_UNDER			2
+#define COLLIDE_SIDE			3

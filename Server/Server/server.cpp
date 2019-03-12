@@ -4,8 +4,9 @@
 #include <iostream>
 #include "../../Headers/Include.h"
 #include <array>
-#pragma comment(lib, "ws2_32")
 using namespace std;
+#pragma comment(lib, "ws2_32")
+
 
 static const int EVT_RECV = 0;
 static const int EVT_SEND = 1;
@@ -32,10 +33,10 @@ struct SOCKETINFO
 {
 	WSAOVERLAPPED overlapped; // overlapped 구조체
 	SOCKET sock;
-	char buf[BUFSIZE + 1];	// 응용 프로그램 버퍼
+	char buf[BUFSIZE + 1];	// 응용 프로그램 버퍼. 실제 버퍼가 들어갈 메시지 버퍼.
 	int recvbytes;	// 송, 수신 바이트 수
 	int sendbytes;
-	WSABUF wsabuf;	// WSABUF 구조체
+	WSABUF wsabuf;	// WSABUF 구조체. 버퍼 자체가 아닌, 버퍼의 포인터
 };
 
 class Client
@@ -79,115 +80,107 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	// 이벤트 객체 생성
-	hReadEvent = CreateEvent(NULL, FALSE, TRUE, NULL); /// WorkerThread 스레드가 g_clients 변수 값을 읽었음을 메인 스레드에 알리는 용도
-	if (hReadEvent == NULL) return 1;
-	hWriteEvent = CreateEvent(NULL, FALSE, FALSE, NULL); /// 메인 스레드가 g_clients 변수 값을 변경했음을 alertable wait 상태인 WorkerThread 스레드에 알리는 용도
-	if (hWriteEvent == NULL) return 1;
+	// 사용할 소켓을 생성한다.
+	SOCKET listen_sock = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
+	if (listen_sock == INVALID_SOCKET) err_quit("[오류] Invalid socket");
 
-	// worker thread 생성 // 필요 없으니까 잠만 나와바
-	// HANDLE hThread = CreateThread(NULL, 0, WorkerThread, NULL, 0, NULL);
-	// accept thread 생성
-	HANDLE hThread2 = CreateThread(NULL, 0, AcceptThread, NULL, 0, NULL);
-	if (/*hThread == NULL ||*/ hThread2 == NULL) return 1;
+	// 서버 정보 객체를 설정한다.
+	SOCKADDR_IN serveraddr;
+	ZeroMemory(&serveraddr, sizeof(serveraddr));
+	serveraddr.sin_family = PF_INET;
+	serveraddr.sin_addr.s_addr = htonl(INADDR_ANY);
+	serveraddr.sin_port = htons(SERVERPORT);
 
-
-	while (true) {
-		// 메인 함수가 끝나버려.. ㅜㅜ 
+	// 소켓을 설정한다.
+	retval = bind(listen_sock, (SOCKADDR *)&serveraddr, sizeof(serveraddr));
+	if (retval == SOCKET_ERROR) {
+		closesocket(listen_sock);
+		WSACleanup();
+		err_quit("[오류] bind()");
 	}
-	//CloseHandle(hThread);
-	CloseHandle(hThread2);
+
+	// 수신 대기열을 생성한다.
+	retval = listen(listen_sock, 2);
+	if (retval == SOCKET_ERROR) {
+		closesocket(listen_sock);
+		WSACleanup();
+		err_quit("[오류] listen()");
+	}
+
+	//// accept thread 생성
+	//HANDLE hThread = CreateThread(NULL, 0, AcceptThread, NULL, 0, NULL);
+	//if (hThread == NULL) return 1;
+
+
+	SOCKADDR_IN client_addr;
+	int addr_length = sizeof(SOCKADDR_IN);
+	memset(&client_addr, 0, addr_length);
+	SOCKET client_sock;
+	SOCKETINFO* socket_info;
+	DWORD recv_bytes;
+	DWORD flags;
+
+	int id{ -1 };
+	while (1) {
+		// accept -> 클라이언트와 연결 -> 클라이언트의 주소 구조체 변수를 받음 -> 주소 정보 얻어옴.
+		client_sock = accept(listen_sock, (struct sockaddr*)&client_addr, &addr_length);
+		if (client_sock == INVALID_SOCKET) {
+			err_display("[오류] accept()");
+			return 1;
+		}
+		
+		// 클라이언트 정보를 만들어 온다.
+		socket_info = new SOCKETINFO;
+		memset((void*)socket_info, 0x00, sizeof(SOCKETINFO));
+		socket_info->sock = client_sock;
+		socket_info->wsabuf.len = MAX_BUFSIZE;
+		socket_info->wsabuf.buf = socket_info->buf;
+		flags = 0;
+
+		// 넘겨주고, 받아서 쓴다.
+		// socket_info->overlapped.hEvent = (HANDLE)socket_info->sock;
+
+		// 중첩 소켓 지정 -> 완료시 실행될 함수 넘겨줌
+		// Recv 하고 바로 끝난다 -> overlapped IO라서. 실제 버퍼에 데이터가 들어오는 건 나중 일.
+		if (WSARecv(socket_info->sock, &socket_info->wsabuf, 1, &recv_bytes, &flags, &(socket_info->overlapped), CompletionRoutine)) {
+			// overlapped IO는 pending 에러가 나와야 함.
+			if (WSAGetLastError() != WSA_IO_PENDING) {
+				err_quit("[오류] IO Pending Fail");
+			}
+		}
+		// 접속한 클라이언트의 정보를 띄운다.
+		cout << "[알림] [" << id << "] 번째 클라이언트 접속 : IP 주소 = " << inet_ntoa(client_addr.sin_addr) << ", 포트 번호 = " << ntohs(client_addr.sin_port) << endl;
+
+
+		// 클라이언트에 id를 부여한다.
+		for (int i = 0; i < NUM_OF_PLAYER; ++i) {
+			if (false == g_clients[i].m_connected) {
+				id = i;
+				break;
+			}
+		}
+		if (-1 == id) { /// 접속 유저 초과
+			cout << ("Excceded Users") << endl;
+			continue;
+		}
+
+		// g_clients[해당id] 배열 원소에 정보를 갱신한다.
+		g_clients[id].m_connected = true;
+		g_clients[id].m_sock = client_sock;
+		memcpy(&(g_clients[id].m_sockinfo), socket_info, sizeof(SOCKETINFO));
+
+	}
+	closesocket(listen_sock);
+	WSACleanup();
 	return 0;
+
 }
 
 // 새로 접속해 오는 클라이언트를 받는 역할
 DWORD WINAPI AcceptThread(LPVOID arg)
 {
-	int retval;
-
-	// socket()
-	SOCKET listen_sock = socket(AF_INET, SOCK_STREAM, 0);
-	if (listen_sock == INVALID_SOCKET)
-		err_quit("socket()");
-
-	// bind()
-	SOCKADDR_IN serveraddr;
-	ZeroMemory(&serveraddr, sizeof(serveraddr));
-	serveraddr.sin_family = AF_INET;
-	serveraddr.sin_addr.s_addr = htonl(INADDR_ANY);
-	serveraddr.sin_port = htons(SERVERPORT);
-	retval = bind(listen_sock, (SOCKADDR *)&serveraddr, sizeof(serveraddr));
-	if (retval == SOCKET_ERROR) err_quit("bind()");
-
-	// listen()
-	retval = listen(listen_sock, SOMAXCONN);
-	if (retval == SOCKET_ERROR) err_quit("listen()");
-
-	int id{ -1 };
-
-	SOCKET client_sock;
-	while (1) {
-		//WaitForSingleObject(hReadEvent, INFINITE); // 읽기 완료 대기
-
-		// accept 
-		/// 클라이언트가 접속할 때마다
-		client_sock = accept(listen_sock, NULL, NULL);
-		if (client_sock == INVALID_SOCKET) {
-			err_display("accept()");
-			break;
-		}
-		/// 클라이언트 id 부여
-		else {
-			for (int i = 0; i < NUM_OF_PLAYER; ++i) {
-				if (false == g_clients[i].m_connected) {
-					id = i;
-					break;
-				}
-			}
-			if (-1 == id) { /// 접속 유저 초과
-				cout << ("Excceded Users") << std::endl;
-				continue;
-			}
-
-			g_clients[id].m_connected = true;
-			g_clients[id].m_sock = client_sock;
-		}
 
 
-		// 넘겨주고, 받아서 쓰기.
-		// p->overlapped.hEvent = (HANDLE)p->sock;
-
-		// 소켓 정보 구조체 할당과 초기화
-		SOCKETINFO *ptr = new SOCKETINFO;
-		if (ptr == NULL) {
-			cout << ("[오류] 메모리가 부족합니다") << endl;
-			return 1;
-		}
-
-		ZeroMemory(&ptr->overlapped, sizeof(ptr->overlapped));
-		ptr->sock = g_clients[id].m_sock;
-		//SetEvent(hReadEvent); // client_sock 변수 값을 읽어가는 즉시 hReadEvent를 신호 상태로
-		ptr->recvbytes = ptr->sendbytes = 0;
-		ptr->wsabuf.buf = ptr->buf;
-		ptr->wsabuf.len = BUFSIZE;
-
-		memcpy(&(g_clients[id].m_sockinfo), ptr, sizeof(SOCKETINFO));
-
-		// 비동기 입출력 시작.
-		DWORD recvbytes;
-		DWORD flags = 0;
-		retval = WSARecv(ptr->sock, &ptr->wsabuf, 1, &recvbytes,
-			&flags, &ptr->overlapped, CompletionRoutine);
-		if (retval == SOCKET_ERROR) {
-			if (WSAGetLastError() != WSA_IO_PENDING) {
-				err_display("WSARecv()");
-				return 1;
-			}
-		}
-	}
-
-	// 윈속 종료
-	WSACleanup();
 	return 0;
 }
 
@@ -259,8 +252,10 @@ void CALLBACK CompletionRoutine(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED ov
 	socketInfo = (struct SOCKETINFO *)overlapped; // 변경할 수 없는 overlapped 구조체를 타입 캐스팅. SOCKETINFO의 구조체의 첫 멤버 변수가 overlapped이기 때문에,, 걍 꼼수임,, callback 함수의 인자로 들어오는 것 중에 정보가 없으므로.
 
 
-	if (dataBytes == 0) // recv로 0 바이트를 읽었을 때 ? -> 접속된 클라이언트에서 소켓 접속을 끈 것 (CloseSocket()을 호출 한 것.)
+	// 접속된 클라이언트에서 소켓 접속을 끊었을 때.
+	if (dataBytes == 0)
 	{
+		// recv로 0 바이트를 읽었을 때 ? -> 접속된 클라이언트에서 소켓 접속을 끈 것 (CloseSocket()을 호출 한 것.)
 		// 클라에서 끊었는데 굳이 잡고 있을 필요 X
 		closesocket(socketInfo->sock);
 		free(socketInfo);
@@ -276,8 +271,6 @@ void CALLBACK CompletionRoutine(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED ov
 		socketInfo->wsabuf.buf = socketInfo->buf;
 		socketInfo->wsabuf.len = socketInfo->recvbytes; /// 실제로 받은 데이터 만큼만 보내야 한다.
 
-		cout << "TRACE - Receive message : " << socketInfo->buf << " ( " << dataBytes << " bytes) " << endl;
-
 		// 데이터를 받고 난 후.
 		// 1. 받아 올 패킷의 정보를 알아내야 한다. (고정 길이)
 		packet_info packetinfo;
@@ -285,6 +278,7 @@ void CALLBACK CompletionRoutine(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED ov
 			ZeroMemory(&packetinfo, sizeof(packetinfo));
 			memcpy(&packetinfo, socketInfo->buf, sizeof(packetinfo));
 		}
+		cout << "Receive packet : " << packetinfo.type << " ( " << dataBytes << " bytes) " << endl;
 		// 2. 패킷 타입을 통해 알맞는 처리를 해 준다.
 		{
 			switch (packetinfo.type) {

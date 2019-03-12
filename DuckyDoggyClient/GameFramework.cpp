@@ -533,7 +533,7 @@ void CGameFramework::ProcessInput()
 		}
 
 		//@ 서버한테 위치 보내기
-		if (true == ismove && true == g_myinfo.connected) {
+		/*if (true == ismove && true == g_myinfo.connected) {
 			player_info playerinfo;
 			XMFLOAT3 pos = m_pPlayer->GetPosition();
 			playerinfo.x = pos.x; playerinfo.y = pos.y; playerinfo.z = pos.z;
@@ -551,7 +551,8 @@ void CGameFramework::ProcessInput()
 			if (retval == SOCKET_ERROR) {
 				MessageBoxW(g_hWnd, L"send()", L"send() - cs_move", MB_OK);
 			}
-		}
+		}*/
+
 		float cxDelta = 0.0f, cyDelta = 0.0f;
 		POINT ptCursorPos;
 		if (GetCapture() == m_hWnd)

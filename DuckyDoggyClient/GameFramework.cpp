@@ -329,6 +329,11 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 					m_pScene->m_pPlayer = m_pPlayer = m_pDoggy;
 					m_pCamera = m_pPlayer->GetCamera();
 					break;
+				case 't':
+				case 'T':
+					m_pScene->PlusTreeData();
+				case 'Y':
+					m_pScene->SaveTreeData();
 				default:
 					break;
 			}

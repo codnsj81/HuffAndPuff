@@ -4,6 +4,7 @@
 
 #include "stdafx.h"
 #include "Scene.h"
+#include <fstream>
 
 ID3D12DescriptorHeap *CScene::m_pd3dCbvSrvDescriptorHeap = NULL;
 
@@ -67,30 +68,27 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 
 	m_nWaters = 1;
 	m_ppWaters = new CWater*[m_nWaters];
-	m_ppWaters[0] = new CWater(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 400, 150, XMFLOAT3(1509.f, m_pTerrain->GetHeight(1509.0f, 834.0f) + 20.f, 834.0f));
+	m_ppWaters[0] = new CWater(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 400, 150, XMFLOAT3(1509.f, m_pTerrain->GetHeight(1509.0f, 834.0f) + 25.f, 834.0f));
 	m_ppWaters[0]->Rotate(0, 10.f, 0);
-	CGameObject *pStone = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Rock.bin", NULL, false);
-
-	m_nGameObjects = 3;
+	m_nGameObjects = 2;
 	m_ppGameObjects = new CGameObject*[m_nGameObjects];
 
+
+	CGameObject *pStone = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Rock.bin", NULL, false);
 	m_ppGameObjects[0] = new CGameObject();
 	m_ppGameObjects[0]->SetChild(pStone, true);
-	m_ppGameObjects[0]->SetPosition(505.0f, m_pTerrain->GetHeight(505.0f, 719.0f) + 5.f , 719.0f);
-	m_ppGameObjects[0]->SetScale(3.0f, 3.0f, 3.0f);
+	m_ppGameObjects[0]->SetPosition(547, m_pTerrain->GetHeight(547,769), 769);
 	m_ppGameObjects[0]->SetHitBox(XMFLOAT3(11.f, 2.f, 11.f));
+	m_ppGameObjects[0]->SetScale(3.f, 3.f, 3.f);
 
 	m_ppGameObjects[1] = new CGameObject();
 	m_ppGameObjects[1]->SetChild(pStone, true);
-	m_ppGameObjects[1]->SetPosition(515.0f, m_pTerrain->GetHeight(515.0f, 719.0f) + 13.f, 719.0f);
-	m_ppGameObjects[1]->SetScale(3.0f, 3.0f, 3.0f);
+	m_ppGameObjects[1]->SetPosition(567, m_pTerrain->GetHeight(567, 769), 769);
 	m_ppGameObjects[1]->SetHitBox(XMFLOAT3(11.f, 2.f, 11.f));
+	m_ppGameObjects[1]->SetScale(3.f, 3.f, 3.f);
 
-	m_ppGameObjects[2] = new CGameObject();
-	m_ppGameObjects[2]->SetChild(pStone, true);
-	m_ppGameObjects[2]->SetPosition(495.0f, m_pTerrain->GetHeight(495.0f, 719.0f) , 719.0f);
-	m_ppGameObjects[2]->SetScale(3.0f, 3.0f, 3.0f);
-	m_ppGameObjects[2]->SetHitBox(XMFLOAT3(11.f, 2.f, 11.f));
+
+	LoadTree(pd3dDevice, pd3dCommandList);
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
@@ -119,7 +117,12 @@ void CScene::ReleaseObjects()
 		for (int i = 0; i < m_nGameObjects; i++) if (m_ppGameObjects[i]) m_ppGameObjects[i]->Release();
 		delete[] m_ppGameObjects;
 	}
-
+	if (m_TreeObjectslist.size() != 0)
+	{
+		for (auto n : m_TreeObjectslist) {
+			n->Release();
+		}
+	}
 	if (m_ppWaters)
 	{
 		for (int i = 0; i < m_nWaters; i++) if (m_ppWaters[i]) m_ppWaters[i]->Release();
@@ -141,6 +144,11 @@ void CScene::Update()
 			m_ppGameObjects[i]->getCollision(m_pDoggy);
 		}
 	}
+	for (auto n : m_TreeObjectslist) {
+		n->getCollision(m_pDoggy);
+		n->getCollision(m_pDucky);
+	}
+	
 }
 
 void CScene::SetDuckyNDoggy(CPlayer * ducky, CPlayer * doggy, CPlayer * player)
@@ -372,6 +380,29 @@ void CScene::ReleaseUploadBuffers()
 	for (int i = 0; i < m_nShaders; i++) m_ppShaders[i]->ReleaseUploadBuffers();
 	for (int i = 0; i < m_nGameObjects; i++) m_ppGameObjects[i]->ReleaseUploadBuffers();
 	for (int i = 0; i < m_nWaters; i++) m_ppWaters[i]->ReleaseUploadBuffers();
+
+	for (auto n : m_TreeObjectslist)
+	{
+		n->ReleaseUploadBuffers();
+	}
+}
+
+void CScene::PlusTreeData()
+{
+	XMFLOAT2 playerXZpos;
+	playerXZpos.x = m_pPlayer->GetPosition().x;
+	playerXZpos.y = m_pPlayer->GetPosition().z;
+	TreeDatalist.push_back(playerXZpos);
+}
+
+void CScene::SaveTreeData()
+{
+	fstream out("TreeData.txt", ios::out | ios::binary);
+
+	for (auto n : TreeDatalist)
+	{
+		out << n.x << " " << n.y << "\n";
+	}
 }
 
 void CScene::CreateCbvSrvDescriptorHeaps(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nConstantBufferViews, int nShaderResourceViews)
@@ -483,6 +514,34 @@ bool CScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wPar
 	return(false);
 }
 
+void CScene::LoadTree(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
+{
+
+	CGameObject *pTree = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Poplar_Tree.bin", NULL, false);
+
+	fstream in("TreeData.txt", ios::in | ios::binary);
+	while (in)
+	{
+		XMFLOAT2 dat;
+		in >> dat.x;
+		in >> dat.y;
+		TreeDatalist.emplace_back(dat);
+	}
+
+	list<XMFLOAT2>::iterator iter = TreeDatalist.begin();
+	list<XMFLOAT2>::iterator end = TreeDatalist.end();
+
+	for (iter; iter != end; iter++)
+	{
+		CGameObject* obj = new CGameObject();
+		obj->SetChild(pTree, true);
+		obj->SetPosition(iter->x, m_pTerrain->GetHeight(iter->x, iter->y), iter->y);
+		obj->SetHitBox(XMFLOAT3(4.f, 10.f, 4.f));
+		m_TreeObjectslist.push_back(obj);
+	}
+
+}
+
 bool CScene::ProcessInput(UCHAR *pKeysBuffer)
 {
 	return(false);
@@ -519,6 +578,12 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 			m_ppGameObjects[i]->UpdateTransform(NULL);
 			m_ppGameObjects[i]->Render(pd3dCommandList, pCamera);
 		}
+	}
+
+	for (auto p : m_TreeObjectslist)
+	{
+		p->UpdateTransform(NULL);
+		p->Render(pd3dCommandList, pCamera);
 	}
 
 	for (int i = 0; i < m_nShaders; i++) if (m_ppShaders[i]) m_ppShaders[i]->Render(pd3dCommandList, pCamera);

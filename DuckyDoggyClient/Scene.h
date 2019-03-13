@@ -58,7 +58,8 @@ public:
 
 	ID3D12RootSignature *CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
 	ID3D12RootSignature *GetGraphicsRootSignature() { return(m_pd3dGraphicsRootSignature); }
-
+	
+	void LoadTree(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	bool ProcessInput(UCHAR *pKeysBuffer);
     void AnimateObjects(float fTimeElapsed);
     void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera=NULL);
@@ -69,6 +70,9 @@ public:
 	CPlayer								*m_pPlayer = NULL;
 	CPlayer								*m_pDoggy;
 	CPlayer								*m_pDucky;
+
+	void PlusTreeData();
+	void SaveTreeData();
 
 protected:
 	ID3D12RootSignature					*m_pd3dGraphicsRootSignature = NULL;
@@ -84,6 +88,7 @@ protected:
 	static D3D12_GPU_DESCRIPTOR_HANDLE	m_d3dCbvGPUDescriptorNextHandle;
 	static D3D12_CPU_DESCRIPTOR_HANDLE	m_d3dSrvCPUDescriptorNextHandle;
 	static D3D12_GPU_DESCRIPTOR_HANDLE	m_d3dSrvGPUDescriptorNextHandle;
+
 
 public:
 	static void CreateCbvSrvDescriptorHeaps(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nConstantBufferViews, int nShaderResourceViews);
@@ -103,6 +108,7 @@ public:
 
 	int									m_nGameObjects = 0;
 	CGameObject							**m_ppGameObjects = NULL;
+	list<CGameObject*>					m_TreeObjectslist;
 
 	int									m_nWaters = 0;
 	CWater								**m_ppWaters = NULL;
@@ -122,4 +128,7 @@ public:
 
 	ID3D12Resource						*m_pd3dcbLights = NULL;
 	LIGHTS								*m_pcbMappedLights = NULL;
+
+
+	list<XMFLOAT2> TreeDatalist;
 };

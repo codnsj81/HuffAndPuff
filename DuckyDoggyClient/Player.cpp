@@ -438,7 +438,7 @@ CCamera *CAirplanePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 			m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
 			break;
 		case THIRD_PERSON_CAMERA:
-			SetFriction(0.5f);
+			SetFriction(1.f);
 			SetGravity(XMFLOAT3(0.0f, 0.0f, 0.0f));
 			SetMaxVelocityXZ(3.5f);
 			SetMaxVelocityY(10.0f);

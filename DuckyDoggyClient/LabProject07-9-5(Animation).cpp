@@ -144,7 +144,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case ID_NETWORK_ACCESS_DEFAULT: // 도기로 접속
 		{
 			g_myinfo.type = player_doggy;
-			// 네트워크 접속, 접속 ip는 default 값
 			char p[128] = "127.0.0.1";
 			wcscpy(g_ipbuf, L"127.0.0.1");
 			InitializeNetwork();
@@ -154,7 +153,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case ID_NETWORK_ACCESS_USER: // 더기로 접속
 		{
 			g_myinfo.type = player_ducky;
-			// 네트워크 접속, ip 입력 받음 -> 우선 X
 			char p[128] = "127.0.0.1";
 			wcscpy(g_ipbuf, L"127.0.0.1");
 			InitializeNetwork();
@@ -218,7 +216,7 @@ int InitializeNetwork()
 
 	// recv 전용 스레드를 만든다.
 	hThread = CreateThread(NULL, 0, RecvThread, (LPVOID)g_sock, 0, NULL);
-	if (NULL == hThread)	CloseHandle(hThread);
+	// if (NULL == hThread)	CloseHandle(hThread);
 
 	// 서버 정보 객체를 설정 한다. 
 	SOCKADDR_IN serveraddr;
@@ -295,6 +293,9 @@ DWORD __stdcall RecvThread(LPVOID arg)
 			MessageBoxW(g_hWnd, L"recvn() - packetinfo", MB_OK, MB_OK);
 			return 0;
 		}
+		else
+			MessageBoxW(g_hWnd, L"recvn() 성공 - packetinfo", MB_OK, MB_OK);
+
 		// 2. 고정 길이 데이터에서 packet type을 알아내고, 분기한다.
 		switch (packetinfo.type) {
 		case sc_your_playerinfo:

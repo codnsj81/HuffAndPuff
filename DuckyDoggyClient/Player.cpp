@@ -145,7 +145,7 @@ void CPlayer::Move(const XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 			if (m_playerKind == PLAYER_KIND_DOGGY && CheckInWater(pos,pTerrain))
 				return;
 
-			else if (fHeight - m_fPreHeight < 0.3f)
+			else if (fHeight - m_fPreHeight < 0.3f || m_moveState != STATE_GROUND)
 			{
 				m_xmf3Position = Vector3::Add(m_xmf3Position, xmf3Shift);
 			}
@@ -280,7 +280,15 @@ void CPlayer::Update(float fTimeElapsed)
 	if (nCurrentCameraMode == THIRD_PERSON_CAMERA) m_pCamera->SetLookAt(pos);
 	m_pCamera->RegenerateViewMatrix();
 
-	SetAnimationSet(Vector3::IsZero(m_xmf3Velocity) ? 0 : 1);
+	if (Vector3::IsZero(m_xmf3Velocity))
+		SetAnimationSet(1);
+	else
+	{
+		if(m_moveState == STATE_GROUND)
+		SetAnimationSet(0);
+		else
+			SetAnimationSet(2);
+	}
 }
 
 CCamera *CPlayer::OnChangeCamera(DWORD nNewCameraMode, DWORD nCurrentCameraMode)

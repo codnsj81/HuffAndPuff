@@ -55,7 +55,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 
 	XMFLOAT3 xmf3Scale(8.0f, 3.0f, 8.0f);
 	XMFLOAT4 xmf4Color(1.f, 0.3f, 0.3f, 0.0f);
-	m_pTerrain = new CHeightMapTerrain(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, _T("Terrain/terrain2.raw"), 257, 257, xmf3Scale, xmf4Color);
+	m_pTerrain = new CHeightMapTerrain(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, _T("Terrain/terrain.raw"), 257, 257, xmf3Scale, xmf4Color);
 
 	m_nShaders = 1;
 	m_ppShaders = new CShader*[m_nShaders];
@@ -70,24 +70,10 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	m_ppWaters = new CWater*[m_nWaters];
 	m_ppWaters[0] = new CWater(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 400, 150, XMFLOAT3(1509.f, m_pTerrain->GetHeight(1509.0f, 834.0f) + 25.f, 834.0f));
 	m_ppWaters[0]->Rotate(0, 10.f, 0);
-	m_nGameObjects = 2;
+	m_nGameObjects = 6;
 	m_ppGameObjects = new CGameObject*[m_nGameObjects];
 
-
-	CGameObject *pStone = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Rock.bin", NULL, false);
-	m_ppGameObjects[0] = new CGameObject();
-	m_ppGameObjects[0]->SetChild(pStone, true);
-	m_ppGameObjects[0]->SetPosition(547, m_pTerrain->GetHeight(547,769), 769);
-	m_ppGameObjects[0]->SetHitBox(XMFLOAT3(11.f, 2.f, 11.f));
-	m_ppGameObjects[0]->SetScale(3.f, 3.f, 3.f);
-
-	m_ppGameObjects[1] = new CGameObject();
-	m_ppGameObjects[1]->SetChild(pStone, true);
-	m_ppGameObjects[1]->SetPosition(567, m_pTerrain->GetHeight(567, 769), 769);
-	m_ppGameObjects[1]->SetHitBox(XMFLOAT3(11.f, 2.f, 11.f));
-	m_ppGameObjects[1]->SetScale(3.f, 3.f, 3.f);
-
-
+	LoadStone(pd3dDevice, pd3dCommandList);
 	LoadTree(pd3dDevice, pd3dCommandList);
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
@@ -512,6 +498,47 @@ bool CScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wPar
 		break;
 	}
 	return(false);
+}
+
+void CScene::LoadStone(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList)
+{
+
+	CGameObject *pStone = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Rock.bin", NULL, false);
+	m_ppGameObjects[0] = new CGameObject();
+	m_ppGameObjects[0]->SetChild(pStone, true);
+	m_ppGameObjects[0]->SetPosition(XMFLOAT3(1440.0f, m_pTerrain->GetHeight(1440, 1393.0f) + 10, 1393.0f));
+	m_ppGameObjects[0]->SetHitBox(XMFLOAT3(11.f, 2.f, 11.f));
+	m_ppGameObjects[0]->SetScale(3.f, 3.f, 3.f);
+
+	m_ppGameObjects[1] = new CGameObject();
+	m_ppGameObjects[1]->SetChild(pStone, true);
+	m_ppGameObjects[1]->SetPosition(1440.0f, m_pTerrain->GetHeight(1440, 1370.f) + 5, 1370.0f);
+	m_ppGameObjects[1]->SetHitBox(XMFLOAT3(11.f, 2.f, 22.f));
+	m_ppGameObjects[1]->SetScale(3.f, 3.f, 6.f);
+
+	m_ppGameObjects[2] = new CGameObject();
+	m_ppGameObjects[2]->SetChild(pStone, true);
+	m_ppGameObjects[2]->SetPosition(1440.0f, m_pTerrain->GetHeight(1440, 1370.f) + 15, 1370.0f);
+	m_ppGameObjects[2]->SetHitBox(XMFLOAT3(11.f, 2.f, 11.f));
+	m_ppGameObjects[2]->SetScale(3.f, 3.f, 3.f);
+
+	m_ppGameObjects[3] = new CGameObject();
+	m_ppGameObjects[3]->SetChild(pStone, true);
+	m_ppGameObjects[3]->SetPosition(1440.0f, m_pTerrain->GetHeight(1440, 1360.f) + 20, 1360.0f);
+	m_ppGameObjects[3]->SetHitBox(XMFLOAT3(11.f, 2.f, 11.f));
+	m_ppGameObjects[3]->SetScale(3.f, 3.f, 3.f);
+
+	m_ppGameObjects[4] = new CGameObject();
+	m_ppGameObjects[4]->SetChild(pStone, true);
+	m_ppGameObjects[4]->SetPosition(1444.0f, m_pTerrain->GetHeight(1444, 1378.f) + 25, 1378.0f);
+	m_ppGameObjects[4]->SetHitBox(XMFLOAT3(11.f, 2.f, 22.f));
+	m_ppGameObjects[4]->SetScale(3.f, 3.f, 6.f);
+
+	m_ppGameObjects[5] = new CGameObject();
+	m_ppGameObjects[5]->SetChild(pStone, true);
+	m_ppGameObjects[5]->SetPosition(1444.0f, m_pTerrain->GetHeight(1444, 1365.f) + 32, 1365.0f);
+	m_ppGameObjects[5]->SetHitBox(XMFLOAT3(11.f, 2.f, 11.f));
+	m_ppGameObjects[5]->SetScale(3.f, 3.f, 3.f);
 }
 
 void CScene::LoadTree(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)

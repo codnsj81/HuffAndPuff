@@ -130,7 +130,7 @@ int main(int argc, char *argv[])
 		}
 		
 		// 클라이언트 정보를 만들어 온다.
-		socket_info = new SOCKETINFO;
+		socket_info = (struct SOCKETINFO *)malloc(sizeof(struct SOCKETINFO));
 		memset((void*)socket_info, 0x00, sizeof(SOCKETINFO));
 		socket_info->sock = client_sock;
 		socket_info->wsabuf.len = MAX_BUFSIZE;
@@ -138,7 +138,7 @@ int main(int argc, char *argv[])
 		flags = 0;
 
 		// 넘겨주고, 받아서 쓴다.
-		// socket_info->overlapped.hEvent = (HANDLE)socket_info->sock;
+		socket_info->overlapped.hEvent = (HANDLE)socket_info->sock;
 
 		// 중첩 소켓 지정 -> 완료시 실행될 함수 넘겨줌
 		// Recv 하고 바로 끝난다 -> overlapped IO라서. 실제 버퍼에 데이터가 들어오는 건 나중 일.
@@ -148,8 +148,6 @@ int main(int argc, char *argv[])
 				err_quit("[오류] IO Pending Fail");
 			}
 		}
-		// 접속한 클라이언트의 정보를 띄운다.
-		cout << "[알림] [" << id << "] 번째 클라이언트 접속 : IP 주소 = " << inet_ntoa(client_addr.sin_addr) << ", 포트 번호 = " << ntohs(client_addr.sin_port) << endl;
 
 
 		// 클라이언트에 id를 부여한다.
@@ -169,6 +167,8 @@ int main(int argc, char *argv[])
 		g_clients[id].m_sock = client_sock;
 		memcpy(&(g_clients[id].m_sockinfo), socket_info, sizeof(SOCKETINFO));
 
+		// 접속한 클라이언트의 정보를 띄운다.
+		cout << "[알림] [" << id << "] 번째 클라이언트 접속 : IP 주소 = " << inet_ntoa(client_addr.sin_addr) << ", 포트 번호 = " << ntohs(client_addr.sin_port) << endl;
 	}
 	closesocket(listen_sock);
 	WSACleanup();
@@ -278,12 +278,13 @@ void CALLBACK CompletionRoutine(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED ov
 			ZeroMemory(&packetinfo, sizeof(packetinfo));
 			memcpy(&packetinfo, socketInfo->buf, sizeof(packetinfo));
 		}
-		cout << "Receive packet : " << packetinfo.type << " ( " << dataBytes << " bytes) " << endl;
+
 		// 2. 패킷 타입을 통해 알맞는 처리를 해 준다.
 		{
 			switch (packetinfo.type) {
 			case cs_put_player:
 			{
+				cout << "Receive packet : " << "cs_put_player" << " ( " << dataBytes << " bytes) " << endl;
 				if (false == g_clients[1].m_connected) {
 					// 클라 0 : connect 완료했으니까 나 들어왔다는 신호, 위치 정보 패킷 보낼게
 					// 서버 : g_clients[0].m_pos에 니 위치 정보를 갱신할게!! 
@@ -414,6 +415,8 @@ void CALLBACK CompletionRoutine(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED ov
 			break;
 			case cs_move:
 			{
+				cout << "Receive packet : " << "cs_move" << " ( " << dataBytes << " bytes) " << endl;
+
 				// 해당 클라이언트의 이동 완료된 좌표를 받아온다.
 				player_info playerinfo;
 				{
@@ -506,10 +509,10 @@ void CALLBACK CompletionRoutine(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED ov
 		socketInfo->wsabuf.len = BUFSIZE;
 		socketInfo->wsabuf.buf = socketInfo->buf;
 
-		cout << "TRACE - Send message : " << socketInfo->buf << "( " << dataBytes << "bytes)" << endl;
+		cout << "TRACE - Send message : "  << "( " << dataBytes << "bytes)" << endl;
 
 		// ------------------------------------------------
-		// 여기부터는 생략해도 될 것 같아. 일단 주석 처리 한다.
+		// 여기부터는 생략해도 될 것 같아. 일단 주석 처리.
 		//memset(&(socketInfo->overlapped), 0x00, sizeof(WSAOVERLAPPED)); // overlapped IO가 종료하고, recv가 종료되었으므로 또 recv를 하려면 overlapped 구조체를 0으로 초기화한다. 미리 함.
 
 		//if (WSARecv(socketInfo->sock, &socketInfo->wsabuf, 1, &receiveBytes, &flags, &(socketInfo->overlapped), CompletionRoutine) == SOCKET_ERROR)

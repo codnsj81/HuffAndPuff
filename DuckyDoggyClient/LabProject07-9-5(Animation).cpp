@@ -219,7 +219,7 @@ int InitializeNetwork()
 
 	// 윈속을 초기화 한다.
 	WSADATA wsa;
-	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
+	if (WSAStartup(MAKEWORD(2, 0), &wsa) != 0) {
 		MessageBoxW(g_hWnd, L"Can not load 'winsock.dll' file", MB_OK, MB_OK);
 		return 1;
 	}
@@ -313,6 +313,7 @@ DWORD __stdcall SendThread(LPVOID arg)
 		// 데이터 보내기.
 		int sendBytes = send(g_sock, buf, MAX_BUFSIZE, 0);
 
+		ZeroMemory(buf, MAX_BUFSIZE);
 		g_send = false;
 	}
 }

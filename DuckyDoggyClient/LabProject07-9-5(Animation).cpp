@@ -18,11 +18,24 @@ CGameFramework					gGameFramework;
 // 서버와 통신
 SOCKET g_sock;
 char buf[BUFSIZE];	// 데이터 버퍼
-HANDLE hThread;
+HANDLE hThread, hThread2;
 HWND		g_hWnd;
 wchar_t		g_ipbuf[50];		// ip 입력 받는 버퍼
 player_info g_myinfo;
 player_info g_otherinfo;
+bool g_send = false;
+
+// 소켓 정보 저장을 위한 구조체와 변수
+struct SOCKETINFO
+{
+	WSAOVERLAPPED overlapped; // overlapped 구조체
+	SOCKET sock;
+	char buf[BUFSIZE + 1];	// 응용 프로그램 버퍼. 실제 버퍼가 들어갈 메시지 버퍼.
+	int recvbytes;	// 송, 수신 바이트 수
+	int sendbytes;
+	WSABUF wsabuf;	// WSABUF 구조체. 버퍼 자체가 아닌, 버퍼의 포인터
+};
+
 
 ATOM MyRegisterClass(HINSTANCE hInstance);
 BOOL InitInstance(HINSTANCE, int);
@@ -31,6 +44,7 @@ INT_PTR CALLBACK About(HWND, UINT, WPARAM, LPARAM);
 int InitializeNetwork();
 void CloseNetwork();
 static DWORD WINAPI RecvThread(LPVOID arg);
+static DWORD WINAPI SendThread(LPVOID arg);
 int recvn(SOCKET s, char *buf, int len, int flags);
 
 
@@ -211,12 +225,9 @@ int InitializeNetwork()
 	}
 
 	// 소켓을 생성한다.
-	g_sock = socket(AF_INET, SOCK_STREAM, 0);
+	// g_sock = socket(AF_INET, SOCK_STREAM, 0);
+	g_sock = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
 	if (g_sock == INVALID_SOCKET) MessageBoxW(g_hWnd, L"socket()", MB_OK, MB_OK);
-
-	// recv 전용 스레드를 만든다.
-	hThread = CreateThread(NULL, 0, RecvThread, (LPVOID)g_sock, 0, NULL);
-	// if (NULL == hThread)	CloseHandle(hThread);
 
 	// 서버 정보 객체를 설정 한다. 
 	SOCKADDR_IN serveraddr;
@@ -227,6 +238,8 @@ int InitializeNetwork()
 	///
 	serveraddr.sin_addr.s_addr = inet_addr(b);
 	serveraddr.sin_port = htons(SERVERPORT);
+
+	// 연결을 요청한다.
 	retval = connect(g_sock, (SOCKADDR*)&serveraddr, sizeof(serveraddr));
 
 	if (retval == SOCKET_ERROR) {
@@ -240,6 +253,12 @@ int InitializeNetwork()
 		MessageBoxW(g_hWnd, L"Connected", L"알림", MB_OK);
 		g_myinfo.connected = true;
 
+
+		// recv 전용 스레드를 만든다.
+		hThread = CreateThread(NULL, 0, RecvThread, (LPVOID)g_sock, 0, NULL);
+		hThread2 = CreateThread(NULL, 0, SendThread, nullptr, 0, NULL);
+		// if (NULL == hThread)	CloseHandle(hThread);
+
 		// 서버에게 클라이언트 초기 정보를 보낸다.
 		if (true == g_myinfo.connected) {
 			int retval;
@@ -248,14 +267,15 @@ int InitializeNetwork()
 			packetinfo.type = cs_put_player;
 			packetinfo.size = sizeof(player_info);
 			packetinfo.id = -1;
-			char buf[BUFSIZE];
+			// char buf[BUFSIZE]; // 전역 버퍼를 사용할 거니까.
 			memcpy(buf, &packetinfo, sizeof(packetinfo));
 			// 가변 (고정 데이터에 가변 데이터 붙이는 형식으로)
 			memcpy(buf + sizeof(packetinfo), &g_myinfo, sizeof(player_info));
-			retval = send(g_sock, buf, BUFSIZE, 0);
-			if (retval == SOCKET_ERROR) {
-				MessageBoxW(g_hWnd, L"send()", L"send() - cs_put_player", MB_OK);
-			}
+			// 쓰레드에게 신호를 보낸다.
+			g_send = true;
+			//retval = send(g_sock, buf, BUFSIZE, 0);
+			//if (retval == SOCKET_ERROR) {
+			//	MessageBoxW(g_hWnd, L"send()", L"send() - cs_put_player", MB_OK);
 		}
 	}
 
@@ -266,16 +286,40 @@ void CloseNetwork()
 {
 	// 핸들 종료
 	CloseHandle(hThread);
+	CloseHandle(hThread2);
 	// closesocket()
 	closesocket(g_sock);
 
 	// 윈속 종료
 	WSACleanup();
 }
+DWORD __stdcall SendThread(LPVOID arg)
+{
+	SOCKETINFO* socketInfo;
+	DWORD sendBytes;
+	DWORD recvBytes;
+	DWORD flags;
+
+	while (true) {
+		// 뭔가 클라이언트에서 정보를 보내겠다는 신호가 있어야 해.
+		if (!g_send)
+			continue;
+
+		socketInfo = (struct SOCKETINFO*)malloc(sizeof(struct SOCKETINFO));
+		memset((void*)socketInfo, 0x00, sizeof(struct SOCKETINFO));
+		socketInfo->wsabuf.len = MAX_BUFSIZE;
+		socketInfo->wsabuf.buf = buf;
+
+		// 데이터 보내기.
+		int sendBytes = send(g_sock, buf, MAX_BUFSIZE, 0);
+
+		g_send = false;
+	}
+}
+
 
 DWORD __stdcall RecvThread(LPVOID arg)
 {
-
 	SOCKET client_sock = (SOCKET)arg;
 	int retval{ -1 };
 	char buf[BUFSIZE];
@@ -288,13 +332,13 @@ DWORD __stdcall RecvThread(LPVOID arg)
 
 		// 1. 서버로부터 데이터(고정+가변)를 받아온다.
 		retval = recvn(g_sock, buf, BUFSIZE, 0);
-		memcpy(&packetinfo, buf, sizeof(packetinfo));
 		if (retval == SOCKET_ERROR) {
 			MessageBoxW(g_hWnd, L"recvn() - packetinfo", MB_OK, MB_OK);
 			return 0;
 		}
-		else
-			MessageBoxW(g_hWnd, L"recvn() 성공 - packetinfo", MB_OK, MB_OK);
+		MessageBoxW(g_hWnd, L"recvn() 성공 - packetinfo", MB_OK, MB_OK);
+		memcpy(&packetinfo, buf, sizeof(packetinfo));
+
 
 		// 2. 고정 길이 데이터에서 packet type을 알아내고, 분기한다.
 		switch (packetinfo.type) {
@@ -331,6 +375,7 @@ DWORD __stdcall RecvThread(LPVOID arg)
 
 	return 0;
 }
+
 
 // 사용자 정의 데이터 수신 함수
 int recvn(SOCKET s, char *buf, int len, int flags)

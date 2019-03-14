@@ -307,13 +307,13 @@ DWORD __stdcall SendThread(LPVOID arg)
 
 		socketInfo = (struct SOCKETINFO*)malloc(sizeof(struct SOCKETINFO));
 		memset((void*)socketInfo, 0x00, sizeof(struct SOCKETINFO));
-		socketInfo->wsabuf.len = MAX_BUFSIZE;
+		socketInfo->wsabuf.len = BUFSIZE;
 		socketInfo->wsabuf.buf = buf;
 
 		// 데이터 보내기.
-		int sendBytes = send(g_sock, buf, MAX_BUFSIZE, 0);
+		int sendBytes = send(g_sock, buf, BUFSIZE, 0);
 
-		ZeroMemory(buf, MAX_BUFSIZE);
+		ZeroMemory(buf, BUFSIZE);
 		g_send = false;
 	}
 }

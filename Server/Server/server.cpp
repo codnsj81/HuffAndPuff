@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
 		socket_info = (struct SOCKETINFO *)malloc(sizeof(struct SOCKETINFO));
 		memset((void*)socket_info, 0x00, sizeof(SOCKETINFO));
 		socket_info->sock = client_sock;
-		socket_info->wsabuf.len = MAX_BUFSIZE;
+		socket_info->wsabuf.len = BUFSIZE;
 		socket_info->wsabuf.buf = socket_info->buf;
 		flags = 0;
 

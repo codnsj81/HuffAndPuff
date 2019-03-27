@@ -43,15 +43,15 @@ struct sc_packet_remove_player {
 
 //
 enum packet_type {
+	sc_put_player, sc_notify_yourinfo, sc_notify_playerinfo,
 	cs_put_player,
-	sc_put_player, sc_your_playerinfo,
 	cs_move_left, cs_move_top, cs_move_right, cs_move_bottom, cs_move,
-	sc_notify_pos, sc_notify_remove_player
 };
 struct packet_info {
 	short size;
 	packet_type type;
 	WORD id;
+	SOCKET sock;
 };
 
 enum player_type {

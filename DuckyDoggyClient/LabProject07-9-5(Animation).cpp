@@ -18,11 +18,11 @@ CGameFramework					gGameFramework;
 // 서버와 통신
 SOCKET g_sock;
 char buf[BUFSIZE];	// 데이터 버퍼
-HANDLE hThread, hThread2;
+HANDLE hThread;
 HWND		g_hWnd;
 wchar_t		g_ipbuf[50];		// ip 입력 받는 버퍼
 player_info g_myinfo;
-player_info g_otherinfo;
+player_info g_players[NUM_OF_PLAYER];
 bool g_send = false;
 
 // 소켓 정보 저장을 위한 구조체와 변수
@@ -219,23 +219,21 @@ int InitializeNetwork()
 
 	// 윈속을 초기화 한다.
 	WSADATA wsa;
-	if (WSAStartup(MAKEWORD(2, 0), &wsa) != 0) {
+	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
 		MessageBoxW(g_hWnd, L"Can not load 'winsock.dll' file", MB_OK, MB_OK);
 		return 1;
 	}
 
 	// 소켓을 생성한다.
-	// g_sock = socket(AF_INET, SOCK_STREAM, 0);
 	g_sock = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
-	if (g_sock == INVALID_SOCKET) MessageBoxW(g_hWnd, L"socket()", MB_OK, MB_OK);
+	if (g_sock == INVALID_SOCKET)
+		MessageBoxW(g_hWnd, L"socket()", MB_OK, MB_OK);
 
 	// 서버 정보 객체를 설정 한다. 
 	SOCKADDR_IN serveraddr;
 	ZeroMemory(&serveraddr, sizeof(serveraddr));
 	serveraddr.sin_family = AF_INET;
-	/// convert wchar_t to char 
-	_bstr_t b(g_ipbuf);
-	///
+	_bstr_t b(g_ipbuf);// convert wchar_t to char
 	serveraddr.sin_addr.s_addr = inet_addr(b);
 	serveraddr.sin_port = htons(SERVERPORT);
 
@@ -253,69 +251,41 @@ int InitializeNetwork()
 		MessageBoxW(g_hWnd, L"Connected", L"알림", MB_OK);
 		g_myinfo.connected = true;
 
-
 		// recv 전용 스레드를 만든다.
 		hThread = CreateThread(NULL, 0, RecvThread, (LPVOID)g_sock, 0, NULL);
-		hThread2 = CreateThread(NULL, 0, SendThread, nullptr, 0, NULL);
-		// if (NULL == hThread)	CloseHandle(hThread);
+		if (NULL == hThread)
+			CloseHandle(hThread);
 
 		// 서버에게 클라이언트 초기 정보를 보낸다.
-		if (true == g_myinfo.connected) {
-			int retval;
-			// 고정
-			packet_info packetinfo;
-			packetinfo.type = cs_put_player;
-			packetinfo.size = sizeof(player_info);
-			packetinfo.id = -1;
-			// char buf[BUFSIZE]; // 전역 버퍼를 사용할 거니까.
-			memcpy(buf, &packetinfo, sizeof(packetinfo));
-			// 가변 (고정 데이터에 가변 데이터 붙이는 형식으로)
-			memcpy(buf + sizeof(packetinfo), &g_myinfo, sizeof(player_info));
-			// 쓰레드에게 신호를 보낸다.
-			g_send = true;
-			//retval = send(g_sock, buf, BUFSIZE, 0);
-			//if (retval == SOCKET_ERROR) {
-			//	MessageBoxW(g_hWnd, L"send()", L"send() - cs_put_player", MB_OK);
+		int retval;
+		char buf[BUFSIZE];
+		// 고정
+		packet_info packetinfo;
+		packetinfo.type = cs_put_player;
+		packetinfo.size = sizeof(player_info);
+		packetinfo.id = -1;
+		packetinfo.sock = g_sock;
+		memcpy(buf, &packetinfo, sizeof(packetinfo));
+		// 가변 (고정 데이터에 가변 데이터 붙이는 형식으로)
+		memcpy(buf + sizeof(packetinfo), &g_myinfo, sizeof(player_info));
+		// 전송
+		retval = send(g_sock, buf, BUFSIZE, 0);
+		if (retval == SOCKET_ERROR) {
+			MessageBoxW(g_hWnd, L"send()", L"send() - cs_put_player", MB_OK);
 		}
+
 	}
-
-
 }
 
 void CloseNetwork()
 {
 	// 핸들 종료
 	CloseHandle(hThread);
-	CloseHandle(hThread2);
 	// closesocket()
 	closesocket(g_sock);
 
 	// 윈속 종료
 	WSACleanup();
-}
-DWORD __stdcall SendThread(LPVOID arg)
-{
-	SOCKETINFO* socketInfo;
-	DWORD sendBytes;
-	DWORD recvBytes;
-	DWORD flags;
-
-	while (true) {
-		// 뭔가 클라이언트에서 정보를 보내겠다는 신호가 있어야 해.
-		if (!g_send)
-			continue;
-
-		socketInfo = (struct SOCKETINFO*)malloc(sizeof(struct SOCKETINFO));
-		memset((void*)socketInfo, 0x00, sizeof(struct SOCKETINFO));
-		socketInfo->wsabuf.len = BUFSIZE;
-		socketInfo->wsabuf.buf = buf;
-
-		// 데이터 보내기.
-		int sendBytes = send(g_sock, buf, BUFSIZE, 0);
-
-		ZeroMemory(buf, BUFSIZE);
-		g_send = false;
-	}
 }
 
 
@@ -323,60 +293,44 @@ DWORD __stdcall RecvThread(LPVOID arg)
 {
 	SOCKET client_sock = (SOCKET)arg;
 	int retval{ -1 };
-	char buf[BUFSIZE];
-	packet_info packetinfo;
-	player_info playerinfo;
 
 	while (true) {
-		if (g_myinfo.connected == false)
-			continue;
+		packet_info packetinfo = {};
+		player_info playerinfo = {};
+		char buf[BUFSIZE];
 
-		// 1. 서버로부터 데이터(고정+가변)를 받아온다.
-		retval = recvn(g_sock, buf, BUFSIZE, 0);
-		if (retval == SOCKET_ERROR) {
-			MessageBoxW(g_hWnd, L"recvn() - packetinfo", MB_OK, MB_OK);
-			return 0;
-		}
-		MessageBoxW(g_hWnd, L"recvn() 성공 - packetinfo", MB_OK, MB_OK);
-		memcpy(&packetinfo, buf, sizeof(packetinfo));
-
-
-		// 2. 고정 길이 데이터에서 packet type을 알아내고, 분기한다.
-		switch (packetinfo.type) {
-		case sc_your_playerinfo:
+		// 고정 길이. // 무슨 패킷을 받아오게 될지 미리 알아낸다.
 		{
-			memcpy(&playerinfo, buf + sizeof(packetinfo), sizeof(playerinfo));
-			g_myinfo.id = playerinfo.id; // 갱신된 id를 부여 받는다.
-			g_myinfo.x = playerinfo.x; g_myinfo.y = playerinfo.y; g_myinfo.z = playerinfo.z;
+			int receiveBytes = recv(client_sock, buf, BUFSIZE, 0);
+			if (receiveBytes > 0)
+				memcpy(&packetinfo, buf, sizeof(packetinfo));
+		}
+		// 가변 길이. 
+		switch (packetinfo.type) {
+		case sc_notify_yourinfo:
+		{
+			int id = g_myinfo.id = packetinfo.id;			// playerinfo의 주인의 id를 받아온다.
+			memcpy(&(g_players[id]), buf + sizeof(packetinfo), sizeof(g_players[id]));
+			g_myinfo = g_players[id];
+		}
+		break;
+		case sc_notify_playerinfo:
+		{
+			int id = packetinfo.id;			// playerinfo의 주인의 id를 받아온다.
+			memcpy(&(g_players[id]), buf + sizeof(packetinfo), sizeof(g_players[id]));
 		}
 		break;
 		case sc_put_player:
 		{
-			memcpy(&playerinfo, buf + sizeof(packetinfo), sizeof(playerinfo));
-			g_otherinfo.id = playerinfo.id; // 갱신된 id를 부여 받는다.
-			g_otherinfo.x = playerinfo.x; g_otherinfo.y = playerinfo.y; g_otherinfo.z = playerinfo.z;
-		}
-		break;
-		case sc_notify_pos:
-		{
-			memcpy(&playerinfo, buf + sizeof(packetinfo), sizeof(playerinfo));
-			if (playerinfo.id == g_myinfo.id) {
-				g_myinfo.x = playerinfo.x; g_myinfo.y = playerinfo.y; g_myinfo.z = playerinfo.z;
-			}
-			else {
-				g_otherinfo.x = playerinfo.x; g_otherinfo.y = playerinfo.y; g_otherinfo.z = playerinfo.z;
-			}
-			// gGameFramework.SetPlayerPos(playerinfo.type, XMFLOAT3(playerinfo.x, playerinfo.y, playerinfo.z));
+			int id = packetinfo.id; // 새로 접속했거나 이미 있던 클라이언트를 추가하기 위해, id를 받아온다.
+			memcpy(&(g_players[id]), buf + sizeof(packetinfo), sizeof(g_players[id]));
 		}
 		break;
 		}
-
-
 	}
 
 	return 0;
 }
-
 
 // 사용자 정의 데이터 수신 함수
 int recvn(SOCKET s, char *buf, int len, int flags)

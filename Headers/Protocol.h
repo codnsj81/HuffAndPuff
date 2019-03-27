@@ -47,6 +47,12 @@ enum packet_type {
 	cs_put_player,
 	cs_move_left, cs_move_top, cs_move_right, cs_move_bottom, cs_move,
 };
+enum player_type {
+	player_ducky, player_doggy
+};
+enum networking_state {
+	recv_none, recv_playerinfo, recv_otherinfo
+};
 struct packet_info {
 	short size;
 	packet_type type;
@@ -54,9 +60,6 @@ struct packet_info {
 	SOCKET sock;
 };
 
-enum player_type {
-	player_ducky, player_doggy
-};
 struct player_info {
 	short id = 10;
 	bool connected = false;

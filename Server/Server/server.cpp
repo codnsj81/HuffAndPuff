@@ -49,12 +49,11 @@ void CALLBACK send_scputplayer_1_callback(DWORD Error, DWORD dataBytes, LPWSAOVE
 void CALLBACK send_yesrecv_callback(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED overlapped, DWORD lnFlags);
 
 // 함수들
-void SendPacket(int, void*);
+void show_allplayer();
 
 // 오류 출력 함수
 void err_quit(const char *msg);
 void err_display(const char *msg);
-void err_display(int errcode);
 
 int main(int argc, char *argv[])
 {
@@ -208,7 +207,7 @@ void CALLBACK recv_callback(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED overla
 			memset(&(clients[client_sock].overlapped), 0x00, sizeof(WSAOVERLAPPED));
 			clients[client_sock].overlapped.hEvent = (HANDLE)client_sock;
 			if (WSASend(client_sock, &(clients[client_sock].wsabuf), 1, &dataBytes, 0, &(clients[client_sock].overlapped),
-				send_scputplayer_1_callback) == SOCKET_ERROR)
+				send_callback) == SOCKET_ERROR)
 			{
 				if (WSAGetLastError() != WSA_IO_PENDING)
 				{
@@ -254,8 +253,76 @@ void CALLBACK recv_callback(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED overla
 		}
 	}
 	break;
-	}
+	case cs_move:
+	{
+		// 움직인 클라이언트의 정보를 받아온다.
+		{
+			char buf[BUFSIZE];
+			memcpy(&playerinfo, clients[client_sock].buf + sizeof(packetinfo), sizeof(player_info));
+			clients[client_sock].playerinfo = playerinfo;
+		}
+		// 다른 접속 중인 클라이언트에게 움직인 클라이언트의 정보를 보낸다.
+		{
+			char buf[BUFSIZE];
+			playerinfo.id = packetinfo.id; // 움직인 클라이언트의 아이디.
+			// 해당 클라이언트에게 새로 갱신된 정보 전송. (고정)
+			memset(&packetinfo, 0x00, sizeof(packetinfo));
+			packetinfo.id = playerinfo.id;
+			packetinfo.size = sizeof(playerinfo);
+			packetinfo.type = sc_notify_playerinfo;
+			memcpy(buf, &packetinfo, sizeof(packetinfo));
+			// (가변)
+			memcpy(buf + sizeof(packetinfo), &(clients[client_sock].playerinfo), sizeof(player_info));
 
+			if (clients.size() > 1) {
+
+				for (map<SOCKET, SOCKETINFO>::iterator i_b = clients.begin(); i_b != clients.end(); i_b++)
+				{
+					SOCKET other_sock = i_b->second.sock;
+					if (other_sock == client_sock) // 나에게는 다시 안 보내도 됨.
+						continue;
+					// buf를 messageBuffer에 복사하고.
+					memcpy(clients[other_sock].buf, buf, sizeof(clients[other_sock].buf));
+					// 길이는 고정+가변 크기.
+					clients[other_sock].wsabuf.len = sizeof(packetinfo) + sizeof(playerinfo);
+					// 오버랩드 구조체 재사용. 초기화. 
+					memset(&(clients[other_sock].overlapped), 0x00, sizeof(WSAOVERLAPPED));
+					clients[other_sock].overlapped.hEvent = (HANDLE)(i_b->second.sock);
+					if (WSASend(other_sock, &(clients[other_sock].wsabuf), 1, &dataBytes, 0, &(clients[other_sock].overlapped),
+						send_callback) == SOCKET_ERROR)
+					{
+						if (WSAGetLastError() != WSA_IO_PENDING)
+						{
+							printf("Error - Fail WSASend(error_code : %d)\n", WSAGetLastError());
+						}
+					}
+				}
+			}
+			else
+			{
+				DWORD flags = 0;
+				// WSASend(응답에 대한)의 콜백일 경우
+				clients[client_sock].wsabuf.len = BUFSIZE;
+				clients[client_sock].wsabuf.buf = clients[client_sock].buf;
+
+				memset(&(clients[client_sock].overlapped), 0x00, sizeof(WSAOVERLAPPED));
+				clients[client_sock].overlapped.hEvent = (HANDLE)client_sock;
+
+
+				if (WSARecv(client_sock, &clients[client_sock].wsabuf, 1,
+					NULL/* 오버랩드: 우리 null 해 주기로 했잖아,, */, &flags, &(clients[client_sock].overlapped), recv_callback) == SOCKET_ERROR)
+				{
+					if (WSAGetLastError() != WSA_IO_PENDING)
+					{
+						printf("Error - Fail WSARecv(error_code : %d)\n", WSAGetLastError());
+					}
+				}
+			}
+		}
+	}
+	break;
+	}
+	show_allplayer();
 }
 
 void CALLBACK send_callback(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED overlapped, DWORD lnFlags)
@@ -430,7 +497,7 @@ void show_allplayer()
 		i_b != clients.end(); i_b++) {
 		cout << i_b->second.playerinfo.id << "번째 클라이언트 : "
 			<< "좌표( "
-			<< i_b->second.playerinfo.x << ", " << i_b->second.playerinfo.y << ")" << endl;
+			<< i_b->second.playerinfo.x << ", " << i_b->second.playerinfo.y << ", " << i_b->second.playerinfo.z << ")" << endl;
 	}
 	cout << "------------------------------------------------" << endl;
 }

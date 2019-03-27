@@ -64,7 +64,7 @@ public:
 	bool ProcessInput(UCHAR *pKeysBuffer);
     void AnimateObjects(float fTimeElapsed);
     void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera=NULL);
-
+	void ObjectsCollides();
 	void ReleaseUploadBuffers();
 	CWater** GetWaters() { return m_ppWaters; }
 

@@ -9,13 +9,18 @@
 
 #define STATE_GROUND	1
 #define STATE_JUMPING	2
-#define STATE_JUMPING2	3
 #define STATE_ONOBJECTS 4
 #define STATE_FALLING   5
 
 #define PIGGYBACK_NONE 0
 #define PIGGYBACK_CARRY	1
 #define PIGGYBACK_CRRIED 2
+
+
+
+// 플레이어충돌
+#define COLLIDEY	0
+#define COLLIDEN	1
 
 
 #include "Object.h"
@@ -53,15 +58,17 @@ protected:
 	int							m_moveState = STATE_GROUND;
 	float						m_fTime = 0.f;
 	float						m_fPreHeight = 0;
-
 	CWater						**m_ppWaters;
 	int							m_nWater;
 	int							m_playerKind;
 	float						m_ObjectHeight;
+	int							m_iJumpnum = 0 ;
+	XMFLOAT3					m_predictedPos = XMFLOAT3(0.0f, 0.0f, 0.0f);
 public:
 	CPlayer();
 	virtual ~CPlayer();
 
+	XMFLOAT3 GetPrecdictedPos() { return m_predictedPos; }
 	XMFLOAT3 GetPosition() { return(m_xmf3Position); }
 	XMFLOAT3 GetLookVector() { return(m_xmf3Look); }
 	XMFLOAT3 GetUpVector() { return(m_xmf3Up); }
@@ -119,6 +126,9 @@ public:
 	virtual CCamera *ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed) { return(NULL); }
 	virtual void OnPrepareRender();
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera = NULL);
+
+
+	int							m_CollideState = COLLIDEN;
 };
 
 class CAirplanePlayer : public CPlayer

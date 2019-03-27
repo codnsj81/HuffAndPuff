@@ -578,7 +578,7 @@ int CGameObject::getCollision(CPlayer * player)
 	minY = pY; maxY = pY + sY;
 	minZ = pZ - sZ / 2.f; maxZ = pZ + sZ / 2.f;
 
-	XMFLOAT3 pPos = player->GetPosition();
+	XMFLOAT3 pPos = player->GetPrecdictedPos();
 	pX = pPos.x;
 	pY = pPos.y;
 	pZ = pPos.z;
@@ -598,10 +598,12 @@ int CGameObject::getCollision(CPlayer * player)
 		break;
 	case COLLIDE_UNDER:
 		player->SetState(STATE_FALLING);
+		player->CollideSide();
 		break;
 	case COLLIDE_SIDE:
 		player->CollideSide();
 		break;
+		
 	}
 	
 	return result;

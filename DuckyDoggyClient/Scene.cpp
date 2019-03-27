@@ -122,18 +122,7 @@ void CScene::ReleaseObjects()
 
 void CScene::Update()
 {
-	if (m_ppGameObjects)
-	{
-		for (int i = 0; i < m_nGameObjects; i++)
-		{
-			m_ppGameObjects[i]->getCollision(m_pDucky);
-			m_ppGameObjects[i]->getCollision(m_pDoggy);
-		}
-	}
-	for (auto n : m_TreeObjectslist) {
-		n->getCollision(m_pDoggy);
-		n->getCollision(m_pDucky);
-	}
+	ObjectsCollides();
 	
 }
 
@@ -614,5 +603,23 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 	}
 
 	for (int i = 0; i < m_nShaders; i++) if (m_ppShaders[i]) m_ppShaders[i]->Render(pd3dCommandList, pCamera);
+}
+
+void CScene::ObjectsCollides()
+{
+	m_pDucky->m_CollideState = 1;
+	m_pDoggy->m_CollideState = 1;
+	if (m_ppGameObjects)
+	{
+		for (int i = 0; i < m_nGameObjects; i++)
+		{
+			m_ppGameObjects[i]->getCollision(m_pDucky);
+			m_ppGameObjects[i]->getCollision(m_pDoggy);
+		}
+	}
+	for (auto n : m_TreeObjectslist) {
+		n->getCollision(m_pDoggy);
+		n->getCollision(m_pDucky);
+	}
 }
 

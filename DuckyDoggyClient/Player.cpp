@@ -5,7 +5,6 @@
 #include "stdafx.h"
 #include "Player.h"
 #include "Shader.h"
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CPlayer
 
@@ -71,6 +70,7 @@ void CPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
 	}
 }
 
+
 void CPlayer::GivePiggyBack()
 {
 	switch (m_PiggybackState)
@@ -94,8 +94,7 @@ void CPlayer::GivePiggyBack()
 
 void CPlayer::CollideSide()
 {
-	m_xmf3Velocity.x = 0.f;
-	m_xmf3Velocity.z = 0.f;
+	m_CollideState = COLLIDEY;
 }
 
 bool CPlayer::CheckInWater(XMFLOAT3 pos, CHeightMapTerrain *pTerrain)
@@ -126,7 +125,7 @@ bool CPlayer::CheckInWater(XMFLOAT3 pos, CHeightMapTerrain *pTerrain)
 
 void CPlayer::Move(const XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 {
-
+	
 	if (bUpdateVelocity)
 	{
 		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, xmf3Shift);
@@ -137,17 +136,47 @@ void CPlayer::Move(const XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 		if (pTerrain && m_fPreHeight != 0)
 		{
 			XMFLOAT3 xmf3Scale = pTerrain->GetScale();
-			XMFLOAT3 pos = Vector3::Add(m_xmf3Position, xmf3Shift);
-			int z = (int)(pos.z / xmf3Scale.z);
+			m_predictedPos = Vector3::Add(m_xmf3Position, xmf3Shift);
+			int z = (int)(m_predictedPos.z / xmf3Scale.z);
 			bool bReverseQuad = ((z % 2) != 0);
-			float fHeight = pTerrain->GetHeight(pos.x, pos.z, bReverseQuad) + 0.0f;
+			float fHeight = pTerrain->GetHeight(m_predictedPos.x, m_predictedPos.z, bReverseQuad) + 0.0f;
 
-			if (m_playerKind == PLAYER_KIND_DOGGY && CheckInWater(pos, pTerrain))
+			if (xmf3Shift.y > 0.1f) {
+				int a = 2;
+			}
+			float minus = fHeight - m_fPreHeight;
+			float degree;
+			if (minus == 0) degree = 0;
+			else
+				degree = minus / (xmf3Shift.x * xmf3Shift.x + minus * minus);
+
+			if (m_playerKind == PLAYER_KIND_DOGGY && CheckInWater(m_predictedPos, pTerrain))
 				return;
 
-			else if (fHeight - m_fPreHeight < 0.3f || m_moveState != STATE_GROUND)
+			else 
 			{
-				m_xmf3Position = Vector3::Add(m_xmf3Position, xmf3Shift);
+				if (m_moveState == STATE_GROUND)
+				{
+					if (m_CollideState == COLLIDEN && degree < 0.3f)
+						m_xmf3Position = Vector3::Add(m_xmf3Position, xmf3Shift);
+				}
+				else
+				{
+					if (m_CollideState == COLLIDEY)
+					{
+						if (m_moveState == STATE_FALLING)
+						{
+							if(xmf3Shift.z <0)
+								m_xmf3Position = Vector3::Add(m_xmf3Position, XMFLOAT3(0,0,xmf3Shift.z));
+						}	
+						else
+							m_xmf3Position = Vector3::Add(m_xmf3Position, XMFLOAT3(0, 0, xmf3Shift.z));
+
+					}
+					else
+						m_xmf3Position = Vector3::Add(m_xmf3Position, xmf3Shift);
+
+				}
 			}
 		}
 		else
@@ -220,6 +249,7 @@ void CPlayer::OnObject(float fy)
 {
 	m_moveState = STATE_ONOBJECTS;
 	m_ObjectHeight = fy;
+	m_iJumpnum = 0;
 }
 
 void CPlayer::Update(float fTimeElapsed)
@@ -338,16 +368,13 @@ CCamera *CPlayer::OnChangeCamera(DWORD nNewCameraMode, DWORD nCurrentCameraMode)
 void CPlayer::Jump()
 {
 
-	if (m_moveState != STATE_JUMPING2)
+	if (m_iJumpnum < 2)
 	{
 		m_fTime = 0;
-		if (m_moveState == STATE_GROUND)
-			m_moveState = STATE_JUMPING;
-		else
-		{
-			m_moveState = STATE_JUMPING2;
+		m_moveState = STATE_JUMPING;
+		m_iJumpnum++;
+		if (m_iJumpnum == 2)
 			m_fTime = 0;
-		}
 	}
 
 }
@@ -553,7 +580,10 @@ void CTerrainPlayer::OnPlayerUpdateCallback(float fTimeElapsed)
 	{
 		m_fTime = 0;
 		if (m_moveState != STATE_GROUND)
+		{
+			m_iJumpnum = 0;
 			m_moveState = STATE_GROUND;
+		}
 
 		XMFLOAT3 xmf3PlayerVelocity = GetVelocity();
 		xmf3PlayerVelocity.y = 0.0f;

@@ -142,16 +142,10 @@ void CPlayer::Move(const XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 			bool bReverseQuad = ((z % 2) != 0);
 			float fHeight = pTerrain->GetHeight(pos.x, pos.z, bReverseQuad) + 0.0f;
 
-			if (xmf3Shift.y > 0.1f) {
-				int a = 2;
-			}
-
-			float degree = xmf3Shift.y / (xmf3Shift.x * xmf3Shift.x + xmf3Shift.y * xmf3Shift.y);
-
-			if (m_playerKind == PLAYER_KIND_DOGGY && CheckInWater(pos,pTerrain))
+			if (m_playerKind == PLAYER_KIND_DOGGY && CheckInWater(pos, pTerrain))
 				return;
 
-			else if (degree < 0.1f || m_moveState != STATE_GROUND)
+			else if (fHeight - m_fPreHeight < 0.3f || m_moveState != STATE_GROUND)
 			{
 				m_xmf3Position = Vector3::Add(m_xmf3Position, xmf3Shift);
 			}

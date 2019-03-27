@@ -22,8 +22,8 @@ HANDLE hThread;
 HWND		g_hWnd;
 wchar_t		g_ipbuf[50];		// ip 입력 받는 버퍼
 player_info g_myinfo;
-player_info g_players[NUM_OF_PLAYER];
-bool g_send = false;
+player_info g_otherinfo;
+networking_state g_networkState = recv_none;
 
 // 소켓 정보 저장을 위한 구조체와 변수
 struct SOCKETINFO
@@ -44,7 +44,6 @@ INT_PTR CALLBACK About(HWND, UINT, WPARAM, LPARAM);
 int InitializeNetwork();
 void CloseNetwork();
 static DWORD WINAPI RecvThread(LPVOID arg);
-static DWORD WINAPI SendThread(LPVOID arg);
 int recvn(SOCKET s, char *buf, int len, int flags);
 
 
@@ -161,7 +160,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			char p[128] = "127.0.0.1";
 			wcscpy(g_ipbuf, L"127.0.0.1");
 			InitializeNetwork();
-			// gGameFramework.SetPlayerType(player_doggy);
+			 gGameFramework.SetPlayerType(player_doggy);
 		}
 		break;
 		case ID_NETWORK_ACCESS_USER: // 더기로 접속
@@ -170,7 +169,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			char p[128] = "127.0.0.1";
 			wcscpy(g_ipbuf, L"127.0.0.1");
 			InitializeNetwork();
-			// gGameFramework.SetPlayerType(player_ducky);
+			gGameFramework.SetPlayerType(player_ducky);
 		}
 		break;
 		case IDM_EXIT:
@@ -257,6 +256,9 @@ int InitializeNetwork()
 			CloseHandle(hThread);
 
 		// 서버에게 클라이언트 초기 정보를 보낸다.
+		g_myinfo.x = gGameFramework.GetPlayer()->GetPosition().x;
+		g_myinfo.y = gGameFramework.GetPlayer()->GetPosition().y;
+		g_myinfo.z = gGameFramework.GetPlayer()->GetPosition().z;
 		int retval;
 		char buf[BUFSIZE];
 		// 고정
@@ -310,20 +312,23 @@ DWORD __stdcall RecvThread(LPVOID arg)
 		case sc_notify_yourinfo:
 		{
 			int id = g_myinfo.id = packetinfo.id;			// playerinfo의 주인의 id를 받아온다.
-			memcpy(&(g_players[id]), buf + sizeof(packetinfo), sizeof(g_players[id]));
-			g_myinfo = g_players[id];
+			memcpy(&(g_myinfo), buf + sizeof(packetinfo), sizeof(g_myinfo));
+			g_networkState = recv_playerinfo;
 		}
 		break;
 		case sc_notify_playerinfo:
 		{
 			int id = packetinfo.id;			// playerinfo의 주인의 id를 받아온다.
-			memcpy(&(g_players[id]), buf + sizeof(packetinfo), sizeof(g_players[id]));
+			memcpy(&(g_otherinfo), buf + sizeof(packetinfo), sizeof(g_otherinfo));
+			g_networkState = recv_otherinfo;
 		}
 		break;
 		case sc_put_player:
 		{
-			int id = packetinfo.id; // 새로 접속했거나 이미 있던 클라이언트를 추가하기 위해, id를 받아온다.
-			memcpy(&(g_players[id]), buf + sizeof(packetinfo), sizeof(g_players[id]));
+			// int id = packetinfo.id; // 새로 접속했거나 이미 있던 클라이언트를 추가하기 위해, id를 받아온다.
+			g_otherinfo.connected = true;
+			memcpy(&(g_otherinfo), buf + sizeof(packetinfo), sizeof(g_otherinfo));
+			g_networkState = recv_otherinfo;
 		}
 		break;
 		}

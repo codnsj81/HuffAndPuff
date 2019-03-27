@@ -348,6 +348,39 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 			case 'q':
 				m_pPlayer->GivePiggyBack();
 				break;
+			case 'w':
+			case 'a':
+			case 's':
+			case 'd':
+			case 'W':
+			case 'A':
+			case 'S':
+			case 'D':
+			{
+				//@ 서버한테 위치 보내기
+				if (true == g_myinfo.connected) {
+					player_info playerinfo;
+					XMFLOAT3 pos = m_pPlayer->GetPosition();
+					playerinfo = g_myinfo;
+					playerinfo.x = pos.x; playerinfo.y = pos.y; playerinfo.z = pos.z;
+					playerinfo.type = g_myinfo.type;
+					int retval;
+					/// 고정
+					packet_info packetinfo;
+					packetinfo.type = cs_move;
+					packetinfo.size = sizeof(player_info);
+					packetinfo.id = g_myinfo.id;
+					char buf[BUFSIZE];
+					memcpy(buf, &packetinfo, sizeof(packetinfo));
+					/// 가변 (고정 데이터에 가변 데이터 붙이는 형식으로)
+					memcpy(buf + sizeof(packetinfo), &playerinfo, sizeof(player_info));
+					retval = send(g_sock, buf, BUFSIZE, 0);
+					if (retval == SOCKET_ERROR) {
+						MessageBoxW(g_hWnd, L"send()", L"send() - cs_move", MB_OK);
+					}
+				}
+			}
+			break;
 			default:
 				break;
 			}
@@ -392,10 +425,16 @@ void CGameFramework::SetPlayerType(player_type eType)
 		case player_doggy:
 			m_pScene->m_pPlayer = m_pPlayer = m_pDoggy;
 			m_pCamera = m_pPlayer->GetCamera();
+			g_myinfo.x = m_pPlayer->GetPosition().x;
+			g_myinfo.y = m_pPlayer->GetPosition().y;
+			g_myinfo.z = m_pPlayer->GetPosition().z;
 			break;
 		case player_ducky:
 			m_pScene->m_pPlayer = m_pPlayer = m_pDucky;
 			m_pCamera = m_pPlayer->GetCamera();
+			g_myinfo.x = m_pPlayer->GetPosition().x;
+			g_myinfo.y = m_pPlayer->GetPosition().y;
+			g_myinfo.z = m_pPlayer->GetPosition().z;
 			break;
 		}
 
@@ -464,14 +503,11 @@ void CGameFramework::BuildObjects()
 	m_pDoggy->SetPosition(XMFLOAT3(1432.0f, m_pScene->m_pTerrain->GetHeight(1432, 1368.0f), 1368.0f)); 
 	m_pDoggy->SetScale(XMFLOAT3(4.0f, 4.0f, 4.0f));
 	m_pDoggy->SetHitBox(XMFLOAT3(5.f, 5.f, 5.f));
-	// @
-	g_myinfo.x = 505.0f;  g_myinfo.y = m_pScene->m_pTerrain->GetHeight(505.0f, 709.0f); g_myinfo.z = 709.0f;
 	
 
 
-	// @ 더기 생성 나중에!!! 해야되는데
 	m_pDucky = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), "Model/ducky.bin", PLAYER_KIND_DUCKY, false, m_pScene->m_pTerrain);
-	m_pDucky->SetPosition(XMFLOAT3(505.0f, m_pScene->m_pTerrain->GetHeight(505.0f, 709.0f), 709.0f));
+	m_pDucky->SetPosition(XMFLOAT3(1432.0f, m_pScene->m_pTerrain->GetHeight(1432, 1368.0f), 1368.0f));
 	m_pDucky->SetHitBox(XMFLOAT3(5.f, 5.f, 5.f));
 	//m_pDucky->SetScale(XMFLOAT3(7.0f, 7.0f, 7.0f));
 
@@ -515,48 +551,24 @@ void CGameFramework::ProcessInput()
 {
 	static UCHAR pKeysBuffer[256];
 	bool bProcessedByScene = false;
-	if (GetKeyboardState(pKeysBuffer) && m_pScene) bProcessedByScene = m_pScene->ProcessInput(pKeysBuffer);
+	if (GetKeyboardState(pKeysBuffer) && m_pScene) 
+		bProcessedByScene = m_pScene->ProcessInput(pKeysBuffer);
 	if (!bProcessedByScene)
 	{
 		bool ismove = false;
 		DWORD dwDirection = 0;
 		if ((pKeysBuffer['W'] & 0xF0) || (pKeysBuffer['w'] & 0xF0)) {
 			dwDirection |= DIR_FORWARD;
-			ismove = true;
 		}
 		if ((pKeysBuffer['S'] & 0xF0) || (pKeysBuffer['s'] & 0xF0)) {
 			dwDirection |= DIR_BACKWARD;
-			ismove = true;
 		}
 		if ((pKeysBuffer['A'] & 0xF0) || (pKeysBuffer['a'] & 0xF0)) {
 			dwDirection |= DIR_LEFT;
-			ismove = true;
 		}
 		if ((pKeysBuffer['D'] & 0xF0) || (pKeysBuffer['d'] & 0xF0)) {
 			dwDirection |= DIR_RIGHT;
-			ismove = true;
 		}
-
-		//@ 서버한테 위치 보내기
-		/*if (true == ismove && true == g_myinfo.connected) {
-			player_info playerinfo;
-			XMFLOAT3 pos = m_pPlayer->GetPosition();
-			playerinfo.x = pos.x; playerinfo.y = pos.y; playerinfo.z = pos.z;
-			int retval;
-			/// 고정
-			packet_info packetinfo;
-			packetinfo.type = cs_move;
-			packetinfo.size = sizeof(player_info);
-			packetinfo.id = g_myinfo.id;
-			char buf[BUFSIZE];
-			memcpy(buf, &packetinfo, sizeof(packetinfo));
-			/// 가변 (고정 데이터에 가변 데이터 붙이는 형식으로)
-			memcpy(buf + sizeof(packetinfo), &playerinfo, sizeof(player_info));
-			retval = send(g_sock, buf, BUFSIZE, 0);
-			if (retval == SOCKET_ERROR) {
-				MessageBoxW(g_hWnd, L"send()", L"send() - cs_move", MB_OK);
-			}
-		}*/
 
 		float cxDelta = 0.0f, cyDelta = 0.0f;
 		POINT ptCursorPos;
@@ -573,17 +585,18 @@ void CGameFramework::ProcessInput()
 		{
 			if (cxDelta || cyDelta)
 			{
-					m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
+				m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
 			}
 			if (dwDirection) {
 				m_pPlayer->Move(dwDirection, 3.25f, true);
 				AnimateObjects();
-				// @ 
 			}
 		}
 	}
 	m_pDucky->Update(m_GameTimer.GetTimeElapsed());
 	m_pDoggy->Update(m_GameTimer.GetTimeElapsed());
+
+
 }
 
 void CGameFramework::AnimateObjects()
@@ -620,6 +633,9 @@ void CGameFramework::MoveToNextFrame()
 		hResult = m_pd3dFence->SetEventOnCompletion(nFenceValue, m_hFenceEvent);
 		::WaitForSingleObject(m_hFenceEvent, INFINITE);
 	}
+
+
+
 }
 
 //#define _WITH_PLAYER_TOP
@@ -710,6 +726,27 @@ void CGameFramework::FrameAdvance()
 	XMFLOAT3 xmf3Position = m_pPlayer->GetPosition();
 	_stprintf_s(m_pszFrameRate + nLength, 70 - nLength, _T("(%4f, %4f, %4f)"), xmf3Position.x, xmf3Position.y, xmf3Position.z);
 	::SetWindowText(m_hWnd, m_pszFrameRate);
+
+		// @서버한테 정보 받기
+	if (g_myinfo.connected) {
+		switch (g_networkState) {
+		case recv_playerinfo:
+		{
+			m_pPlayer->SetPosition(XMFLOAT3{ g_myinfo.x, g_myinfo.y, g_myinfo.z });
+			g_networkState = recv_none;
+		}
+		break;
+		case recv_otherinfo:
+		{
+			if (g_myinfo.type == player_doggy)
+				m_pDucky->SetPosition(XMFLOAT3{ g_otherinfo.x, g_otherinfo.y, g_otherinfo.z });
+			else
+				m_pDoggy->SetPosition(XMFLOAT3{ g_otherinfo.x, g_otherinfo.y, g_otherinfo.z });
+			g_networkState = recv_none;
+		}
+		break;
+		}
+	}
 }
 
 

@@ -54,7 +54,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 
 
 	XMFLOAT3 xmf3Scale(8.0f, 3.0f, 8.0f);
-	XMFLOAT4 xmf4Color(1.f, 0.3f, 0.3f, 0.0f);
+	XMFLOAT4 xmf4Color(0.3f, 0.3f, 0.3f, 0.0f);
 	m_pTerrain = new CHeightMapTerrain(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, _T("Terrain/terrain.raw"), 257, 257, xmf3Scale, xmf4Color);
 
 	m_nShaders = 1;
@@ -68,7 +68,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 
 	m_nWaters = 1;
 	m_ppWaters = new CWater*[m_nWaters];
-	m_ppWaters[0] = new CWater(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 400, 150, XMFLOAT3(1509.f, m_pTerrain->GetHeight(1509.0f, 834.0f) + 25.f, 834.0f));
+	m_ppWaters[0] = new CWater(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 300, 800, XMFLOAT3(670.f, m_pTerrain->GetHeight(670.0f, 923.0f) + 28.f, 923.0f));
 	m_ppWaters[0]->Rotate(0, 10.f, 0);
 	m_nGameObjects = 6;
 	m_ppGameObjects = new CGameObject*[m_nGameObjects];

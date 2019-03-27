@@ -117,6 +117,9 @@
     <Image Include="Terrain\BASE2.dds">
       <Filter>리소스 파일</Filter>
     </Image>
+    <Image Include="Terrain\tex1.dds">
+      <Filter>리소스 파일</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders.hlsl" />

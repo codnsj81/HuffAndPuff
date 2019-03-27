@@ -311,11 +311,11 @@ void CPlayer::Update(float fTimeElapsed)
 	m_pCamera->RegenerateViewMatrix();
 
 	if (Vector3::IsZero(m_xmf3Velocity))
-		SetAnimationSet(1);
+		SetAnimationSet(0);
 	else
 	{
 		if(m_moveState == STATE_GROUND)
-		SetAnimationSet(0);
+		SetAnimationSet(1);
 		else
 			SetAnimationSet(2);
 	}

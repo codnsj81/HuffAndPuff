@@ -5,6 +5,7 @@
 #include "stdafx.h"
 #include "Player.h"
 #include "Shader.h"
+#include "../Headers/Include.h"
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CPlayer
 
@@ -125,10 +126,17 @@ bool CPlayer::CheckInWater(XMFLOAT3 pos, CHeightMapTerrain *pTerrain)
 
 void CPlayer::Move(const XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 {
-	
+	bool ismove = false;
+
 	if (bUpdateVelocity)
 	{
 		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, xmf3Shift);
+
+		// @
+		if (true == g_myinfo.connected) {
+			ismove = true;
+		}
+
 	}
 	else
 	{
@@ -157,7 +165,7 @@ void CPlayer::Move(const XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 			{
 				if (m_moveState == STATE_GROUND)
 				{
-					if (m_CollideState == COLLIDEN && degree < 0.3f)
+					if (m_CollideState == COLLIDEN && degree < 0.3f) 
 						m_xmf3Position = Vector3::Add(m_xmf3Position, xmf3Shift);
 				}
 				else
@@ -175,7 +183,6 @@ void CPlayer::Move(const XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 					}
 					else
 						m_xmf3Position = Vector3::Add(m_xmf3Position, xmf3Shift);
-
 				}
 			}
 		}
@@ -183,6 +190,29 @@ void CPlayer::Move(const XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 			m_xmf3Position = Vector3::Add(m_xmf3Position, xmf3Shift);
 		m_pCamera->Move(xmf3Shift);
 
+	}
+
+	if (ismove) {
+		player_info playerinfo;
+		XMFLOAT3 pos = this->GetPosition();
+		playerinfo.id = g_myinfo.id;
+		playerinfo.x = pos.x; playerinfo.y = pos.y; playerinfo.z = pos.z;
+		playerinfo.type = g_myinfo.type;
+		int retval;
+		/// 고정
+		packet_info packetinfo;
+		packetinfo.type = cs_move;
+		packetinfo.size = sizeof(player_info);
+		packetinfo.id = g_myinfo.id;
+		char buf[BUFSIZE];
+		memcpy(buf, &packetinfo, sizeof(packetinfo));
+		/// 가변 (고정 데이터에 가변 데이터 붙이는 형식으로)
+		memcpy(buf + sizeof(packetinfo), &playerinfo, sizeof(player_info));
+		retval = send(g_sock, buf, BUFSIZE, 0);
+		if (retval == SOCKET_ERROR) {
+			MessageBoxW(g_hWnd, L"send()", L"send() - cs_move", MB_OK);
+		}
+		ismove = false;
 	}
 }
 

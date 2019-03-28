@@ -313,14 +313,19 @@ DWORD __stdcall RecvThread(LPVOID arg)
 		{
 			int id = g_myinfo.id = packetinfo.id;			// playerinfo의 주인의 id를 받아온다.
 			memcpy(&(g_myinfo), buf + sizeof(packetinfo), sizeof(g_myinfo));
-			g_networkState = recv_playerinfo;
+			// g_networkState = recv_playerinfo;
+			gGameFramework.GetPlayer()->SetPosition(XMFLOAT3{ g_myinfo.x, g_myinfo.y, g_myinfo.z });
 		}
 		break;
 		case sc_notify_playerinfo:
 		{
 			int id = packetinfo.id;			// playerinfo의 주인의 id를 받아온다.
 			memcpy(&(g_otherinfo), buf + sizeof(packetinfo), sizeof(g_otherinfo));
-			g_networkState = recv_otherinfo;
+			// g_networkState = recv_otherinfo;
+			if (g_myinfo.type == player_doggy)
+				gGameFramework.GetDucky()->SetPosition(XMFLOAT3{ g_otherinfo.x, g_otherinfo.y, g_otherinfo.z });
+			else
+				gGameFramework.GetDoggy()->SetPosition(XMFLOAT3{ g_otherinfo.x, g_otherinfo.y, g_otherinfo.z });
 		}
 		break;
 		case sc_put_player:
@@ -328,7 +333,11 @@ DWORD __stdcall RecvThread(LPVOID arg)
 			// int id = packetinfo.id; // 새로 접속했거나 이미 있던 클라이언트를 추가하기 위해, id를 받아온다.
 			g_otherinfo.connected = true;
 			memcpy(&(g_otherinfo), buf + sizeof(packetinfo), sizeof(g_otherinfo));
-			g_networkState = recv_otherinfo;
+			// g_networkState = recv_otherinfo;
+			if (g_myinfo.type == player_doggy)
+				gGameFramework.GetDucky()->SetPosition(XMFLOAT3{ g_otherinfo.x, g_otherinfo.y, g_otherinfo.z });
+			else
+				gGameFramework.GetDoggy()->SetPosition(XMFLOAT3{ g_otherinfo.x, g_otherinfo.y, g_otherinfo.z });
 		}
 		break;
 		}

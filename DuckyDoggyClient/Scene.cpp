@@ -5,6 +5,7 @@
 #include "stdafx.h"
 #include "Scene.h"
 #include <fstream>
+#include <cstdlib>
 
 ID3D12DescriptorHeap *CScene::m_pd3dCbvSrvDescriptorHeap = NULL;
 
@@ -533,7 +534,7 @@ void CScene::LoadStone(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd
 void CScene::LoadTree(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
 {
 
-	CGameObject *pTree = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Poplar_Tree.bin", NULL, false);
+	CGameObject *pTree = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/tree.bin", NULL, false);
 
 	fstream in("TreeData.txt", ios::in | ios::binary);
 	while (in)
@@ -549,10 +550,12 @@ void CScene::LoadTree(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dC
 
 	for (iter; iter != end; iter++)
 	{
+		float RandomRotate = rand() % 360;
 		CGameObject* obj = new CGameObject();
 		obj->SetChild(pTree, true);
 		obj->SetPosition(iter->x, m_pTerrain->GetHeight(iter->x, iter->y), iter->y);
-		obj->SetHitBox(XMFLOAT3(4.f, 10.f, 4.f));
+		obj->SetHitBox(XMFLOAT3(8.f, 20.f, 8.f));
+		obj->Rotate(0, RandomRotate, 0);
 		m_TreeObjectslist.push_back(obj);
 	}
 

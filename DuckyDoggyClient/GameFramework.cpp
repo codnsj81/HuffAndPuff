@@ -331,9 +331,11 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 					break;
 				case 't':
 				case 'T':
-					m_pScene->PlusTreeData();
+					m_pScene->PlusStoneData();
+					break;
 				case 'Y':
-					m_pScene->SaveTreeData();
+					m_pScene->SaveStoneData();
+					break;
 				default:
 					break;
 			}
@@ -506,7 +508,7 @@ void CGameFramework::BuildObjects()
 
 
 	m_pDucky = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), "Model/ducky.bin", PLAYER_KIND_DUCKY, false, m_pScene->m_pTerrain);
-	m_pDucky->SetPosition(XMFLOAT3(1099.0f, m_pScene->m_pTerrain->GetHeight(1099, 78.0f), 78.0f));
+	m_pDucky->SetPosition(XMFLOAT3(1160, m_pScene->m_pTerrain->GetHeight(1160, 720), 720));
 	m_pDucky->SetHitBox(XMFLOAT3(5.f, 5.f, 5.f));
 	//m_pDucky->SetScale(XMFLOAT3(7.0f, 7.0f, 7.0f));
 
@@ -525,8 +527,8 @@ void CGameFramework::BuildObjects()
 
 	m_pDoggy->SetWaters(m_pScene->GetWaters());
 	m_pDucky->SetWaters(m_pScene->GetWaters());
-	m_pDoggy->SetnWaters(1);
-	m_pDucky->SetnWaters(1);
+	m_pDoggy->SetnWaters(2);
+	m_pDucky->SetnWaters(2);
 
 
 	if (m_pScene) m_pScene->ReleaseUploadBuffers();
@@ -682,7 +684,7 @@ void CGameFramework::FrameAdvance()
 	if (m_pDoggy) m_pDoggy->Render(m_pd3dCommandList, m_pCamera);
 
 	CWater** m_ppWaters = m_pScene->GetWaters();
-	for (int i = 0; i < 1; i++)
+	for (int i = 0; i < 2; i++)
 	{
 		if (m_ppWaters[i])
 		{

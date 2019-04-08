@@ -13,6 +13,11 @@
 #define SPOT_LIGHT						2
 #define DIRECTIONAL_LIGHT				3
 
+struct StoneInfo
+{
+	XMFLOAT3					m_pos;
+	XMFLOAT3					m_size;
+};
 struct LIGHT
 {
 	XMFLOAT4							m_xmf4Ambient;
@@ -75,6 +80,9 @@ public:
 	void PlusTreeData();
 	void SaveTreeData();
 
+	void PlusStoneData();
+	void SaveStoneData();
+
 protected:
 	ID3D12RootSignature					*m_pd3dGraphicsRootSignature = NULL;
 
@@ -108,8 +116,10 @@ public:
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUSrvDescriptorNextHandle() { return(m_d3dSrvGPUDescriptorNextHandle); }
 
 	int									m_nGameObjects = 0;
+
 	CGameObject							**m_ppGameObjects = NULL;
 	list<CGameObject*>					m_TreeObjectslist;
+	list<CGameObject*>					m_StoneObjectslist;
 
 	int									m_nWaters = 0;
 	CWater								**m_ppWaters = NULL;
@@ -120,6 +130,7 @@ public:
 	int									m_nShaders = 0;
 	CShader								**m_ppShaders = NULL;
 
+	CSkyBox								*m_pSkyBox = NULL;
 	CHeightMapTerrain					*m_pTerrain = NULL;
 
 	LIGHT								*m_pLights = NULL;
@@ -132,4 +143,5 @@ public:
 
 
 	list<XMFLOAT2> TreeDatalist;
+	list<StoneInfo>	StoneDataList;
 };

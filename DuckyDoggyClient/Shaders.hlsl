@@ -113,7 +113,7 @@ float4 PSStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
 
 cbuffer cbBoneOffsets : register(b7)
 {
-	float4x4 gpmtxBoneOffsets[SKINNED_ANIMATION_BONES];
+	float4x4 gpmtxBoneOffsets[SKINNED_ANIMATION_BONES]; // offset 변환행렬 그 bone 월드 변환행렬
 };
 
 cbuffer cbBoneTransforms : register(b8)
@@ -131,6 +131,8 @@ struct VS_SKINNED_STANDARD_INPUT
 	uint4 indices : BONEINDEX;
 	float4 weights : BONEWEIGHT;
 };
+// 애니메이션 정보를 받고 모든 뼈의 움직임을 바꾼다
+// skin mesh 를 그리기 위해서 필요한 두개의 행려 (  bone transfrom, offset 변환 ) 정점 하나를 넘겨 받으면
 
 VS_STANDARD_OUTPUT VSSkinnedAnimationStandard(VS_SKINNED_STANDARD_INPUT input)
 {
@@ -141,13 +143,14 @@ VS_STANDARD_OUTPUT VSSkinnedAnimationStandard(VS_SKINNED_STANDARD_INPUT input)
 	output.tangentW = float3(0.0f, 0.0f, 0.0f);
 	output.bitangentW = float3(0.0f, 0.0f, 0.0f);
 	matrix mtxVertexToBoneWorld;
-	for (int i = 0; i < MAX_VERTEX_INFLUENCES; i++)
+	for (int i = 0; i < MAX_VERTEX_INFLUENCES; i++) // 매번 루트를 돌면서 
 	{
-		mtxVertexToBoneWorld = mul(gpmtxBoneOffsets[input.indices[i]], gpmtxBoneTransforms[input.indices[i]]);
+		// offset  * bone transform 본의  인덱스에 해당하는 인덱스와 
+		mtxVertexToBoneWorld = mul(gpmtxBoneOffsets[input.indices[i]], gpmtxBoneTransforms[input.indices[i]]); // 월드 변환행렬로 바꾸기
 		output.positionW += input.weights[i] * mul(float4(input.position, 1.0f), mtxVertexToBoneWorld).xyz;
 		output.normalW += input.weights[i] * mul(input.normal, (float3x3)mtxVertexToBoneWorld);
 		output.tangentW += input.weights[i] * mul(input.tangent, (float3x3)mtxVertexToBoneWorld);
-		output.bitangentW += input.weights[i] * mul(input.bitangent, (float3x3)mtxVertexToBoneWorld);
+		output.bitangentW += input.weights[i] * mul(input.bitangent, (float3x3)mtxVertexToBoneWorld); // 다 더하면 결과
 	}
 
 	output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
@@ -193,15 +196,47 @@ float4 PSTerrain(VS_TERRAIN_OUTPUT input) : SV_TARGET
 {
 	float4 cBaseTexColor = gtxtTerrainBaseTexture.Sample(gssWrap, input.uv0);
 	float4 cDetailTexColor = gtxtTerrainDetailTexture.Sample(gssWrap, input.uv1);
-	//float4 cColor = saturate((input.color * 0.5f) + (cDetailTexColor * 0.5f));
-	float4 cColor = input.color * saturate((cBaseTexColor * 0.5f) + (cDetailTexColor * 0.5f));
+	//	float4 cColor = saturate((cBaseTexColor * 0.5f) + (cDetailTexColor * 0.5f));
+		float4 cColor = input.color * saturate((cBaseTexColor * 0.5f) + (cDetailTexColor * 0.5f));
+
+		return(cColor);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+struct VS_SKYBOX_CUBEMAP_INPUT
+{
+	float3 position : POSITION;
+};
+
+struct VS_SKYBOX_CUBEMAP_OUTPUT
+{
+	float3	positionL : POSITION;
+	float4	position : SV_POSITION;
+};
+
+VS_SKYBOX_CUBEMAP_OUTPUT VSSkyBox(VS_SKYBOX_CUBEMAP_INPUT input)
+{
+	VS_SKYBOX_CUBEMAP_OUTPUT output;
+
+	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
+	output.positionL = input.position;
+
+	return(output);
+}
+
+TextureCube gtxtSkyCubeTexture : register(t13);
+SamplerState gssClamp : register(s1);
+
+float4 PSSkyBox(VS_SKYBOX_CUBEMAP_OUTPUT input) : SV_TARGET
+{
+	float4 cColor = gtxtSkyCubeTexture.Sample(gssClamp, input.positionL);
 
 	return(cColor);
 }
 
+////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 
 struct VS_WATER_INPUT
 {
@@ -237,40 +272,5 @@ VS_WATER_OUTPUT VSWater(VS_WATER_INPUT input)
 float4 PSWater(VS_WATER_OUTPUT input) : SV_TARGET
 {
 	float4 cColor = float4(0.2f,1.f,1.f,0.4f);
-	return(cColor);
-}
-
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-struct VS_SKYBOX_CUBEMAP_INPUT
-{
-	float3 position : POSITION;
-};
-
-struct VS_SKYBOX_CUBEMAP_OUTPUT
-{
-	float3	positionL : POSITION;
-	float4	position : SV_POSITION;
-};
-
-VS_SKYBOX_CUBEMAP_OUTPUT VSSkyBox(VS_SKYBOX_CUBEMAP_INPUT input)
-{
-	VS_SKYBOX_CUBEMAP_OUTPUT output;
-
-	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
-	output.positionL = input.position;
-
-	return(output);
-}
-
-TextureCube gtxtSkyCubeTexture : register(t13);
-SamplerState gssClamp : register(s1);
-
-float4 PSSkyBox(VS_SKYBOX_CUBEMAP_OUTPUT input) : SV_TARGET
-{
-	float4 cColor = gtxtSkyCubeTexture.Sample(gssClamp, input.positionL);
-
 	return(cColor);
 }

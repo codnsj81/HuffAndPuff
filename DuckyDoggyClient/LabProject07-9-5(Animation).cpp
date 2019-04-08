@@ -257,26 +257,26 @@ int InitializeNetwork()
 			CloseHandle(hThread);
 
 
-		// 서버에게 클라이언트 초기 정보를 보낸다.
-		g_myinfo.x = gGameFramework.GetPlayer()->GetPosition().x;
-		g_myinfo.y = gGameFramework.GetPlayer()->GetPosition().y;
-		g_myinfo.z = gGameFramework.GetPlayer()->GetPosition().z;
-		int retval;
-		char buf[BUFSIZE];
-		// 고정
-		packet_info packetinfo;
-		packetinfo.type = cs_put_player;
-		packetinfo.size = sizeof(player_info);
-		packetinfo.id = -1;
-		packetinfo.sock = g_sock;
-		memcpy(buf, &packetinfo, sizeof(packetinfo));
-		// 가변 (고정 데이터에 가변 데이터 붙이는 형식으로)
-		memcpy(buf + sizeof(packetinfo), &g_myinfo, sizeof(player_info));
-		// 전송
-		retval = send(g_sock, buf, BUFSIZE, 0);
-		if (retval == SOCKET_ERROR) {
-			MessageBoxW(g_hWnd, L"send()", L"send() - cs_put_player", MB_OK);
-		}
+		//// 서버에게 클라이언트 초기 정보를 보낸다.
+		//g_myinfo.x = gGameFramework.GetPlayer()->GetPosition().x;
+		//g_myinfo.y = gGameFramework.GetPlayer()->GetPosition().y;
+		//g_myinfo.z = gGameFramework.GetPlayer()->GetPosition().z;
+		//int retval;
+		//char buf[BUFSIZE];
+		//// 고정
+		//packet_info packetinfo;
+		//packetinfo.type = cs_put_player;
+		//packetinfo.size = sizeof(player_info);
+		//packetinfo.id = -1;
+		//packetinfo.sock = g_sock;
+		//memcpy(buf, &packetinfo, sizeof(packetinfo));
+		//// 가변 (고정 데이터에 가변 데이터 붙이는 형식으로)
+		//memcpy(buf + sizeof(packetinfo), &g_myinfo, sizeof(player_info));
+		//// 전송
+		//retval = send(g_sock, buf, BUFSIZE, 0);
+		//if (retval == SOCKET_ERROR) {
+		//	MessageBoxW(g_hWnd, L"send()", L"send() - cs_put_player", MB_OK);
+		//}
 
 	}
 }

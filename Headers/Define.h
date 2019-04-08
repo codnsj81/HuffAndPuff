@@ -1,5 +1,11 @@
 #pragma once
 
+// 플레이어 초기 위치
+#define INITPOSITION_X 1099.0f
+#define INITPOSITION_Z 78.0f
+
+
+// -------------------------
 // 설정
 #define SERVERIP   "127.0.0.1"
 #define SERVERPORT 9000

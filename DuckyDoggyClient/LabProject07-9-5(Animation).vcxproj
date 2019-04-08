@@ -188,6 +188,7 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="LabProject07-9-5(Animation).ico" />
+    <Image Include="Skybox\SkyBox_0.dds" />
     <Image Include="small.ico" />
     <Image Include="Terrain\BASE2.dds" />
     <Image Include="Terrain\Detail_Texture_7.dds" />

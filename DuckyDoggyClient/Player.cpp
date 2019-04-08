@@ -100,6 +100,8 @@ void CPlayer::CollideSide()
 
 bool CPlayer::CheckInWater(XMFLOAT3 pos, CHeightMapTerrain *pTerrain)
 {
+	if (m_moveState == STATE_JUMPING || m_moveState == STATE_ONOBJECTS) return false;
+
 	for (int i = 0; i < m_nWater; i++)
 	{
 		XMFLOAT3 waterspos = m_ppWaters[i]->GetPosition();
@@ -114,9 +116,11 @@ bool CPlayer::CheckInWater(XMFLOAT3 pos, CHeightMapTerrain *pTerrain)
 		{
 			float waterheight = m_ppWaters[i]->GetPosition().y;
 			float terrainheihgt = pTerrain->GetHeight(pos.x, pos.z, true) + 0.0f;
-			if ((waterheight - terrainheihgt) > 3)
+			if ((waterheight - terrainheihgt) > 3 && m_xmf3Position.y + 3 < waterheight)
 			{
 				m_xmf3Position.y = waterheight - 3;
+				m_moveState = STATE_GROUND;
+				m_iJumpnum = 0;
 				return true;
 			}
 		}
@@ -161,30 +165,29 @@ void CPlayer::Move(const XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 			if (m_playerKind == PLAYER_KIND_DOGGY && CheckInWater(m_predictedPos, pTerrain))
 				return;
 
-			else 
-			{
-				if (m_moveState == STATE_GROUND)
-				{
-					if (m_CollideState == COLLIDEN && degree < 0.3f) 
-						m_xmf3Position = Vector3::Add(m_xmf3Position, xmf3Shift);
-				}
-				else
-				{
-					if (m_CollideState == COLLIDEY)
-					{
-						if (m_moveState == STATE_FALLING)
-						{
-							if(xmf3Shift.z <0)
-								m_xmf3Position = Vector3::Add(m_xmf3Position, XMFLOAT3(0,0,xmf3Shift.z));
-						}	
-						else
-							m_xmf3Position = Vector3::Add(m_xmf3Position, XMFLOAT3(0, 0, xmf3Shift.z));
 
-					}
-					else
-						m_xmf3Position = Vector3::Add(m_xmf3Position, xmf3Shift);
-				}
+		if (m_moveState == STATE_GROUND)
+		{
+			if (m_CollideState == COLLIDEN && degree < 0.3f) 
+				m_xmf3Position = Vector3::Add(m_xmf3Position, xmf3Shift);
+		}
+		else
+		{
+			if (m_CollideState == COLLIDEY)
+			{
+				if (m_moveState == STATE_FALLING)
+				{
+					if(xmf3Shift.z <0)
+						m_xmf3Position = Vector3::Add(m_xmf3Position, XMFLOAT3(0,0,xmf3Shift.z));
+				}	
+				else
+					m_xmf3Position = Vector3::Add(m_xmf3Position, XMFLOAT3(0, 0, xmf3Shift.z));
+
 			}
+			else
+				m_xmf3Position = Vector3::Add(m_xmf3Position, xmf3Shift);
+		}
+
 		}
 		else
 			m_xmf3Position = Vector3::Add(m_xmf3Position, xmf3Shift);
@@ -623,7 +626,7 @@ void CTerrainPlayer::OnPlayerUpdateCallback(float fTimeElapsed)
 		SetPosition(xmf3PlayerPosition);
 	}
 
-	if (m_moveState == STATE_GROUND || m_PiggybackState != PIGGYBACK_CRRIED)
+	if ((m_moveState == STATE_GROUND || m_PiggybackState != PIGGYBACK_CRRIED))
 	{
 		m_bInWater = CheckInWater(xmf3PlayerPosition, pTerrain);
 	}

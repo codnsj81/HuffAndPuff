@@ -7,6 +7,7 @@
 #include "Timer.h"
 #include "Player.h"
 #include "Scene.h"
+#include "CUI.h"
 
 class CGameFramework
 {
@@ -53,6 +54,7 @@ private:
 	HINSTANCE					m_hInstance;
 	HWND						m_hWnd; 
 
+	CUI							*m_pUI = NULL;
 	int							m_nWndClientWidth;
 	int							m_nWndClientHeight;
         

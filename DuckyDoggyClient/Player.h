@@ -52,6 +52,7 @@ protected:
 
 	CPlayer*					m_pParter = NULL;
 	CCamera						*m_pCamera = NULL;
+	CUI							*m_pHPUI = NULL;
 	bool						m_bInWater = false;
 
 	int							m_PiggybackState = PIGGYBACK_NONE;
@@ -63,6 +64,9 @@ protected:
 	int							m_playerKind;
 	float						m_ObjectHeight;
 	int							m_iJumpnum = 0 ;
+
+
+	int							m_iHP = 100;
 	XMFLOAT3					m_predictedPos = XMFLOAT3(0.0f, 0.0f, 0.0f);
 public:
 	CPlayer();

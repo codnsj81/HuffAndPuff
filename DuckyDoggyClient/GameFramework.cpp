@@ -114,7 +114,9 @@ void CGameFramework::CreateSwapChain()
 	hResult = m_pdxgiFactory->MakeWindowAssociation(m_hWnd, DXGI_MWA_NO_ALT_ENTER);
 
 #ifndef _WITH_SWAPCHAIN_FULLSCREEN_STATE
+#ifndef _WITH_SWAPCHAIN_FULLSCREEN_STATE
 	CreateRenderTargetViews();
+#endif
 #endif
 }
 
@@ -331,10 +333,10 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 					break;
 				case 't':
 				case 'T':
-					m_pScene->PlusStoneData();
+					m_pScene->PlusTreeData();
 					break;
 				case 'Y':
-					m_pScene->SaveStoneData();
+					m_pScene->SaveTreeData();
 					break;
 				default:
 					break;
@@ -508,6 +510,8 @@ void CGameFramework::BuildObjects()
 
 
 	m_pDucky = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), "Model/ducky.bin", PLAYER_KIND_DUCKY, false, m_pScene->m_pTerrain);
+	//m_pDucky->SetPosition(XMFLOAT3(1099.0f, m_pScene->m_pTerrain->GetHeight(1099, 88.0f), 88.0f));
+
 	m_pDucky->SetPosition(XMFLOAT3(1160, m_pScene->m_pTerrain->GetHeight(1160, 720), 720));
 	m_pDucky->SetHitBox(XMFLOAT3(5.f, 5.f, 5.f));
 	//m_pDucky->SetScale(XMFLOAT3(7.0f, 7.0f, 7.0f));
@@ -518,6 +522,11 @@ void CGameFramework::BuildObjects()
 	m_pScene->m_pPlayer = m_pPlayer = m_pDoggy;
 	m_pCamera = m_pPlayer->GetCamera();
 	m_pScene->SetDuckyNDoggy(m_pDucky, m_pDoggy, m_pPlayer);
+	
+	m_pUI = new CUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 4, 4, m_pPlayer->GetPosition());
+	m_pUI->m_pCamera = m_pCamera;
+	m_pCamera->m_pUI = m_pUI;
+	m_pUI->m_pPlayer = m_pPlayer;
 
 	m_pd3dCommandList->Close();
 	ID3D12CommandList *ppd3dCommandLists[] = { m_pd3dCommandList };
@@ -674,7 +683,6 @@ void CGameFramework::FrameAdvance()
 	m_pd3dCommandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, TRUE, &d3dDsvCPUDescriptorHandle);
 
 	if (m_pScene) m_pScene->Update();
-
 	if (m_pScene) m_pScene->Render(m_pd3dCommandList, m_pCamera);
 
 #ifdef _WITH_PLAYER_TOP
@@ -683,6 +691,7 @@ void CGameFramework::FrameAdvance()
 	if (m_pDucky) m_pDucky->Render(m_pd3dCommandList, m_pCamera);
 	if (m_pDoggy) m_pDoggy->Render(m_pd3dCommandList, m_pCamera);
 
+	m_pCamera->m_pUI->Render(m_pd3dCommandList, m_pCamera);
 	CWater** m_ppWaters = m_pScene->GetWaters();
 	for (int i = 0; i < 2; i++)
 	{

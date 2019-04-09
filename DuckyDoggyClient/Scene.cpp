@@ -408,6 +408,9 @@ void CScene::PlusStoneData()
 	playerPos.m_pos.z = m_pPlayer->GetPosition().z;
 	playerPos.m_size = XMFLOAT3(4.f, 4.f, 4.f);
 	StoneDataList.push_back(playerPos);
+
+
+
 }
 
 void CScene::SaveStoneData()
@@ -557,9 +560,9 @@ void CScene::LoadStone(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd
 		float RandomRotate = rand() % 360;
 		CGameObject* obj = new CGameObject();
 		obj->SetChild(pStone, true);
-		obj->SetPosition(iter->m_pos.x, iter->m_pos.y, iter->m_pos.z);
+		obj->SetPosition(iter->m_pos.x, iter->m_pos.y+3, iter->m_pos.z);
 		obj->SetScale(iter->m_size.x, iter->m_size.y, iter->m_size.z);
-		obj->SetHitBox(XMFLOAT3(2.f * iter->m_size.x , 0.8f * iter->m_size.y, 2.f * iter->m_size.z));
+		obj->SetHitBox(XMFLOAT3(3.f * iter->m_size.x , 0.8f * iter->m_size.y, 3.f * iter->m_size.z));
 		m_StoneObjectslist.push_back(obj);
 	}
 }

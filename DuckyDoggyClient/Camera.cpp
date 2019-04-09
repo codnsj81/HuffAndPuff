@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Player.h"
 #include "Camera.h"
-
+#include "CUI.h"
 CCamera::CCamera()
 {
 	m_xmf4x4View = Matrix4x4::Identity();
@@ -296,4 +296,11 @@ void CThirdPersonCamera::SetLookAt(XMFLOAT3& xmf3LookAt)
 	m_xmf3Right = XMFLOAT3(mtxLookAt._11, mtxLookAt._21, mtxLookAt._31);
 	m_xmf3Up = XMFLOAT3(mtxLookAt._12, mtxLookAt._22, mtxLookAt._32);
 	m_xmf3Look = XMFLOAT3(mtxLookAt._13, mtxLookAt._23, mtxLookAt._33);
+
+	if (m_pUI)
+	{
+		m_pUI->SetPosition(m_xmf3LookAtWorld);
+		m_pUI->Rotate(0, 0, 1);
+	}
+
 }

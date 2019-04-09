@@ -316,3 +316,42 @@ protected:
 	D3D12_VERTEX_BUFFER_VIEW		m_d3dTextureCoord1BufferView;
 
 };
+
+
+////////////////////////////////////////////////////////////////////////////////////////
+class CUIMesh : public CMesh
+{
+public:
+	CUIMesh(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nWidth = 5.f, int nLength = 5.f);
+	virtual ~CUIMesh();
+	virtual void OnPreRender(ID3D12GraphicsCommandList *pd3dCommandList, void *pContext);
+
+	virtual void ReleaseUploadBuffers();
+
+protected:
+	int								m_nWidth;
+	int								m_nLength;
+	UINT							m_nStride = 0;
+	UINT							m_nOffset = 0;
+
+	UINT							m_nIndices = 0;
+	UINT							m_nStartIndex = 0;
+	int								m_nBaseVertex = 0;
+
+	XMFLOAT4						*m_pxmf4Colors = NULL;
+	XMFLOAT2						*m_pxmf2TextureCoords0 = NULL;
+	XMFLOAT2						*m_pxmf2TextureCoords1 = NULL;
+
+	ID3D12Resource					*m_pd3dColorBuffer = NULL;
+	ID3D12Resource					*m_pd3dColorUploadBuffer = NULL;
+	D3D12_VERTEX_BUFFER_VIEW		m_d3dColorBufferView;
+
+	ID3D12Resource					*m_pd3dTextureCoord0Buffer = NULL;
+	ID3D12Resource					*m_pd3dTextureCoord0UploadBuffer = NULL;
+	D3D12_VERTEX_BUFFER_VIEW		m_d3dTextureCoord0BufferView;
+
+	ID3D12Resource					*m_pd3dTextureCoord1Buffer = NULL;
+	ID3D12Resource					*m_pd3dTextureCoord1UploadBuffer = NULL;
+	D3D12_VERTEX_BUFFER_VIEW		m_d3dTextureCoord1BufferView;
+
+};

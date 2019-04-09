@@ -31,7 +31,6 @@ CPlayer::CPlayer()
 	m_pPlayerUpdatedContext = NULL;
 	m_pCameraUpdatedContext = NULL;
 
-
 }
 
 CPlayer::~CPlayer()
@@ -345,7 +344,7 @@ void CPlayer::Update(float fTimeElapsed)
 
 	if (Vector3::IsZero(m_xmf3Velocity))
 		SetAnimationSet(0);
-	else
+	else if(m_playerKind == player_doggy)
 	{
 		if(m_moveState == STATE_GROUND)
 		SetAnimationSet(1);
@@ -534,12 +533,22 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	m_pCamera = ChangeCamera(THIRD_PERSON_CAMERA, 0.0f);
 
 	CGameObject *pGameObject = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, name, NULL, banimation);
+	
+	if (m_playerKind == player_doggy)
+	{
+		pGameObject->m_pAnimationController->m_pAnimationSets[1].m_fSpeed = 0.8f;
+	}
+	else
+	{
+		pGameObject->m_pAnimationController->m_pAnimationSets[0].m_fSpeed = 0.4f;
+	}
 	SetChild(pGameObject);
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
 	SetPlayerUpdatedContext(pContext);
 	SetCameraUpdatedContext(pContext);
+
 }
 
 CTerrainPlayer::~CTerrainPlayer()

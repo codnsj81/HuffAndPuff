@@ -509,7 +509,7 @@ void CGameFramework::BuildObjects()
 	m_pDoggy->SetScale(XMFLOAT3(4.f, 4.f, 4.f));
 
 
-	m_pDucky = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), "Model/ducky.bin", PLAYER_KIND_DUCKY, false, m_pScene->m_pTerrain);
+	m_pDucky = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), "Model/ducky_walk.bin", PLAYER_KIND_DUCKY, true, m_pScene->m_pTerrain);
 	//m_pDucky->SetPosition(XMFLOAT3(1099.0f, m_pScene->m_pTerrain->GetHeight(1099, 88.0f), 88.0f));
 
 	m_pDucky->SetPosition(XMFLOAT3(1160, m_pScene->m_pTerrain->GetHeight(1160, 720), 720));
@@ -691,7 +691,7 @@ void CGameFramework::FrameAdvance()
 	if (m_pDucky) m_pDucky->Render(m_pd3dCommandList, m_pCamera);
 	if (m_pDoggy) m_pDoggy->Render(m_pd3dCommandList, m_pCamera);
 
-	m_pCamera->m_pUI->Render(m_pd3dCommandList, m_pCamera);
+	//m_pCamera->m_pUI->Render(m_pd3dCommandList, m_pCamera);
 	CWater** m_ppWaters = m_pScene->GetWaters();
 	for (int i = 0; i < 2; i++)
 	{

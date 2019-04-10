@@ -68,6 +68,7 @@ protected:
 
 	int							m_iHP = 100;
 	XMFLOAT3					m_predictedPos = XMFLOAT3(0.0f, 0.0f, 0.0f);
+
 public:
 	CPlayer();
 	virtual ~CPlayer();

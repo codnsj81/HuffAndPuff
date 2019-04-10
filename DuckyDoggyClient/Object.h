@@ -257,7 +257,12 @@ public:
 
     CGameObject						*m_pRootFrame = NULL;
 
+	int								m_iPlayerKind;
+	bool							m_bLoop;
+
 public:
+	void SetKind(int i) { m_iPlayerKind = i; }
+	void SetLoop(bool stop) { m_bLoop = stop; }
 	void SetAnimationSet(int nAnimationSet);
 
 	void SetCallbackKeys(int nAnimationSet, int nCallbackKeys);

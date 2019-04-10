@@ -12,13 +12,13 @@ CUI::CUI(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList,
 	for (int i = 0; i < m_nMaterials; i++)
 		m_ppMaterials[i] = NULL;
 
-	CWaterMesh *pMesh = new CWaterMesh(pd3dDevice, pd3dCommandList, nWidth, nLength);
+	CMesh *pMesh = new CUIMesh(pd3dDevice, pd3dCommandList, nWidth, nLength);
 	SetMesh(pMesh);
 
 	CTexture *pWaterTex = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 	pWaterTex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/waternormal.tiff", 0, false);
 
-	CShader *pShader = new CShader();
+	CUIShader *pShader = new CUIShader();
 	pShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	pShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 

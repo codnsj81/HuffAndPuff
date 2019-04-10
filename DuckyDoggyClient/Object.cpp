@@ -335,6 +335,7 @@ XMFLOAT4X4 CAnimationSet::GetSRT(int nFrame, float fPosition)
 		if ((m_pfKeyFrameTransformTimes[i] <= fPosition) && (fPosition <= m_pfKeyFrameTransformTimes[i+1]))
 		{
 			float t = (fPosition - m_pfKeyFrameTransformTimes[i]) / (m_pfKeyFrameTransformTimes[i+1] - m_pfKeyFrameTransformTimes[i]);
+
 			XMVECTOR S0, R0, T0, S1, R1, T1;
 			XMMatrixDecompose(&S0, &R0, &T0, XMLoadFloat4x4(&m_ppxmf4x4KeyFrameTransforms[i][nFrame]));
 			XMMatrixDecompose(&S1, &R1, &T1, XMLoadFloat4x4(&m_ppxmf4x4KeyFrameTransforms[i+1][nFrame]));
@@ -351,6 +352,7 @@ XMFLOAT4X4 CAnimationSet::GetSRT(int nFrame, float fPosition)
 #endif
 	return(xmf4x4Transform);
 }
+
 
 void CAnimationSet::SetCallbackKeys(int nCallbackKeys)
 {
@@ -395,6 +397,14 @@ void CAnimationController::SetAnimationSet(int nAnimationSet)
 {
 	if (m_pAnimationSets && (nAnimationSet < m_nAnimationSets))
 	{
+		if (nAnimationSet == 2) 
+			SetLoop(false);
+		else if( m_iPlayerKind == PLAYER_KIND_DOGGY)
+		{
+			if (m_pAnimationSets)
+				m_pAnimationSets[2].m_fPosition = 0;
+			SetLoop(true);
+		}
 		m_nAnimationSet = nAnimationSet;
 		m_pAnimationTracks[m_nAnimationTrack].m_pAnimationSet = &m_pAnimationSets[m_nAnimationSet];
 	}
@@ -413,7 +423,10 @@ void CAnimationController::AdvanceTime(float fTimeElapsed, CAnimationCallbackHan
 
 				CAnimationSet *pAnimationSet = m_pAnimationTracks[i].m_pAnimationSet;
 				pAnimationSet->m_fPosition += (fTimeElapsed * pAnimationSet->m_fSpeed);
-
+				
+				if(!m_bLoop)	
+					if (pAnimationSet->m_fPosition > pAnimationSet->m_fLength) pAnimationSet->m_fPosition = pAnimationSet->m_fLength;
+				
 				if (pCallbackHandler)
 				{
 					void *pCallbackData = pAnimationSet->GetCallback(pAnimationSet->m_fPosition);

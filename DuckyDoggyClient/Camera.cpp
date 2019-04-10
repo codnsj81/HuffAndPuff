@@ -299,8 +299,10 @@ void CThirdPersonCamera::SetLookAt(XMFLOAT3& xmf3LookAt)
 
 	if (m_pUI)
 	{
-		m_pUI->SetPosition(m_xmf3LookAtWorld);
-		m_pUI->Rotate(0, 0, 1);
+		XMFLOAT3 pos = m_pPlayer->GetPosition();
+		m_pUI->SetPosition(pos.x, pos.y + 7, pos.z);
+		//m_pUI->M_M
+		m_pUI->Rotate(0, 180, 0);
 	}
 
 }

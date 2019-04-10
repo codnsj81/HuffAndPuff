@@ -523,10 +523,11 @@ void CGameFramework::BuildObjects()
 	m_pCamera = m_pPlayer->GetCamera();
 	m_pScene->SetDuckyNDoggy(m_pDucky, m_pDoggy, m_pPlayer);
 	
-	m_pUI = new CUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 4, 4, m_pPlayer->GetPosition());
+	m_pUI = new CUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 1, 1, m_pPlayer->GetPosition());
 	m_pUI->m_pCamera = m_pCamera;
-	m_pCamera->m_pUI = m_pUI;
 	m_pUI->m_pPlayer = m_pPlayer;
+	m_pUI->Rotate(-90, 0, 0);
+	m_pCamera->m_pUI = m_pUI;
 
 	m_pd3dCommandList->Close();
 	ID3D12CommandList *ppd3dCommandLists[] = { m_pd3dCommandList };
@@ -691,7 +692,7 @@ void CGameFramework::FrameAdvance()
 	if (m_pDucky) m_pDucky->Render(m_pd3dCommandList, m_pCamera);
 	if (m_pDoggy) m_pDoggy->Render(m_pd3dCommandList, m_pCamera);
 
-	//m_pCamera->m_pUI->Render(m_pd3dCommandList, m_pCamera);
+	m_pUI->Render(m_pd3dCommandList, m_pCamera);
 	CWater** m_ppWaters = m_pScene->GetWaters();
 	for (int i = 0; i < 2; i++)
 	{

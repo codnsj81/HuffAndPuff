@@ -88,7 +88,6 @@ protected:
 	int								m_nSubMeshes = 0;
 	int								*m_pnSubSetIndices = NULL;
 	UINT							**m_ppnSubSetIndices = NULL;
-
 	ID3D12Resource					**m_ppd3dSubSetIndexBuffers = NULL;
 	ID3D12Resource					**m_ppd3dSubSetIndexUploadBuffers = NULL;
 	D3D12_INDEX_BUFFER_VIEW			*m_pd3dSubSetIndexBufferViews = NULL;
@@ -280,14 +279,13 @@ public:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////
-class CWaterMesh : public CMesh
+class CWaterMesh : public CStandardMesh
 {
 public:
 	CWaterMesh(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nWidth = 5.f, int nLength = 5.f);
 	virtual ~CWaterMesh();
-	virtual void OnPreRender(ID3D12GraphicsCommandList *pd3dCommandList, void *pContext);
+	void CalculateTriangleListTBNs(int nVertices, XMFLOAT3 *pxmf3Positions, XMFLOAT2 *pxmf2TexCoords, XMFLOAT3 *pxmf3Tangents, XMFLOAT3 *pxmf3BiTangents, XMFLOAT3 *pxmf3Normals);
 
-	virtual void ReleaseUploadBuffers();
 
 protected:
 	int								m_nWidth;
@@ -299,21 +297,6 @@ protected:
 	UINT							m_nStartIndex = 0;
 	int								m_nBaseVertex = 0;
 
-	XMFLOAT4						*m_pxmf4Colors = NULL;
-	XMFLOAT2						*m_pxmf2TextureCoords0 = NULL;
-	XMFLOAT2						*m_pxmf2TextureCoords1 = NULL;
-
-	ID3D12Resource					*m_pd3dColorBuffer = NULL;
-	ID3D12Resource					*m_pd3dColorUploadBuffer = NULL;
-	D3D12_VERTEX_BUFFER_VIEW		m_d3dColorBufferView;
-
-	ID3D12Resource					*m_pd3dTextureCoord0Buffer = NULL;
-	ID3D12Resource					*m_pd3dTextureCoord0UploadBuffer = NULL;
-	D3D12_VERTEX_BUFFER_VIEW		m_d3dTextureCoord0BufferView;
-
-	ID3D12Resource					*m_pd3dTextureCoord1Buffer = NULL;
-	ID3D12Resource					*m_pd3dTextureCoord1UploadBuffer = NULL;
-	D3D12_VERTEX_BUFFER_VIEW		m_d3dTextureCoord1BufferView;
 
 };
 

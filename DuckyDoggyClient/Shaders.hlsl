@@ -81,6 +81,7 @@ float4 PSStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
 {
 	float4 cAlbedoColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
 	if (gnTexturesMask & MATERIAL_ALBEDO_MAP) cAlbedoColor = gtxtAlbedoTexture.Sample(gssWrap, input.uv);
+	else cAlbedoColor = float4(1.0f, 0.0f, 0.0f, 1.0f);
 	float4 cSpecularColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
 	if (gnTexturesMask & MATERIAL_SPECULAR_MAP) cSpecularColor = gtxtSpecularTexture.Sample(gssWrap, input.uv);
 	float4 cNormalColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
@@ -238,39 +239,65 @@ float4 PSSkyBox(VS_SKYBOX_CUBEMAP_OUTPUT input) : SV_TARGET
 ////////////////////////////////////////////
 
 
+Texture2D waterAlbedoTexture : register(t14);
+Texture2D waterSpecularTexture : register(t15);
+Texture2D waterNormalTexture : register(t16);
+
+SamplerState gssWater : register(s2);
+
 struct VS_WATER_INPUT
 {
 	float3 position : POSITION;
-	float4 color : COLOR;
-	float2 uv0 : TEXCOORD0;
-	float2 uv1 : TEXCOORD1;
-	//float3 normal : NORMAL;
+	float2 uv : TEXCOORD;
+	float3 normal : NORMAL;
+	float3 tangent : TANGENT;
+	float3 bitangent : BITANGENT;
 };
 
 struct VS_WATER_OUTPUT
 {
 	float4 position : SV_POSITION;
-	float4 color : COLOR;
-	float2 uv0 : TEXCOORD0;
-	float2 uv1 : TEXCOORD1;
-	//float3 normal : NORMAL;
+	float3 positionW : POSITION;
+	float3 normalW : NORMAL;
+	float3 tangentW : TANGENT;
+	float3 bitangentW : BITANGENT;
+	float2 uv : TEXCOORD;
 };
 
 VS_WATER_OUTPUT VSWater(VS_WATER_INPUT input)
 {
-	VS_WATER_OUTPUT output;
+	VS_STANDARD_OUTPUT output;
 
-	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
-	output.color = float4(0.2f, 1.f, 1.f, 0.4f);
-	output.uv0 = input.uv0;
-	output.uv1 = input.uv1;
-	//output.normal = input.normal;
+	output.positionW = (float3)mul(float4(input.position, 1.0f), gmtxGameObject);
+	output.normalW = mul(input.normal, (float3x3)gmtxGameObject);
+	output.tangentW = (float3)mul(float4(input.tangent, 1.0f), gmtxGameObject);
+	output.bitangentW = (float3)mul(float4(input.bitangent, 1.0f), gmtxGameObject);
+	output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
+	output.uv = input.uv;
 
 	return(output);
 }
 
 float4 PSWater(VS_WATER_OUTPUT input) : SV_TARGET
 {
-	float4 cColor = float4(0.2f,1.f,1.f,0.4f);
-	return(cColor);
+	
+	//float4 cAlbedoColor = float4(1.0f, 0.0f, 0.0f,1.f);
+	//if (gnTexturesMask & MATERIAL_ALBEDO_MAP) cAlbedoColor = waterAlbedoTexture.Sample(gssWater, input.uv);
+	float4 cNormalColor = float4(0.0f, 1.0f, 1.0f, 0.0f);
+	//if (gnTexturesMask & MATERIAL_NORMAL_MAP) cNormalColor += waterAlbedoTexture.Sample(gssWater, input.uv);
+	cNormalColor.a = 0.5f;
+	//if (gnTexturesMask & MATERIAL_NORMAL_MAP)
+	//{
+	//	float3 normalW = input.normalW;
+	//	float3x3 TBN = float3x3(normalize(input.tangentW), normalize(input.bitangentW), normalize(input.normalW));
+	//	float3 vNormal = normalize(cNormalColor.rgb * 2.0f - 1.0f); //[0, 1] ¡æ [-1, 1]
+	//	normalW = normalize(mul(vNormal, TBN));
+	//	cIllumination = Lighting(input.positionW, normalW);
+	//	return(lerp(cColor, cIllumination, 0.5f));
+	//}
+	//else
+	//{
+	return(cNormalColor);
+	//}
+
 }

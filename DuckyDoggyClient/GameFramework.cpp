@@ -738,27 +738,30 @@ void CGameFramework::FrameAdvance()
 	_stprintf_s(m_pszFrameRate + nLength, 70 - nLength, _T("(%4f, %4f, %4f)"), xmf3Position.x, xmf3Position.y, xmf3Position.z);
 	::SetWindowText(m_hWnd, m_pszFrameRate);
 
-		// @서버한테 정보 받기
-	//if (g_myinfo.connected) {
-	//	switch (g_networkState) {
-	//	case recv_playerinfo:
-	//	{
-	//		m_pPlayer->SetPosition(XMFLOAT3{ g_myinfo.x, g_myinfo.y, g_myinfo.z });
-	//		g_networkState = recv_none;
-	//	}
-	//	break;
-	//	case recv_otherinfo:
-	//	{
-	//		if (g_myinfo.type == player_doggy)
-	//			m_pDucky->SetPosition(XMFLOAT3{ g_otherinfo.x, g_otherinfo.y, g_otherinfo.z });
-	//		else
-	//			m_pDoggy->SetPosition(XMFLOAT3{ g_otherinfo.x, g_otherinfo.y, g_otherinfo.z });
-	//		g_networkState = recv_none;
-	//	}
-	//	break;
-	//	}
-	//}
-
+	// 0411
+	m_dwUpdatecnt++;
+	if (g_myinfo.connected == true && m_dwUpdatecnt >= 10) {
+		player_info playerinfo;
+		playerinfo.id = g_myinfo.id;
+		playerinfo.x = xmf3Position.x; playerinfo.y = xmf3Position.y; playerinfo.z = xmf3Position.z;
+		playerinfo.type = g_myinfo.type;
+		int retval;
+		/// 고정
+		packet_info packetinfo;
+		packetinfo.type = cs_move;
+		packetinfo.size = sizeof(player_info);
+		packetinfo.id = g_myinfo.id;
+		char buf[BUFSIZE];
+		memcpy(buf, &packetinfo, sizeof(packetinfo));
+		/// 가변 (고정 데이터에 가변 데이터 붙이는 형식으로)
+		memcpy(buf + sizeof(packetinfo), &playerinfo, sizeof(player_info));
+		retval = send(g_sock, buf, BUFSIZE, 0);
+		if (retval == SOCKET_ERROR) {
+			MessageBoxW(g_hWnd, L"send()", L"send() - cs_move", MB_OK);
+			exit(1);
+		}
+		m_dwUpdatecnt = 0;
+	}
 
 }
 

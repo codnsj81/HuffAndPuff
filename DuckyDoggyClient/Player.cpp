@@ -314,18 +314,16 @@ void CPlayer::Update(float fTimeElapsed)
 	m_pCamera->RegenerateViewMatrix();
 
 	if(m_pAnimationController) m_pAnimationController->SetLoop(true);
-	if (Vector3::IsZero(m_xmf3Velocity))
-		SetAnimationSet(0);
-	else if(m_playerKind == player_doggy)
+	
+	if (m_moveState == STATE_GROUND)
 	{
-		if (m_moveState == STATE_GROUND) {
+		if (Vector3::IsZero(m_xmf3Velocity))
+			SetAnimationSet(0);
+		else 
 			SetAnimationSet(1);
-		}
-		else
-		{
-			SetAnimationSet(2);
-		}
 	}
+	
+	
 
 }
 
@@ -380,9 +378,11 @@ void CPlayer::Jump()
 	{
 		m_fTime = 0;
 		m_moveState = STATE_JUMPING;
+
 		m_iJumpnum++;
 		if (m_iJumpnum == 2)
 			m_fTime = 0;
+		if(m_playerKind == player_doggy) SetAnimationSet(2);
 	}
 
 }

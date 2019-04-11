@@ -399,13 +399,12 @@ void CAnimationController::SetAnimationSet(int nAnimationSet)
 	{
 		if (nAnimationSet == 2)
 		{
+			m_pAnimationSets[2].m_fPosition = 0;
 			m_pAnimationSets[2].m_fSpeed = 0.6f;
 			SetLoop(false);
 		}
 		else if( m_iPlayerKind == PLAYER_KIND_DOGGY)
 		{
-			if (m_pAnimationSets)
-				m_pAnimationSets[2].m_fPosition = 0;
 			SetLoop(true);
 		}
 		m_nAnimationSet = nAnimationSet;

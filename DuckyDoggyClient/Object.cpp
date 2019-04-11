@@ -397,8 +397,11 @@ void CAnimationController::SetAnimationSet(int nAnimationSet)
 {
 	if (m_pAnimationSets && (nAnimationSet < m_nAnimationSets))
 	{
-		if (nAnimationSet == 2) 
+		if (nAnimationSet == 2)
+		{
+			m_pAnimationSets[2].m_fSpeed = 0.6f;
 			SetLoop(false);
+		}
 		else if( m_iPlayerKind == PLAYER_KIND_DOGGY)
 		{
 			if (m_pAnimationSets)

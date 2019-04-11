@@ -503,7 +503,7 @@ void CGameFramework::BuildObjects()
 	if (m_pScene) m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
 
 	// 도기 생성
-	m_pDoggy = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(),"Model/Mydog.bin", PLAYER_KIND_DOGGY , true, m_pScene->m_pTerrain );
+	m_pDoggy = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(),"Model/doggy.bin", PLAYER_KIND_DOGGY , true, m_pScene->m_pTerrain );
 	m_pDoggy->SetPosition(XMFLOAT3(1099.0f, m_pScene->m_pTerrain->GetHeight(1099, 78.0f), 78.0f)); 
 	m_pDoggy->SetHitBox(XMFLOAT3(5.f, 5.f, 5.f));
 	m_pDoggy->SetScale(XMFLOAT3(4.f, 4.f, 4.f));

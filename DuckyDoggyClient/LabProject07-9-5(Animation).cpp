@@ -251,6 +251,10 @@ int InitializeNetwork()
 		MessageBoxW(g_hWnd, L"Connected", L"알림", MB_OK);
 		g_myinfo.connected = true;
 
+		bool NoDelay = TRUE;
+		setsockopt(g_sock, IPPROTO_TCP, TCP_NODELAY, (const char FAR*)&NoDelay, sizeof(NoDelay));
+
+
 		// recv 전용 스레드를 만든다.
 		hThread = CreateThread(NULL, 0, RecvThread, (LPVOID)g_sock, 0, NULL);
 		if (NULL == hThread)
@@ -305,7 +309,7 @@ DWORD __stdcall RecvThread(LPVOID arg)
 
 		// 고정 길이. // 무슨 패킷을 받아오게 될지 미리 알아낸다.
 		{
-			int receiveBytes = recv(client_sock, buf, BUFSIZE, 0);
+			int receiveBytes = recvn(client_sock, buf, BUFSIZE, 0);
 			if (receiveBytes > 0)
 				memcpy(&packetinfo, buf, sizeof(packetinfo));
 		}
@@ -323,11 +327,16 @@ DWORD __stdcall RecvThread(LPVOID arg)
 		{
 			int id = packetinfo.id;			// playerinfo의 주인의 id를 받아온다.
 			memcpy(&(g_otherinfo), buf + sizeof(packetinfo), sizeof(g_otherinfo));
-			// g_networkState = recv_otherinfo;
+			// 1)
+			//if (g_myinfo.type == player_doggy)
+			//	gGameFramework.GetDucky()->SetPosition(XMFLOAT3{ g_otherinfo.x, g_otherinfo.y, g_otherinfo.z });
+			//else
+			//	gGameFramework.GetDoggy()->SetPosition(XMFLOAT3{ g_otherinfo.x, g_otherinfo.y, g_otherinfo.z });
+			// 2)
 			if (g_myinfo.type == player_doggy)
-				gGameFramework.GetDucky()->SetPosition(XMFLOAT3{ g_otherinfo.x, g_otherinfo.y, g_otherinfo.z });
+				gGameFramework.SetPlayerPos(player_ducky, XMFLOAT3{ g_otherinfo.x, g_otherinfo.y, g_otherinfo.z });
 			else
-				gGameFramework.GetDoggy()->SetPosition(XMFLOAT3{ g_otherinfo.x, g_otherinfo.y, g_otherinfo.z });
+				gGameFramework.SetPlayerPos(player_doggy, XMFLOAT3{ g_otherinfo.x, g_otherinfo.y, g_otherinfo.z });
 		}
 		break;
 		case sc_put_player:

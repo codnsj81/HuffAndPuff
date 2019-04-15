@@ -450,12 +450,12 @@ void CGameFramework::SetPlayerPos(player_type eType, XMFLOAT3 pos)
 		switch (eType) {
 		case player_ducky:
 		{
-			m_pDucky->SetPosition(pos);
+			m_pDucky->SetPosition_async(pos);
 		}
 		break;
 		case player_doggy:
 		{
-			m_pDoggy->SetPosition(pos);
+			m_pDoggy->SetPosition_async(pos);
 		}
 		break;
 		}

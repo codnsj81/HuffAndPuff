@@ -134,6 +134,11 @@ public:
 
 
 	int							m_CollideState = COLLIDEN;
+
+	void SetPosition_async(const XMFLOAT3& xmf3Position) { 
+		m_xmf3Position = xmf3Position;
+	}
+
 };
 
 class CAirplanePlayer : public CPlayer

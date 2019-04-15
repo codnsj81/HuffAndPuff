@@ -104,19 +104,27 @@ int main(int argc, char *argv[])
 				break;
 			}
 		}
-		clients[new_id] = SOCKETINFO{};
-		memset(&clients[new_id], 0x00, sizeof(SOCKETINFO));
-		clients[new_id].playerinfo.id = new_id;
-		clients[new_id].playerinfo.connected = true;
-		clients[new_id].sock = client_sock;
-		clients[new_id].playerinfo.x = INITPOSITION_X;
-		clients[new_id].playerinfo.z = INITPOSITION_Z;
-		clients[new_id].playerinfo.type = player_type(new_id % 2 + 1);
-		clients[new_id].wsabuf.len = BUFSIZE;
-		clients[new_id].wsabuf.buf = clients[new_id].buf;
-		clients[new_id].overlapped.hEvent = (HANDLE)clients[new_id].sock;
-		clients[new_id].connected = true;
-		flags = 0;
+		// 소켓의 옵션을 변경.
+		bool NoDelay = TRUE;
+		setsockopt(client_sock, IPPROTO_TCP, TCP_NODELAY, (const char FAR*)&NoDelay, sizeof(NoDelay));
+
+		// 클라이언트 구조체의 정보 입력.
+		{
+			clients[new_id] = SOCKETINFO{};
+			memset(&clients[new_id], 0x00, sizeof(SOCKETINFO));
+			clients[new_id].playerinfo.id = new_id;
+			clients[new_id].playerinfo.connected = true;
+			clients[new_id].sock = client_sock;
+			clients[new_id].playerinfo.x = INITPOSITION_X;
+			clients[new_id].playerinfo.z = INITPOSITION_Z;
+			clients[new_id].playerinfo.type = player_type(new_id % 2 + 1);
+			clients[new_id].wsabuf.len = BUFSIZE;
+			clients[new_id].wsabuf.buf = clients[new_id].buf;
+			clients[new_id].overlapped.hEvent = (HANDLE)clients[new_id].sock;
+			clients[new_id].connected = true;
+			flags = 0;
+		}
+		
 
 
 		// 로그인 되었다는 패킷을 보낸다.

@@ -184,6 +184,7 @@ void CGameFramework::CreateCommandQueueAndList()
 	hResult = m_pd3dDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, __uuidof(ID3D12CommandAllocator), (void **)&m_pd3dCommandAllocator);
 
 	hResult = m_pd3dDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pd3dCommandAllocator, NULL, __uuidof(ID3D12GraphicsCommandList), (void **)&m_pd3dCommandList);
+
 	hResult = m_pd3dCommandList->Close();
 }
 
@@ -333,10 +334,10 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 					break;
 				case 't':
 				case 'T':
-					m_pScene->PlusStoneData();
+					m_pScene->PlusTreeData();
 					break;
 				case 'Y':
-					m_pScene->SaveStoneData();
+					m_pScene->SaveTreeData();
 					break;
 				default:
 					break;

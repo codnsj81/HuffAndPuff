@@ -71,10 +71,10 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 
 	m_nWaters = 2;
 	m_ppWaters = new CWater*[m_nWaters];
-	m_ppWaters[0] = new CWater(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 300, 800, XMFLOAT3(670.f, m_pTerrain->GetHeight(670.0f, 923.0f) + 35.f, 923.0f));
-	m_ppWaters[0]->Rotate(0, 10.f, 0);
+	m_ppWaters[0] = new CWater(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 800, 800, XMFLOAT3(1490, m_pTerrain->GetHeight(1561, 822) + 30.f, 822));
+	//m_ppWaters[0]->Rotate(0, 10.f, 0);
 
-	m_ppWaters[1] = new CWater(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 600, 600, XMFLOAT3(1143, 35.f, 510.0f));
+	m_ppWaters[1] = new CWater(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 630, 630, XMFLOAT3(1064, m_pTerrain->GetHeight(1064, 1446) + 30.f, 1446.f));
 
 
 	m_nGameObjects = 0;
@@ -570,7 +570,7 @@ void CScene::LoadStone(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd
 void CScene::LoadTree(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
 {
 
-	CGameObject *pTree = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/tree.bin", NULL, false);
+	CGameObject *pTree = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Tree.bin", NULL, false);
 
 	fstream in("TreeData.txt", ios::in | ios::binary);
 	while (in)

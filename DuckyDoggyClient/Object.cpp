@@ -196,7 +196,7 @@ void CMaterial::UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandList)
 	}
 }
 
-void CMaterial::LoadTextureFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, UINT nType, UINT nRootParameter, _TCHAR *pwstrTextureName, CTexture **ppTexture, CGameObject *pParent, FILE *pInFile, CShader *pShader)
+void CMaterial::LoadTextureFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, UINT nType, UINT nRootParameter, _TCHAR *pwstrTextureName, CTexture **ppTexture, CGameObject *pParent, FILE *pInFile, CShader *pShader, bool bDDS)
 {
 	char pstrTextureName[64] = { '\0' };
 
@@ -231,7 +231,7 @@ void CMaterial::LoadTextureFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsComm
 		if (!bDuplicated)
 		{
 			*ppTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-			(*ppTexture)->LoadTextureFromFile(pd3dDevice, pd3dCommandList, pwstrTextureName, 0, false);
+			(*ppTexture)->LoadTextureFromFile(pd3dDevice, pd3dCommandList, pwstrTextureName, 0, bDDS);
 			if (*ppTexture) (*ppTexture)->AddRef();
 
 			CScene::CreateShaderResourceViews(pd3dDevice, *ppTexture, nRootParameter, false);

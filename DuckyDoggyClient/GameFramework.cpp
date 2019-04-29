@@ -333,10 +333,10 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 					break;
 				case 't':
 				case 'T':
-					m_pScene->PlusTreeData();
+					m_pScene->PlusStoneData();
 					break;
 				case 'Y':
-					m_pScene->SaveTreeData();
+					m_pScene->SaveStoneData();
 					break;
 				default:
 					break;
@@ -504,15 +504,15 @@ void CGameFramework::BuildObjects()
 
 	// 도기 생성
 	m_pDoggy = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(),"Model/doggy.bin", PLAYER_KIND_DOGGY , true, m_pScene->m_pTerrain );
-	m_pDoggy->SetPosition(XMFLOAT3(1099.0f, m_pScene->m_pTerrain->GetHeight(1099, 78.0f), 78.0f)); 
+	m_pDoggy->SetPosition(XMFLOAT3(1926, m_pScene->m_pTerrain->GetHeight(1926, 1064), 1064)); 
 	m_pDoggy->SetHitBox(XMFLOAT3(5.f, 5.f, 5.f));
 	m_pDoggy->SetScale(XMFLOAT3(4.f, 4.f, 4.f));
 
-
+	
 	m_pDucky = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), "Model/ducky_walk.bin", PLAYER_KIND_DUCKY, true, m_pScene->m_pTerrain);
 	//m_pDucky->SetPosition(XMFLOAT3(1099.0f, m_pScene->m_pTerrain->GetHeight(1099, 88.0f), 88.0f));
 
-	m_pDucky->SetPosition(XMFLOAT3(1160, m_pScene->m_pTerrain->GetHeight(1160, 720), 720));
+	m_pDucky->SetPosition(XMFLOAT3(303, m_pScene->m_pTerrain->GetHeight(303, 438), 438));
 	m_pDucky->SetHitBox(XMFLOAT3(5.f, 5.f, 5.f));
 	//m_pDucky->SetScale(XMFLOAT3(7.0f, 7.0f, 7.0f));
 

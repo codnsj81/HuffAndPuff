@@ -513,7 +513,7 @@ void CGameFramework::BuildObjects()
 	m_pDucky = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), "Model/ducky_walk.bin", PLAYER_KIND_DUCKY, true, m_pScene->m_pTerrain);
 	//m_pDucky->SetPosition(XMFLOAT3(1099.0f, m_pScene->m_pTerrain->GetHeight(1099, 88.0f), 88.0f));
 
-	m_pDucky->SetPosition(XMFLOAT3(303, m_pScene->m_pTerrain->GetHeight(303, 438), 438));
+	m_pDucky->SetPosition(XMFLOAT3(1926, m_pScene->m_pTerrain->GetHeight(1926, 1064), 1064));
 	m_pDucky->SetHitBox(XMFLOAT3(5.f, 5.f, 5.f));
 	//m_pDucky->SetScale(XMFLOAT3(7.0f, 7.0f, 7.0f));
 

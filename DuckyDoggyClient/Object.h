@@ -314,7 +314,7 @@ public:
 
 	virtual void BuildMaterials(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList) { }
 
-	int getCollision(CPlayer* player);
+	virtual int getCollision(CPlayer* player);
 
 	virtual void OnPrepareAnimate() { }
 	virtual void Animate(float fTimeElapsed);
@@ -330,6 +330,9 @@ public:
 	virtual void UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandList, CMaterial *pMaterial);
 
 	virtual void ReleaseUploadBuffers();
+
+	int BBCollision(float minX, float maxX, float minY, float maxY, float minZ, float maxZ,
+		float minX1, float maxX1, float minY1, float maxY1, float minZ1, float maxZ1);
 
 	XMFLOAT3 GetPosition();
 	XMFLOAT3 GetLook();

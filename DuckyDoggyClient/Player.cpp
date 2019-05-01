@@ -322,7 +322,17 @@ void CPlayer::Update(float fTimeElapsed)
 		else 
 			SetAnimationSet(1);
 	}
-	
+	if (m_bDamaging)
+	{
+		m_fDamagingTime += fTimeElapsed;
+		if (m_fDamagingTime > 1.f)
+		{
+			m_bDamaging = false;
+			m_fDamagingTime = 0.f;
+		}
+		if (m_iHP < 0)
+			int a = 0;
+	}
 	
 
 }

@@ -34,6 +34,7 @@ public:
 	void SetCbvGPUDescriptorHandlePtr(UINT64 nCbvGPUDescriptorHandlePtr) { m_d3dCbvGPUDescriptorHandle.ptr = nCbvGPUDescriptorHandlePtr; }
 	virtual void Update();
 	void FollowCamera();
+	void SetHpScale();
 
 public:
 	int								m_iHP = 100;

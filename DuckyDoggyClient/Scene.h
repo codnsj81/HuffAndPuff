@@ -83,6 +83,8 @@ public:
 	void PlusStoneData();
 	void SaveStoneData();
 
+	void BuildMonsterList(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
+
 protected:
 	ID3D12RootSignature					*m_pd3dGraphicsRootSignature = NULL;
 
@@ -120,6 +122,7 @@ public:
 	CGameObject							**m_ppGameObjects = NULL;
 	list<CGameObject*>					m_TreeObjectslist;
 	list<CGameObject*>					m_StoneObjectslist;
+	list<CGameObject*>					M_MonsterObjectslist;
 
 	int									m_nWaters = 0;
 	CWater								**m_ppWaters = NULL;

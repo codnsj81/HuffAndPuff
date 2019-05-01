@@ -34,9 +34,14 @@ CHP::~CHP()
 {
 }
 
+void CHP::SetHpScale()
+{
+	float ratio = (m_pPlayer->GetHp() / 100.f);
+	SetScale(ratio, 1, 1);
+}
+
 void CHP::Update()
 {
-	SetScale(m_iHP / 100.f, 1, 1);
 }
 
 void CHP::FollowCamera()

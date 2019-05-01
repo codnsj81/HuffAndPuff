@@ -66,7 +66,8 @@ protected:
 	int							m_iJumpnum = 0 ;
 
 
-	int							m_iHP = 100;
+
+	float							m_iHP = 100.f;
 	XMFLOAT3					m_predictedPos = XMFLOAT3(0.0f, 0.0f, 0.0f);
 
 public:
@@ -78,7 +79,11 @@ public:
 	XMFLOAT3 GetLookVector() { return(m_xmf3Look); }
 	XMFLOAT3 GetUpVector() { return(m_xmf3Up); }
 	XMFLOAT3 GetRightVector() { return(m_xmf3Right); }
+	
 	int GetMoveState() { return m_moveState; }
+	
+	float	GetHp() { return m_iHP; }
+	void Damage(int d) { m_iHP -= d; }
 
 	void SetFriction(float fFriction) { m_fFriction = fFriction; }
 	void SetGravity(const XMFLOAT3& xmf3Gravity) { m_xmf3Gravity = xmf3Gravity; }
@@ -138,6 +143,10 @@ public:
 	void SetPosition_async(const XMFLOAT3& xmf3Position) { 
 		m_xmf3Position = xmf3Position;
 	}
+
+	//
+	bool						m_bDamaging = false;
+	float						m_fDamagingTime = 0.f;
 
 };
 

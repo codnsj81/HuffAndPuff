@@ -306,8 +306,9 @@ void CThirdPersonCamera::SetLookAt(XMFLOAT3& xmf3LookAt)
 	xmf4x4Rotate._13 = m_xmf3Right.z; xmf4x4Rotate._23 = m_xmf3Up.z; xmf4x4Rotate._33 = m_xmf3Look.z;
 
 	if (m_pUI)
-	{
+	{	
 		m_pUI->m_xmf4x4ToParent = xmf4x4Rotate;
+		dynamic_cast<CHP*>(m_pUI)->SetHpScale();
 		m_pUI->SetPosition(GetPosition());
 		m_pUI->MoveForward(20);
 		m_pUI->MoveStrafe(m_pUI->m_fWinposx);
@@ -315,6 +316,7 @@ void CThirdPersonCamera::SetLookAt(XMFLOAT3& xmf3LookAt)
 		m_pUI->Rotate(90, 0, 0);
 
 		m_pUI->m_xmf4x4ToParent = Matrix4x4::OrthoFovLH(800, 600, 0, 1);
+
 
 	}
 	if (m_UIList)

@@ -8,7 +8,7 @@
 #include "Scene.h"
 
 
-int BBCollision(float minX, float maxX, float minY, float maxY, float minZ, float maxZ,
+int CGameObject::BBCollision(float minX, float maxX, float minY, float maxY, float minZ, float maxZ,
 	float minX1, float maxX1, float minY1, float maxY1, float minZ1, float maxZ1)
 {
 	if (minX > maxX1)

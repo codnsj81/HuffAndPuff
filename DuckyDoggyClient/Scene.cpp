@@ -3,9 +3,10 @@
 //-----------------------------------------------------------------------------
 
 #include "stdafx.h"
-#include "Scene.h"
 #include <fstream>
 #include <cstdlib>
+#include "Scene.h"
+#include "CMonster.h"
 
 ID3D12DescriptorHeap *CScene::m_pd3dCbvSrvDescriptorHeap = NULL;
 
@@ -76,6 +77,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 
 	m_ppWaters[1] = new CWater(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 670, 400, XMFLOAT3(1064, m_pTerrain->GetHeight(1064, 1446) + 30.f, 1446.f));
 
+	BuildMonsterList(pd3dDevice, pd3dCommandList);
 
 	m_nGameObjects = 0;
 	m_ppGameObjects = new CGameObject*[m_nGameObjects];
@@ -409,8 +411,6 @@ void CScene::PlusStoneData()
 	playerPos.m_size = XMFLOAT3(4.f, 4.f, 4.f);
 	StoneDataList.push_back(playerPos);
 
-
-
 }
 
 void CScene::SaveStoneData()
@@ -422,6 +422,18 @@ void CScene::SaveStoneData()
 		out << n.m_pos.x << " " << n.m_pos.y  <<" " << n.m_pos.z << " "
 			<< n.m_size.x << " "<< n.m_size.y<<" " << n.m_size.z  << endl;
 	}
+}
+
+void CScene::BuildMonsterList(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
+{
+	CGameObject *pMonster = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/snake.bin", NULL, false);
+
+	CGameObject* obj = new CMonster();
+	obj->SetChild(pMonster, true);
+	obj->SetPosition(XMFLOAT3(332,m_pTerrain->GetHeight(332, 511), 511));
+	obj->SetHitBox(XMFLOAT3(3.f, 3.f, 40.f));
+	M_MonsterObjectslist.push_back(obj);
+
 }
 
 void CScene::CreateCbvSrvDescriptorHeaps(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nConstantBufferViews, int nShaderResourceViews)
@@ -651,7 +663,11 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 		p->UpdateTransform(NULL);
 		p->Render(pd3dCommandList, pCamera);
 	}
-
+	for (auto p : M_MonsterObjectslist)
+	{
+		p->UpdateTransform(NULL);
+		p->Render(pd3dCommandList, pCamera);
+	}
 
 	for (int i = 0; i < m_nShaders; i++) if (m_ppShaders[i]) m_ppShaders[i]->Render(pd3dCommandList, pCamera);
 }
@@ -674,6 +690,11 @@ void CScene::ObjectsCollides()
 	}
 
 	for (auto n : m_StoneObjectslist)
+	{
+		n->getCollision(m_pDoggy);
+		n->getCollision(m_pDucky);
+	}
+	for (auto n : M_MonsterObjectslist)
 	{
 		n->getCollision(m_pDoggy);
 		n->getCollision(m_pDucky);

@@ -877,9 +877,10 @@ CUIMesh::CUIMesh(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dComm
 	m_d3dColorBufferView.SizeInBytes = sizeof(XMFLOAT4) * m_nVertices;
 
 	m_pxmf2TextureCoords0 = new XMFLOAT2[m_nVertices];
-	for (int i = 0; i < m_nVertices; i++) {
-		m_pxmf2TextureCoords0[i] = XMFLOAT2(m_pxmf3Positions[0].x, m_pxmf3Positions[0].z);
-	}
+	m_pxmf2TextureCoords0[0] = XMFLOAT2(0, 1);
+	m_pxmf2TextureCoords0[1] = XMFLOAT2(1, 1);
+	m_pxmf2TextureCoords0[2] = XMFLOAT2(0, 0);
+	m_pxmf2TextureCoords0[3] = XMFLOAT2(1, 0);
 
 	m_pd3dTextureCoord0Buffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_pxmf2TextureCoords0, sizeof(XMFLOAT2) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dTextureCoord0UploadBuffer);
 

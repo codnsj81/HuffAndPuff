@@ -327,10 +327,15 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 				case '1':
 					m_pScene->m_pPlayer = m_pPlayer = m_pDucky;
 					m_pCamera = m_pPlayer->GetCamera();
+					m_pHPUI->m_pPlayer = m_pPlayer;
+					m_pCamera->m_pUI = m_pHPUI;
+
 					break;
 				case '2':
 					m_pScene->m_pPlayer = m_pPlayer = m_pDoggy;
 					m_pCamera = m_pPlayer->GetCamera();
+					m_pHPUI->m_pPlayer = m_pPlayer;
+					m_pCamera->m_pUI = m_pHPUI;
 					break;
 				case 't':
 				case 'T':
@@ -463,6 +468,31 @@ void CGameFramework::SetPlayerPos(player_type eType, XMFLOAT3 pos)
 
 }
 
+void CGameFramework::BuildUI()
+{
+
+	m_pHPUI = new CHP(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 3, 0.7f, m_pPlayer->GetPosition());
+	
+	m_pHPUI->m_pPlayer = m_pPlayer;
+	m_pCamera->m_pUI = m_pHPUI;
+	
+	m_UIList = new list<CUI*>();
+
+	CUI* pTemp = new CStartUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 5, 5, m_pPlayer->GetPosition(), L"Model/Textures/GAMESTART.tiff");
+	pTemp->SetWinpos(-2.5, 0);
+	dynamic_cast<CStartUI*> (pTemp)->bRender = true;
+	dynamic_cast<CStartUI*> (pTemp)->Trigger = true;
+
+	m_UIList->push_back(pTemp);
+
+	for(auto a : *m_UIList)
+	{
+		a->m_pPlayer = m_pPlayer;
+	}
+	m_pCamera->m_UIList = m_UIList;
+
+}
+
 void CGameFramework::OnDestroy()
 {
     ReleaseObjects();
@@ -526,11 +556,7 @@ void CGameFramework::BuildObjects()
 	m_pCamera = m_pPlayer->GetCamera();
 	m_pScene->SetDuckyNDoggy(m_pDucky, m_pDoggy, m_pPlayer);
 	
-	m_pUI = new CUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 3, 0.7f, m_pPlayer->GetPosition());
-
-	m_pUI->m_pCamera = m_pCamera;
-	m_pUI->m_pPlayer = m_pPlayer;
-	m_pCamera->m_pUI = m_pUI;
+	BuildUI();
 
 	m_pd3dCommandList->Close();
 	ID3D12CommandList *ppd3dCommandLists[] = { m_pd3dCommandList };
@@ -542,7 +568,7 @@ void CGameFramework::BuildObjects()
 	m_pDucky->SetWaters(m_pScene->GetWaters());
 	m_pDoggy->SetnWaters(2);
 	m_pDucky->SetnWaters(2);
-
+	
 
 	if (m_pScene) m_pScene->ReleaseUploadBuffers();
 	if (m_pDoggy) m_pDoggy->ReleaseUploadBuffers();
@@ -695,7 +721,17 @@ void CGameFramework::FrameAdvance()
 	if (m_pDucky) m_pDucky->Render(m_pd3dCommandList, m_pCamera);
 	if (m_pDoggy) m_pDoggy->Render(m_pd3dCommandList, m_pCamera);
 
-	m_pUI->Render(m_pd3dCommandList, m_pCamera);
+	//UI·»´õ
+	m_pHPUI->Render(m_pd3dCommandList, m_pCamera);
+	dynamic_cast<CHP*> (m_pHPUI)->Update();
+	for (auto a : *m_UIList)
+	{
+		if(a->bRender)
+			a->Render(m_pd3dCommandList, m_pCamera);
+		dynamic_cast<CStartUI*> (a)->Update(m_GameTimer.GetTimeElapsed());
+	}
+
+
 	CWater** m_ppWaters = m_pScene->GetWaters();
 	for (int i = 0; i < 2; i++)
 	{

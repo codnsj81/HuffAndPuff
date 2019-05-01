@@ -55,6 +55,7 @@ using namespace DirectX::PackedVector;
 
 using Microsoft::WRL::ComPtr;
 
+
 //#define _WITH_SWAPCHAIN_FULLSCREEN_STATE
 
 #define FRAME_BUFFER_WIDTH		800
@@ -222,6 +223,7 @@ namespace Vector4
 
 namespace Matrix4x4
 {
+
 	inline XMFLOAT4X4 Identity()
 	{
 		XMFLOAT4X4 xmmtx4x4Result;
@@ -268,6 +270,13 @@ namespace Matrix4x4
 	{
 		XMFLOAT4X4 xmmtx4x4Result;
 		XMStoreFloat4x4(&xmmtx4x4Result, XMMatrixPerspectiveFovLH(FovAngleY, AspectRatio, NearZ, FarZ));
+		return(xmmtx4x4Result);
+	}
+
+	inline XMFLOAT4X4 OrthoFovLH(float FovAngleY, float AspectRatio, float NearZ, float FarZ)
+	{
+		XMFLOAT4X4 xmmtx4x4Result;
+		XMStoreFloat4x4(&xmmtx4x4Result, XMMatrixOrthographicLH(800,600,0,1));
 		return(xmmtx4x4Result);
 	}
 

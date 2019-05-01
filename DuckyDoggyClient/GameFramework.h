@@ -50,11 +50,14 @@ public:
 	 CPlayer* GetPlayer() const { if(m_pPlayer!=nullptr) return m_pPlayer; }
 	 CTerrainPlayer* GetDoggy() { if (m_pDoggy != nullptr) return m_pDoggy;  }
 	 CTerrainPlayer* GetDucky() { if (m_pDucky != nullptr) return m_pDucky; }
+
+	 void BuildUI();
 private:
 	HINSTANCE					m_hInstance;
 	HWND						m_hWnd; 
 
-	CUI						*m_pUI = NULL;
+	CUI						*m_pHPUI = NULL;
+	list<CUI*>					*m_UIList;
 	int							m_nWndClientWidth;
 	int							m_nWndClientHeight;
         

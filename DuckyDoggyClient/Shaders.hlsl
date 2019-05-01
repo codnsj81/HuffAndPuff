@@ -79,7 +79,7 @@ VS_STANDARD_OUTPUT VSStandard(VS_STANDARD_INPUT input)
 
 float4 PSStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
 {
-	float4 cAlbedoColor = float4(1.0f, 0.0f, 0.0f, 1.0f);
+	float4 cAlbedoColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
 	if (gnTexturesMask & MATERIAL_ALBEDO_MAP) cAlbedoColor = gtxtAlbedoTexture.Sample(gssWrap, input.uv);
 	//else cAlbedoColor = float4(1.0f, 0.0f, 0.0f, 0.0f);
 	float4 cSpecularColor = float4(0.0f, 0.0f, 0.0f, 0.0f);
@@ -239,7 +239,6 @@ float4 PSSkyBox(VS_SKYBOX_CUBEMAP_OUTPUT input) : SV_TARGET
 ////////////////////////////////////////////
 
 
-Texture2D waterNormalTexture : register(t15);
 
 struct VS_WATER_INPUT
 {
@@ -315,7 +314,7 @@ VS_UI_OUTPUT VSUI(VS_UI_INPUT input)
 	//output.positionW = mul(float4(input.position, 1.0f), gmtxGameObject).xyz;
 	//output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
 	
-
+	
 	output.positionW = mul(float4(input.position, 1.0f), gmtxGameObject).xyz;
 	output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
 
@@ -327,5 +326,9 @@ VS_UI_OUTPUT VSUI(VS_UI_INPUT input)
 
 float4 PSUI(VS_UI_OUTPUT input) : SV_TARGET
 {
-	return(input.color);
+	VS_UI_OUTPUT output;
+	output.color = input.color;
+	if (gnTexturesMask & MATERIAL_ALBEDO_MAP) output.color = gtxtAlbedoTexture.Sample(gssWrap, input.uv);
+
+	return(output.color);
 }

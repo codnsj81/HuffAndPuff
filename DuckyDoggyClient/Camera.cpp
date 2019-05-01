@@ -296,6 +296,7 @@ void CThirdPersonCamera::Update(XMFLOAT3& xmf3LookAt, float fTimeElapsed)
 			m_pUI->SetPosition (XMFLOAT3(pos.x, pos.y + 7.f, pos.z));
 			m_pUI->Rotate(90,0,0);
 			m_pUI->SetScale(m_pUI->m_iHP/100.f, 1, 1);
+			m_pUI->MoveStrafe(-1.5f);
 		}
 	}
 }

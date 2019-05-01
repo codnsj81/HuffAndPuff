@@ -18,7 +18,7 @@ public:
 public:
 	float							m_nWidth;
 	float							m_nLength;
-	int								m_iHP = 30;
+	int								m_iHP = 100;
 	CPlayer*						m_pPlayer = NULL;
 	CCamera*						m_pCamera;
 

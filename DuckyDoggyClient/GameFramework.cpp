@@ -524,10 +524,10 @@ void CGameFramework::BuildObjects()
 	m_pCamera = m_pPlayer->GetCamera();
 	m_pScene->SetDuckyNDoggy(m_pDucky, m_pDoggy, m_pPlayer);
 	
-	m_pUI = new CUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 1, 1, m_pPlayer->GetPosition());
+	m_pUI = new CUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 3, 0.7f, m_pPlayer->GetPosition());
+
 	m_pUI->m_pCamera = m_pCamera;
 	m_pUI->m_pPlayer = m_pPlayer;
-	m_pUI->Rotate(-90, 0, 0);
 	m_pCamera->m_pUI = m_pUI;
 
 	m_pd3dCommandList->Close();

@@ -54,7 +54,7 @@ private:
 	HINSTANCE					m_hInstance;
 	HWND						m_hWnd; 
 
-	CUI							*m_pUI = NULL;
+	CUI						*m_pUI = NULL;
 	int							m_nWndClientWidth;
 	int							m_nWndClientHeight;
         

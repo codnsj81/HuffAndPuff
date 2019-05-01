@@ -305,7 +305,7 @@ protected:
 class CUIMesh : public CMesh
 {
 public:
-	CUIMesh(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nWidth = 5.f, int nLength = 5.f);
+	CUIMesh(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, float nWidth = 5.f, float nLength = 5.f);
 	virtual ~CUIMesh();
 	virtual void OnPreRender(ID3D12GraphicsCommandList *pd3dCommandList, void *pContext);
 

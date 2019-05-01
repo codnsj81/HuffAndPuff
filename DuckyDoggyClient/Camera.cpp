@@ -287,6 +287,16 @@ void CThirdPersonCamera::Update(XMFLOAT3& xmf3LookAt, float fTimeElapsed)
 			m_xmf3Position = Vector3::Add(m_xmf3Position, xmf3Direction, fDistance);
 			SetLookAt(xmf3LookAt);
 		}
+	
+		
+		if (m_pUI)
+		{
+			XMFLOAT3 pos = m_pPlayer->GetPosition();
+			m_pUI->m_xmf4x4ToParent = xmf4x4Rotate;
+			m_pUI->SetPosition (XMFLOAT3(pos.x, pos.y + 7.f, pos.z));
+			m_pUI->Rotate(90,0,0);
+			m_pUI->SetScale(m_pUI->m_iHP/100.f, 1, 1);
+		}
 	}
 }
 
@@ -297,12 +307,5 @@ void CThirdPersonCamera::SetLookAt(XMFLOAT3& xmf3LookAt)
 	m_xmf3Up = XMFLOAT3(mtxLookAt._12, mtxLookAt._22, mtxLookAt._32);
 	m_xmf3Look = XMFLOAT3(mtxLookAt._13, mtxLookAt._23, mtxLookAt._33);
 
-	if (m_pUI)
-	{
-		XMFLOAT3 pos = m_pPlayer->GetPosition();
-		m_pUI->SetPosition(pos.x, pos.y+7, pos.z);
-		//m_pUI->MoveForward(-7);
-
-	}
 
 }

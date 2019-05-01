@@ -81,7 +81,7 @@ float4 PSStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
 {
 	float4 cAlbedoColor = float4(1.0f, 0.0f, 0.0f, 1.0f);
 	if (gnTexturesMask & MATERIAL_ALBEDO_MAP) cAlbedoColor = gtxtAlbedoTexture.Sample(gssWrap, input.uv);
-	else cAlbedoColor = float4(1.0f, 0.0f, 0.0f, 0.0f);
+	//else cAlbedoColor = float4(1.0f, 0.0f, 0.0f, 0.0f);
 	float4 cSpecularColor = float4(0.0f, 0.0f, 0.0f, 0.0f);
 	if (gnTexturesMask & MATERIAL_SPECULAR_MAP) cSpecularColor = gtxtSpecularTexture.Sample(gssWrap, input.uv);
 	float4 cNormalColor = float4(0.0f, 0.0f, 0.0f, 0.0f);
@@ -288,4 +288,44 @@ float4 PSWater(VS_WATER_OUTPUT input) : SV_TARGET
 	return(lerp(cColor, cIllumination, 0.3));
 	//return cNormal;
 
+}
+
+//////////////////
+
+
+
+struct VS_UI_INPUT
+{
+	float3 position : POSITION;
+	float4 color : COLOR;
+	float2 uv : TEXCOORD;
+};
+
+struct VS_UI_OUTPUT
+{
+	float4 position : SV_POSITION;
+	float3 positionW : POSITION;
+	float4 color : COLOR;
+	float2 uv : TEXCOORD;
+};
+
+VS_UI_OUTPUT VSUI(VS_UI_INPUT input)
+{
+	VS_UI_OUTPUT output;
+	//output.positionW = mul(float4(input.position, 1.0f), gmtxGameObject).xyz;
+	//output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
+	
+
+	output.positionW = mul(float4(input.position, 1.0f), gmtxGameObject).xyz;
+	output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
+
+	output.color = input.color;
+	output.uv = input.uv;
+
+	return(output);
+}
+
+float4 PSUI(VS_UI_OUTPUT input) : SV_TARGET
+{
+	return(input.color);
 }

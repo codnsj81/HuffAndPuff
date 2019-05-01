@@ -18,6 +18,7 @@ public:
 	float							m_fWinposx = 10.f;
 	float							m_fWinposy = 9.f;
 	bool bRender = true;
+	bool bEx = false;
 
 	void SetWinpos(float x, float y);
 	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dCbvGPUDescriptorHandle;
@@ -44,9 +45,22 @@ public:
 class CStartUI : public CUI
 {
 public :
+	CStartUI() {}
 	CStartUI(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, float nWidth, float nLength, XMFLOAT3 xmfPosition, wchar_t* pFilename);
 	~CStartUI();
 	virtual void Update(float elapsed);
 	bool Trigger = false;
 	float TimeElapsed = 0.f;
+};
+
+class CEndUI : public CStartUI
+{
+public:
+
+	CEndUI(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, float nWidth, float nLength, XMFLOAT3 xmfPosition, wchar_t* pFilename);
+	~CEndUI();
+
+	virtual void Update(float elapsed);
+private:
+	XMFLOAT3 EndPoint;
 };

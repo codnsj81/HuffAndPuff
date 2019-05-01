@@ -485,6 +485,11 @@ void CGameFramework::BuildUI()
 
 	m_UIList->push_back(pTemp);
 
+	pTemp = new CEndUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 5, 5, XMFLOAT3(1999, m_pScene->m_pTerrain->GetHeight(1999, 972), 972), L"Model/Textures/GAMECLEAR.tiff");
+	pTemp->SetWinpos(-2.5, 0);
+
+	m_UIList->push_back(pTemp);
+
 	for(auto a : *m_UIList)
 	{
 		a->m_pPlayer = m_pPlayer;
@@ -537,7 +542,7 @@ void CGameFramework::BuildObjects()
 	m_pDoggy = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(),"Model/doggy.bin", PLAYER_KIND_DOGGY , true, m_pScene->m_pTerrain );
 
 	m_pDoggy->SetPosition(XMFLOAT3(62, m_pScene->m_pTerrain->GetHeight(62, 378), 378)); //시작위치
-	//1m_pDoggy->SetPosition(XMFLOAT3(1505, m_pScene->m_pTerrain->GetHeight(1505,1110 ), 1110)); 
+	//m_pDoggy->SetPosition(XMFLOAT3(1922, m_pScene->m_pTerrain->GetHeight(1922,1001 ), 1001)); 
 	m_pDoggy->SetHitBox(XMFLOAT3(5.f, 5.f, 5.f));
 	m_pDoggy->SetScale(XMFLOAT3(4.f, 4.f, 4.f));
 

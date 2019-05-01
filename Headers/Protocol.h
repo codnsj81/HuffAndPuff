@@ -86,6 +86,7 @@ struct player_info {
 	float y;
 	float z;
 	player_type type;
+	int movestate = 1;
 };
 
 #pragma pack (pop)

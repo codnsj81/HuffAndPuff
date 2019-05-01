@@ -7,11 +7,6 @@
 #define DIR_UP					0x10
 #define DIR_DOWN				0x20
 
-#define STATE_GROUND	1
-#define STATE_JUMPING	2
-#define STATE_ONOBJECTS 4
-#define STATE_FALLING   5
-
 #define PIGGYBACK_NONE 0
 #define PIGGYBACK_CARRY	1
 #define PIGGYBACK_CRRIED 2
@@ -25,6 +20,7 @@
 
 #include "Object.h"
 #include "Camera.h"
+#include "../Headers/Include.h"
 
 class CPlayer : public CGameObject
 {
@@ -142,6 +138,9 @@ public:
 
 	void SetPosition_async(const XMFLOAT3& xmf3Position) { 
 		m_xmf3Position = xmf3Position;
+	}
+	void SetMoveState_async(const int& movestate) {
+		m_moveState = movestate;
 	}
 
 	//

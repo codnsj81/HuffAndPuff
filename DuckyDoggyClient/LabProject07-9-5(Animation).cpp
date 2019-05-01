@@ -333,10 +333,14 @@ DWORD __stdcall RecvThread(LPVOID arg)
 			//else
 			//	gGameFramework.GetDoggy()->SetPosition(XMFLOAT3{ g_otherinfo.x, g_otherinfo.y, g_otherinfo.z });
 			// 2)
-			if (g_myinfo.type == player_doggy)
+			if (g_myinfo.type == player_doggy) {
 				gGameFramework.SetPlayerPos(player_ducky, XMFLOAT3{ g_otherinfo.x, g_otherinfo.y, g_otherinfo.z });
-			else
+				gGameFramework.SetPlayerMoveState(player_ducky, g_otherinfo.movestate);
+			}
+			else {
 				gGameFramework.SetPlayerPos(player_doggy, XMFLOAT3{ g_otherinfo.x, g_otherinfo.y, g_otherinfo.z });
+				gGameFramework.SetPlayerMoveState(player_doggy, g_otherinfo.movestate);
+			}
 		}
 		break;
 		case sc_put_player:
@@ -345,10 +349,14 @@ DWORD __stdcall RecvThread(LPVOID arg)
 			g_otherinfo.connected = true;
 			memcpy(&(g_otherinfo), buf + sizeof(packetinfo), sizeof(g_otherinfo));
 			// g_networkState = recv_otherinfo;
-			if (g_myinfo.type == player_doggy)
-				gGameFramework.GetDucky()->SetPosition(XMFLOAT3{ g_otherinfo.x, g_otherinfo.y, g_otherinfo.z });
-			else
-				gGameFramework.GetDoggy()->SetPosition(XMFLOAT3{ g_otherinfo.x, g_otherinfo.y, g_otherinfo.z });
+			if (g_myinfo.type == player_doggy) {
+				gGameFramework.SetPlayerPos(player_ducky, XMFLOAT3{ g_otherinfo.x, g_otherinfo.y, g_otherinfo.z });
+				gGameFramework.SetPlayerMoveState(player_ducky, g_otherinfo.movestate);
+			}
+			else {
+				gGameFramework.SetPlayerPos(player_doggy, XMFLOAT3{ g_otherinfo.x, g_otherinfo.y, g_otherinfo.z });
+				gGameFramework.SetPlayerMoveState(player_doggy, g_otherinfo.movestate);
+			}
 		}
 		break;
 		}

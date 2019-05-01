@@ -452,21 +452,42 @@ void CGameFramework::SetPlayerType(player_type eType)
 
 void CGameFramework::SetPlayerPos(player_type eType, XMFLOAT3 pos)
 {
-
 		switch (eType) {
 		case player_ducky:
 		{
-			m_pDucky->SetPosition_async(pos);
+			if(m_pDucky !=nullptr)
+				m_pDucky->SetPosition_async(pos);
 		}
 		break;
 		case player_doggy:
 		{
-			m_pDoggy->SetPosition_async(pos);
+			if(m_pDoggy != nullptr)	
+				m_pDoggy->SetPosition_async(pos);
 		}
 		break;
 		}
 
 }
+
+void CGameFramework::SetPlayerMoveState(player_type eType, int movestate)
+{
+	switch (eType) {
+	case player_ducky:
+	{
+		if (m_pDucky != nullptr)
+			m_pDucky->SetMoveState_async(movestate);
+	}
+	break;
+	case player_doggy:
+	{
+		if (m_pDoggy != nullptr)
+			m_pDoggy->SetMoveState_async(movestate);
+	}
+	break;
+	}
+}
+
+
 
 void CGameFramework::BuildUI()
 {

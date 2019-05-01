@@ -1,8 +1,15 @@
 #pragma once
 
+// ------------------------
+
 // 플레이어 초기 위치
 #define INITPOSITION_X 1099.0f
 #define INITPOSITION_Z 78.0f
+
+#define STATE_GROUND	1
+#define STATE_JUMPING	2
+#define STATE_ONOBJECTS 4
+#define STATE_FALLING   5
 
 
 // -------------------------

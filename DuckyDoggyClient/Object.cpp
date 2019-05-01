@@ -1219,20 +1219,18 @@ CWater::CWater(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dComman
 	pShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	pShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
-	//SetShader(pShader);
+	CTexture *pWaterNormalTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	pWaterNormalTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/waternormal.tiff", 0, false);
+	pWaterNormalTexture->AddRef();
 
-	CMaterial* pMaterial = new CMaterial(7);
-	pMaterial = new CMaterial(7);
+	CScene::CreateShaderResourceViews(pd3dDevice, pWaterNormalTexture, 3, false);
+
+	CMaterial *pMaterial = new CMaterial(1);
+	pMaterial->SetTexture(pWaterNormalTexture,0);
 	pMaterial->SetMaterialType(MATERIAL_NORMAL_MAP);
 	pMaterial->SetShader(pShader);
-	pMaterial->m_ppTextures[2] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pMaterial->m_ppTextures[2]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/waternormal.tiff", 0, false);
-	pMaterial->m_ppTextures[2]->AddRef();
-
-	CScene::CreateShaderResourceViews(pd3dDevice, pMaterial->m_ppTextures[2], 5, false);
 
 	SetMaterial(0, pMaterial);
-
 	SetPosition(xmfPosition);
 
 }
@@ -1240,8 +1238,7 @@ CWater::CWater(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dComman
 CWater::~CWater()
 {
 }
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
 // 
 CSkyBox::CSkyBox(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature) : CGameObject(1)
 {

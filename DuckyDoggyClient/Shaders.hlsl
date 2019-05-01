@@ -79,7 +79,7 @@ VS_STANDARD_OUTPUT VSStandard(VS_STANDARD_INPUT input)
 
 float4 PSStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
 {
-	float4 cAlbedoColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	float4 cAlbedoColor = float4(1.0f, 0.0f, 0.0f, 1.0f);
 	if (gnTexturesMask & MATERIAL_ALBEDO_MAP) cAlbedoColor = gtxtAlbedoTexture.Sample(gssWrap, input.uv);
 	else cAlbedoColor = float4(1.0f, 0.0f, 0.0f, 0.0f);
 	float4 cSpecularColor = float4(0.0f, 0.0f, 0.0f, 0.0f);
@@ -239,11 +239,7 @@ float4 PSSkyBox(VS_SKYBOX_CUBEMAP_OUTPUT input) : SV_TARGET
 ////////////////////////////////////////////
 
 
-Texture2D waterAlbedoTexture : register(t14);
-Texture2D waterSpecularTexture : register(t15);
-Texture2D waterNormalTexture : register(t16);
-
-SamplerState gssWater : register(s2);
+Texture2D waterNormalTexture : register(t15);
 
 struct VS_WATER_INPUT
 {
@@ -280,24 +276,16 @@ VS_WATER_OUTPUT VSWater(VS_WATER_INPUT input)
 
 float4 PSWater(VS_WATER_OUTPUT input) : SV_TARGET
 {
-	
-	//float4 cAlbedoColor = float4(1.0f, 0.0f, 0.0f,1.f);
-	//if (gnTexturesMask & MATERIAL_ALBEDO_MAP) cAlbedoColor = waterAlbedoTexture.Sample(gssWater, input.uv);
-	float4 cNormalColor = float4(0.0f, 1.0f, 1.0f, 0.0f);
-	//if (gnTexturesMask & MATERIAL_NORMAL_MAP) cNormalColor += waterAlbedoTexture.Sample(gssWater, input.uv);
-	cNormalColor.a = 0.5f;
-	//if (gnTexturesMask & MATERIAL_NORMAL_MAP)
-	//{
-	//	float3 normalW = input.normalW;
-	//	float3x3 TBN = float3x3(normalize(input.tangentW), normalize(input.bitangentW), normalize(input.normalW));
-	//	float3 vNormal = normalize(cNormalColor.rgb * 2.0f - 1.0f); //[0, 1] ¡æ [-1, 1]
-	//	normalW = normalize(mul(vNormal, TBN));
-	//	cIllumination = Lighting(input.positionW, normalW);
-	//	return(lerp(cColor, cIllumination, 0.5f));
-	//}
-	//else
-	//{
-	return(cNormalColor);
-	//}
+
+	float4 cColor = float4(0.0f, 1.f, 1.f, 0.5f);
+	float3x3 TBN = float3x3(normalize(input.tangentW), normalize(input.bitangentW), normalize(input.normalW));
+	float4 cNormal;
+	cNormal = gtxtAlbedoTexture.Sample(gssClamp, input.uv);
+	float3 vNormal = normalize(cNormal.rgb * 2.0f - 1.0f); //[0, 1] ¡æ [-1, 1]
+
+	float4 cIllumination = Lighting(input.positionW, normalize(mul(vNormal, TBN)));
+
+	return(lerp(cColor, cIllumination, 0.3));
+	//return cNormal;
 
 }

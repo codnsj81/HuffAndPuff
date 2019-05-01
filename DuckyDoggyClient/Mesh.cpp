@@ -793,7 +793,9 @@ CWaterMesh::CWaterMesh(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd
 
 	for (int i = 0; i < m_nVertices; i++)
 	{
-		m_pxmf3Tangents[i] = m_pxmf3BiTangents[i] = m_pxmf3Normals[i] = m_pxmf3Positions[i];
+		m_pxmf3Normals[i] = XMFLOAT3(0, 1, 0);
+		m_pxmf3Tangents[i] = XMFLOAT3(1, 0, 0);
+		m_pxmf3BiTangents[i] = XMFLOAT3(0, 0, 1);
 	}
 
 

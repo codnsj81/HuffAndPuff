@@ -571,6 +571,7 @@ void CScene::LoadTree(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dC
 {
 	CGameObject *pTree = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Tree.bin", NULL, false);
 	CGameObject *pTree2 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Tree2.bin", NULL, false);
+	CGameObject *pTree3 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Tree3.bin", NULL, false);
 
 	fstream in("TreeData.txt", ios::in | ios::binary);
 	while (in)
@@ -591,7 +592,7 @@ void CScene::LoadTree(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dC
 		int treerand = rand() % 2;
 		if (treerand == 0)
 			obj->SetChild(pTree, true);
-		else
+		else if (treerand == 1)
 			obj->SetChild(pTree2, true);
 		obj->SetPosition(iter->x, m_pTerrain->GetHeight(iter->x, iter->y), iter->y);
 		obj->SetHitBox(XMFLOAT3(8.f, 20.f, 8.f));

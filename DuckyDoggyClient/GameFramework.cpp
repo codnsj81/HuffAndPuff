@@ -677,6 +677,18 @@ void CGameFramework::AnimateObjects()
 
 	m_pPlayer->Animate(fTimeElapsed);
 	m_pPlayer->UpdateTransform(NULL);
+
+	if (g_myinfo.connected == false)
+		return;
+
+	if (g_myinfo.type == player_ducky) {
+		m_pDoggy->Animate(fTimeElapsed);
+		m_pDoggy->UpdateTransform(NULL);
+	}
+	else {
+			m_pDucky->Animate(fTimeElapsed);
+			m_pDucky->UpdateTransform(NULL);
+	}
 }
 
 void CGameFramework::WaitForGpuComplete()

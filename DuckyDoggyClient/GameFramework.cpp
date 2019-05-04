@@ -435,16 +435,16 @@ void CGameFramework::SetPlayerType(player_type eType)
 		case player_doggy:
 			m_pScene->m_pPlayer = m_pPlayer = m_pDoggy;
 			m_pCamera = m_pPlayer->GetCamera();
-			g_myinfo.x = m_pPlayer->GetPosition().x;
-			g_myinfo.y = m_pPlayer->GetPosition().y;
-			g_myinfo.z = m_pPlayer->GetPosition().z;
+			//g_myinfo.x = m_pPlayer->GetPosition().x;
+			//g_myinfo.y = m_pPlayer->GetPosition().y;
+			//g_myinfo.z = m_pPlayer->GetPosition().z;
 			break;
 		case player_ducky:
 			m_pScene->m_pPlayer = m_pPlayer = m_pDucky;
 			m_pCamera = m_pPlayer->GetCamera();
-			g_myinfo.x = m_pPlayer->GetPosition().x;
-			g_myinfo.y = m_pPlayer->GetPosition().y;
-			g_myinfo.z = m_pPlayer->GetPosition().z;
+			//g_myinfo.x = m_pPlayer->GetPosition().x;
+			//g_myinfo.y = m_pPlayer->GetPosition().y;
+			//g_myinfo.z = m_pPlayer->GetPosition().z;
 			break;
 		}
 
@@ -562,10 +562,15 @@ void CGameFramework::BuildObjects()
 	// 도기 생성
 	m_pDoggy = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(),"Model/doggy.bin", PLAYER_KIND_DOGGY , true, m_pScene->m_pTerrain );
 
-	m_pDoggy->SetPosition(XMFLOAT3(62, m_pScene->m_pTerrain->GetHeight(62, 378), 378)); //시작위치
+	m_pDoggy->SetPosition(XMFLOAT3(INITPOSITION_X,\
+		m_pScene->m_pTerrain->GetHeight(INITPOSITION_X, INITPOSITION_Z), INITPOSITION_Z)); //시작위치
 	//m_pDoggy->SetPosition(XMFLOAT3(1922, m_pScene->m_pTerrain->GetHeight(1922,1001 ), 1001)); 
 	m_pDoggy->SetHitBox(XMFLOAT3(5.f, 5.f, 5.f));
 	m_pDoggy->SetScale(XMFLOAT3(4.f, 4.f, 4.f));
+	
+	g_otherinfo.x = g_myinfo.x = INITPOSITION_X;
+	g_otherinfo.y = g_myinfo.y = m_pScene->m_pTerrain->GetHeight(INITPOSITION_X, INITPOSITION_Z);
+	g_otherinfo.z = g_myinfo.z = INITPOSITION_Z;
 
 	
 	m_pDucky = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), "Model/ducky_walk.bin", PLAYER_KIND_DUCKY, true, m_pScene->m_pTerrain);

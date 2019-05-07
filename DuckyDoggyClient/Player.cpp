@@ -278,7 +278,7 @@ void CPlayer::Update(float fTimeElapsed)
 			m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Up, fDistance);
 		}
 
-		if (fDistance >= 0)
+		//if (fDistance >= 0)
 			m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Gravity);
 
 		float fLength = sqrtf(m_xmf3Velocity.x * m_xmf3Velocity.x + m_xmf3Velocity.z * m_xmf3Velocity.z);

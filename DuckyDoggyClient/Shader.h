@@ -88,6 +88,7 @@ public:
 	virtual D3D12_SHADER_BYTECODE CreatePixelShader();
 };
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 class CStandardShader : public CShader
@@ -101,6 +102,19 @@ public:
 	virtual D3D12_SHADER_BYTECODE CreateVertexShader();
 	virtual D3D12_SHADER_BYTECODE CreatePixelShader();
 };
+
+
+class CGrasshader : public CStandardShader
+{
+public:
+	CGrasshader();
+	virtual ~CGrasshader();
+
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader();
+
+	virtual D3D12_BLEND_DESC CreateBlendState();
+};
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //

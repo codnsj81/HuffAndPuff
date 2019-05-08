@@ -65,6 +65,7 @@ public:
 	ID3D12RootSignature *GetGraphicsRootSignature() { return(m_pd3dGraphicsRootSignature); }
 	
 	void LoadStone(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
+	void LoadGrass(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	void LoadTree(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	bool ProcessInput(UCHAR *pKeysBuffer);
     void AnimateObjects(float fTimeElapsed);
@@ -79,6 +80,9 @@ public:
 
 	void PlusTreeData();
 	void SaveTreeData();
+
+	void PlusGrassData();
+	void SaveGrassData();
 
 	void PlusStoneData();
 	void SaveStoneData();
@@ -123,6 +127,7 @@ public:
 	list<CGameObject*>					m_TreeObjectslist;
 	list<CGameObject*>					m_StoneObjectslist;
 	list<CGameObject*>					M_MonsterObjectslist;
+	list<CGameObject*>					m_GrassObjectlist;
 
 	int									m_nWaters = 0;
 	CWater								**m_ppWaters = NULL;
@@ -147,4 +152,5 @@ public:
 
 	list<XMFLOAT2> TreeDatalist;
 	list<StoneInfo>	StoneDataList;
+	list<XMFLOAT2> GrassDataList;
 };

@@ -84,6 +84,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 
 	LoadStone(pd3dDevice, pd3dCommandList);
 	LoadTree(pd3dDevice, pd3dCommandList);
+	LoadGrass(pd3dDevice, pd3dCommandList);
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
@@ -402,6 +403,24 @@ void CScene::SaveTreeData()
 	}
 }
 
+void CScene::PlusGrassData()
+{
+	XMFLOAT2 playerXZpos;
+	playerXZpos.x = m_pPlayer->GetPosition().x;
+	playerXZpos.y = m_pPlayer->GetPosition().z;
+	GrassDataList.push_back(playerXZpos);
+}
+
+void CScene::SaveGrassData()
+{
+	fstream out("GrassData.txt", ios::out | ios::binary);
+
+	for (auto n : GrassDataList)
+	{
+		out << n.x << " " << n.y << "\n";
+	}
+}
+
 void CScene::PlusStoneData()
 {
 	StoneInfo playerPos;
@@ -579,8 +598,43 @@ void CScene::LoadStone(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd
 	}
 }
 
+void CScene::LoadGrass(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList)
+{
+	CGrasshader* pShader = new CGrasshader();
+
+	pShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	pShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+
+	CGameObject *pGrass = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/grass.bin", pShader, false);
+
+	fstream in("GrassData.txt", ios::in | ios::binary);
+	while (in)
+	{
+		XMFLOAT2 dat;
+		in >> dat.x;
+		in >> dat.y;
+		GrassDataList.emplace_back(dat);
+	}
+
+	list<XMFLOAT2>::iterator iter = GrassDataList.begin();
+	list<XMFLOAT2>::iterator end = GrassDataList.end();
+
+	for (iter; iter != end; iter++)
+	{
+		float RandomRotate = rand() % 360;
+		CGameObject* obj = new CGameObject();
+			obj->SetChild(pGrass, true);
+		obj->SetPosition(iter->x, m_pTerrain->GetHeight(iter->x, iter->y), iter->y);
+		obj->Rotate(0, RandomRotate, 0);
+		m_GrassObjectlist.push_back(obj);
+	}
+
+}
+
 void CScene::LoadTree(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
 {
+	
+
 	CGameObject *pTree = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Tree.bin", NULL, false);
 	CGameObject *pTree2 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Tree2.bin", NULL, false);
 	CGameObject *pTree3 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Tree3.bin", NULL, false);
@@ -668,6 +722,12 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 		p->UpdateTransform(NULL);
 		p->Render(pd3dCommandList, pCamera);
 	}
+	for (auto p : m_GrassObjectlist)
+	{
+		p->UpdateTransform(NULL);
+		p->Render(pd3dCommandList, pCamera);
+	}
+
 
 	for (int i = 0; i < m_nShaders; i++) if (m_ppShaders[i]) m_ppShaders[i]->Render(pd3dCommandList, pCamera);
 }

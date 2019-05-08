@@ -104,8 +104,19 @@ float4 PSStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
 		normalW = normalize(input.normalW);
 	}
 	float4 cIllumination = Lighting(input.positionW, normalW);
-	return(lerp(cColor, cIllumination, 0.5f));
+	return(lerp(cColor, cIllumination, 0.4f));
 }
+
+
+float4 PSGrass(VS_STANDARD_OUTPUT input) : SV_TARGET
+{
+	float4 cAlbedoColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	if (gnTexturesMask & MATERIAL_ALBEDO_MAP) cAlbedoColor = gtxtAlbedoTexture.Sample(gssWrap, input.uv);
+	cAlbedoColor = cAlbedoColor - float4(0.2f, 0.2f, 0.2f, 0.f);
+		
+	return cAlbedoColor;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //

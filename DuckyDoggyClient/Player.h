@@ -140,7 +140,8 @@ public:
 		m_xmf3Position = xmf3Position;
 	}
 	void SetMoveState_async(const int& movestate) {
-		m_moveState = movestate;
+		// m_moveState = movestate;
+		SetAnimationSet(movestate);
 	}
 
 	//

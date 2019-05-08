@@ -80,13 +80,14 @@ struct packet_info {
 };
 
 struct player_info {
-	short id = 10;
+	BYTE id = 10;
 	bool connected = false;
 	float x;
 	float y;
 	float z;
 	player_type type;
-	int movestate = 1;
+	BYTE movestate = 1;
+	DWORD direction = 1;
 };
 
 #pragma pack (pop)

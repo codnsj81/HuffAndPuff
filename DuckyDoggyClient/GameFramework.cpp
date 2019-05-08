@@ -474,17 +474,27 @@ void CGameFramework::SetPlayerMoveState(player_type eType, int movestate)
 	switch (eType) {
 	case player_ducky:
 	{
-		if (m_pDucky != nullptr)
-			m_pDucky->SetMoveState_async(movestate);
+		if (m_pDucky != nullptr) {
+			if (m_pDucky->GetMoveState() != movestate) {
+				m_pDucky->SetMoveState_async(movestate);
+			}
+		}
 	}
 	break;
 	case player_doggy:
 	{
-		if (m_pDoggy != nullptr)
-			m_pDoggy->SetMoveState_async(movestate);
+		if (m_pDoggy != nullptr) {
+			if (m_pDoggy->GetMoveState() != movestate) {
+				m_pDoggy->SetMoveState_async(movestate);
+			}
+		}
 	}
 	break;
 	}
+}
+
+void CGameFramework::SetPlayerDirection(player_type eType, DWORD dir)
+{
 }
 
 

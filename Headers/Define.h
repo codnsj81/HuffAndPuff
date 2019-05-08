@@ -6,8 +6,8 @@
 #define INITPOSITION_X 62
 #define INITPOSITION_Z 378
 
-#define STATE_GROUND	1
-#define STATE_JUMPING	2
+#define STATE_GROUND	 1
+#define STATE_JUMPING 	2
 #define STATE_ONOBJECTS 4
 #define STATE_FALLING   5
 

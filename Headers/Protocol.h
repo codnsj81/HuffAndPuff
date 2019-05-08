@@ -86,7 +86,7 @@ struct player_info {
 	float y;
 	float z;
 	player_type type;
-	BYTE movestate = 1;
+	int movestate = 1;
 	DWORD direction = 1;
 };
 

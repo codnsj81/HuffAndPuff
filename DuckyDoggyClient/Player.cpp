@@ -39,6 +39,20 @@ CPlayer::~CPlayer()
 	if (m_pCamera) delete m_pCamera;
 }
 
+void CPlayer::SetCheatMode()
+{
+	if (m_bCheatmode)
+	{
+		m_bCheatmode = false;
+		m_fSpeed = 3.25f;
+	}
+	else
+	{
+		m_bCheatmode = true;
+		m_fSpeed = 6.f;
+	}
+}
+
 void CPlayer::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
 {
 	if (m_pCamera) m_pCamera->CreateShaderVariables(pd3dDevice, pd3dCommandList);
@@ -58,12 +72,12 @@ void CPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
 	if (dwDirection)
 	{
 		XMFLOAT3 xmf3Shift = XMFLOAT3(0, 0, 0);
-		if (dwDirection & DIR_FORWARD) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, fDistance);
-		if (dwDirection & DIR_BACKWARD) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, -fDistance);
-		if (dwDirection & DIR_RIGHT) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, fDistance);
-		if (dwDirection & DIR_LEFT) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, -fDistance);
-		if (dwDirection & DIR_UP) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, fDistance);
-		if (dwDirection & DIR_DOWN) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, -fDistance);
+		if (dwDirection & DIR_FORWARD) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, m_fSpeed);
+		if (dwDirection & DIR_BACKWARD) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, -m_fSpeed);
+		if (dwDirection & DIR_RIGHT) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, m_fSpeed);
+		if (dwDirection & DIR_LEFT) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, -m_fSpeed);
+		if (dwDirection & DIR_UP) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, m_fSpeed);
+		if (dwDirection & DIR_DOWN) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, -m_fSpeed);
 
 		Move(xmf3Shift, bUpdateVelocity);
 	}
@@ -631,6 +645,7 @@ void CTerrainPlayer::OnPlayerUpdateCallback(float fTimeElapsed)
 
 void CTerrainPlayer::OnCameraUpdateCallback(float fTimeElapsed)
 {
+	XMFLOAT3 pos = GetPosition();
 	CHeightMapTerrain *pTerrain = (CHeightMapTerrain *)m_pCameraUpdatedContext;
 	XMFLOAT3 xmf3Scale = pTerrain->GetScale();
 	XMFLOAT3 xmf3CameraPosition = m_pCamera->GetPosition();
@@ -649,7 +664,9 @@ void CTerrainPlayer::OnCameraUpdateCallback(float fTimeElapsed)
 		if (m_pCamera->GetMode() == THIRD_PERSON_CAMERA)
 		{
 			CThirdPersonCamera *p3rdPersonCamera = (CThirdPersonCamera *)m_pCamera;
-			p3rdPersonCamera->SetLookAt(GetPosition());
+				p3rdPersonCamera->SetLookAt(pos);
 		}
 	}
+	if (m_bCheatmode) // 치트시 카메라 이동
+		m_pCamera->SetPosition(XMFLOAT3(xmf3CameraPosition.x, 1500, xmf3CameraPosition.z));
 }

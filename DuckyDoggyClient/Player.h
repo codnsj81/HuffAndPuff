@@ -50,6 +50,7 @@ protected:
 	CCamera						*m_pCamera = NULL;
 	CUI							*m_pHPUI = NULL;
 	bool						m_bInWater = false;
+	bool						m_bCheatmode = false;
 
 	int							m_PiggybackState = PIGGYBACK_NONE;
 	int							m_moveState = STATE_GROUND;
@@ -60,6 +61,7 @@ protected:
 	int							m_playerKind;
 	float						m_ObjectHeight;
 	int							m_iJumpnum = 0 ;
+	float						m_fSpeed = 3.25f;
 
 
 
@@ -77,6 +79,7 @@ public:
 	XMFLOAT3 GetRightVector() { return(m_xmf3Right); }
 	
 	int GetMoveState() { return m_moveState; }
+	void SetCheatMode();
 	
 	float	GetHp() { return m_iHP; }
 	void Damage(int d) { m_iHP -= d; }

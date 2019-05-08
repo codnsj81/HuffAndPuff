@@ -126,19 +126,19 @@ void CGameFramework::CreateDirect3DDevice()
 
 	UINT nDXGIFactoryFlags = 0;
 #if defined(_DEBUG)
-	ID3D12Debug *pd3dDebugController = NULL;
+	/*ID3D12Debug *pd3dDebugController = NULL;
 	hResult = D3D12GetDebugInterface(__uuidof(ID3D12Debug), (void **)&pd3dDebugController);
 	if (pd3dDebugController)
 	{
 		pd3dDebugController->EnableDebugLayer();
 		pd3dDebugController->Release();
 	}
-	nDXGIFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
+	nDXGIFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;*/
 #endif
 
 	hResult = ::CreateDXGIFactory2(nDXGIFactoryFlags, __uuidof(IDXGIFactory4), (void **)&m_pdxgiFactory);
 
-	IDXGIAdapter1 *pd3dAdapter = NULL;
+ 	IDXGIAdapter1 *pd3dAdapter = NULL;
 
 	for (UINT i = 0; DXGI_ERROR_NOT_FOUND != m_pdxgiFactory->EnumAdapters1(i, &pd3dAdapter); i++)
 	{

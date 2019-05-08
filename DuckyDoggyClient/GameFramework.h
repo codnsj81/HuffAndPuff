@@ -47,7 +47,7 @@ public:
 	// @
 	void SetPlayerType(player_type eType);
 	void SetPlayerPos(player_type eType, XMFLOAT3 pos);
-	void SetPlayerMoveState(player_type eType, int movestate);
+	void SetPlayerAnimationSet(player_type eType, int animationSet);
 	void SetPlayerDirection(player_type eType, DWORD dir);
 	 CPlayer* GetPlayer() const { if(m_pPlayer!=nullptr) return m_pPlayer; }
 	 CTerrainPlayer* GetDoggy() { if (m_pDoggy != nullptr) return m_pDoggy;  }

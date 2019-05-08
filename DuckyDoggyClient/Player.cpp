@@ -429,21 +429,6 @@ void CPlayer::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamer
 	if (nCameraMode == THIRD_PERSON_CAMERA) CGameObject::Render(pd3dCommandList, pCamera);
 }
 
-void CPlayer::SetMoveState_async(const int & movestate)
-{
-	m_moveState = movestate;
-	switch (m_moveState) {
-	case 1: // ground
-		break;
-	case 2: // jumping
-		break;
-	case 4: // onobjects
-		break;
-	case 5: // falling
-		break;
-
-	}
-}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 

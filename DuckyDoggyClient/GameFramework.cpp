@@ -475,15 +475,15 @@ void CGameFramework::SetPlayerPos(player_type eType, XMFLOAT3 pos)
 
 }
 
-void CGameFramework::SetPlayerMoveState(player_type eType, int movestate)
+void CGameFramework::SetPlayerAnimationSet(player_type eType, int animationSet)
 {
 	switch (eType) {
 	case player_ducky:
 	{
 		if (m_pDucky != nullptr) {
-			DWORD cur_movestate = m_pDucky->GetMoveState();
-			if (cur_movestate != movestate) {
-				m_pDucky->SetMoveState_async(movestate);
+			DWORD cur_as = m_pDucky->GetAnimationSet();
+			if (cur_as != animationSet) {
+				m_pDucky->SetAnimationSet(animationSet);
 			}
 		}
 	}
@@ -491,9 +491,9 @@ void CGameFramework::SetPlayerMoveState(player_type eType, int movestate)
 	case player_doggy:
 	{
 		if (m_pDoggy != nullptr) {
-			DWORD cur_movestate = m_pDoggy->GetMoveState();
-			if (cur_movestate != movestate) {
-				m_pDoggy->SetMoveState_async(movestate);
+			DWORD cur_as = m_pDoggy->GetAnimationSet();
+			if (cur_as != animationSet) {
+				m_pDoggy->SetAnimationSet(animationSet);
 			}
 		}
 	}

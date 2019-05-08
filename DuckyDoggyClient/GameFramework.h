@@ -58,7 +58,6 @@ private:
 	HINSTANCE					m_hInstance;
 	HWND						m_hWnd; 
 
-	CUI						*m_pHPUI = NULL;
 	list<CUI*>					*m_UIList;
 	int							m_nWndClientWidth;
 	int							m_nWndClientHeight;

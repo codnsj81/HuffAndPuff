@@ -305,20 +305,7 @@ void CThirdPersonCamera::SetLookAt(XMFLOAT3& xmf3LookAt)
 	xmf4x4Rotate._12 = m_xmf3Right.y; xmf4x4Rotate._22 = m_xmf3Up.y; xmf4x4Rotate._32 = m_xmf3Look.y;
 	xmf4x4Rotate._13 = m_xmf3Right.z; xmf4x4Rotate._23 = m_xmf3Up.z; xmf4x4Rotate._33 = m_xmf3Look.z;
 
-	if (m_pUI)
-	{	
-		m_pUI->m_xmf4x4ToParent = xmf4x4Rotate;
-		dynamic_cast<CHP*>(m_pUI)->SetHpScale();
-		m_pUI->SetPosition(GetPosition());
-		m_pUI->MoveForward(20);
-		m_pUI->MoveStrafe(m_pUI->m_fWinposx);
-		m_pUI->MoveUp(m_pUI->m_fWinposy);
-		m_pUI->Rotate(90, 0, 0);
 
-		m_pUI->m_xmf4x4ToParent = Matrix4x4::OrthoFovLH(800, 600, 0, 1);
-
-
-	}
 	if (m_UIList)
 	{
 		for (auto t : *m_UIList)
@@ -329,7 +316,7 @@ void CThirdPersonCamera::SetLookAt(XMFLOAT3& xmf3LookAt)
 			t->MoveStrafe(t->m_fWinposx);
 			t->MoveUp(t->m_fWinposy);
 			t->Rotate(90, 0, 0);
-			t->m_xmf4x4ToParent = Matrix4x4::OrthoFovLH(800, 600, 0, 1);
+		//	t->m_xmf4x4ToParent = Matrix4x4::OrthoFovLH(800, 600, 0, 1);
 		}
 	}
 }

@@ -62,6 +62,7 @@ protected:
 	float						m_ObjectHeight;
 	int							m_iJumpnum = 0 ;
 	float						m_fSpeed = 3.25f;
+	int							m_iSkillGage = 0;
 
 
 
@@ -80,9 +81,11 @@ public:
 	
 	int GetMoveState() { return m_moveState; }
 	void SetCheatMode();
+	int GetSkillGage() { return m_iSkillGage; }
 	
 	float	GetHp() { return m_iHP; }
 	void Damage(int d) { m_iHP -= d; }
+	void PlusSkillGage(int d);
 
 	void SetFriction(float fFriction) { m_fFriction = fFriction; }
 	void SetGravity(const XMFLOAT3& xmf3Gravity) { m_xmf3Gravity = xmf3Gravity; }

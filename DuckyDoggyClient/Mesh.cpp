@@ -786,10 +786,10 @@ CWaterMesh::CWaterMesh(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd
 	m_pxmf3BiTangents = new XMFLOAT3[m_nVertices];
 	m_pxmf3Normals = new XMFLOAT3[m_nVertices];
 
-	m_pxmf2TextureCoords0[0] = XMFLOAT2(0, 1);
-	m_pxmf2TextureCoords0[1] = XMFLOAT2(1, 1);
+	m_pxmf2TextureCoords0[0] = XMFLOAT2(0, 2);
+	m_pxmf2TextureCoords0[1] = XMFLOAT2(2, 2);
 	m_pxmf2TextureCoords0[2] = XMFLOAT2(0, 0);
-	m_pxmf2TextureCoords0[3] = XMFLOAT2(1, 0);
+	m_pxmf2TextureCoords0[3] = XMFLOAT2(2, 0);
 
 	for (int i = 0; i < m_nVertices; i++)
 	{
@@ -841,7 +841,7 @@ CWaterMesh::~CWaterMesh()
 }
 
 
-CUIMesh::CUIMesh(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, float nWidth, float nLength)
+CUIMesh::CUIMesh(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, float nWidth, float nLength, float uvX, float uvY)
 {
 	m_nVertices = 4;
 	m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
@@ -850,8 +850,8 @@ CUIMesh::CUIMesh(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dComm
 
 	float fx = nWidth * 0.5f, fy = nLength * 0.5f;
 	// Bottom Quad										
-	m_pxmf3Positions[0] = XMFLOAT3(0, 0, +fy);
-	m_pxmf3Positions[1] = XMFLOAT3(2*fx, 0, +fy);
+	m_pxmf3Positions[0] = XMFLOAT3(-0, 0, +fy);
+	m_pxmf3Positions[1] = XMFLOAT3(+2*fx, 0, +fy);
 	m_pxmf3Positions[2] = XMFLOAT3(0, 0, -fy);
 	m_pxmf3Positions[3] = XMFLOAT3(2*fx, 0, -fy);
 
@@ -877,10 +877,10 @@ CUIMesh::CUIMesh(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dComm
 	m_d3dColorBufferView.SizeInBytes = sizeof(XMFLOAT4) * m_nVertices;
 
 	m_pxmf2TextureCoords0 = new XMFLOAT2[m_nVertices];
-	m_pxmf2TextureCoords0[0] = XMFLOAT2(0, 1);
-	m_pxmf2TextureCoords0[1] = XMFLOAT2(1, 1);
+	m_pxmf2TextureCoords0[0] = XMFLOAT2(0, uvY);
+	m_pxmf2TextureCoords0[1] = XMFLOAT2(uvX, uvY);
 	m_pxmf2TextureCoords0[2] = XMFLOAT2(0, 0);
-	m_pxmf2TextureCoords0[3] = XMFLOAT2(1, 0);
+	m_pxmf2TextureCoords0[3] = XMFLOAT2(uvX, 0);
 
 	m_pd3dTextureCoord0Buffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_pxmf2TextureCoords0, sizeof(XMFLOAT2) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dTextureCoord0UploadBuffer);
 

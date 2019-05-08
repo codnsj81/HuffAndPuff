@@ -21,6 +21,7 @@ public:
 	bool bEx = false;
 
 	void SetWinpos(float x, float y);
+	virtual void Update(float elapsed) {}
 	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dCbvGPUDescriptorHandle;
 };
 
@@ -32,7 +33,7 @@ public:
 	~CHP();
 	void SetCbvGPUDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE d3dCbvGPUDescriptorHandle) { m_d3dCbvGPUDescriptorHandle = d3dCbvGPUDescriptorHandle; }
 	void SetCbvGPUDescriptorHandlePtr(UINT64 nCbvGPUDescriptorHandlePtr) { m_d3dCbvGPUDescriptorHandle.ptr = nCbvGPUDescriptorHandlePtr; }
-	virtual void Update();
+	virtual void Update(float elapsed);
 	void FollowCamera();
 	void SetHpScale();
 
@@ -41,6 +42,13 @@ public:
 
 	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dCbvGPUDescriptorHandle;
 
+};
+class CMP : public CHP
+{
+public :
+	CMP(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, float nWidth, float nLength, XMFLOAT3 xmfPosition);
+	~CMP();
+	virtual void Update(float elapsed);
 };
 
 class CStartUI : public CUI
@@ -64,4 +72,13 @@ public:
 	virtual void Update(float elapsed);
 private:
 	XMFLOAT3 EndPoint;
+};
+
+class CImageUI : public CUI
+{
+public:
+	CImageUI(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, float nWidth, float nLength, XMFLOAT3 xmfPosition, wchar_t* pFilename);
+	~CImageUI();
+
+	virtual void Update(float elapsed);
 };

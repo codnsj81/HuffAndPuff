@@ -326,22 +326,16 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 					break;
 				case '1':
 					m_pScene->m_pPlayer = m_pPlayer = m_pDucky;
-					m_pCamera->m_pUI = NULL;
 					m_pCamera->m_UIList = NULL;
 					m_pCamera = m_pPlayer->GetCamera();
 					m_pCamera->m_UIList = m_UIList;
-					m_pHPUI->m_pPlayer = m_pPlayer;
-					m_pCamera->m_pUI = m_pHPUI;
 
 					break;
 				case '2':
 					m_pScene->m_pPlayer = m_pPlayer = m_pDoggy;
-					m_pCamera->m_pUI = NULL;
 					m_pCamera->m_UIList = NULL;
 					m_pCamera = m_pPlayer->GetCamera();
 					m_pCamera->m_UIList = m_UIList;
-					m_pHPUI->m_pPlayer = m_pPlayer;
-					m_pCamera->m_pUI = m_pHPUI;
 					break;
 				case 't':
 				case 'T':
@@ -353,6 +347,10 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 				case 'O':
 				case 'o':
 					m_pPlayer->SetCheatMode();
+					break;
+				case 'l':
+				case 'L':
+					m_pPlayer->PlusSkillGage(5);
 					break;
 				default:
 					break;
@@ -518,29 +516,57 @@ void CGameFramework::SetPlayerDirection(player_type eType, DWORD dir)
 void CGameFramework::BuildUI()
 {
 
-	m_pHPUI = new CHP(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 3, 0.7f, m_pPlayer->GetPosition());
-	
-	m_pHPUI->m_pPlayer = m_pPlayer;
-	m_pCamera->m_pUI = m_pHPUI;
-	
 	m_UIList = new list<CUI*>();
+	CUI* m_pHPUI = new CHP(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 5, 1.5f, m_pPlayer->GetPosition());
+	
+	m_pHPUI->m_pPlayer = m_pDoggy;
+	m_pHPUI->SetWinpos(10.f, 9.5f);
+	m_pHPUI->bRender = TRUE;
+	m_UIList->push_back(m_pHPUI);
+	
+	m_pHPUI = new CHP(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 5,1.5f, m_pPlayer->GetPosition());
+
+	m_pHPUI->m_pPlayer = m_pDucky;
+	m_pHPUI->bRender = TRUE;
+	m_pHPUI->SetWinpos(-11.f, 9.5f);
+	m_UIList->push_back(m_pHPUI);
+
+	m_pHPUI = new CMP(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 5, 1.5f, m_pPlayer->GetPosition());
+
+	m_pHPUI->m_pPlayer = m_pDucky;
+	m_pHPUI->SetWinpos(-11.f, 8.f);
+	m_UIList->push_back(m_pHPUI);
+
+	m_pHPUI = new CMP(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 5, 1.5f, m_pPlayer->GetPosition());
+
+	m_pHPUI->m_pPlayer = m_pDoggy;
+	m_pHPUI->SetWinpos(10.f, 8.f);
+	m_UIList->push_back(m_pHPUI);
+
 
 	CUI* pTemp = new CStartUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 5, 5, m_pPlayer->GetPosition(), L"Model/Textures/GAMESTART.tiff");
 	pTemp->SetWinpos(-2.5, 0);
 	dynamic_cast<CStartUI*> (pTemp)->bRender = true;
 	dynamic_cast<CStartUI*> (pTemp)->Trigger = true;
-
+	pTemp->m_pPlayer = m_pDoggy;
 	m_UIList->push_back(pTemp);
 
 	pTemp = new CEndUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 5, 5, XMFLOAT3(1999, m_pScene->m_pTerrain->GetHeight(1999, 972), 972), L"Model/Textures/GAMECLEAR.tiff");
 	pTemp->SetWinpos(-2.5, 0);
+	pTemp->m_pPlayer = m_pDoggy;
 
 	m_UIList->push_back(pTemp);
 
-	for(auto a : *m_UIList)
-	{
-		a->m_pPlayer = m_pPlayer;
-	}
+	pTemp = new CImageUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 4, 4, XMFLOAT3(1999, m_pScene->m_pTerrain->GetHeight(1999, 972), 972), L"Model/Textures/DoggyUI.tiff");
+	pTemp->SetWinpos(5, 9);
+
+	m_UIList->push_back(pTemp);
+
+	pTemp = new CImageUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 4, 4, XMFLOAT3(1999, m_pScene->m_pTerrain->GetHeight(1999, 972), 972), L"Model/Textures/DuckyUI.tiff");
+	pTemp->SetWinpos(-15.5 ,9);
+
+	m_UIList->push_back(pTemp);
+
 	m_pCamera->m_UIList = m_UIList;
 
 }
@@ -792,13 +818,11 @@ void CGameFramework::FrameAdvance()
 	if (m_pDoggy) m_pDoggy->Render(m_pd3dCommandList, m_pCamera);
 
 	//UI·»´õ
-	m_pHPUI->Render(m_pd3dCommandList, m_pCamera);
-	dynamic_cast<CHP*> (m_pHPUI)->Update();
 	for (auto a : *m_UIList)
 	{
+		 (a)->Update(m_GameTimer.GetTimeElapsed());
 		if(a->bRender)
 			a->Render(m_pd3dCommandList, m_pCamera);
-		dynamic_cast<CStartUI*> (a)->Update(m_GameTimer.GetTimeElapsed());
 	}
 
 

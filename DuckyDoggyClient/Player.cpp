@@ -53,6 +53,12 @@ void CPlayer::SetCheatMode()
 	}
 }
 
+void CPlayer::PlusSkillGage(int d)
+{
+	m_iSkillGage += d; 
+	if (m_iSkillGage > 100) m_iSkillGage = 100;
+}
+
 void CPlayer::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
 {
 	if (m_pCamera) m_pCamera->CreateShaderVariables(pd3dDevice, pd3dCommandList);

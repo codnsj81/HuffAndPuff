@@ -142,10 +142,7 @@ public:
 	void SetPosition_async(const XMFLOAT3& xmf3Position) { 
 		m_xmf3Position = xmf3Position;
 	}
-	void SetMoveState_async(const int& movestate) {
-		// m_moveState = movestate;
-		SetAnimationSet(movestate);
-	}
+	void SetMoveState_async(const int& movestate);
 
 	//
 	bool						m_bDamaging = false;

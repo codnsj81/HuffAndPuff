@@ -571,6 +571,9 @@ void CGameObject::UpdateTransform(XMFLOAT4X4 *pxmf4x4Parent)
 void CGameObject::SetAnimationSet(int nAnimationSet)
 {
 	m_iAnimationSet = nAnimationSet;
+	if (m_ismain == true) 
+		g_myinfo.animationSet = nAnimationSet;
+
 	if (m_pAnimationController) m_pAnimationController->SetAnimationSet(nAnimationSet);
 
 	if (m_pSibling) m_pSibling->SetAnimationSet(nAnimationSet);

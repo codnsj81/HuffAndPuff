@@ -31,3 +31,9 @@
 #define SC_PUT_PLAYER    2
 #define SC_REMOVE_PLAYER 3
 #define SC_CHAT			 4
+
+
+//캐릭터 애니메이션
+#define HERO_ANIMATION_IDLE	0
+#define HERO_ANIMATION_WALK	1
+#define HERO_ANIMATION_JUMP	2

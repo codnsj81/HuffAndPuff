@@ -326,14 +326,20 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 					break;
 				case '1':
 					m_pScene->m_pPlayer = m_pPlayer = m_pDucky;
+					m_pCamera->m_pUI = NULL;
+					m_pCamera->m_UIList = NULL;
 					m_pCamera = m_pPlayer->GetCamera();
+					m_pCamera->m_UIList = m_UIList;
 					m_pHPUI->m_pPlayer = m_pPlayer;
 					m_pCamera->m_pUI = m_pHPUI;
 
 					break;
 				case '2':
 					m_pScene->m_pPlayer = m_pPlayer = m_pDoggy;
+					m_pCamera->m_pUI = NULL;
+					m_pCamera->m_UIList = NULL;
 					m_pCamera = m_pPlayer->GetCamera();
+					m_pCamera->m_UIList = m_UIList;
 					m_pHPUI->m_pPlayer = m_pPlayer;
 					m_pCamera->m_pUI = m_pHPUI;
 					break;

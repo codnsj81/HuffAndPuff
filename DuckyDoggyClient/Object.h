@@ -339,6 +339,8 @@ public:
 	XMFLOAT3 GetUp();
 	XMFLOAT3 GetRight();
 
+
+
 	void SetPosition(float x, float y, float z);
 	void SetPosition(XMFLOAT3 xmf3Position);
 	void SetScale(float x, float y, float z);
@@ -360,12 +362,15 @@ public:
 
 	UINT GetMeshType() { return((m_pMesh) ? m_pMesh->GetType() : 0x00); }
 
+
 public:
 	CAnimationController 			*m_pAnimationController = NULL;
 
 	CGameObject *GetRootSkinnedGameObject();
 
 	void SetAnimationSet(int nAnimationSet);
+	int						m_iAnimationSet = 0;
+	int GetAnimationSet() { return m_iAnimationSet; }
 
 	void CacheSkinningBoneFrames(CGameObject *pRootFrame);
 

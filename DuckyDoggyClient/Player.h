@@ -67,8 +67,7 @@ protected:
 
 	float							m_iHP = 100.f;
 	XMFLOAT3					m_predictedPos = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	
-	int						m_iAnimationSet = 0;
+
 public:
 	CPlayer();
 	virtual ~CPlayer();
@@ -144,7 +143,7 @@ public:
 		m_xmf3Position = xmf3Position;
 	}
 
-	int GetAnimationSet() { return m_iAnimationSet; }
+
 	//
 	bool						m_bDamaging = false;
 	float						m_fDamagingTime = 0.f;

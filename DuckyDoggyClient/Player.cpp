@@ -293,7 +293,8 @@ void CPlayer::Update(float fTimeElapsed)
 		}
 
 		//if (fDistance >= 0)
-			m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Gravity);
+		XMFLOAT3 gravity = XMFLOAT3(0, m_xmf3Gravity.y * fTimeElapsed, 0.f);
+			m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, gravity);
 
 		float fLength = sqrtf(m_xmf3Velocity.x * m_xmf3Velocity.x + m_xmf3Velocity.z * m_xmf3Velocity.z);
 		float fMaxVelocityXZ = m_fMaxVelocityXZ;
@@ -589,9 +590,9 @@ CCamera *CTerrainPlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 			break;
 		case THIRD_PERSON_CAMERA:
 			SetFriction(20.0f);
-			SetGravity(XMFLOAT3(0.0f, -2.f, 0.0f));
+			SetGravity(XMFLOAT3(0.0f, -100.f, 0.0f));
 			SetMaxVelocityXZ(20.0f);
-			SetMaxVelocityY(30.0f);
+			SetMaxVelocityY(25.0f);
 			m_pCamera = OnChangeCamera(THIRD_PERSON_CAMERA, nCurrentCameraMode);
 			m_pCamera->SetTimeLag(0.25f);
 			m_pCamera->SetOffset(XMFLOAT3(0.0f, 10.0f, -25.0f));

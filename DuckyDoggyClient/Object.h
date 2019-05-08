@@ -362,6 +362,9 @@ public:
 
 	UINT GetMeshType() { return((m_pMesh) ? m_pMesh->GetType() : 0x00); }
 
+	bool m_ismain = false;
+	void SetMain(bool b) { m_ismain = b; }
+	bool GetMain() { return m_ismain; }
 
 public:
 	CAnimationController 			*m_pAnimationController = NULL;

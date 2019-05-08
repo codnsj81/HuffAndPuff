@@ -854,6 +854,7 @@ void CGameFramework::FrameAdvance()
 		playerinfo.id = g_myinfo.id;
 		playerinfo.x = xmf3Position.x; playerinfo.y = xmf3Position.y; playerinfo.z = xmf3Position.z;
 		playerinfo.type = g_myinfo.type;
+		playerinfo.animationSet = g_myinfo.animationSet;
 		int retval;
 		/// ∞Ì¡§
 		packet_info packetinfo;

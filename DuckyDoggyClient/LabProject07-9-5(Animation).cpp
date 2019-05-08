@@ -321,6 +321,7 @@ DWORD __stdcall RecvThread(LPVOID arg)
 			memcpy(&(g_myinfo), buf + sizeof(packetinfo), sizeof(g_myinfo));
 			// g_networkState = recv_playerinfo;
 			gGameFramework.GetPlayer()->SetPosition(XMFLOAT3{ g_myinfo.x, g_myinfo.y, g_myinfo.z });
+			gGameFramework.GetPlayer()->SetMain(true);
 		}
 		break;
 		case sc_notify_playerinfo:

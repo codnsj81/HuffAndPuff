@@ -7,6 +7,7 @@ public:
 	CMonster();
 	virtual ~CMonster();
 	virtual int getCollision(CPlayer * player);
+	virtual void Update();
 
 private:
 	int m_iHp = 100;

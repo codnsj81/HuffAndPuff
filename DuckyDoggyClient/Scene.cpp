@@ -445,11 +445,11 @@ void CScene::SaveStoneData()
 
 void CScene::BuildMonsterList(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
 {
-	CGameObject *pMonster = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/snake.bin", NULL, false);
+	CGameObject *pMonster = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/snake.bin", NULL, true);
 
 	CGameObject* obj = new CMonster();
 	obj->SetChild(pMonster, true);
-	obj->SetPosition(XMFLOAT3(332,m_pTerrain->GetHeight(332, 511), 511));
+	obj->SetPosition(XMFLOAT3(62,m_pTerrain->GetHeight(62, 400), 400));
 	obj->SetHitBox(XMFLOAT3(3.f, 3.f, 40.f));
 	M_MonsterObjectslist.push_back(obj);
 
@@ -697,15 +697,6 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 	if (m_pSkyBox) m_pSkyBox->Render(pd3dCommandList, pCamera);
 	if (m_pTerrain) m_pTerrain->Render(pd3dCommandList, pCamera);
 
-	for (int i = 0; i < m_nGameObjects; i++)
-	{
-		if (m_ppGameObjects[i])
-		{
-			m_ppGameObjects[i]->Animate(m_fElapsedTime);
-			m_ppGameObjects[i]->UpdateTransform(NULL);
-			m_ppGameObjects[i]->Render(pd3dCommandList, pCamera);
-		}
-	}
 
 	for (auto p : m_TreeObjectslist)
 	{
@@ -719,6 +710,8 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 	}
 	for (auto p : M_MonsterObjectslist)
 	{
+		p->Update();
+		p->Animate(m_fElapsedTime);
 		p->UpdateTransform(NULL);
 		p->Render(pd3dCommandList, pCamera);
 	}

@@ -786,10 +786,10 @@ CWaterMesh::CWaterMesh(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd
 	m_pxmf3BiTangents = new XMFLOAT3[m_nVertices];
 	m_pxmf3Normals = new XMFLOAT3[m_nVertices];
 
-	m_pxmf2TextureCoords0[0] = XMFLOAT2(0, 2);
-	m_pxmf2TextureCoords0[1] = XMFLOAT2(2, 2);
+	m_pxmf2TextureCoords0[0] = XMFLOAT2(0, 1);
+	m_pxmf2TextureCoords0[1] = XMFLOAT2(1, 1);
 	m_pxmf2TextureCoords0[2] = XMFLOAT2(0, 0);
-	m_pxmf2TextureCoords0[3] = XMFLOAT2(2, 0);
+	m_pxmf2TextureCoords0[3] = XMFLOAT2(1, 0);
 
 	for (int i = 0; i < m_nVertices; i++)
 	{

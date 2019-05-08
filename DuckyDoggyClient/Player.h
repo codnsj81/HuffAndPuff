@@ -63,7 +63,7 @@ protected:
 	int							m_iJumpnum = 0 ;
 	float						m_fSpeed = 3.25f;
 	int							m_iSkillGage = 0;
-
+	
 
 
 	float							m_iHP = 100.f;

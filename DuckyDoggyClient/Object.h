@@ -309,7 +309,7 @@ public:
 	void SetMaterial(int nMaterial, CMaterial *pMaterial);
 	void SetHitBox(XMFLOAT3 h) { m_Hitbox = h; }
 	XMFLOAT3 GetHitBox() { return m_Hitbox; }
-
+	virtual void Update() {}
 	void SetChild(CGameObject *pChild, bool bReferenceUpdate=false);
 
 	virtual void BuildMaterials(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList) { }

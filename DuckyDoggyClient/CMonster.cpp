@@ -4,6 +4,7 @@
 
 CMonster::CMonster()
 {
+	SetAnimationSet(0);
 }
 
 
@@ -48,4 +49,11 @@ int CMonster::getCollision(CPlayer * player)
 		player->m_bDamaging = true;
 	}
 	return 0;
+}
+
+void CMonster::Update()
+{
+
+	if (m_pAnimationController) m_pAnimationController->SetLoop(true);
+	SetAnimationSet(0);
 }

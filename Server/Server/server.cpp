@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
 			clients[new_id].sock = client_sock;
 			clients[new_id].playerinfo.x = INITPOSITION_X;
 			clients[new_id].playerinfo.z = INITPOSITION_Z;
-			clients[new_id].playerinfo.type = player_type(new_id % 2 + 1);
+			clients[new_id].playerinfo.type = player_type(new_id % 2);
 			clients[new_id].wsabuf.len = BUFSIZE;
 			clients[new_id].wsabuf.buf = clients[new_id].buf;
 			clients[new_id].overlapped.hEvent = (HANDLE)clients[new_id].sock;

@@ -67,7 +67,7 @@ enum packet_type {
 	cs_move_left, cs_move_top, cs_move_right, cs_move_bottom, cs_move,
 };
 enum player_type {
-	player_ducky, player_doggy
+	player_doggy, player_ducky
 };
 enum networking_state {
 	recv_none, recv_playerinfo, recv_otherinfo
@@ -80,7 +80,7 @@ struct packet_info {
 };
 
 struct player_info {
-	BYTE id = 10;
+	int id = 10;
 	bool connected = false;
 	float x;
 	float y;

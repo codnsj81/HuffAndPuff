@@ -315,7 +315,7 @@ DWORD __stdcall RecvThread(LPVOID arg)
 		}
 		// 가변 길이. 
 		switch (packetinfo.type) {
-		case sc_notify_yourinfo:
+		case sc_notify_yourinfo: 
 		{
 			int id = g_myinfo.id = packetinfo.id;			// playerinfo의 주인의 id를 받아온다.
 			memcpy(&(g_myinfo), buf + sizeof(packetinfo), sizeof(g_myinfo));

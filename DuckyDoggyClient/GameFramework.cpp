@@ -477,6 +477,8 @@ void CGameFramework::SetPlayerPos(player_type eType, XMFLOAT3 pos)
 
 void CGameFramework::SetPlayerAnimationSet(player_type eType, int animationSet)
 {
+	if (animationSet != 0)
+		int a = 0;
 	switch (eType) {
 	case player_ducky:
 	{

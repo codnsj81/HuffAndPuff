@@ -34,6 +34,6 @@
 
 
 //캐릭터 애니메이션
-#define HERO_ANIMATION_IDLE	0
+#define HERO_ANIMATION_IDLE 	0
 #define HERO_ANIMATION_WALK	1
 #define HERO_ANIMATION_JUMP	2

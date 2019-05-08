@@ -345,7 +345,8 @@ void show_allplayer()
 			count++;
 			cout << clients[i].playerinfo.id << "번째 클라이언트 : "
 				<< "좌표( "
-				<< clients[i].playerinfo.x << ", " << clients[i].playerinfo.y << ", " << clients[i].playerinfo.z << ")" << endl;
+				<< clients[i].playerinfo.x << ", " << clients[i].playerinfo.y << ", " << clients[i].playerinfo.z << ")" 
+				<< "애니메이션셋(" << clients[i].playerinfo.animationSet << ")"<< endl;
 		}
 	}
 	cout << "현재 연결 된 클라이언트 수 : " << count << endl;

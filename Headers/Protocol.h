@@ -86,7 +86,7 @@ struct player_info {
 	float y;
 	float z;
 	player_type type;
-	int animationSet = 1;
+	int animationSet = 0;
 	DWORD direction = 1;
 };
 

@@ -28,7 +28,7 @@
 using namespace std;
 
 // DEFINE
-#define PLAYER_KIND_DUCKY	0
+#define PLAYER_KIND_DUCKY	 0
 #define	PLAYER_KIND_DOGGY	1
 
 //#include "../Headers/Define.h"

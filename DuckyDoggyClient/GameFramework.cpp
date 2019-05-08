@@ -435,6 +435,7 @@ LRESULT CALLBACK CGameFramework::OnProcessingWindowMessage(HWND hWnd, UINT nMess
 
 void CGameFramework::SetPlayerType(player_type eType)
 {
+
 		switch (eType) {
 		case player_doggy:
 			m_pScene->m_pPlayer = m_pPlayer = m_pDoggy;
@@ -451,6 +452,7 @@ void CGameFramework::SetPlayerType(player_type eType)
 			//g_myinfo.z = m_pPlayer->GetPosition().z;
 			break;
 		}
+		m_pScene->SetDuckyNDoggy(m_pDucky, m_pDoggy, m_pPlayer);
 
 }
 
@@ -479,7 +481,8 @@ void CGameFramework::SetPlayerMoveState(player_type eType, int movestate)
 	case player_ducky:
 	{
 		if (m_pDucky != nullptr) {
-			if (m_pDucky->GetMoveState() != movestate) {
+			DWORD cur_movestate = m_pDucky->GetMoveState();
+			if (cur_movestate != movestate) {
 				m_pDucky->SetMoveState_async(movestate);
 			}
 		}
@@ -488,7 +491,8 @@ void CGameFramework::SetPlayerMoveState(player_type eType, int movestate)
 	case player_doggy:
 	{
 		if (m_pDoggy != nullptr) {
-			if (m_pDoggy->GetMoveState() != movestate) {
+			DWORD cur_movestate = m_pDoggy->GetMoveState();
+			if (cur_movestate != movestate) {
 				m_pDoggy->SetMoveState_async(movestate);
 			}
 		}

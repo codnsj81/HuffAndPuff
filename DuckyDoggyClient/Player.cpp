@@ -405,7 +405,8 @@ void CPlayer::Jump()
 		m_iJumpnum++;
 		if (m_iJumpnum == 2)
 			m_fTime = 0;
-		if(m_playerKind == player_doggy) SetAnimationSet(2);
+		if(m_playerKind == PLAYER_KIND_DOGGY)
+			SetAnimationSet(STATE_JUMPING);
 	}
 
 }
@@ -426,6 +427,22 @@ void CPlayer::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamer
 {
 	DWORD nCameraMode = (pCamera) ? pCamera->GetMode() : 0x00;
 	if (nCameraMode == THIRD_PERSON_CAMERA) CGameObject::Render(pd3dCommandList, pCamera);
+}
+
+void CPlayer::SetMoveState_async(const int & movestate)
+{
+	m_moveState = movestate;
+	switch (m_moveState) {
+	case 1: // ground
+		break;
+	case 2: // jumping
+		break;
+	case 4: // onobjects
+		break;
+	case 5: // falling
+		break;
+
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////

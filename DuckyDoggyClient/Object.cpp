@@ -573,6 +573,8 @@ void CGameObject::SetAnimationSet(int nAnimationSet)
 	m_iAnimationSet = nAnimationSet;
 	if (m_ismain == true) 
 		g_myinfo.animationSet = nAnimationSet;
+	else
+		g_otherinfo.animationSet = nAnimationSet;
 
 	if (m_pAnimationController) m_pAnimationController->SetAnimationSet(nAnimationSet);
 

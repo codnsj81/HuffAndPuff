@@ -269,6 +269,8 @@ public:
 	void SetCallbackKey(int nAnimationSet, int nKeyIndex, float fTime, void *pData);
 
 	void AdvanceTime(float fElapsedTime, CAnimationCallbackHandler *pCallbackHandler);
+
+	int GetAnimationSet() { return m_nAnimationSet; }
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -372,8 +374,12 @@ public:
 	CGameObject *GetRootSkinnedGameObject();
 
 	void SetAnimationSet(int nAnimationSet);
-	int						m_iAnimationSet = 0;
-	int GetAnimationSet() { return m_iAnimationSet; }
+	int GetAnimationSet() { 
+		if (m_pAnimationController)
+			return m_pAnimationController->GetAnimationSet();
+		else
+			return -1;
+	}
 
 	void CacheSkinningBoneFrames(CGameObject *pRootFrame);
 

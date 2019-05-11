@@ -46,7 +46,7 @@ void CloseNetwork();
 static DWORD WINAPI RecvThread(LPVOID arg);
 static DWORD WINAPI SendThread(LPVOID arg);
 int recvn(SOCKET s, char *buf, int len, int flags);
-
+INT_PTR CALLBACK Dlg_InitNetwork_Prog(HWND, UINT, WPARAM, LPARAM);
 
 int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
 {
@@ -161,20 +161,34 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			//	::DialogBox(ghAppInstance, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
 			break;
 			// menu 추가 (0211)
-		case ID_NETWORK_ACCESS_DEFAULT: // 도기로 접속
+		case ID_NETWORK_ACCESS_DOGGY_DEFAULT: // 도기로 접속
 		{
 			g_myinfo.type = player_doggy;
-			char p[128] = "127.0.0.1";
 			wcscpy(g_ipbuf, L"127.0.0.1");
 			InitializeNetwork();
 			 gGameFramework.SetPlayerType(player_doggy);
 		}
 		break;
-		case ID_NETWORK_ACCESS_USER: // 더기로 접속
+		case ID_NETWORK_ACCESS_DUCKY_DEFAULT: // 더기로 접속
 		{
 			g_myinfo.type = player_ducky;
-			char p[128] = "127.0.0.1";
 			wcscpy(g_ipbuf, L"127.0.0.1");
+			InitializeNetwork();
+			gGameFramework.SetPlayerType(player_ducky);
+		}
+		break;
+		case ID_NETWORK_ACCESS_DOGGY_USER:
+		{
+			g_myinfo.type = player_doggy;
+			DialogBox(ghAppInstance, MAKEINTRESOURCE(IDD_DIALOG_NETWORK), hWnd, Dlg_InitNetwork_Prog);
+			InitializeNetwork();
+			gGameFramework.SetPlayerType(player_doggy);
+		}
+		break;
+		case ID_NETWORK_ACCESS_DUCKY_USER:
+		{
+			g_myinfo.type = player_ducky;
+			DialogBox(ghAppInstance, MAKEINTRESOURCE(IDD_DIALOG_NETWORK), hWnd, Dlg_InitNetwork_Prog);
 			InitializeNetwork();
 			gGameFramework.SetPlayerType(player_ducky);
 		}
@@ -218,8 +232,34 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	return((INT_PTR)FALSE);
 }
 
+
+INT_PTR CALLBACK Dlg_InitNetwork_Prog(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam)
+{
+	char word[100];
+	switch (iMsg) {
+	case WM_INITDIALOG:
+		return 1;
+	case WM_COMMAND:
+		switch (LOWORD(wParam)) {
+		case IDOK:
+			GetDlgItemText(hDlg, IDC_EDIT_NETWORK_INPUT_IP, g_ipbuf, 50); // 스트링 갖고옴
+			// InitializeNetwork();
+			EndDialog(hDlg, 0);
+			break;
+		}
+		break;
+	}
+	return 0;
+}
+
 int InitializeNetwork()
 {
+	// ip 입력 받기 전까진 ㄴㄴ
+	while (0 >= lstrlen(g_ipbuf)) {
+
+	}
+
+
 	// @
 	int retval;
 

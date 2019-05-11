@@ -891,7 +891,7 @@ void CGameFramework::FrameAdvance()
 
 	// 0411
 	m_dwUpdatecnt++;
-	if (g_myinfo.connected == true && m_dwUpdatecnt >= 10) {
+	if (g_myinfo.connected == true && m_dwUpdatecnt >= 5) {
 		player_info playerinfo;
 		playerinfo.id = g_myinfo.id;
 		playerinfo.x = xmf3Position.x; playerinfo.y = xmf3Position.y; playerinfo.z = xmf3Position.z;

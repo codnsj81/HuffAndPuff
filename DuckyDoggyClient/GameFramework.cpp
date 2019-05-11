@@ -481,8 +481,6 @@ void CGameFramework::SetPlayerPos(player_type eType, XMFLOAT3 pos)
 
 void CGameFramework::SetPlayerAnimationSet(player_type eType, int animationSet)
 {
-	if (animationSet != 0)
-		int a = 0;
 	switch (eType) {
 	case player_ducky:
 	{
@@ -509,6 +507,22 @@ void CGameFramework::SetPlayerAnimationSet(player_type eType, int animationSet)
 
 void CGameFramework::SetPlayerDirection(player_type eType, DWORD dir)
 {
+	switch (eType) {
+	case player_ducky:
+	{
+		if (m_pDucky != nullptr) {
+
+		}
+	}
+	break;
+	case player_doggy:
+	{
+		if (m_pDoggy != nullptr) {
+
+		}
+	}
+	break;
+	}
 }
 
 

@@ -337,6 +337,13 @@ void CPlayer::Update(float fTimeElapsed)
 	
 	if (m_moveState == STATE_GROUND)
 	{
+		if (!g_myinfo.connected) { // stand alone으로 채원이가 테스트할 땐 정상적으로 되어야 함.
+			if (Vector3::IsZero(m_xmf3Velocity))
+				SetAnimationSet(0);
+			else
+				SetAnimationSet(1);
+		}
+
 		if (m_ismain) { // 메인 클라이언트의 플레이어가 아니라면, 서버에서 받아오는 애니메이션 정보를 토대로 SetAnimationSet() 해주어야 한다.
 			if (Vector3::IsZero(m_xmf3Velocity))
 				SetAnimationSet(0);

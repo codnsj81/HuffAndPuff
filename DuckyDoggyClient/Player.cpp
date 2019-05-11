@@ -265,6 +265,9 @@ void CPlayer::Rotate(float x, float y, float z)
 	m_xmf3Look = Vector3::Normalize(m_xmf3Look);
 	m_xmf3Right = Vector3::CrossProduct(m_xmf3Up, m_xmf3Look, true);
 	m_xmf3Up = Vector3::CrossProduct(m_xmf3Look, m_xmf3Right, true);
+
+
+
 }
 
 void CPlayer::OnObject(float fy)
@@ -276,6 +279,10 @@ void CPlayer::OnObject(float fy)
 
 void CPlayer::Update(float fTimeElapsed)
 {
+	//cout << "m_xmf3Look (" << m_xmf3Look.x << ", " << m_xmf3Look.y << ", " << m_xmf3Look.z << ")" << endl;
+	//cout << "m_xmf3Right (" << m_xmf3Right.x << ", " << m_xmf3Right.y << ", " << m_xmf3Right.z << ")" << endl;
+	//cout << "m_xmf3Up (" << m_xmf3Up.x << ", " << m_xmf3Up.y << ", " << m_xmf3Up.z << ")" << endl << endl;
+
 	if (m_PiggybackState == PIGGYBACK_CRRIED)
 	{
 		XMFLOAT3 pos = m_pParter->GetPosition();

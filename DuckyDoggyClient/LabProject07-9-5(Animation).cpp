@@ -50,6 +50,12 @@ int recvn(SOCKET s, char *buf, int len, int flags);
 
 int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
 {
+#ifdef _DEBUG
+	// api에서 콘솔창 띄우기.
+	if (AllocConsole())
+		freopen("CONOUT$", "w", stdout);
+#endif
+
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
 

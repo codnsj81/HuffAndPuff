@@ -346,8 +346,10 @@ void show_allplayer()
 			count++;
 			cout << clients[i].playerinfo.id << "번째 클라이언트 : "
 				<< "좌표( "
-				<< clients[i].playerinfo.x << ", " << clients[i].playerinfo.y << ", " << clients[i].playerinfo.z << ")" 
-				<< "애니메이션셋(" << clients[i].playerinfo.animationSet << ")"<< endl;
+				<< clients[i].playerinfo.x << ", " << clients[i].playerinfo.y << ", " << clients[i].playerinfo.z << ")"
+				// << ", 애니메이션셋(" << clients[i].playerinfo.animationSet << ")"
+				<< ", xmf3Look(" << clients[i].playerinfo.l_x << ", " << clients[i].playerinfo.l_y << ", " << clients[i].playerinfo.l_z << ")"
+				<< ", xmf3Right(" << clients[i].playerinfo.r_x << ", " << clients[i].playerinfo.r_y << ", " << clients[i].playerinfo.r_z << ")" << endl;
 		}
 	}
 	cout << "현재 연결 된 클라이언트 수 : " << count << endl;

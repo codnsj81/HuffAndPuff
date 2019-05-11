@@ -87,7 +87,12 @@ struct player_info {
 	float z;
 	player_type type;
 	int animationSet = 0;
-	DWORD direction = 1;
+	float l_x;
+	float l_y;
+	float l_z;
+	float r_x;
+	float r_y;
+	float r_z;
 };
 
 #pragma pack (pop)

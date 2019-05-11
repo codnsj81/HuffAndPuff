@@ -884,6 +884,8 @@ void CGameFramework::FrameAdvance()
 	m_GameTimer.GetFrameRate(m_pszFrameRate + 12, 37);
 	size_t nLength = _tcslen(m_pszFrameRate);
 	XMFLOAT3 xmf3Position = m_pPlayer->GetPosition();
+	XMFLOAT3 xmf3Look = m_pPlayer->GetLookVector();
+	XMFLOAT3 xmf3Right = m_pPlayer->GetRightVector();
 	_stprintf_s(m_pszFrameRate + nLength, 70 - nLength, _T("(%4f, %4f, %4f)"), xmf3Position.x, xmf3Position.y, xmf3Position.z);
 	::SetWindowText(m_hWnd, m_pszFrameRate);
 
@@ -895,6 +897,8 @@ void CGameFramework::FrameAdvance()
 		playerinfo.x = xmf3Position.x; playerinfo.y = xmf3Position.y; playerinfo.z = xmf3Position.z;
 		playerinfo.type = g_myinfo.type;
 		playerinfo.animationSet = g_myinfo.animationSet;
+		playerinfo.l_x = xmf3Look.x; playerinfo.l_y = xmf3Look.y; playerinfo.l_z = xmf3Look.z;
+		playerinfo.r_x = xmf3Right.x; playerinfo.r_y = xmf3Right.y; playerinfo.r_z = xmf3Right.z;
 		int retval;
 		/// ∞Ì¡§
 		packet_info packetinfo;

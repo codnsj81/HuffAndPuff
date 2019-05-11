@@ -343,10 +343,16 @@ DWORD __stdcall RecvThread(LPVOID arg)
 			if (g_myinfo.type == player_doggy) {
 				gGameFramework.SetPlayerPos(player_ducky, XMFLOAT3{ g_otherinfo.x, g_otherinfo.y, g_otherinfo.z });
 				gGameFramework.SetPlayerAnimationSet(player_ducky, g_otherinfo.animationSet);
+				gGameFramework.SetPlayerDirection(player_ducky,
+					XMFLOAT3{ g_otherinfo.l_x , g_otherinfo.l_y, g_otherinfo.l_z },
+					XMFLOAT3{ g_otherinfo.r_x , g_otherinfo.r_y, g_otherinfo.r_z });
 			}
 			else {
 				gGameFramework.SetPlayerPos(player_doggy, XMFLOAT3{ g_otherinfo.x, g_otherinfo.y, g_otherinfo.z });
 				gGameFramework.SetPlayerAnimationSet(player_doggy, g_otherinfo.animationSet);
+				gGameFramework.SetPlayerDirection(player_doggy,
+					XMFLOAT3{ g_otherinfo.l_x , g_otherinfo.l_y, g_otherinfo.l_z },
+					XMFLOAT3{ g_otherinfo.r_x , g_otherinfo.r_y, g_otherinfo.r_z });
 			}
 		}
 		break;
@@ -359,10 +365,16 @@ DWORD __stdcall RecvThread(LPVOID arg)
 			if (g_myinfo.type == player_doggy) {
 				gGameFramework.SetPlayerPos(player_ducky, XMFLOAT3{ g_otherinfo.x, g_otherinfo.y, g_otherinfo.z });
 				gGameFramework.SetPlayerAnimationSet(player_ducky, g_otherinfo.animationSet);
+				gGameFramework.SetPlayerDirection(player_ducky,
+					XMFLOAT3{ g_otherinfo.l_x , g_otherinfo.l_y, g_otherinfo.l_z },
+					XMFLOAT3{ g_otherinfo.r_x , g_otherinfo.r_y, g_otherinfo.r_z });
 			}
 			else {
 				gGameFramework.SetPlayerPos(player_doggy, XMFLOAT3{ g_otherinfo.x, g_otherinfo.y, g_otherinfo.z });
 				gGameFramework.SetPlayerAnimationSet(player_doggy, g_otherinfo.animationSet);
+				gGameFramework.SetPlayerDirection(player_doggy,
+					XMFLOAT3{ g_otherinfo.l_x , g_otherinfo.l_y, g_otherinfo.l_z },
+					XMFLOAT3{ g_otherinfo.r_x , g_otherinfo.r_y, g_otherinfo.r_z });
 			}
 		}
 		break;

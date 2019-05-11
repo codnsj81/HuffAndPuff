@@ -505,20 +505,22 @@ void CGameFramework::SetPlayerAnimationSet(player_type eType, int animationSet)
 	}
 }
 
-void CGameFramework::SetPlayerDirection(player_type eType, DWORD dir)
+void CGameFramework::SetPlayerDirection(player_type eType, XMFLOAT3 l, XMFLOAT3 r)
 {
 	switch (eType) {
 	case player_ducky:
 	{
 		if (m_pDucky != nullptr) {
-
+			m_pDucky->SetLookVector(l);
+			m_pDucky->SetRightVector(r);
 		}
 	}
 	break;
 	case player_doggy:
 	{
 		if (m_pDoggy != nullptr) {
-
+			m_pDoggy->SetLookVector(l);
+			m_pDoggy->SetRightVector(r);
 		}
 	}
 	break;

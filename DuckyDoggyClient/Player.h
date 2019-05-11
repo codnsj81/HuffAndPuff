@@ -79,9 +79,9 @@ public:
 	XMFLOAT3 GetUpVector() { return(m_xmf3Up); }
 	XMFLOAT3 GetRightVector() { return(m_xmf3Right); }
 
-	void SetLookVector(XMFLOAT3 xmf3Look) { m_xmf3Look = xmf3Look; }
-	void SetUpVector(XMFLOAT3 xmf3Up) { m_xmf3Up = xmf3Up; }
-	void SetRightVector(XMFLOAT3 xmf3Right) { m_xmf3Right = xmf3Right; }
+	void SetLookVector(XMFLOAT3 xmf3Look);
+	void SetUpVector(XMFLOAT3 xmf3Up);
+	void SetRightVector(XMFLOAT3 xmf3Right);
 
 	
 	int GetMoveState() { return m_moveState; }

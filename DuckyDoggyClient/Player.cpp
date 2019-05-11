@@ -39,6 +39,21 @@ CPlayer::~CPlayer()
 	if (m_pCamera) delete m_pCamera;
 }
 
+void CPlayer::SetLookVector(XMFLOAT3 xmf3Look)
+{
+	m_xmf3Look = xmf3Look;
+}
+
+void CPlayer::SetUpVector(XMFLOAT3 xmf3Up)
+{
+	m_xmf3Up = xmf3Up;
+}
+
+void CPlayer::SetRightVector(XMFLOAT3 xmf3Right)
+{
+	m_xmf3Right = xmf3Right;
+}
+
 void CPlayer::SetCheatMode()
 {
 	if (m_bCheatmode)
@@ -232,11 +247,19 @@ void CPlayer::Rotate(float x, float y, float z)
 			if (m_fRoll < -20.0f) { z -= (m_fRoll + 20.0f); m_fRoll = -20.0f; }
 		}
 		m_pCamera->Rotate(x, y, z);
+
 		if (y != 0.0f)
 		{
-			XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(y));
-			m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
-			m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
+			if (!g_myinfo.connected) { // 서버 연결 안 된 stand alone 상태일 때는. 테스트용.
+				XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(y));
+				m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
+				m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
+			}
+			if (m_ismain) { // 메인 클라이언트 플레이어만 회전되도록.
+				XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(y));
+				m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
+				m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
+			}
 		}
 	}
 	else if (nCurrentCameraMode == SPACESHIP_CAMERA)

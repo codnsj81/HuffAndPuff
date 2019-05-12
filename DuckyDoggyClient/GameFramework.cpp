@@ -605,6 +605,13 @@ void CGameFramework::BuildUI()
 
 	m_pCamera->m_UIList = m_UIList;
 
+
+	m_pOverUI = new CStartUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 4, 4, XMFLOAT3(1999, m_pScene->m_pTerrain->GetHeight(1999, 972), 972), L"Model/Textures/GAMEOVER.tiff");
+	m_pOverUI->SetWinpos(-2.5, 0);
+	(m_pOverUI)->bRender = false;
+	(m_pOverUI)->Trigger = false;
+
+
 }
 
 void CGameFramework::OnDestroy()
@@ -864,6 +871,9 @@ void CGameFramework::FrameAdvance()
 	}
 
 
+	if (m_pOverUI->bRender) 
+		m_pOverUI->Render(m_pd3dCommandList, m_pCamera);
+
 	CWater** m_ppWaters = m_pScene->GetWaters();
 	for (int i = 0; i < 2; i++)
 	{
@@ -872,7 +882,6 @@ void CGameFramework::FrameAdvance()
 			m_ppWaters[i]->Render(m_pd3dCommandList, m_pCamera);
 		}
 	}
-
 	d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
 	d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
 	d3dResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
@@ -903,6 +912,35 @@ void CGameFramework::FrameAdvance()
 //	m_nSwapChainBufferIndex = m_pdxgiSwapChain->GetCurrentBackBufferIndex();
 	MoveToNextFrame();
 
+
+	if (m_bPlaying) {
+
+		if (m_pDoggy->GetHp() <= 0 || m_pDucky->GetHp() <= 0)
+		{
+			m_bPlaying = false;
+			m_pOverUI->bRender = true;
+			(m_pOverUI)->Trigger = true;
+			m_pPlayer->GetCamera()->m_pOverUI = m_pOverUI;
+		}
+	}
+
+	else
+	{
+		m_pOverUI->Update(m_GameTimer.GetTimeElapsed());
+		m_overCountDown += m_GameTimer.GetTimeElapsed();
+		if (m_overCountDown >= 3.f)
+		{
+			m_pDoggy->SetPosition(XMFLOAT3(INITPOSITION_X, \
+				m_pScene->m_pTerrain->GetHeight(INITPOSITION_X, INITPOSITION_Z), INITPOSITION_Z)); //시작위치
+			m_pDucky->SetPosition(XMFLOAT3(INITPOSITION_X, \
+				m_pScene->m_pTerrain->GetHeight(INITPOSITION_X, INITPOSITION_Z), INITPOSITION_Z)); //시작위치
+			m_bPlaying = true;
+			m_pDoggy->SetFullHP();
+			m_pDucky->SetFullHP();
+	
+		}
+	}
+
 	m_GameTimer.GetFrameRate(m_pszFrameRate + 12, 37);
 	size_t nLength = _tcslen(m_pszFrameRate);
 	XMFLOAT3 xmf3Position = m_pPlayer->GetPosition();
@@ -921,7 +959,6 @@ void CGameFramework::FrameAdvance()
 		playerinfo.animationSet = g_myinfo.animationSet;
 		playerinfo.l_x = xmf3Look.x; playerinfo.l_y = xmf3Look.y; playerinfo.l_z = xmf3Look.z;
 		playerinfo.r_x = xmf3Right.x; playerinfo.r_y = xmf3Right.y; playerinfo.r_z = xmf3Right.z;
-		playerinfo.piggybackstate = g_myinfo.piggybackstate;
 		int retval;
 		/// 고정
 		packet_info packetinfo;

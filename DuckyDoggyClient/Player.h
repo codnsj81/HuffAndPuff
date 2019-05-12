@@ -126,6 +126,8 @@ public:
 	void Move(float fxOffset = 0.0f, float fyOffset = 0.0f, float fzOffset = 0.0f);
 	void Rotate(float x, float y, float z);
 
+	void SetFullHP() { m_iHP = 100; }
+
 	void OnObject(float fy);
 	void Update(float fTimeElapsed);
 

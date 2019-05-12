@@ -47,6 +47,9 @@ CCamera::CCamera(CCamera *pCamera)
 		m_nMode = 0x00;
 		m_pPlayer = NULL;
 	}
+
+
+
 }
 
 CCamera::~CCamera()
@@ -318,5 +321,14 @@ void CThirdPersonCamera::SetLookAt(XMFLOAT3& xmf3LookAt)
 			t->Rotate(90, 0, 0);
 		//	t->m_xmf4x4ToParent = Matrix4x4::OrthoFovLH(800, 600, 0, 1);
 		}
+	}
+	if (m_pOverUI)
+	{
+		m_pOverUI->m_xmf4x4ToParent = xmf4x4Rotate;
+		m_pOverUI->SetPosition(GetPosition());
+		m_pOverUI->MoveForward(20);
+		m_pOverUI->MoveStrafe(m_pOverUI->m_fWinposx);
+		m_pOverUI->MoveUp(m_pOverUI->m_fWinposy);
+		m_pOverUI->Rotate(90, 0, 0);
 	}
 }

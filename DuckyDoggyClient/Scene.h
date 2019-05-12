@@ -14,6 +14,8 @@
 #define DIRECTIONAL_LIGHT				3
 
 class CMonster;
+class CStartUI;
+
 struct StoneInfo
 {
 	int							m_iType;
@@ -79,6 +81,7 @@ public:
 	CPlayer								*m_pPlayer = NULL;
 	CPlayer								*m_pDoggy;
 	CPlayer								*m_pDucky;
+
 
 	void PlusTreeData();
 	void SaveTreeData();

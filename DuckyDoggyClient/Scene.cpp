@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include "Scene.h"
 #include "CMonster.h"
+#include "CUI.h"
 
 ID3D12DescriptorHeap *CScene::m_pd3dCbvSrvDescriptorHeap = NULL;
 
@@ -53,7 +54,6 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature); 
 
 	BuildDefaultLightsAndMaterials();
-
 
 	XMFLOAT3 xmf3Scale(8.0f, 3.0f, 8.0f);
 	XMFLOAT4 xmf4Color(0.3f, 0.3f, 0.3f, 0.0f);
@@ -383,6 +383,8 @@ void CScene::ReleaseUploadBuffers()
 	{
 		n->ReleaseUploadBuffers();
 	}
+	for (auto n : M_MonsterObjectslist)
+		n->ReleaseShaderVariables();
 }
 
 void CScene::PlusTreeData()
@@ -710,24 +712,24 @@ bool CScene::ProcessInput(UCHAR *pKeysBuffer)
 void CScene::AnimateObjects(float fTimeElapsed)
 {
 	m_fElapsedTime = fTimeElapsed;
+	
 
-
-	for (auto p : M_MonsterObjectslist)
-	{
-		p->Animate(m_fElapsedTime);
-		p->UpdateTransform(NULL);
-
-		XMFLOAT3 pos1 = p->GetPosition();
-		XMFLOAT3 pos2 = m_pPlayer->GetPosition();
-		float distance = Vector3::Length(Vector3::Subtract(pos1, pos2));
-		if (distance < p->GetAggroDistance())
+		for (auto p : M_MonsterObjectslist)
 		{
-			p->setRecognitionMode(true);
-			p->FollowingPosition = pos2;
+			p->Animate(m_fElapsedTime);
+			p->UpdateTransform(NULL);
+
+			XMFLOAT3 pos1 = p->GetPosition();
+			XMFLOAT3 pos2 = m_pPlayer->GetPosition();
+			float distance = Vector3::Length(Vector3::Subtract(pos1, pos2));
+			if (distance < p->GetAggroDistance())
+			{
+				p->setRecognitionMode(true);
+				p->FollowingPosition = pos2;
+			}
+			else
+				p->setRecognitionMode(false);
 		}
-		else
-			p->setRecognitionMode(false);
-	}
 
 }
 
@@ -767,7 +769,6 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 		p->UpdateTransform(NULL);
 		p->Render(pd3dCommandList, pCamera);
 	}
-
 
 	for (int i = 0; i < m_nShaders; i++) if (m_ppShaders[i]) m_ppShaders[i]->Render(pd3dCommandList, pCamera);
 }

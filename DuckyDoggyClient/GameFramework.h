@@ -108,5 +108,12 @@ private:
 
 	// network
 	DWORD					m_dwUpdatecnt = 0;
+
+
+
+	bool								m_bPlaying = true;
+	float								m_overCountDown = 0;
+
+	CStartUI*							m_pOverUI = NULL;
 };
 

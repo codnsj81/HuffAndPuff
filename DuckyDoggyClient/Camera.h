@@ -15,6 +15,7 @@ struct VS_CB_CAMERA_INFO
 
 class CPlayer;
 class CUI;
+class CStartUI;
 
 class CCamera
 {
@@ -44,12 +45,14 @@ protected:
 	ID3D12Resource					*m_pd3dcbCamera = NULL;
 	VS_CB_CAMERA_INFO				*m_pcbMappedCamera = NULL;
 
+
 public:
 	CCamera();
 	CCamera(CCamera *pCamera);
 	virtual ~CCamera();
 
 	list<CUI*>					*m_UIList = NULL;
+	CStartUI*					m_pOverUI = NULL;
 
 	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	virtual void ReleaseShaderVariables();

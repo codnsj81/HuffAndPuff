@@ -65,6 +65,9 @@ public:
 	void Update();
 	void SetDuckyNDoggy(CPlayer* ducky, CPlayer* doggy, CPlayer* player);
 
+	void PlayerAttack();
+
+
 	ID3D12RootSignature *CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
 	ID3D12RootSignature *GetGraphicsRootSignature() { return(m_pd3dGraphicsRootSignature); }
 	

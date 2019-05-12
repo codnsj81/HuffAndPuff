@@ -294,6 +294,9 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 			::SetCapture(hWnd);
 			::GetCursorPos(&m_ptOldCursorPos);
 			break;
+		case WM_RBUTTONDOWN:
+			m_pScene->PlayerAttack();
+			break;
 		case WM_LBUTTONUP:
 		case WM_RBUTTONUP:
 			::ReleaseCapture();
@@ -352,6 +355,7 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 				case 'L':
 					m_pPlayer->PlusSkillGage(5);
 					break;
+					
 				default:
 					break;
 			}

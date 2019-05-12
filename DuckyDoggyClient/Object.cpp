@@ -511,6 +511,13 @@ void CGameObject::SetChild(CGameObject *pChild, bool bReferenceUpdate)
 	}
 }
 
+void CGameObject::SetAnimationSpeed(float a)
+{
+	for (int i  = 0 ; i<m_pAnimationController->m_nAnimationSets; i++)
+	m_pAnimationController->m_pAnimationSets[i].m_fSpeed = a;
+
+}
+
 void CGameObject::SetMesh(CMesh *pMesh)
 {
 	if (m_pMesh) m_pMesh->Release();

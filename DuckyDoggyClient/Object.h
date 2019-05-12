@@ -305,6 +305,7 @@ public:
 	CGameObject 					*m_pChild = NULL;
 	CGameObject 					*m_pSibling = NULL;
 
+	void SetAnimationSpeed(float a);
 	void SetMesh(CMesh *pMesh);
 	void SetShader(CShader *pShader);
 	void SetShader(int nMaterial, CShader *pShader);

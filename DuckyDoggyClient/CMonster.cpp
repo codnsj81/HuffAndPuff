@@ -56,8 +56,17 @@ void CMonster::Animate(float fTimeElapsed)
 	if (!m_bRecognition)
 		SetAnimationSet(0);
 	else
+	{
 		SetAnimationSet(1);
+	}
 
+}
+
+void CMonster::Damage(int dam)
+{
+	m_iHp -= dam;
+	if (m_iHp < 0)
+		m_bDeath = true;
 }
 
 CSnake::CSnake()
@@ -70,6 +79,21 @@ CSnake::CSnake()
 void CSnake::Animate(float fTimeElapsed)
 {
 	CMonster::Animate(fTimeElapsed);
+	if (m_bRecognition)
+	{
+
+		XMFLOAT3 xmf3Position = GetPosition();
+
+		XMFLOAT3 xmf3Look = GetLook();
+		XMFLOAT3 xmf3ToTarget = Vector3::Subtract(FollowingPosition, xmf3Position, true);
+		float fDotProduct = Vector3::DotProduct(xmf3Look, xmf3ToTarget);
+		float fAngle = ::IsEqual(fDotProduct, 1.0f) ? 0.0f : ((fDotProduct > 0.0f) ? XMConvertToDegrees(acos(fDotProduct)) : 90.0f);
+		XMFLOAT3 xmf3CrossProduct = Vector3::CrossProduct(xmf3Look, xmf3ToTarget);
+		//	if (fAngle != 0.0f) Rotate(0.0f, fAngle * fElapsedTime * ((xmf3CrossProduct.y > 0.0f) ? 1.0f : -1.0f), 0.0f);
+		Rotate(0.0f, fAngle * fTimeElapsed * ((xmf3CrossProduct.y > 0.0f) ? 1.0f : -1.0f), 0.0f);
+			SetPosition(Vector3::Add(xmf3Position, Vector3::ScalarProduct(xmf3Look, 10 * fTimeElapsed)));
+
+	}
 }
 
 int CSnake::getCollision(CPlayer * player)

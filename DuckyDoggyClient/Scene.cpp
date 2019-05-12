@@ -151,6 +151,23 @@ void CScene::SetDuckyNDoggy(CPlayer * ducky, CPlayer * doggy, CPlayer * player)
 	m_pPlayer = player;
 }
 
+void CScene::PlayerAttack()
+{
+
+	for (auto p : M_MonsterObjectslist)
+	{
+		XMFLOAT3 pos1 = p->GetPosition();
+		XMFLOAT3 pos2 = m_pPlayer->GetPosition();
+		float distance = Vector3::Length(Vector3::Subtract(pos1, pos2));
+		if (distance < 10)
+		{
+			p->Damage(m_pPlayer->GetAtt());
+		}
+	}
+
+
+}
+
 ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevice)
 {
 	ID3D12RootSignature *pd3dGraphicsRootSignature = NULL;
@@ -450,7 +467,7 @@ void CScene::SaveStoneData()
 void CScene::BuildMonsterList(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
 {
 	CGameObject *pMonster = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/snake.bin", NULL, true);
-
+	pMonster->SetAnimationSpeed(0.5f);
 	CMonster* obj = new CSnake();
 	obj->SetChild(pMonster, true);
 	obj->SetPosition(XMFLOAT3(150,m_pTerrain->GetHeight(150, 374), 374));
@@ -712,23 +729,31 @@ bool CScene::ProcessInput(UCHAR *pKeysBuffer)
 void CScene::AnimateObjects(float fTimeElapsed)
 {
 	m_fElapsedTime = fTimeElapsed;
-	
+	list<CMonster*>::iterator iter = M_MonsterObjectslist.begin();
+	list<CMonster*>::iterator end = M_MonsterObjectslist.end();
 
-		for (auto p : M_MonsterObjectslist)
+		for (iter;iter!=end; iter++)
 		{
-			p->Animate(m_fElapsedTime);
-			p->UpdateTransform(NULL);
+			if ((*iter)->GetDeathState())
+			{
+				iter = M_MonsterObjectslist.erase(iter);
+				if(iter == end )
+					break;
+			}
+				
+			(*iter)->Animate(m_fElapsedTime);
+			(*iter)->UpdateTransform(NULL);
 
-			XMFLOAT3 pos1 = p->GetPosition();
+			XMFLOAT3 pos1 = (*iter)->GetPosition();
 			XMFLOAT3 pos2 = m_pPlayer->GetPosition();
 			float distance = Vector3::Length(Vector3::Subtract(pos1, pos2));
-			if (distance < p->GetAggroDistance())
+			if (distance < (*iter)->GetAggroDistance())
 			{
-				p->setRecognitionMode(true);
-				p->FollowingPosition = pos2;
+				(*iter)->setRecognitionMode(true);
+				(*iter)->FollowingPosition = pos2;
 			}
 			else
-				p->setRecognitionMode(false);
+				(*iter)->setRecognitionMode(false);
 		}
 
 }

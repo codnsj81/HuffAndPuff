@@ -65,7 +65,7 @@ protected:
 	int							m_iSkillGage = 0;
 	
 
-
+	int							m_iAtt = 50;
 	float							m_iHP = 100.f;
 	XMFLOAT3					m_predictedPos = XMFLOAT3(0.0f, 0.0f, 0.0f);
 
@@ -73,6 +73,7 @@ public:
 	CPlayer();
 	virtual ~CPlayer();
 
+	int	GetAtt() { return m_iAtt; }
 	XMFLOAT3 GetPrecdictedPos() { return m_predictedPos; }
 	XMFLOAT3 GetPosition() { return(m_xmf3Position); }
 	XMFLOAT3 GetLookVector() { return(m_xmf3Look); }

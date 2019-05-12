@@ -437,7 +437,7 @@ void CScene::PlusStoneData()
 
 void CScene::SaveStoneData()
 {
-	fstream out("StoneData2.txt", ios::out | ios::binary);
+	fstream out("StoneData.txt", ios::out | ios::binary);
 	for (auto n : StoneDataList)
 	{
 		out <<n.m_iType << " " << n.m_pos.x << " " << n.m_pos.y  <<" " << n.m_pos.z << " "
@@ -451,8 +451,9 @@ void CScene::BuildMonsterList(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLis
 
 	CGameObject* obj = new CMonster();
 	obj->SetChild(pMonster, true);
-	obj->SetPosition(XMFLOAT3(62,m_pTerrain->GetHeight(62, 400), 400));
-	obj->SetHitBox(XMFLOAT3(3.f, 3.f, 40.f));
+	obj->SetPosition(XMFLOAT3(96,m_pTerrain->GetHeight(96, 374), 374));
+	obj->SetScale(2, 2, 2);
+	obj->SetHitBox(XMFLOAT3(3.f, 3.f, 8.f));
 	M_MonsterObjectslist.push_back(obj);
 
 }
@@ -711,7 +712,12 @@ void CScene::AnimateObjects(float fTimeElapsed)
 {
 	m_fElapsedTime = fTimeElapsed;
 
-	for (int i = 0; i < m_nShaders; i++) if (m_ppShaders[i]) m_ppShaders[i]->AnimateObjects(fTimeElapsed);
+
+	for (auto p : M_MonsterObjectslist)
+	{
+		p->Animate(m_fElapsedTime);
+
+	}
 
 }
 
@@ -745,7 +751,6 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 	for (auto p : M_MonsterObjectslist)
 	{
 		p->Update();
-		p->Animate(m_fElapsedTime);
 		p->UpdateTransform(NULL);
 		p->Render(pd3dCommandList, pCamera);
 	}

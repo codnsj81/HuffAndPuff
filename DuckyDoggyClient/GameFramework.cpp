@@ -767,6 +767,7 @@ void CGameFramework::AnimateObjects()
 
 	m_pPlayer->Animate(fTimeElapsed);
 	m_pPlayer->UpdateTransform(NULL);
+	m_pScene->AnimateObjects(fTimeElapsed);
 
 	if (g_myinfo.connected == false)
 		return;

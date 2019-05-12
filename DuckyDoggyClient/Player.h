@@ -89,7 +89,7 @@ public:
 	int GetSkillGage() { return m_iSkillGage; }
 	
 	float	GetHp() { return m_iHP; }
-	void Damage(int d) { m_iHP -= d; }
+	void Damage(int d); 
 	void PlusSkillGage(int d);
 
 	void SetFriction(float fFriction) { m_fFriction = fFriction; }

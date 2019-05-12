@@ -15,6 +15,7 @@
 
 struct StoneInfo
 {
+	int							m_iType;
 	XMFLOAT3					m_pos;
 	XMFLOAT3					m_size;
 };

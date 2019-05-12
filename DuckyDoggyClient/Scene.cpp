@@ -423,11 +423,14 @@ void CScene::SaveGrassData()
 
 void CScene::PlusStoneData()
 {
+	
 	StoneInfo playerPos;
 	playerPos.m_pos.x = m_pPlayer->GetPosition().x;
 	playerPos.m_pos.y = m_pPlayer->GetPosition().y ;
 	playerPos.m_pos.z = m_pPlayer->GetPosition().z;
-	playerPos.m_size = XMFLOAT3(4.f, 4.f, 4.f);
+	playerPos.m_size = XMFLOAT3(1.f, 1.f, 1.f);
+	playerPos.m_iType = (int)rand() % 3 + 1;
+
 	StoneDataList.push_back(playerPos);
 
 }
@@ -435,10 +438,9 @@ void CScene::PlusStoneData()
 void CScene::SaveStoneData()
 {
 	fstream out("StoneData.txt", ios::out | ios::binary);
-
 	for (auto n : StoneDataList)
 	{
-		out << n.m_pos.x << " " << n.m_pos.y  <<" " << n.m_pos.z << " "
+		out <<n.m_iType << " " << n.m_pos.x << " " << n.m_pos.y  <<" " << n.m_pos.z << " "
 			<< n.m_size.x << " "<< n.m_size.y<<" " << n.m_size.z  << endl;
 	}
 }
@@ -568,11 +570,16 @@ void CScene::LoadStone(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd
 {
 
 	CGameObject *pStone = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Rock.bin", NULL, false);
+	CGameObject *pStone2 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/rock4.bin", NULL, false);
+	CGameObject *pStone3 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/rock3.bin", NULL, false);
+	CGameObject *pStone4 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/rock5.bin", NULL, false);
 
+	StoneInfo dat;
+	int type = 1;
 	fstream in("StoneData.txt", ios::in | ios::binary);
 	while (in)
 	{
-		StoneInfo dat;
+		in >> dat.m_iType;
 		in >> dat.m_pos.x;
 		in >> dat.m_pos.y;
 		in >> dat.m_pos.z;
@@ -590,10 +597,29 @@ void CScene::LoadStone(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd
 	{
 		float RandomRotate = rand() % 360;
 		CGameObject* obj = new CGameObject();
-		obj->SetChild(pStone, true);
+		
+		switch (iter->m_iType)
+		{
+		case 0:
+			obj->SetChild(pStone, true);
+			obj->SetHitBox(XMFLOAT3(3.f * iter->m_size.x, 0.8f * iter->m_size.y, 3.f * iter->m_size.z));
+			break;
+		case 1:
+			obj->SetChild(pStone2, true);
+			obj->SetHitBox(XMFLOAT3(6 * iter->m_size.x,4 * iter->m_size.y,6 * iter->m_size.z));
+			break;
+		case 2:
+			obj->SetChild(pStone3, true);
+			obj->SetHitBox(XMFLOAT3(5 * iter->m_size.x,5 * iter->m_size.y, 5 * iter->m_size.z));
+			break;
+		case 3:
+			obj->SetChild(pStone4, true);
+			obj->SetHitBox(XMFLOAT3(8 * iter->m_size.x, 3 * iter->m_size.y, 8 * iter->m_size.z));
+			break;
+		}
+
 		obj->SetPosition(iter->m_pos.x, iter->m_pos.y+3, iter->m_pos.z);
 		obj->SetScale(iter->m_size.x, iter->m_size.y, iter->m_size.z);
-		obj->SetHitBox(XMFLOAT3(3.f * iter->m_size.x , 0.8f * iter->m_size.y, 3.f * iter->m_size.z));
 		m_StoneObjectslist.push_back(obj);
 	}
 }

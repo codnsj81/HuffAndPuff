@@ -339,10 +339,10 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 					break;
 				case 't':
 				case 'T':
-					m_pScene->PlusTreeData();
+					m_pScene->PlusStoneData();
 					break;
 				case 'Y':
-					m_pScene->SaveTreeData();
+					m_pScene->SaveStoneData();
 					break;
 				case 'O':
 				case 'o':
@@ -443,19 +443,14 @@ void CGameFramework::SetPlayerType(player_type eType)
 		switch (eType) {
 		case player_doggy:
 			m_pScene->m_pPlayer = m_pPlayer = m_pDoggy;
-			m_pCamera->m_UIList = NULL;
 			m_pCamera = m_pPlayer->GetCamera();
-			m_pCamera->m_UIList = m_UIList;
 			//g_myinfo.x = m_pPlayer->GetPosition().x;
 			//g_myinfo.y = m_pPlayer->GetPosition().y;
 			//g_myinfo.z = m_pPlayer->GetPosition().z;
 			break;
 		case player_ducky:
 			m_pScene->m_pPlayer = m_pPlayer = m_pDucky;
-			m_pCamera->m_UIList = NULL;
 			m_pCamera = m_pPlayer->GetCamera();
-			m_pCamera->m_UIList = m_UIList;
-
 			//g_myinfo.x = m_pPlayer->GetPosition().x;
 			//g_myinfo.y = m_pPlayer->GetPosition().y;
 			//g_myinfo.z = m_pPlayer->GetPosition().z;
@@ -470,7 +465,7 @@ void CGameFramework::SetPlayerPos(player_type eType, XMFLOAT3 pos)
 		switch (eType) {
 		case player_ducky:
 		{
-			if (m_pDucky != nullptr)
+			if(m_pDucky !=nullptr)
 				m_pDucky->SetPosition_async(pos);
 		}
 		break;
@@ -696,7 +691,6 @@ void CGameFramework::ProcessInput()
 {
 	static UCHAR pKeysBuffer[256];
 	bool bProcessedByScene = false;
-	float fSpeed = 3.5f;
 	if (GetKeyboardState(pKeysBuffer) && m_pScene) 
 		bProcessedByScene = m_pScene->ProcessInput(pKeysBuffer);
 	if (!bProcessedByScene)
@@ -715,10 +709,7 @@ void CGameFramework::ProcessInput()
 		if ((pKeysBuffer['D'] & 0xF0) || (pKeysBuffer['d'] & 0xF0)) {
 			dwDirection |= DIR_RIGHT;
 		}
-		if (pKeysBuffer[16] & 0xF0) {
-			fSpeed = 7.f;
-		}
-		
+
 		float cxDelta = 0.0f, cyDelta = 0.0f;
 		POINT ptCursorPos;
 		if (GetCapture() == m_hWnd)
@@ -737,7 +728,7 @@ void CGameFramework::ProcessInput()
 				m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
 			}
 			if (dwDirection) {
-				m_pPlayer->Move(dwDirection, fSpeed, true);
+				m_pPlayer->Move(dwDirection, 3.25f, true);
 				AnimateObjects();
 			}
 		}

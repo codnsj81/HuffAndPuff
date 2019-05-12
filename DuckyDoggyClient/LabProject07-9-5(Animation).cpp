@@ -283,43 +283,43 @@ int InitializeNetwork()
 		closesocket(g_sock);
 		// Winsock End
 		WSACleanup();
-		MessageBoxW(g_hWnd, L"connect()", MB_OK, MB_OK);
-		exit(1);
+MessageBoxW(g_hWnd, L"connect()", MB_OK, MB_OK);
+exit(1);
 	}
 	else {
-		MessageBoxW(g_hWnd, L"Connected", L"알림", MB_OK);
-		g_myinfo.connected = true;
+	MessageBoxW(g_hWnd, L"Connected", L"알림", MB_OK);
+	g_myinfo.connected = true;
 
-		bool NoDelay = TRUE;
-		setsockopt(g_sock, IPPROTO_TCP, TCP_NODELAY, (const char FAR*)&NoDelay, sizeof(NoDelay));
-
-
-		// recv 전용 스레드를 만든다.
-		hThread = CreateThread(NULL, 0, RecvThread, (LPVOID)g_sock, 0, NULL);
-		if (NULL == hThread)
-			CloseHandle(hThread);
+	bool NoDelay = TRUE;
+	setsockopt(g_sock, IPPROTO_TCP, TCP_NODELAY, (const char FAR*)&NoDelay, sizeof(NoDelay));
 
 
-		//// 서버에게 클라이언트 초기 정보를 보낸다.
-		//g_myinfo.x = gGameFramework.GetPlayer()->GetPosition().x;
-		//g_myinfo.y = gGameFramework.GetPlayer()->GetPosition().y;
-		//g_myinfo.z = gGameFramework.GetPlayer()->GetPosition().z;
-		//int retval;
-		//char buf[BUFSIZE];
-		//// 고정
-		//packet_info packetinfo;
-		//packetinfo.type = cs_put_player;
-		//packetinfo.size = sizeof(player_info);
-		//packetinfo.id = -1;
-		//packetinfo.sock = g_sock;
-		//memcpy(buf, &packetinfo, sizeof(packetinfo));
-		//// 가변 (고정 데이터에 가변 데이터 붙이는 형식으로)
-		//memcpy(buf + sizeof(packetinfo), &g_myinfo, sizeof(player_info));
-		//// 전송
-		//retval = send(g_sock, buf, BUFSIZE, 0);
-		//if (retval == SOCKET_ERROR) {
-		//	MessageBoxW(g_hWnd, L"send()", L"send() - cs_put_player", MB_OK);
-		//}
+	// recv 전용 스레드를 만든다.
+	hThread = CreateThread(NULL, 0, RecvThread, (LPVOID)g_sock, 0, NULL);
+	if (NULL == hThread)
+		CloseHandle(hThread);
+
+
+	//// 서버에게 클라이언트 초기 정보를 보낸다.
+	//g_myinfo.x = gGameFramework.GetPlayer()->GetPosition().x;
+	//g_myinfo.y = gGameFramework.GetPlayer()->GetPosition().y;
+	//g_myinfo.z = gGameFramework.GetPlayer()->GetPosition().z;
+	//int retval;
+	//char buf[BUFSIZE];
+	//// 고정
+	//packet_info packetinfo;
+	//packetinfo.type = cs_put_player;
+	//packetinfo.size = sizeof(player_info);
+	//packetinfo.id = -1;
+	//packetinfo.sock = g_sock;
+	//memcpy(buf, &packetinfo, sizeof(packetinfo));
+	//// 가변 (고정 데이터에 가변 데이터 붙이는 형식으로)
+	//memcpy(buf + sizeof(packetinfo), &g_myinfo, sizeof(player_info));
+	//// 전송
+	//retval = send(g_sock, buf, BUFSIZE, 0);
+	//if (retval == SOCKET_ERROR) {
+	//	MessageBoxW(g_hWnd, L"send()", L"send() - cs_put_player", MB_OK);
+	//}
 
 	}
 }
@@ -354,7 +354,7 @@ DWORD __stdcall RecvThread(LPVOID arg)
 		}
 		// 가변 길이. 
 		switch (packetinfo.type) {
-		case sc_notify_yourinfo: 
+		case sc_notify_yourinfo:
 		{
 			int id = g_myinfo.id = packetinfo.id;			// playerinfo의 주인의 id를 받아온다.
 			memcpy(&(g_myinfo), buf + sizeof(packetinfo), sizeof(g_myinfo));
@@ -367,19 +367,27 @@ DWORD __stdcall RecvThread(LPVOID arg)
 		{
 			int id = packetinfo.id;			// playerinfo의 주인의 id를 받아온다.
 			memcpy(&(g_otherinfo), buf + sizeof(packetinfo), sizeof(g_otherinfo));
-			// 1)
-			//if (g_myinfo.type == player_doggy)
-			//	gGameFramework.GetDucky()->SetPosition(XMFLOAT3{ g_otherinfo.x, g_otherinfo.y, g_otherinfo.z });
-			//else
-			//	gGameFramework.GetDoggy()->SetPosition(XMFLOAT3{ g_otherinfo.x, g_otherinfo.y, g_otherinfo.z });
-			// 2)
 			if (g_myinfo.type == player_doggy) {
 				gGameFramework.SetPlayerPos(player_ducky, XMFLOAT3{ g_otherinfo.x, g_otherinfo.y, g_otherinfo.z });
 				gGameFramework.SetPlayerAnimationSet(player_ducky, g_otherinfo.animationSet);
 				gGameFramework.SetPlayerDirection(player_ducky,
 					XMFLOAT3{ g_otherinfo.l_x , g_otherinfo.l_y, g_otherinfo.l_z },
 					XMFLOAT3{ g_otherinfo.r_x , g_otherinfo.r_y, g_otherinfo.r_z });
-				gGameFramework.SetPiggyBackState(player_ducky, g_otherinfo.piggybackstate);
+
+				// 업어주기 동기화
+				/// 도기가 메인일 때, 더기는 piggybackstate = PIGGYBACK_CARRIED가 됨으로써, 서버에서 받아오는 더기의 단독 위치를 가질 수 없어야 해.
+				// gGameFramework.SetPiggyBackState(player_ducky, g_otherinfo.piggybackstate);
+				/// 도기가 메인일 때, 더기의 piggybackstate가 PIGGYBACK_CARRY일 때는, 도기의 piggybackstate가 PIGGYBACK_CARRIED가 되어야 해.
+				if (g_otherinfo.piggybackstate == PIGGYBACK_CARRY) {
+					if ((gGameFramework.GetDucky())->GetPiggyBackState() != PIGGYBACK_CRRIED) { /// 딱 한 번만 set 해주어야 해.
+						gGameFramework.SetPiggyBackState(player_doggy, PIGGYBACK_CRRIED);
+					}
+				}
+				/// 도기가 메인일 때, 더기의 piggybackstate가 PIGGYBACK_NONE인데 도기가 여전히 CARRIED 상태일 때는, 도기의 piggybackstate를 NONE으로 해 주어야 해. 
+				if (g_otherinfo.piggybackstate == PIGGYBACK_NONE && (gGameFramework.GetDoggy())->GetPiggyBackState() == PIGGYBACK_CRRIED) {
+					gGameFramework.SetPiggyBackState(player_doggy, PIGGYBACK_NONE);
+				}
+
 			}
 			else {
 				gGameFramework.SetPlayerPos(player_doggy, XMFLOAT3{ g_otherinfo.x, g_otherinfo.y, g_otherinfo.z });
@@ -387,7 +395,19 @@ DWORD __stdcall RecvThread(LPVOID arg)
 				gGameFramework.SetPlayerDirection(player_doggy,
 					XMFLOAT3{ g_otherinfo.l_x , g_otherinfo.l_y, g_otherinfo.l_z },
 					XMFLOAT3{ g_otherinfo.r_x , g_otherinfo.r_y, g_otherinfo.r_z });
-				gGameFramework.SetPiggyBackState(player_doggy, g_otherinfo.piggybackstate);
+				// 업어주기 동기화
+				/// 더기가 메인일 때, 도기는 piggybackstate = PIGGYBACK_CARRIED가 됨으로써, 서버에서 받아오는 도기의 단독 위치를 가질 수 없어야 해.
+				// gGameFramework.SetPiggyBackState(player_doggy, g_otherinfo.piggybackstate);
+				/// 더기가 메인일 때, 도기의 piggybackstate가 PIGGYBACK_CARRY일 때는, 더기의 piggybackstate가 PIGGYBACK_CARRIED가 되어야 해.
+				if (g_otherinfo.piggybackstate == PIGGYBACK_CARRY) {
+					if ((gGameFramework.GetDucky())->GetPiggyBackState() != PIGGYBACK_CRRIED) { /// 딱 한 번만 set 해주어야 해.
+						gGameFramework.SetPiggyBackState(player_ducky, PIGGYBACK_CRRIED);
+					}
+				}
+				/// 더기가 메인일 때, 도기의 piggybackstate가 PIGGYBACK_NONE인데 더기가 여전히 CARRIED 상태일 때는, 더기의 piggybackstate를 NONE으로 해 주어야 해. 
+				if (g_otherinfo.piggybackstate == PIGGYBACK_NONE && (gGameFramework.GetDucky())->GetPiggyBackState() == PIGGYBACK_CRRIED) {
+					gGameFramework.SetPiggyBackState(player_ducky, PIGGYBACK_NONE);
+				}
 			}
 		}
 		break;

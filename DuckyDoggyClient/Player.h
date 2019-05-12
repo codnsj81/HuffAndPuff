@@ -102,6 +102,8 @@ public:
 	void SetScale(XMFLOAT3& xmf3Scale) { m_xmf3Scale = xmf3Scale; }
 	void SetPiggyBackState(int state) { m_PiggybackState = state; }
 
+	int GetPiggyBackState() { return m_PiggybackState; }
+
 	void GivePiggyBack();
 	void CollideSide();
 

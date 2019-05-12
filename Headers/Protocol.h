@@ -62,9 +62,9 @@ struct sc_packet_move_player {
 
 //
 enum packet_type {
-	sc_login_ok, sc_put_player, sc_notify_yourinfo, sc_notify_playerinfo,
+	sc_login_ok, sc_put_player, sc_notify_yourinfo, sc_notify_playerinfo, sc_piggybackstate,
 	cs_put_player,
-	cs_move_left, cs_move_top, cs_move_right, cs_move_bottom, cs_move,
+	cs_move_left, cs_move_top, cs_move_right, cs_move_bottom, cs_move, cs_piggybackstate
 };
 enum player_type {
 	player_doggy, player_ducky
@@ -94,7 +94,12 @@ struct player_info {
 	float r_y;
 	float r_z;
 	int piggybackstate = 0;
-	bool piggyback_master = false;
+};
+
+struct piggyback_info {
+	int id = 10;
+	int piggybackstate = 0;
+
 };
 
 #pragma pack (pop)

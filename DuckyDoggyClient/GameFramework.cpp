@@ -921,6 +921,7 @@ void CGameFramework::FrameAdvance()
 		playerinfo.animationSet = g_myinfo.animationSet;
 		playerinfo.l_x = xmf3Look.x; playerinfo.l_y = xmf3Look.y; playerinfo.l_z = xmf3Look.z;
 		playerinfo.r_x = xmf3Right.x; playerinfo.r_y = xmf3Right.y; playerinfo.r_z = xmf3Right.z;
+		playerinfo.piggybackstate = g_myinfo.piggybackstate;
 		int retval;
 		/// ∞Ì¡§
 		packet_info packetinfo;

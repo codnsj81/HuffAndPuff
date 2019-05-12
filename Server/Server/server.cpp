@@ -250,10 +250,10 @@ void CALLBACK recv_callback(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED overla
 		{
 			do_recv(fromid);
 		}
+
 		// 4. 현재 접속 중인 클라이언트 플레이어 정보 출력.
 		show_allplayer();
 	}
-
 	break;
 	default:
 		do_recv(fromid);
@@ -348,8 +348,10 @@ void show_allplayer()
 				<< "좌표( "
 				<< clients[i].playerinfo.x << ", " << clients[i].playerinfo.y << ", " << clients[i].playerinfo.z << ")"
 				// << ", 애니메이션셋(" << clients[i].playerinfo.animationSet << ")"
-				<< ", xmf3Look(" << clients[i].playerinfo.l_x << ", " << clients[i].playerinfo.l_y << ", " << clients[i].playerinfo.l_z << ")"
-				<< ", xmf3Right(" << clients[i].playerinfo.r_x << ", " << clients[i].playerinfo.r_y << ", " << clients[i].playerinfo.r_z << ")" << endl;
+				// << ", xmf3Look(" << clients[i].playerinfo.l_x << ", " << clients[i].playerinfo.l_y << ", " << clients[i].playerinfo.l_z << ")"
+				// << ", xmf3Right(" << clients[i].playerinfo.r_x << ", " << clients[i].playerinfo.r_y << ", " << clients[i].playerinfo.r_z << ")"
+				<< ", piggybackstate(" << clients[i].playerinfo.piggybackstate << ")"
+				<< endl;
 		}
 	}
 	cout << "현재 연결 된 클라이언트 수 : " << count << endl;

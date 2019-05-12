@@ -318,10 +318,10 @@ void CPlayer::Update(float fTimeElapsed)
 	else
 	{
 		float fDistance = 0;
-		if (m_moveState != STATE_GROUND && m_moveState != STATE_ONOBJECTS && m_moveState != STATE_FALLING)
+		if (m_moveState != STATE_GROUND && m_moveState != STATE_ONOBJECTS )
 		{
 			m_fTime += fTimeElapsed;
-			fDistance = 30.f - 100.f * m_fTime;
+			fDistance = 30.f - 90.f * m_fTime ;
 			if (fDistance < 0)
 				m_moveState = STATE_FALLING;
 
@@ -330,7 +330,7 @@ void CPlayer::Update(float fTimeElapsed)
 
 		//if (fDistance >= 0)
 		XMFLOAT3 gravity = XMFLOAT3(0, m_xmf3Gravity.y * fTimeElapsed, 0.f);
-			m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, gravity);
+		if(m_moveState!=STATE_FALLING)	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, gravity);
 
 		float fLength = sqrtf(m_xmf3Velocity.x * m_xmf3Velocity.x + m_xmf3Velocity.z * m_xmf3Velocity.z);
 		float fMaxVelocityXZ = m_fMaxVelocityXZ;
@@ -528,7 +528,7 @@ CCamera *CAirplanePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 	switch (nNewCameraMode)
 	{
 		case FIRST_PERSON_CAMERA:
-			SetFriction(2.0f);
+			SetFriction(1.f);
 			SetGravity(XMFLOAT3(0.0f, 0.0f, 0.0f));
 			SetMaxVelocityXZ(2.5f);
 			SetMaxVelocityY(10.0f);
@@ -540,7 +540,7 @@ CCamera *CAirplanePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 			m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
 			break;
 		case SPACESHIP_CAMERA:
-			SetFriction(100.5f);
+			SetFriction(1.f);
 			SetGravity(XMFLOAT3(0.0f, 0.0f, 0.0f));
 			SetMaxVelocityXZ(40.0f);
 			SetMaxVelocityY(10.0f);
@@ -634,7 +634,7 @@ CCamera *CTerrainPlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 			m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
 			break;
 		case THIRD_PERSON_CAMERA:
-			SetFriction(20.0f);
+			SetFriction(100.0f);
 			SetGravity(XMFLOAT3(0.0f, -100.f, 0.0f));
 			SetMaxVelocityXZ(20.0f);
 			SetMaxVelocityY(25.0f);

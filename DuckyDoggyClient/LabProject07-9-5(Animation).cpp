@@ -181,7 +181,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 			g_myinfo.type = player_doggy;
 			DialogBox(ghAppInstance, MAKEINTRESOURCE(IDD_DIALOG_NETWORK), hWnd, Dlg_InitNetwork_Prog);
-			InitializeNetwork();
+			
 			gGameFramework.SetPlayerType(player_doggy);
 		}
 		break;
@@ -189,7 +189,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 			g_myinfo.type = player_ducky;
 			DialogBox(ghAppInstance, MAKEINTRESOURCE(IDD_DIALOG_NETWORK), hWnd, Dlg_InitNetwork_Prog);
-			InitializeNetwork();
 			gGameFramework.SetPlayerType(player_ducky);
 		}
 		break;
@@ -243,7 +242,7 @@ INT_PTR CALLBACK Dlg_InitNetwork_Prog(HWND hDlg, UINT iMsg, WPARAM wParam, LPARA
 		switch (LOWORD(wParam)) {
 		case IDOK:
 			GetDlgItemText(hDlg, IDC_EDIT_NETWORK_INPUT_IP, g_ipbuf, 50); // 스트링 갖고옴
-			// InitializeNetwork();
+			InitializeNetwork();
 			EndDialog(hDlg, 0);
 			break;
 		}
@@ -251,14 +250,8 @@ INT_PTR CALLBACK Dlg_InitNetwork_Prog(HWND hDlg, UINT iMsg, WPARAM wParam, LPARA
 	}
 	return 0;
 }
-
 int InitializeNetwork()
 {
-	// ip 입력 받기 전까진 ㄴㄴ
-	while (0 >= lstrlen(g_ipbuf)) {
-
-	}
-
 
 	// @
 	int retval;
@@ -292,6 +285,7 @@ int InitializeNetwork()
 		// Winsock End
 		WSACleanup();
 		MessageBoxW(g_hWnd, L"connect()", MB_OK, MB_OK);
+		exit(1);
 	}
 	else {
 		MessageBoxW(g_hWnd, L"Connected", L"알림", MB_OK);

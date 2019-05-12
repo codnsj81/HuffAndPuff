@@ -661,7 +661,7 @@ void CScene::LoadTree(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dC
 		else if (treerand == 1)
 			obj->SetChild(pTree2, true);
 		obj->SetPosition(iter->x, m_pTerrain->GetHeight(iter->x, iter->y), iter->y);
-		obj->SetHitBox(XMFLOAT3(8.f, 20.f, 8.f));
+		obj->SetHitBox(XMFLOAT3(6.f, 20.f, 6.f));
 		obj->Rotate(0, RandomRotate, 0);
 		m_TreeObjectslist.push_back(obj);
 	}

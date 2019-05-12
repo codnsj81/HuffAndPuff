@@ -37,3 +37,11 @@
 #define HERO_ANIMATION_IDLE 	0
 #define HERO_ANIMATION_WALK	1
 #define HERO_ANIMATION_JUMP	2
+
+
+
+//몬스터 종류
+
+#define MONTYPE_SNAKE		0
+#define MONTYPE_BULKHOUSE	1
+#define MONTYPE_TOXANIUM	2

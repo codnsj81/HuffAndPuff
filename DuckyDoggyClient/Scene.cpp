@@ -449,9 +449,9 @@ void CScene::BuildMonsterList(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLis
 {
 	CGameObject *pMonster = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/snake.bin", NULL, true);
 
-	CGameObject* obj = new CMonster();
+	CMonster* obj = new CSnake();
 	obj->SetChild(pMonster, true);
-	obj->SetPosition(XMFLOAT3(96,m_pTerrain->GetHeight(96, 374), 374));
+	obj->SetPosition(XMFLOAT3(150,m_pTerrain->GetHeight(150, 374), 374));
 	obj->SetScale(2, 2, 2);
 	obj->SetHitBox(XMFLOAT3(3.f, 3.f, 8.f));
 	M_MonsterObjectslist.push_back(obj);
@@ -669,7 +669,6 @@ void CScene::LoadGrass(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd
 void CScene::LoadTree(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
 {
 	
-
 	CGameObject *pTree = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Tree.bin", NULL, false);
 	CGameObject *pTree2 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Tree2.bin", NULL, false);
 	CGameObject *pTree3 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Tree3.bin", NULL, false);
@@ -716,7 +715,18 @@ void CScene::AnimateObjects(float fTimeElapsed)
 	for (auto p : M_MonsterObjectslist)
 	{
 		p->Animate(m_fElapsedTime);
+		p->UpdateTransform(NULL);
 
+		XMFLOAT3 pos1 = p->GetPosition();
+		XMFLOAT3 pos2 = m_pPlayer->GetPosition();
+		float distance = Vector3::Length(Vector3::Subtract(pos1, pos2));
+		if (distance < p->GetAggroDistance())
+		{
+			p->setRecognitionMode(true);
+			p->FollowingPosition = pos2;
+		}
+		else
+			p->setRecognitionMode(false);
 	}
 
 }
@@ -750,8 +760,6 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 	}
 	for (auto p : M_MonsterObjectslist)
 	{
-		p->Update();
-		p->UpdateTransform(NULL);
 		p->Render(pd3dCommandList, pCamera);
 	}
 	for (auto p : m_GrassObjectlist)

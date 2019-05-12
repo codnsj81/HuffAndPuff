@@ -13,6 +13,7 @@
 #define SPOT_LIGHT						2
 #define DIRECTIONAL_LIGHT				3
 
+class CMonster;
 struct StoneInfo
 {
 	int							m_iType;
@@ -127,7 +128,7 @@ public:
 	CGameObject							**m_ppGameObjects = NULL;
 	list<CGameObject*>					m_TreeObjectslist;
 	list<CGameObject*>					m_StoneObjectslist;
-	list<CGameObject*>					M_MonsterObjectslist;
+	list<CMonster*>					M_MonsterObjectslist;
 	list<CGameObject*>					m_GrassObjectlist;
 
 	int									m_nWaters = 0;

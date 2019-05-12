@@ -4,6 +4,7 @@
 
 CMonster::CMonster()
 {
+	m_iType = MONTYPE_SNAKE;
 	SetAnimationSet(0);
 }
 
@@ -43,17 +44,41 @@ int CMonster::getCollision(CPlayer * player)
 	minZ1 = pZ; maxZ1 = pZ + sZ;
 	int result = CGameObject::BBCollision(minX, maxX, minY, maxY, minZ, maxZ, minX1, maxX1, minY1, maxY1, minZ1, maxZ1);
 
-	if (result != COLLIDE_NONE && !player->m_bDamaging )
+	
+	return result;
+}
+
+void CMonster::Animate(float fTimeElapsed)
+{
+	CGameObject::Animate(fTimeElapsed);
+	if (m_pAnimationController) m_pAnimationController->SetLoop(true);
+
+	if (!m_bRecognition)
+		SetAnimationSet(0);
+	else
+		SetAnimationSet(1);
+
+}
+
+CSnake::CSnake()
+{
+	CMonster::CMonster();
+	setAP(10);
+	SetaggroDistance(50.f);
+}
+
+void CSnake::Animate(float fTimeElapsed)
+{
+	CMonster::Animate(fTimeElapsed);
+}
+
+int CSnake::getCollision(CPlayer * player)
+{
+	int result = CMonster::getCollision(player);
+	if (result != COLLIDE_NONE && !player->m_bDamaging)
 	{
 		player->Damage(m_iAttack);
 		player->m_bDamaging = true;
 	}
 	return 0;
-}
-
-void CMonster::Update()
-{
-
-	if (m_pAnimationController) m_pAnimationController->SetLoop(true);
-	SetAnimationSet(0);
 }

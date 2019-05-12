@@ -470,7 +470,7 @@ void CGameFramework::SetPlayerPos(player_type eType, XMFLOAT3 pos)
 		switch (eType) {
 		case player_ducky:
 		{
-			if(m_pDucky !=nullptr)
+			if (m_pDucky != nullptr)
 				m_pDucky->SetPosition_async(pos);
 		}
 		break;

@@ -532,6 +532,26 @@ void CGameFramework::SetPlayerDirection(player_type eType, XMFLOAT3 l, XMFLOAT3 
 	}
 }
 
+void CGameFramework::SetPiggyBackState(player_type eType, int piggybackstate)
+{
+	switch (eType) {
+	case player_ducky:
+	{
+		if (m_pDucky != nullptr) {
+			m_pDucky->SetPiggyBackState(piggybackstate);
+		}
+	}
+	break;
+	case player_doggy:
+	{
+		if (m_pDoggy != nullptr) {
+			m_pDoggy->SetPiggyBackState(piggybackstate);
+		}
+	}
+	break;
+	}
+}
+
 
 
 void CGameFramework::BuildUI()

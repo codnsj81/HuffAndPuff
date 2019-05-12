@@ -121,6 +121,7 @@ void CPlayer::GivePiggyBack()
 		{
 			SetPiggyBackState(PIGGYBACK_CARRY);
 			m_pParter->SetPiggyBackState(PIGGYBACK_CRRIED);
+			g_myinfo.piggybackstate = PIGGYBACK_CARRY;
 		}
 		break;
 
@@ -128,6 +129,7 @@ void CPlayer::GivePiggyBack()
 	case PIGGYBACK_CARRY:
 		SetPiggyBackState(PIGGYBACK_NONE);
 		m_pParter->SetPiggyBackState(PIGGYBACK_NONE);
+		g_myinfo.piggybackstate = PIGGYBACK_NONE;
 		break;
 	}
 }

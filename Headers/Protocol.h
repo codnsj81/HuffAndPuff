@@ -93,6 +93,8 @@ struct player_info {
 	float r_x;
 	float r_y;
 	float r_z;
+	int piggybackstate = 0;
+	bool piggyback_master = false;
 };
 
 #pragma pack (pop)

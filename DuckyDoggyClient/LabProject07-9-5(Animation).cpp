@@ -379,6 +379,7 @@ DWORD __stdcall RecvThread(LPVOID arg)
 				gGameFramework.SetPlayerDirection(player_ducky,
 					XMFLOAT3{ g_otherinfo.l_x , g_otherinfo.l_y, g_otherinfo.l_z },
 					XMFLOAT3{ g_otherinfo.r_x , g_otherinfo.r_y, g_otherinfo.r_z });
+				gGameFramework.SetPiggyBackState(player_ducky, g_otherinfo.piggybackstate);
 			}
 			else {
 				gGameFramework.SetPlayerPos(player_doggy, XMFLOAT3{ g_otherinfo.x, g_otherinfo.y, g_otherinfo.z });
@@ -386,6 +387,7 @@ DWORD __stdcall RecvThread(LPVOID arg)
 				gGameFramework.SetPlayerDirection(player_doggy,
 					XMFLOAT3{ g_otherinfo.l_x , g_otherinfo.l_y, g_otherinfo.l_z },
 					XMFLOAT3{ g_otherinfo.r_x , g_otherinfo.r_y, g_otherinfo.r_z });
+				gGameFramework.SetPiggyBackState(player_doggy, g_otherinfo.piggybackstate);
 			}
 		}
 		break;

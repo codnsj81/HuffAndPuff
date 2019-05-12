@@ -182,14 +182,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			g_myinfo.type = player_doggy;
 			DialogBox(ghAppInstance, MAKEINTRESOURCE(IDD_DIALOG_NETWORK), hWnd, Dlg_InitNetwork_Prog);
 			
-			gGameFramework.SetPlayerType(player_doggy);
 		}
 		break;
 		case ID_NETWORK_ACCESS_DUCKY_USER:
 		{
 			g_myinfo.type = player_ducky;
 			DialogBox(ghAppInstance, MAKEINTRESOURCE(IDD_DIALOG_NETWORK), hWnd, Dlg_InitNetwork_Prog);
-			gGameFramework.SetPlayerType(player_ducky);
 		}
 		break;
 		case IDM_EXIT:
@@ -243,6 +241,7 @@ INT_PTR CALLBACK Dlg_InitNetwork_Prog(HWND hDlg, UINT iMsg, WPARAM wParam, LPARA
 		case IDOK:
 			GetDlgItemText(hDlg, IDC_EDIT_NETWORK_INPUT_IP, g_ipbuf, 50); // 스트링 갖고옴
 			InitializeNetwork();
+			gGameFramework.SetPlayerType(g_myinfo.type);
 			EndDialog(hDlg, 0);
 			break;
 		}

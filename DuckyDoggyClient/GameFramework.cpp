@@ -696,6 +696,7 @@ void CGameFramework::ProcessInput()
 {
 	static UCHAR pKeysBuffer[256];
 	bool bProcessedByScene = false;
+	float fSpeed = 3.5f;
 	if (GetKeyboardState(pKeysBuffer) && m_pScene) 
 		bProcessedByScene = m_pScene->ProcessInput(pKeysBuffer);
 	if (!bProcessedByScene)
@@ -714,7 +715,10 @@ void CGameFramework::ProcessInput()
 		if ((pKeysBuffer['D'] & 0xF0) || (pKeysBuffer['d'] & 0xF0)) {
 			dwDirection |= DIR_RIGHT;
 		}
-
+		if (pKeysBuffer[16] & 0xF0) {
+			fSpeed = 7.f;
+		}
+		
 		float cxDelta = 0.0f, cyDelta = 0.0f;
 		POINT ptCursorPos;
 		if (GetCapture() == m_hWnd)
@@ -733,7 +737,7 @@ void CGameFramework::ProcessInput()
 				m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
 			}
 			if (dwDirection) {
-				m_pPlayer->Move(dwDirection, 3.25f, true);
+				m_pPlayer->Move(dwDirection, fSpeed, true);
 				AnimateObjects();
 			}
 		}

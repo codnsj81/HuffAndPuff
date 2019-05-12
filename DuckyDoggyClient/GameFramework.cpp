@@ -655,7 +655,7 @@ void CGameFramework::BuildObjects()
 	//m_pDoggy->SetPosition(XMFLOAT3(1922, m_pScene->m_pTerrain->GetHeight(1922,1001 ), 1001)); 
 	m_pDoggy->SetHitBox(XMFLOAT3(5.f, 5.f, 5.f));
 	m_pDoggy->SetScale(XMFLOAT3(4.f, 4.f, 4.f));
-	
+	m_pDoggy->Rotate(0, 80, 0);
 	g_otherinfo.x = g_myinfo.x = INITPOSITION_X;
 	g_otherinfo.y = g_myinfo.y = m_pScene->m_pTerrain->GetHeight(INITPOSITION_X, INITPOSITION_Z);
 	g_otherinfo.z = g_myinfo.z = INITPOSITION_Z;
@@ -667,6 +667,7 @@ void CGameFramework::BuildObjects()
 	m_pDucky->SetPosition(XMFLOAT3(INITPOSITION_X, \
 		m_pScene->m_pTerrain->GetHeight(INITPOSITION_X, INITPOSITION_Z), INITPOSITION_Z));
 	m_pDucky->SetHitBox(XMFLOAT3(5.f, 5.f, 5.f));
+	m_pDucky->Rotate(0, 80, 0);
 	//m_pDucky->SetScale(XMFLOAT3(7.0f, 7.0f, 7.0f));
 
 	m_pDucky->SetParter(m_pDoggy);

@@ -429,7 +429,7 @@ void CScene::PlusStoneData()
 	playerPos.m_pos.y = m_pPlayer->GetPosition().y ;
 	playerPos.m_pos.z = m_pPlayer->GetPosition().z;
 	playerPos.m_size = XMFLOAT3(1.f, 1.f, 1.f);
-	playerPos.m_iType = (int)rand() % 3 + 1;
+	playerPos.m_iType = 0;
 
 	StoneDataList.push_back(playerPos);
 
@@ -437,7 +437,7 @@ void CScene::PlusStoneData()
 
 void CScene::SaveStoneData()
 {
-	fstream out("StoneData.txt", ios::out | ios::binary);
+	fstream out("StoneData2.txt", ios::out | ios::binary);
 	for (auto n : StoneDataList)
 	{
 		out <<n.m_iType << " " << n.m_pos.x << " " << n.m_pos.y  <<" " << n.m_pos.z << " "
@@ -584,9 +584,13 @@ void CScene::LoadStone(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd
 		in >> dat.m_pos.y;
 		in >> dat.m_pos.z;
 
+		
 		in >> dat.m_size.x;
+		if (dat.m_size.x > 4) dat.m_size.x = 4;
 		in >> dat.m_size.y;
+		if (dat.m_size.y > 4) dat.m_size.y = 4;
 		in >> dat.m_size.z;
+		if (dat.m_size.z > 4) dat.m_size.z = 4;
 		StoneDataList.emplace_back(dat);
 	}
 
@@ -598,28 +602,32 @@ void CScene::LoadStone(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd
 		float RandomRotate = rand() % 360;
 		CGameObject* obj = new CGameObject();
 		
+		obj->SetPosition(iter->m_pos.x, iter->m_pos.y+3, iter->m_pos.z);
+		obj->SetScale(iter->m_size.x, iter->m_size.y, iter->m_size.z);
 		switch (iter->m_iType)
 		{
 		case 0:
 			obj->SetChild(pStone, true);
+			obj->SetScale(1,1,1);
 			obj->SetHitBox(XMFLOAT3(3.f * iter->m_size.x, 0.8f * iter->m_size.y, 3.f * iter->m_size.z));
 			break;
 		case 1:
-			obj->SetChild(pStone2, true);
+			obj->SetChild(pStone2, true);;
+			obj->Rotate(0, RandomRotate, 0);
 			obj->SetHitBox(XMFLOAT3(6 * iter->m_size.x,4 * iter->m_size.y,6 * iter->m_size.z));
 			break;
 		case 2:
-			obj->SetChild(pStone3, true);
+			obj->SetChild(pStone3, true);;
+			obj->Rotate(0, RandomRotate, 0);
 			obj->SetHitBox(XMFLOAT3(5 * iter->m_size.x,5 * iter->m_size.y, 5 * iter->m_size.z));
 			break;
 		case 3:
-			obj->SetChild(pStone4, true);
+			obj->SetChild(pStone4, true);;
+			obj->Rotate(0, RandomRotate, 0);
 			obj->SetHitBox(XMFLOAT3(8 * iter->m_size.x, 3 * iter->m_size.y, 8 * iter->m_size.z));
 			break;
 		}
 
-		obj->SetPosition(iter->m_pos.x, iter->m_pos.y+3, iter->m_pos.z);
-		obj->SetScale(iter->m_size.x, iter->m_size.y, iter->m_size.z);
 		m_StoneObjectslist.push_back(obj);
 	}
 }

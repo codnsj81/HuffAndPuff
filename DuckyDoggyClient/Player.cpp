@@ -643,7 +643,7 @@ CCamera *CTerrainPlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 			break;
 		case THIRD_PERSON_CAMERA:
 			SetFriction(100.0f);
-			SetGravity(XMFLOAT3(0.0f, -100.f, 0.0f));
+			SetGravity(XMFLOAT3(0.0f, -200.f, 0.0f));
 			SetMaxVelocityXZ(30.0f);
 			SetMaxVelocityY(25.0f);
 			m_pCamera = OnChangeCamera(THIRD_PERSON_CAMERA, nCurrentCameraMode);

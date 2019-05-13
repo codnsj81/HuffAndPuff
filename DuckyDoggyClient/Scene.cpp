@@ -504,16 +504,42 @@ void CScene::SaveMonsterData()
 
 void CScene::BuildMonsterList(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList)
 {
-	m_pSnakeObject = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/snake.bin", NULL, true);
-	m_pSnakeObject->SetAnimationSpeed(0.5f);
+	StoneInfo dat;
+	int type = 1;
+	fstream in("MonsterData.txt", ios::in | ios::binary);
+	while (in)
+	{
+		in >> dat.m_iType;
+		in >> dat.m_pos.x;
+		in >> dat.m_pos.y;
+		in >> dat.m_pos.z;
 
-	CMonster* obj = new CSnake();
-	obj->SetChild(m_pSnakeObject, true);
-	obj->SetPosition(XMFLOAT3(150,m_pTerrain->GetHeight(150, 374), 374));
-	obj->SetScale(2, 2, 2);
-	obj->SetHitBox(XMFLOAT3(3.f, 3.f, 8.f));
-	M_MonsterObjectslist.push_back(obj);
 
+		in >> dat.m_size.x;
+		in >> dat.m_size.y;
+		in >> dat.m_size.z;
+		MonsterDataList.emplace_back(dat);
+	}
+
+	list<StoneInfo>::iterator iter = MonsterDataList.begin();
+	list<StoneInfo>::iterator end = MonsterDataList.end();
+
+	for (iter; iter != end; iter++)
+	{
+		m_pSnakeObject = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/snake.bin", NULL, true);
+		m_pSnakeObject->SetAnimationSpeed(0.5f);
+
+		float RandomRotate = rand() % 360;
+
+		CMonster* obj = new CSnake();
+		obj->SetChild(m_pSnakeObject, true);
+		obj->SetPosition(iter->m_pos.x, iter->m_pos.y, iter->m_pos.z);
+		obj->Rotate(0, RandomRotate, 0);
+		obj->SetScale(iter->m_size.x, iter->m_size.y, iter->m_size.z);
+		obj->SetHitBox(XMFLOAT3(3.f, 3.f, 8.f));
+		M_MonsterObjectslist.push_back(obj);
+
+	}
 }
 
 void CScene::CreateCbvSrvDescriptorHeaps(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nConstantBufferViews, int nShaderResourceViews)

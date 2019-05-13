@@ -77,6 +77,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 
 	m_ppWaters[1] = new CWater(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 670, 400, XMFLOAT3(1064, m_pTerrain->GetHeight(1064, 1446) + 30.f, 1446.f));
 
+
 	BuildMonsterList(pd3dDevice, pd3dCommandList);
 
 	m_nGameObjects = 0;
@@ -404,6 +405,20 @@ void CScene::ReleaseUploadBuffers()
 		n->ReleaseShaderVariables();
 }
 
+void CScene::ResetObjects()
+{
+	M_MonsterObjectslist.clear();
+
+	CGameObject* model = new CGameObject();
+	*model = *m_pSnakeObject;
+	CMonster* obj = new CSnake();
+	obj->SetChild(m_pSnakeObject, true);
+	obj->SetPosition(XMFLOAT3(150, m_pTerrain->GetHeight(150, 374), 374));
+	obj->SetScale(2, 2, 2);
+	obj->SetHitBox(XMFLOAT3(3.f, 3.f, 8.f));
+	M_MonsterObjectslist.push_back(obj);
+}
+
 void CScene::PlusTreeData()
 {
 	XMFLOAT2 playerXZpos;
@@ -464,12 +479,36 @@ void CScene::SaveStoneData()
 	}
 }
 
-void CScene::BuildMonsterList(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
+void CScene::PlusMonsterData()
 {
-	CGameObject *pMonster = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/snake.bin", NULL, true);
-	pMonster->SetAnimationSpeed(0.5f);
+
+	StoneInfo playerPos;
+	playerPos.m_pos.x = m_pPlayer->GetPosition().x;
+	playerPos.m_pos.y = m_pPlayer->GetPosition().y;
+	playerPos.m_pos.z = m_pPlayer->GetPosition().z;
+	playerPos.m_size = XMFLOAT3(2,2,2);
+	playerPos.m_iType = MONTYPE_SNAKE;
+
+	MonsterDataList.push_back(playerPos);
+}
+
+void CScene::SaveMonsterData()
+{
+	fstream out("MonsterData.txt", ios::out | ios::binary);
+	for (auto n : MonsterDataList)
+	{
+		out << n.m_iType << " " << n.m_pos.x << " " << n.m_pos.y << " " << n.m_pos.z << " "
+			<< n.m_size.x << " " << n.m_size.y << " " << n.m_size.z << endl;
+	}
+}
+
+void CScene::BuildMonsterList(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList)
+{
+	m_pSnakeObject = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/snake.bin", NULL, true);
+	m_pSnakeObject->SetAnimationSpeed(0.5f);
+
 	CMonster* obj = new CSnake();
-	obj->SetChild(pMonster, true);
+	obj->SetChild(m_pSnakeObject, true);
 	obj->SetPosition(XMFLOAT3(150,m_pTerrain->GetHeight(150, 374), 374));
 	obj->SetScale(2, 2, 2);
 	obj->SetHitBox(XMFLOAT3(3.f, 3.f, 8.f));

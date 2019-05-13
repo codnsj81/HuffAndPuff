@@ -941,6 +941,7 @@ void CGameFramework::FrameAdvance()
 			m_bPlaying = true;
 			m_pDoggy->SetFullHP();
 			m_pDucky->SetFullHP();
+			m_pScene->ResetObjects();
 	
 		}
 	}

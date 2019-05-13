@@ -101,6 +101,7 @@ private:
 
 	CTerrainPlayer						*m_pDucky = NULL;
 	CTerrainPlayer						*m_pDoggy = NULL;
+	
 
 	POINT						m_ptOldCursorPos;
 

@@ -15,7 +15,7 @@ public:
 	void SetaggroDistance(float f) { m_fAggroDistance = f; }
 
 	void setAP(int ap) { m_iAttack = ap; }
-	void Damage(int dam);
+	virtual bool Damage(int dam);
 
 	void setRecognitionMode(bool b) { m_bRecognition = b; }
 	bool getRecognitionMode() { return m_bRecognition; }
@@ -30,7 +30,7 @@ protected:
 	float m_fAggroDistance;
 	int m_iAttack;
 	bool m_bDeath = false;
-
+	bool m_bAttacking = false;
 	bool m_bRecognition = false;
 };
 
@@ -43,5 +43,8 @@ public:
 
 	virtual void Animate(float fTimeElapsed);
 	virtual int getCollision(CPlayer * player);
+	virtual bool Damage(int dam);
+
+	bool m_bDeathING = false;
 private:
 };

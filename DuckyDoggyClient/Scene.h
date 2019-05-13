@@ -84,8 +84,9 @@ public:
 	CPlayer								*m_pPlayer = NULL;
 	CPlayer								*m_pDoggy;
 	CPlayer								*m_pDucky;
+	CGameObject*						m_pSnakeObject = NULL;
 
-
+	void ResetObjects();
 	void PlusTreeData();
 	void SaveTreeData();
 
@@ -95,7 +96,10 @@ public:
 	void PlusStoneData();
 	void SaveStoneData();
 
-	void BuildMonsterList(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
+	void PlusMonsterData();
+	void SaveMonsterData();
+
+	void BuildMonsterList(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList);
 
 protected:
 	ID3D12RootSignature					*m_pd3dGraphicsRootSignature = NULL;
@@ -134,7 +138,7 @@ public:
 	CGameObject							**m_ppGameObjects = NULL;
 	list<CGameObject*>					m_TreeObjectslist;
 	list<CGameObject*>					m_StoneObjectslist;
-	list<CMonster*>					M_MonsterObjectslist;
+	list<CMonster*>						M_MonsterObjectslist;
 	list<CGameObject*>					m_GrassObjectlist;
 
 	int									m_nWaters = 0;
@@ -161,4 +165,5 @@ public:
 	list<XMFLOAT2> TreeDatalist;
 	list<StoneInfo>	StoneDataList;
 	list<XMFLOAT2> GrassDataList;
+	list<StoneInfo>	MonsterDataList;
 };

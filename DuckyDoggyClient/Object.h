@@ -259,7 +259,7 @@ public:
 
 	int								m_iPlayerKind;
 	bool							m_bLoop;
-
+	bool							m_bAnimationEnd = false;
 public:
 	void SetKind(int i) { m_iPlayerKind = i; }
 	void SetLoop(bool stop) { m_bLoop = stop; }

@@ -15,7 +15,7 @@ CMonster::~CMonster()
 
 int CMonster::getCollision(CPlayer * player)
 {
-	float minX, maxX, minY, maxY, minZ, maxZ = 0.f; // i index
+	float minX, maxX, minY, maxY, minZ, maxZ = 0.f; // i ifndex
 	float minX1, maxX1, minY1, maxY1, minZ1, maxZ1 = 0.f;// j index
 
 	float pX, pY, sX, sY, sZ, pZ = 0.f;
@@ -53,20 +53,18 @@ void CMonster::Animate(float fTimeElapsed)
 	CGameObject::Animate(fTimeElapsed);
 	if (m_pAnimationController) m_pAnimationController->SetLoop(true);
 
-	if (!m_bRecognition)
-		SetAnimationSet(0);
-	else
-	{
-		SetAnimationSet(1);
-	}
+
 
 }
 
-void CMonster::Damage(int dam)
+bool CMonster::Damage(int dam)
 {
 	m_iHp -= dam;
 	if (m_iHp < 0)
-		m_bDeath = true;
+	{
+		return true;
+	}
+	return false;
 }
 
 CSnake::CSnake()
@@ -79,7 +77,17 @@ CSnake::CSnake()
 void CSnake::Animate(float fTimeElapsed)
 {
 	CMonster::Animate(fTimeElapsed);
-	if (m_bRecognition)
+	if (m_bDeathING)
+	{
+		if (m_pChild->m_pAnimationController->m_bAnimationEnd == true)
+		{
+			m_bDeath = true;
+			m_bDeathING = false;
+		}
+		return;
+	}
+
+	if (m_bRecognition )
 	{
 
 		XMFLOAT3 xmf3Position = GetPosition();
@@ -91,18 +99,55 @@ void CSnake::Animate(float fTimeElapsed)
 		XMFLOAT3 xmf3CrossProduct = Vector3::CrossProduct(xmf3Look, xmf3ToTarget);
 		//	if (fAngle != 0.0f) Rotate(0.0f, fAngle * fElapsedTime * ((xmf3CrossProduct.y > 0.0f) ? 1.0f : -1.0f), 0.0f);
 		Rotate(0.0f, fAngle * fTimeElapsed * ((xmf3CrossProduct.y > 0.0f) ? 1.0f : -1.0f), 0.0f);
-			SetPosition(Vector3::Add(xmf3Position, Vector3::ScalarProduct(xmf3Look, 10 * fTimeElapsed)));
-
+		SetPosition(Vector3::Add(xmf3Position, Vector3::ScalarProduct(xmf3Look, 10 * fTimeElapsed)));
+		if (m_bAttacking)
+		{
+			if (m_pChild->m_pAnimationController->m_bAnimationEnd == true)
+				m_bAttacking = false;
+		}
+		else
+		{
+			m_pChild->m_pAnimationController->SetLoop(true);
+			SetAnimationSet(1);
+		}
 	}
+
+	else
+	{
+		
+		SetAnimationSet(0);
+	}
+
 }
 
 int CSnake::getCollision(CPlayer * player)
 {
+	if (m_bDeathING) return 0;
 	int result = CMonster::getCollision(player);
-	if (result != COLLIDE_NONE && !player->m_bDamaging)
+	if (result != COLLIDE_NONE)
 	{
-		player->Damage(m_iAttack);
-		player->m_bDamaging = true;
+		if (!player->m_bDamaging && !m_bDeathING)
+		{
+			player->Damage(m_iAttack);
+			player->m_bDamaging = true;
+		}
+		if (!m_bAttacking)
+		{
+			SetAnimationSet(2);
+			m_bAttacking = true;
+		}
 	}
 	return 0;
+}
+
+bool CSnake::Damage(int dam)
+{
+	if (m_bDeathING) return true;
+	bool result = CMonster::Damage(dam);
+	if (result)
+	{
+		m_bDeathING = true;
+		m_pChild->m_pAnimationController->SetLoop(false);
+		SetAnimationSet(3);
+	}
 }

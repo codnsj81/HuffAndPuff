@@ -449,14 +449,18 @@ void CGameFramework::SetPlayerType(player_type eType)
 		switch (eType) {
 		case player_doggy:
 			m_pScene->m_pPlayer = m_pPlayer = m_pDoggy;
+			m_pCamera->m_UIList = NULL;
 			m_pCamera = m_pPlayer->GetCamera();
+			m_pCamera->m_UIList = m_UIList;
 			//g_myinfo.x = m_pPlayer->GetPosition().x;
 			//g_myinfo.y = m_pPlayer->GetPosition().y;
 			//g_myinfo.z = m_pPlayer->GetPosition().z;
 			break;
 		case player_ducky:
 			m_pScene->m_pPlayer = m_pPlayer = m_pDucky;
+			m_pCamera->m_UIList = NULL;
 			m_pCamera = m_pPlayer->GetCamera();
+			m_pCamera->m_UIList = m_UIList;
 			//g_myinfo.x = m_pPlayer->GetPosition().x;
 			//g_myinfo.y = m_pPlayer->GetPosition().y;
 			//g_myinfo.z = m_pPlayer->GetPosition().z;

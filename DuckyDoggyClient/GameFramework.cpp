@@ -350,6 +350,8 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 				case 'O':
 				case 'o':
 					m_pPlayer->SetCheatMode();
+					m_pDoggy->SetFullHP();
+					m_pDucky->SetFullHP();
 					break;
 				case 'l':
 				case 'L':

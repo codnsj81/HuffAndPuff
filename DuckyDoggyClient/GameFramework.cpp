@@ -667,8 +667,8 @@ void CGameFramework::BuildObjects()
 	// 도기 생성
 	m_pDoggy = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(),"Model/doggy.bin", PLAYER_KIND_DOGGY , true, m_pScene->m_pTerrain );
 
-	m_pDoggy->SetPosition(XMFLOAT3(1706, \
-		m_pScene->m_pTerrain->GetHeight(1706, 877), 877)); //시작위치
+	m_pDoggy->SetPosition(XMFLOAT3(INITPOSITION_X, \
+		m_pScene->m_pTerrain->GetHeight(INITPOSITION_X, INITPOSITION_Z), INITPOSITION_Z)); //시작위치
 	//m_pDoggy->SetPosition(XMFLOAT3(1922, m_pScene->m_pTerrain->GetHeight(1922,1001 ), 1001)); 
 	m_pDoggy->SetHitBox(XMFLOAT3(5.f, 5.f, 5.f));
 	m_pDoggy->SetScale(XMFLOAT3(4.f, 4.f, 4.f));
@@ -970,6 +970,7 @@ void CGameFramework::FrameAdvance()
 		playerinfo.animationSet = g_myinfo.animationSet;
 		playerinfo.l_x = xmf3Look.x; playerinfo.l_y = xmf3Look.y; playerinfo.l_z = xmf3Look.z;
 		playerinfo.r_x = xmf3Right.x; playerinfo.r_y = xmf3Right.y; playerinfo.r_z = xmf3Right.z;
+		playerinfo.piggybackstate = m_pPlayer->GetPiggyBackState();
 		int retval;
 		/// 고정
 		packet_info packetinfo;

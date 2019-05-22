@@ -195,7 +195,7 @@
     <Image Include="Skybox\SkyBox_0.dds" />
     <Image Include="small.ico" />
     <Image Include="Terrain\BASE2.dds" />
-    <Image Include="Terrain\Detail_Texture_7.dds" />
+    <Image Include="Terrain\terrainTex.tif" />
     <Image Include="Terrain\tex1.dds" />
   </ItemGroup>
   <ItemGroup>

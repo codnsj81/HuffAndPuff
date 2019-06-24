@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
 			clients[new_id].sock = client_sock;
 			clients[new_id].playerinfo.x = INITPOSITION_X;
 			clients[new_id].playerinfo.z = INITPOSITION_Z;
-			clients[new_id].playerinfo.type = player_type(new_id % 2);
+			// clients[new_id].playerinfo.type = player_type(new_id % 2);
 			clients[new_id].playerinfo.animationSet = 0;
 			clients[new_id].wsabuf.len = BUFSIZE;
 			clients[new_id].wsabuf.buf = clients[new_id].buf;
@@ -255,6 +255,20 @@ void CALLBACK recv_callback(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED overla
 		show_allplayer();
 	}
 	break;
+	case cs_put_playertype:
+	{
+		// 1. cs_put_playertype 패킷을 보내온 클라이언트의 "type" 정보를 받아온다.
+		{
+			char buf[BUFSIZE];
+			memcpy(&playerinfo, clients[fromid].buf + sizeof(packetinfo), sizeof(player_info));
+			clients[fromid].playerinfo.type = playerinfo.type;
+		}
+		// 2. 보내온 클라이언트의 소켓은 다시 Recv를 시작한다.
+		{
+			do_recv(fromid);
+		}
+	}
+	break;
 	default:
 		do_recv(fromid);
 		break;
@@ -350,7 +364,8 @@ void show_allplayer()
 				// << ", 애니메이션셋(" << clients[i].playerinfo.animationSet << ")"
 				// << ", xmf3Look(" << clients[i].playerinfo.l_x << ", " << clients[i].playerinfo.l_y << ", " << clients[i].playerinfo.l_z << ")"
 				// << ", xmf3Right(" << clients[i].playerinfo.r_x << ", " << clients[i].playerinfo.r_y << ", " << clients[i].playerinfo.r_z << ")"
-				<< ", piggybackstate(" << clients[i].playerinfo.piggybackstate << ")"
+				// << ", piggybackstate(" << clients[i].playerinfo.piggybackstate << ")"
+				<< ", playertype(" << clients[i].playerinfo.type << ")"
 				<< endl;
 		}
 	}

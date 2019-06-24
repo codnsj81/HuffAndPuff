@@ -251,7 +251,6 @@ INT_PTR CALLBACK Dlg_InitNetwork_Prog(HWND hDlg, UINT iMsg, WPARAM wParam, LPARA
 }
 int InitializeNetwork()
 {
-
 	// @
 	int retval;
 
@@ -283,8 +282,8 @@ int InitializeNetwork()
 		closesocket(g_sock);
 		// Winsock End
 		WSACleanup();
-MessageBoxW(g_hWnd, L"connect()", MB_OK, MB_OK);
-exit(1);
+		MessageBoxW(g_hWnd, L"connect()", MB_OK, MB_OK);
+		exit(1);
 	}
 	else {
 	MessageBoxW(g_hWnd, L"Connected", L"알림", MB_OK);
@@ -298,28 +297,6 @@ exit(1);
 	hThread = CreateThread(NULL, 0, RecvThread, (LPVOID)g_sock, 0, NULL);
 	if (NULL == hThread)
 		CloseHandle(hThread);
-
-
-	//// 서버에게 클라이언트 초기 정보를 보낸다.
-	//g_myinfo.x = gGameFramework.GetPlayer()->GetPosition().x;
-	//g_myinfo.y = gGameFramework.GetPlayer()->GetPosition().y;
-	//g_myinfo.z = gGameFramework.GetPlayer()->GetPosition().z;
-	//int retval;
-	//char buf[BUFSIZE];
-	//// 고정
-	//packet_info packetinfo;
-	//packetinfo.type = cs_put_player;
-	//packetinfo.size = sizeof(player_info);
-	//packetinfo.id = -1;
-	//packetinfo.sock = g_sock;
-	//memcpy(buf, &packetinfo, sizeof(packetinfo));
-	//// 가변 (고정 데이터에 가변 데이터 붙이는 형식으로)
-	//memcpy(buf + sizeof(packetinfo), &g_myinfo, sizeof(player_info));
-	//// 전송
-	//retval = send(g_sock, buf, BUFSIZE, 0);
-	//if (retval == SOCKET_ERROR) {
-	//	MessageBoxW(g_hWnd, L"send()", L"send() - cs_put_player", MB_OK);
-	//}
 
 	}
 }
@@ -352,12 +329,37 @@ DWORD __stdcall RecvThread(LPVOID arg)
 			if (receiveBytes > 0)
 				memcpy(&packetinfo, buf, sizeof(packetinfo));
 		}
+
 		// 가변 길이. 
-		switch (packetinfo.type) {
+		switch(packetinfo.type){
 		case sc_notify_yourinfo:
 		{
 			int id = g_myinfo.id = packetinfo.id;			// playerinfo의 주인의 id를 받아온다.
-			memcpy(&(g_myinfo), buf + sizeof(packetinfo), sizeof(g_myinfo));
+			memcpy(&(playerinfo), buf + sizeof(packetinfo), sizeof(g_myinfo));
+
+			// 받기 전에!!! 서버가 알고 있는 type과 내 type이 맞는지부터 비교해 보자 (0624)
+			if (playerinfo.type != g_myinfo.type) { // 맞지 않다면 서버에게 setting 요청
+				player_info in_if_playerinfo;
+				in_if_playerinfo.id = g_myinfo.id;
+				in_if_playerinfo.type = g_myinfo.type;
+				int retval;
+				/// 고정
+				packet_info packetinfo;
+				packetinfo.type = cs_put_playertype;
+				packetinfo.size = sizeof(in_if_playerinfo);
+				packetinfo.id = g_myinfo.id;
+				char buf[BUFSIZE];
+				memcpy(buf, &packetinfo, sizeof(packetinfo));
+				/// 가변 (고정 데이터에 가변 데이터 붙이는 형식으로)
+				memcpy(buf + sizeof(packetinfo), &in_if_playerinfo, sizeof(player_info));
+				retval = send(g_sock, buf, BUFSIZE, 0);
+				if (retval == SOCKET_ERROR) {
+					MessageBoxW(g_hWnd, L"send()", L"send() - cs_move", MB_OK);
+					exit(1);
+				}
+				playerinfo.type = g_myinfo.type;
+			}
+			g_myinfo = playerinfo;
 			// g_networkState = recv_playerinfo;
 			gGameFramework.GetPlayer()->SetPosition(XMFLOAT3{ g_myinfo.x, g_myinfo.y, g_myinfo.z });
 			gGameFramework.GetPlayer()->SetMain(true);

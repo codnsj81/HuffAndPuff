@@ -961,6 +961,8 @@ void CGameFramework::FrameAdvance()
 	::SetWindowText(m_hWnd, m_pszFrameRate);
 
 	// 0411
+
+	// id 
 	m_dwUpdatecnt++;
 	if (g_myinfo.connected == true && m_dwUpdatecnt >= 5) {
 		player_info playerinfo;

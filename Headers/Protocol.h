@@ -63,7 +63,7 @@ struct sc_packet_move_player {
 //
 enum packet_type {
 	sc_login_ok, sc_put_player, sc_notify_yourinfo, sc_notify_playerinfo, sc_piggybackstate,
-	cs_put_player,
+	cs_put_player, cs_put_playertype,
 	cs_move_left, cs_move_top, cs_move_right, cs_move_bottom, cs_move, cs_piggybackstate
 };
 enum player_type {

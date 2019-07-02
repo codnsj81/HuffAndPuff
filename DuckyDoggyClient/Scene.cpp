@@ -76,8 +76,8 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	//m_ppWaters[0]->Rotate(0, 10.f, 0);
 
 	m_ppWaters[1] = new CWater(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 670, 400, XMFLOAT3(1064, m_pTerrain->GetHeight(1064, 1446) + 30.f, 1446.f));
-
-
+	HoneyComb = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Honey.bin", NULL, false);
+	
 	BuildMonsterList(pd3dDevice, pd3dCommandList);
 
 	m_nGameObjects = 0;
@@ -127,7 +127,12 @@ void CScene::ReleaseObjects()
 			n->Release();
 		}
 	}
-	
+	if (m_HoneyComblist.size() != 0)
+	{
+		for (auto n : m_HoneyComblist) {
+			n->Release();
+		}
+	}
 	if (m_ppWaters)
 	{
 		for (int i = 0; i < m_nWaters; i++) if (m_ppWaters[i]) m_ppWaters[i]->Release();
@@ -671,11 +676,11 @@ void CScene::LoadStone(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd
 
 		
 		in >> dat.m_size.x;
-		if (dat.m_size.x > 4) dat.m_size.x = 4;
+		if (dat.m_size.x > 4) dat.m_size.x = 5;
 		in >> dat.m_size.y;
 		if (dat.m_size.y > 4) dat.m_size.y = 4;
 		in >> dat.m_size.z;
-		if (dat.m_size.z > 4) dat.m_size.z = 4;
+		if (dat.m_size.z > 4) dat.m_size.z = 5;
 		StoneDataList.emplace_back(dat);
 	}
 
@@ -772,7 +777,7 @@ void CScene::LoadTree(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dC
 	for (iter; iter != end; iter++)
 	{
 		float RandomRotate = rand() % 360;
-		CGameObject* obj = new CGameObject();
+		CTree* obj = new CTree();
 		int treerand = rand() % 2;
 		if (treerand == 0)
 			obj->SetChild(pTree, true);
@@ -821,6 +826,10 @@ void CScene::AnimateObjects(float fTimeElapsed)
 				(*iter)->setRecognitionMode(false);
 		}
 
+	for (auto h : m_HoneyComblist)
+	{
+		h->Animate(fTimeElapsed);
+	}
 }
 
 void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
@@ -859,7 +868,11 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 		p->UpdateTransform(NULL);
 		p->Render(pd3dCommandList, pCamera);
 	}
-
+	for (auto p : m_HoneyComblist)
+	{
+		p->UpdateTransform(NULL);
+		p->Render(pd3dCommandList, pCamera);
+	}
 	for (int i = 0; i < m_nShaders; i++) if (m_ppShaders[i]) m_ppShaders[i]->Render(pd3dCommandList, pCamera);
 }
 
@@ -876,8 +889,29 @@ void CScene::ObjectsCollides()
 		}
 	}
 	for (auto n : m_TreeObjectslist) {
-		n->getCollision(m_pDoggy);
-		n->getCollision(m_pDucky);
+		if (n->getCollision(m_pDoggy) != COLLIDE_NONE)
+		{	
+			if (!n->GetHoneyDrop())
+			{
+				int prob = rand() % 10;
+				if (prob < 3)
+				{
+					float randomX = rand() % 3 - 4.f;
+					float randomZ = rand() % 3 - 4.f;
+					CHoneyComb* temp = new CHoneyComb();
+					temp->SetChild(HoneyComb);
+					temp->SetPosition(n->GetPosition().x + randomX, n->GetPosition().y + 20, n->GetPosition().z + randomZ);
+					temp->SetFloorHeight(m_pTerrain->GetHeight(n->GetPosition().x, n->GetPosition().z));
+					temp->Rotate(rand() % 360, rand() % 360, rand() % 360);
+					m_HoneyComblist.push_back(temp);
+
+				}
+
+			}
+			n->SetHoneyDrop();
+		
+		}
+		if(n->getCollision(m_pDucky) != COLLIDE_NONE) n->SetHoneyDrop();
 	}
 
 	for (auto n : m_StoneObjectslist)

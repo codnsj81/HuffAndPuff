@@ -134,12 +134,14 @@ public:
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUSrvDescriptorNextHandle() { return(m_d3dSrvGPUDescriptorNextHandle); }
 
 	int									m_nGameObjects = 0;
+	CGameObject* HoneyComb = NULL;
 
 	CGameObject							**m_ppGameObjects = NULL;
-	list<CGameObject*>					m_TreeObjectslist;
+	list<CTree*>						m_TreeObjectslist;
 	list<CGameObject*>					m_StoneObjectslist;
 	list<CMonster*>						M_MonsterObjectslist;
 	list<CGameObject*>					m_GrassObjectlist;
+	list<CHoneyComb*>					m_HoneyComblist;
 
 	int									m_nWaters = 0;
 	CWater								**m_ppWaters = NULL;

@@ -447,3 +447,28 @@ public:
 
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera = NULL);
 };
+
+class CTree : public CGameObject {
+public:
+	CTree();
+	~CTree();
+
+	void SetHoneyDrop() { bHoneyDrop = true; }
+	bool GetHoneyDrop() { return bHoneyDrop; }
+
+private:
+	bool bHoneyDrop = false;
+};
+
+class CHoneyComb : public CGameObject
+{
+public :
+	CHoneyComb();
+	~CHoneyComb();
+	void SetFloorHeight(float p) { floorHeight = p; }
+	virtual void Animate(float fTimeElapsed);
+private:
+	float m_fElapsedTime;
+	bool m_bDie = false;
+	float floorHeight;
+};

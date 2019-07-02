@@ -301,7 +301,7 @@ float4 PSWater(VS_WATER_OUTPUT input) : SV_TARGET
 
 	float4 cIllumination = Lighting(input.positionW, normalize(mul(vNormal, TBN)));
 
-	return(lerp(cColor, cIllumination, 0.3));
+	return(lerp(cColor, cIllumination, 0.5f));
 	//return cNormal;
 
 }

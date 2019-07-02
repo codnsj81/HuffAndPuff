@@ -1302,3 +1302,28 @@ void CSkyBox::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamer
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+
+CTree::CTree()
+{
+}
+
+CTree::~CTree()
+{
+}
+
+CHoneyComb::CHoneyComb()
+{
+}
+
+CHoneyComb::~CHoneyComb()
+{
+}
+
+void CHoneyComb::Animate(float fTimeElapsed)
+{
+	m_fElapsedTime += fTimeElapsed;
+	if (m_fElapsedTime > 3.0f)
+		m_bDie = true;
+	if(GetPosition().y >floorHeight)
+	SetPosition(GetPosition().x, GetPosition().y -( 10.f * fTimeElapsed), GetPosition().z);
+}

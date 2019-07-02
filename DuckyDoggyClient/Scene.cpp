@@ -529,6 +529,7 @@ void CScene::BuildMonsterList(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLi
 	list<StoneInfo>::iterator iter = MonsterDataList.begin();
 	list<StoneInfo>::iterator end = MonsterDataList.end();
 
+	int cnt{ 0 };
 	for (iter; iter != end; iter++)
 	{
 		m_pSnakeObject = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/snake.bin", NULL, true);
@@ -542,8 +543,8 @@ void CScene::BuildMonsterList(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLi
 		obj->Rotate(0, RandomRotate, 0);
 		obj->SetScale(iter->m_size.x, iter->m_size.y, iter->m_size.z);
 		obj->SetHitBox(XMFLOAT3(3.f, 3.f, 8.f));
+		(obj)->setID(cnt++); // 몬스터에 id 부여
 		M_MonsterObjectslist.push_back(obj);
-
 	}
 }
 

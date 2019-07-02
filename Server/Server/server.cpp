@@ -200,6 +200,9 @@ void CALLBACK recv_callback(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED overla
 
 	int id = socketInfo->playerinfo.id;
 
+	if (id > NUM_OF_PLAYER)
+		return;
+
 	if (dataBytes == 0) {
 		// 클라이언트 접속 종료.
 		closesocket(clients[id].sock);
@@ -209,13 +212,13 @@ void CALLBACK recv_callback(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED overla
 
 
 	// 고정 길이 패킷.
+	player_info playerinfo;
 	packet_info packetinfo;
 	memcpy(&packetinfo, clients[id].buf, sizeof(packetinfo));
 	int fromid = packetinfo.id;
 
 
 	// 가변 길이 패킷.
-	player_info playerinfo;
 	switch (packetinfo.type) {
 	case cs_move:
 	{
@@ -267,6 +270,31 @@ void CALLBACK recv_callback(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED overla
 		{
 			do_recv(fromid);
 		}
+	}
+	break;
+	case cs_monster_is_dead:
+	{
+		// 1. 죽은 몬스터의 id를 받아온다.
+		int monsterId = -1;
+		char buf[BUFSIZE];
+		memcpy(&monsterId, clients[fromid].buf + sizeof(packetinfo), sizeof(int));
+		
+		// 2. 다른 클라이언트에게도 죽은 몬스터의 id를 알린다.
+		memset(&packetinfo, 0x00, sizeof(packetinfo));
+		packetinfo.id = fromid;
+		packetinfo.size = sizeof(int);
+		packetinfo.type = sc_monster_is_dead;
+		memcpy(buf, &packetinfo, sizeof(packetinfo));
+		memcpy(buf + sizeof(packetinfo), &(monsterId), sizeof(int));
+		for (int i = 0; i < NUM_OF_PLAYER; ++i) {
+			if (!clients[i].connected) continue;
+			if (i == fromid) continue;
+			send_packet(i, buf);
+		}
+
+		// 3. 보내온 클라이언트 소켓은 다시 recv를 시작한다.
+		do_recv(fromid);
+
 	}
 	break;
 	default:

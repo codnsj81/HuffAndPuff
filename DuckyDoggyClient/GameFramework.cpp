@@ -960,11 +960,10 @@ void CGameFramework::FrameAdvance()
 	_stprintf_s(m_pszFrameRate + nLength, 70 - nLength, _T("(%4f, %4f, %4f)"), xmf3Position.x, xmf3Position.y, xmf3Position.z);
 	::SetWindowText(m_hWnd, m_pszFrameRate);
 
-	// 0411
 
-	// id 
+	// 정보 전송
 	m_dwUpdatecnt++;
-	if (g_myinfo.connected == true && m_dwUpdatecnt >= 5) {
+	if (g_myinfo.connected == true /*&& m_dwUpdatecnt >= 5*/) {
 		player_info playerinfo;
 		playerinfo.id = g_myinfo.id;
 		playerinfo.x = xmf3Position.x; playerinfo.y = xmf3Position.y; playerinfo.z = xmf3Position.z;

@@ -101,6 +101,10 @@ public:
 
 	void BuildMonsterList(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList);
 
+	list<CMonster*>* GetMonsterList() {
+		return &M_MonsterObjectslist;
+	}
+
 protected:
 	ID3D12RootSignature					*m_pd3dGraphicsRootSignature = NULL;
 

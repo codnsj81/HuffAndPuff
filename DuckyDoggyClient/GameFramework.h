@@ -53,6 +53,7 @@ public:
 	 CPlayer* GetPlayer() const { if(m_pPlayer!=nullptr) return m_pPlayer; }
 	 CTerrainPlayer* GetDoggy() { if (m_pDoggy != nullptr) return m_pDoggy;  }
 	 CTerrainPlayer* GetDucky() { if (m_pDucky != nullptr) return m_pDucky; }
+	 CScene* GetScene() { return m_pScene; }
 
 	 void BuildUI();
 private:

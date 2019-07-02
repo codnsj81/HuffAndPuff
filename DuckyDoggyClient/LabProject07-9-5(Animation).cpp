@@ -6,7 +6,7 @@
 #include "GameFramework.h"
 #include "../Headers/Include.h"
 #include <comdef.h>
-
+#include "CMonster.h"
 #define MAX_LOADSTRING 100
 
 
@@ -331,7 +331,7 @@ DWORD __stdcall RecvThread(LPVOID arg)
 		}
 
 		// 가변 길이. 
-		switch(packetinfo.type){
+		switch (packetinfo.type) {
 		case sc_notify_yourinfo:
 		{
 			int id = g_myinfo.id = packetinfo.id;			// playerinfo의 주인의 id를 받아온다.
@@ -435,12 +435,28 @@ DWORD __stdcall RecvThread(LPVOID arg)
 			}
 		}
 		break;
+		case sc_monster_is_dead:
+		{
+			// 죽은 몬스터의 id를 받아온다.
+			int monsterID = 0;
+			memcpy(&(monsterID), buf + sizeof(packetinfo), sizeof(int));
+			// 해당 몬스터를 찾아 setDeathING 처리를 해 준다.
+			list<CMonster*>* pmonsterList = gGameFramework.GetScene()->GetMonsterList();
+			if (pmonsterList != nullptr) {
+				for (auto n : *pmonsterList) {
+					if (monsterID == n->getID()) {
+						dynamic_cast<CSnake*>(n)->SetDeathING(true);
+					}
+				}
+			}
 		}
+		break;
+		}
+
 	}
+		gGameFramework.FrameAdvance();
 
-	gGameFramework.FrameAdvance();
-
-	return 0;
+		return 0;	
 }
 
 // 사용자 정의 데이터 수신 함수

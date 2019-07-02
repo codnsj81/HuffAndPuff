@@ -23,7 +23,8 @@ public:
 	XMFLOAT3 FollowingPosition;
 
 	bool GetDeathState() { return m_bDeath; }
-
+	void setID(int id) { m_iID = id; }
+	int getID() { return m_iID; }
 protected:
 	int m_iType;
 	int m_iHp = 100;
@@ -32,6 +33,8 @@ protected:
 	bool m_bDeath = false;
 	bool m_bAttacking = false;
 	bool m_bRecognition = false;
+	int m_iID = -1;
+
 };
 
 
@@ -46,5 +49,11 @@ public:
 	virtual bool Damage(int dam);
 
 	bool m_bDeathING = false;
+
+	void SetDeathING(bool bDeath) {
+		m_bDeathING = bDeath;
+		m_pChild->m_pAnimationController->SetLoop(false);
+		SetAnimationSet(3);
+	}
 private:
 };

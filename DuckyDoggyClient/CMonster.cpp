@@ -149,5 +149,25 @@ bool CSnake::Damage(int dam)
 		m_bDeathING = true;
 		m_pChild->m_pAnimationController->SetLoop(false);
 		SetAnimationSet(3);
+
+		// 몬스터가 죽었다는 패킷 전송
+		int id = m_iID;
+
+		int retval;
+		/// 고정
+		packet_info packetinfo;
+		packetinfo.type = cs_monster_is_dead;
+		packetinfo.size = sizeof(int);
+		packetinfo.id = g_myinfo.id;
+		char buf[BUFSIZE];
+		memcpy(buf, &packetinfo, sizeof(packetinfo));
+		/// 가변 (고정 데이터에 가변 데이터 붙이는 형식으로)
+		memcpy(buf + sizeof(packetinfo), &id, sizeof(int));
+		retval = send(g_sock, buf, BUFSIZE, 0);
+		if (retval == SOCKET_ERROR) {
+			MessageBoxW(g_hWnd, L"send()", L"send() - cs_monster_is_dead", MB_OK);
+			exit(1);
+		}
+
 	}
 }

@@ -831,6 +831,20 @@ void CScene::AnimateObjects(float fTimeElapsed)
 	{
 		h->Animate(fTimeElapsed);
 	}
+
+	list<CHoneyComb*> ::iterator honeyiter = m_HoneyComblist.begin();
+	list<CHoneyComb*> ::iterator honeyend = m_HoneyComblist.end();
+	for (honeyiter; honeyiter != honeyend; honeyiter++)
+	{
+		(*honeyiter)->getCollision(m_pDoggy);
+		(*honeyiter)->getCollision(m_pDucky);
+		if ((*honeyiter)->GetbDie())
+		{
+			honeyiter = m_HoneyComblist.erase(honeyiter);
+			if (honeyiter == honeyend) break;
+		}
+	}
+	
 }
 
 void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
@@ -890,12 +904,13 @@ void CScene::ObjectsCollides()
 		}
 	}
 	for (auto n : m_TreeObjectslist) {
-		if (n->getCollision(m_pDoggy) != COLLIDE_NONE)
+		if (n->getCollision(m_pDoggy) != COLLIDE_NONE || n->getCollision(m_pDucky) != COLLIDE_NONE)
 		{	
+			
 			if (!n->GetHoneyDrop())
 			{
 				int prob = rand() % 10;
-				if (prob < 3)
+				if (prob < 5)
 				{
 					float randomX = rand() % 3 - 4.f;
 					float randomZ = rand() % 3 - 4.f;
@@ -909,10 +924,10 @@ void CScene::ObjectsCollides()
 				}
 
 			}
+
 			n->SetHoneyDrop();
-		
 		}
-		if(n->getCollision(m_pDucky) != COLLIDE_NONE) n->SetHoneyDrop();
+
 	}
 
 	for (auto n : m_StoneObjectslist)

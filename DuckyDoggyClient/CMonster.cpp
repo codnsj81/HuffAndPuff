@@ -53,8 +53,6 @@ void CMonster::Animate(float fTimeElapsed)
 	CGameObject::Animate(fTimeElapsed);
 	if (m_pAnimationController) m_pAnimationController->SetLoop(true);
 
-
-
 }
 
 bool CMonster::Damage(int dam)

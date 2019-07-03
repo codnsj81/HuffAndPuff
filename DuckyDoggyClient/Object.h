@@ -467,6 +467,9 @@ public :
 	~CHoneyComb();
 	void SetFloorHeight(float p) { floorHeight = p; }
 	virtual void Animate(float fTimeElapsed);
+	int getCollision(CPlayer * player);
+
+	bool GetbDie() { return m_bDie; }
 private:
 	float m_fElapsedTime;
 	bool m_bDie = false;

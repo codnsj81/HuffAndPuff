@@ -25,6 +25,24 @@ public:
 	bool GetDeathState() { return m_bDeath; }
 	void setID(int id) { m_iID = id; }
 	int getID() { return m_iID; }
+	void SetLookVector(XMFLOAT3 xmf3Look)
+	{
+		m_xmf4x4World._31 = xmf3Look.x;
+		m_xmf4x4World._32 = xmf3Look.y; 
+		m_xmf4x4World._33 = xmf3Look.z;
+	}
+
+	void SetRightVector(XMFLOAT3 xmf3Right)
+	{
+		m_xmf4x4World._11 = xmf3Right.x;
+		m_xmf4x4World._12 = xmf3Right.y;
+		m_xmf4x4World._13 = xmf3Right.z;
+	}
+	void SetIsMain(bool ismain) {
+		m_bIsMain = ismain;
+	}
+
+
 protected:
 	int m_iType;
 	int m_iHp = 100;
@@ -34,7 +52,7 @@ protected:
 	bool m_bAttacking = false;
 	bool m_bRecognition = false;
 	int m_iID = -1;
-
+	bool m_bIsMain = true; // 처음엔 누구나 다 메인임. 이게 꺼져 있으면 혼자 패턴대로 움직이면 안 됨!!
 };
 
 

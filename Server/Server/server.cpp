@@ -272,7 +272,7 @@ void CALLBACK recv_callback(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED overla
 		}
 	}
 	break;
-	case cs_monster_is_dead:
+	case cs_snake_is_dead:
 	{
 		// 1. 죽은 몬스터의 id를 받아온다.
 		int monsterId = -1;
@@ -283,9 +283,34 @@ void CALLBACK recv_callback(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED overla
 		memset(&packetinfo, 0x00, sizeof(packetinfo));
 		packetinfo.id = fromid;
 		packetinfo.size = sizeof(int);
-		packetinfo.type = sc_monster_is_dead;
+		packetinfo.type = sc_snake_is_dead;
 		memcpy(buf, &packetinfo, sizeof(packetinfo));
 		memcpy(buf + sizeof(packetinfo), &(monsterId), sizeof(int));
+		for (int i = 0; i < NUM_OF_PLAYER; ++i) {
+			if (!clients[i].connected) continue;
+			if (i == fromid) continue;
+			send_packet(i, buf);
+		}
+
+		// 3. 보내온 클라이언트 소켓은 다시 recv를 시작한다.
+		do_recv(fromid);
+
+	}
+	break;
+	case cs_notify_snakeinfo:
+	{
+		// 1. 죽은 몬스터의 info를 받아온다.
+		snake_info s_info;
+		char buf[BUFSIZE];
+		memcpy(&s_info, clients[fromid].buf + sizeof(packetinfo), sizeof(snake_info));
+
+		// 2. 다른 클라이언트에게도 몬스터의 info를 알린다.
+		memset(&packetinfo, 0x00, sizeof(packetinfo));
+		packetinfo.id = fromid;
+		packetinfo.size = sizeof(snake_info);
+		packetinfo.type = sc_notify_snakeinfo;
+		memcpy(buf, &packetinfo, sizeof(packetinfo));
+		memcpy(buf + sizeof(packetinfo), &(s_info), sizeof(snake_info));
 		for (int i = 0; i < NUM_OF_PLAYER; ++i) {
 			if (!clients[i].connected) continue;
 			if (i == fromid) continue;

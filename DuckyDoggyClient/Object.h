@@ -375,9 +375,15 @@ public:
 	CGameObject *GetRootSkinnedGameObject();
 
 	void SetAnimationSet(int nAnimationSet);
-	int GetAnimationSet() { 
+	int GetAnimationSet() {
 		if (m_pAnimationController)
 			return m_pAnimationController->GetAnimationSet();
+		else
+			return -1;
+	}
+	int GetAnimationSet_child() { 
+		if (m_pChild->m_pAnimationController)
+			return m_pChild->m_pAnimationController->GetAnimationSet();
 		else
 			return -1;
 	}

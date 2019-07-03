@@ -286,17 +286,17 @@ int InitializeNetwork()
 		exit(1);
 	}
 	else {
-	MessageBoxW(g_hWnd, L"Connected", L"알림", MB_OK);
-	g_myinfo.connected = true;
+		MessageBoxW(g_hWnd, L"Connected", L"알림", MB_OK);
+		g_myinfo.connected = true;
 
-	bool NoDelay = TRUE;
-	setsockopt(g_sock, IPPROTO_TCP, TCP_NODELAY, (const char FAR*)&NoDelay, sizeof(NoDelay));
+		bool NoDelay = TRUE;
+		setsockopt(g_sock, IPPROTO_TCP, TCP_NODELAY, (const char FAR*) & NoDelay, sizeof(NoDelay));
 
 
-	// recv 전용 스레드를 만든다.
-	hThread = CreateThread(NULL, 0, RecvThread, (LPVOID)g_sock, 0, NULL);
-	if (NULL == hThread)
-		CloseHandle(hThread);
+		// recv 전용 스레드를 만든다.
+		hThread = CreateThread(NULL, 0, RecvThread, (LPVOID)g_sock, 0, NULL);
+		if (NULL == hThread)
+			CloseHandle(hThread);
 
 	}
 }
@@ -435,7 +435,7 @@ DWORD __stdcall RecvThread(LPVOID arg)
 			}
 		}
 		break;
-		case sc_monster_is_dead:
+		case sc_snake_is_dead:
 		{
 			// 죽은 몬스터의 id를 받아온다.
 			int monsterID = 0;
@@ -451,6 +451,30 @@ DWORD __stdcall RecvThread(LPVOID arg)
 			}
 		}
 		break;
+		case sc_notify_snakeinfo:
+		{
+			// 몬스터의 정보를 받아온다.
+			snake_info sinfo;
+			memcpy(&(sinfo), buf + sizeof(packetinfo), sizeof(snake_info));
+			// 해당 몬스터를 찾아 setposition, setanimationset 처리를 해 준다.
+			list<CMonster*>* pmonsterList = gGameFramework.GetScene()->GetMonsterList();
+			if (pmonsterList != nullptr) {
+				for (auto n : *pmonsterList) {
+					if (sinfo.id == n->getID()) {
+						n->SetIsMain(false); // 다른 클라이언트로부터 정보가 온 snake는 main이 아님.
+						n->SetPosition(sinfo.x, sinfo.y, sinfo.z); // 위치 동기화
+						// n->m_pChild->SetAnimationSet(sinfo.animationSet); // 애니메이션 동기화
+						DWORD cur_as = n->GetAnimationSet();// 애니메이션 동기화 2
+						if (cur_as != sinfo.animationSet) {
+							n->SetAnimationSet(sinfo.animationSet);
+						}
+						dynamic_cast<CMonster*>(n)->SetLookVector(XMFLOAT3{ sinfo.l_x, sinfo.l_y, sinfo.l_z }); // 방향 동기화
+						dynamic_cast<CMonster*>(n)->SetRightVector(XMFLOAT3{ sinfo.r_x, sinfo.r_y, sinfo.r_z });
+					}
+				}
+			}
+		}
+			break;
 		}
 
 	}

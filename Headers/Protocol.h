@@ -62,10 +62,10 @@ struct sc_packet_move_player {
 
 //
 enum packet_type {
-	sc_login_ok, sc_put_player, sc_notify_yourinfo, sc_notify_playerinfo, sc_piggybackstate, sc_monster_is_dead,
+	sc_login_ok, sc_put_player, sc_notify_yourinfo, sc_notify_playerinfo, sc_piggybackstate, sc_snake_is_dead, sc_notify_snakeinfo,
 	cs_put_player, cs_put_playertype,
 	cs_move_left, cs_move_top, cs_move_right, cs_move_bottom, cs_move, cs_piggybackstate,
-	cs_monster_is_dead
+	cs_snake_is_dead, cs_notify_snakeinfo
 };
 enum player_type {
 	player_doggy, player_ducky
@@ -100,7 +100,20 @@ struct player_info {
 struct piggyback_info {
 	int id = 10;
 	int piggybackstate = 0;
+};
 
+struct snake_info {
+	int id = -1;
+	float x;
+	float y;
+	float z;
+	int animationSet = 0;
+	float l_x;
+	float l_y;
+	float l_z;
+	float r_x;
+	float r_y;
+	float r_z;
 };
 
 #pragma pack (pop)

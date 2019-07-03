@@ -961,12 +961,12 @@ void CGameFramework::FrameAdvance()
 	::SetWindowText(m_hWnd, m_pszFrameRate);
 
 
-	/// 0703 : send thread를 만들어야 될 것 같아,,
+	/// 0703 : send thread를 만들어야 될 것 같아,, 렉 보완 문제는 일단 보류
 	// 정보 전송
 	m_dwUpdatecnt++;
 	int as = m_pPlayer->GetAnimationSet_child();
 	// cout << "as : " << as << endl;
-	if (g_myinfo.connected == true && m_dwUpdatecnt >= 5) {
+	if (g_myinfo.connected == true && m_dwUpdatecnt >= 3) {
 		//if (as == 0 && g_myinfo.type == player_doggy)
 		//	return;
 		//else

@@ -208,16 +208,17 @@ VS_TERRAIN_OUTPUT VSTerrain(VS_TERRAIN_INPUT input)
 float4 PSTerrain(VS_TERRAIN_OUTPUT input) : SV_TARGET
 {
 	float4 cColor;
-	float4 cBaseTexColor = gtxtTerrainBaseTexture.Sample(gssWrap, input.uv0);
+	float4 cBaseTexColor = gtxtSpecularTexture.Sample(gssWrap, input.uv0);
 	float4 cDetailTexColor = gtxtTerrainDetailTexture.Sample(gssWrap, input.uv1);
-	float4 cDetailTexColor2 = gtxtAlbedoTexture.Sample(gssWrap, input.uv1);
-	//	float4 cColor = saturate((cBaseTexColor * 0.5f) + (cDetailTexColor * 0.5f));
-	if(cBaseTexColor.x > 0.2)
-		cColor= input.color * saturate((cBaseTexColor * 0.4f) + (cDetailTexColor2 * 0.6f));
-	else
-		cColor = input.color * saturate((cBaseTexColor * 0.4f) + (cDetailTexColor * 0.6f));
+	cDetailTexColor = saturate(float4(0.f, 0.2f, 0.f, 1) + (cDetailTexColor * 0.6f));
+	float4 cDetailTexColor2 = gtxtAlbedoTexture.Sample(gssWrap, input.uv1) ;
+	cDetailTexColor2 = saturate(float4(0.1f, 0.09f, 0.f, 1) + (cDetailTexColor2 * 0.6f));
+	
+	float4 cDetailTexColor3 = gtxtNormalTexture.Sample(gssWrap, input.uv1);
 
-		return(cColor);
+	cColor = cDetailTexColor3 * cBaseTexColor.y + cDetailTexColor * cBaseTexColor.x
+					+ cDetailTexColor2 * cBaseTexColor.z;
+	return(cColor);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

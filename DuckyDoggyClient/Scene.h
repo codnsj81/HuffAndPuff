@@ -93,6 +93,10 @@ public:
 	void PlusGrassData();
 	void SaveGrassData();
 
+	void PlusMushroomData();
+	void SaveMushroomData();
+	void BuildMushroomData(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList);
+
 	void PlusStoneData();
 	void SaveStoneData();
 
@@ -135,9 +139,10 @@ public:
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUCbvDescriptorNextHandle() { return(m_d3dCbvCPUDescriptorNextHandle); }
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUCbvDescriptorNextHandle() { return(m_d3dCbvGPUDescriptorNextHandle); }
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUSrvDescriptorNextHandle() { return(m_d3dSrvCPUDescriptorNextHandle); }
-	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUSrvDescriptorNextHandle() { return(m_d3dSrvGPUDescriptorNextHandle); }
+	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUSrvDescriptorNeLxtHandle() { return(m_d3dSrvGPUDescriptorNextHandle); }
 
 	int									m_nGameObjects = 0;
+
 	CGameObject* HoneyComb = NULL;
 
 	CGameObject							**m_ppGameObjects = NULL;
@@ -146,6 +151,7 @@ public:
 	list<CMonster*>						M_MonsterObjectslist;
 	list<CGameObject*>					m_GrassObjectlist;
 	list<CHoneyComb*>					m_HoneyComblist;
+	list<CGameObject*>					m_Mushroomlist;
 
 	int									m_nWaters = 0;
 	CWater								**m_ppWaters = NULL;
@@ -168,6 +174,7 @@ public:
 	LIGHTS								*m_pcbMappedLights = NULL;
 
 
+	list<XMFLOAT2> MushroomDatalist;
 	list<XMFLOAT2> TreeDatalist;
 	list<StoneInfo>	StoneDataList;
 	list<XMFLOAT2> GrassDataList;

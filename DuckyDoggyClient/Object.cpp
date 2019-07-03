@@ -1198,11 +1198,19 @@ CHeightMapTerrain::CHeightMapTerrain(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 	CTexture *pTerrainBaseTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 	pTerrainBaseTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Terrain/terrainTex.tif", 0,false);
 
-	CTexture *pTerrainDetailTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+
+	CTexture *pTerrainBaseTexture2 = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	pTerrainBaseTexture2->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Terrain/terrainTex.tif", 0, false);
+
+
+	CTexture *pTerrainDetailTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0); // Ç®
 	pTerrainDetailTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Terrain/Detail_Texture_6.dds", 0);
 
-	CTexture *pTerrainDetailTexture2 = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	CTexture *pTerrainDetailTexture2 = new CTexture(1, RESOURCE_TEXTURE2D, 0); //¶¥
 	pTerrainDetailTexture2->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Terrain/Detail_Texture_7.dds", 0);
+	
+	CTexture *pTerrainDetailTexture3 = new CTexture(1, RESOURCE_TEXTURE2D, 0); // µ¹
+	pTerrainDetailTexture3->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Terrain/Detail_Texture_8.dds", 0);
 
 	CTerrainShader *pTerrainShader = new CTerrainShader();
 	pTerrainShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -1211,11 +1219,15 @@ CHeightMapTerrain::CHeightMapTerrain(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 	CScene::CreateShaderResourceViews(pd3dDevice, pTerrainBaseTexture, 13, false);
 	CScene::CreateShaderResourceViews(pd3dDevice, pTerrainDetailTexture, 14, false);
 	CScene::CreateShaderResourceViews(pd3dDevice, pTerrainDetailTexture2, 3, false);
+	CScene::CreateShaderResourceViews(pd3dDevice, pTerrainBaseTexture2, 4, false);
+	CScene::CreateShaderResourceViews(pd3dDevice, pTerrainDetailTexture3, 5, false);
 
-	CMaterial *pTerrainMaterial = new CMaterial(3);
+	CMaterial *pTerrainMaterial = new CMaterial(5);
 	pTerrainMaterial->SetTexture(pTerrainBaseTexture, 0);
 	pTerrainMaterial->SetTexture(pTerrainDetailTexture, 1);
 	pTerrainMaterial->SetTexture(pTerrainDetailTexture2, 2);
+	pTerrainMaterial->SetTexture(pTerrainBaseTexture2, 3);
+	pTerrainMaterial->SetTexture(pTerrainDetailTexture3, 4);
 	pTerrainMaterial->SetShader(pTerrainShader);
 
 	SetMaterial(0, pTerrainMaterial);

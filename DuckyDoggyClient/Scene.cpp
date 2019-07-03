@@ -77,7 +77,6 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 
 	m_ppWaters[1] = new CWater(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 670, 400, XMFLOAT3(1064, m_pTerrain->GetHeight(1064, 1446) + 30.f, 1446.f));
 	HoneyComb = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Honey.bin", NULL, false);
-	
 	BuildMonsterList(pd3dDevice, pd3dCommandList);
 
 	m_nGameObjects = 0;
@@ -86,6 +85,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	LoadStone(pd3dDevice, pd3dCommandList);
 	LoadTree(pd3dDevice, pd3dCommandList);
 	LoadGrass(pd3dDevice, pd3dCommandList);
+	BuildMushroomData(pd3dDevice, pd3dCommandList);
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
@@ -457,6 +457,52 @@ void CScene::SaveGrassData()
 	for (auto n : GrassDataList)
 	{
 		out << n.x << " " << n.y << "\n";
+	}
+}
+
+void CScene::PlusMushroomData()
+{
+	MushroomDatalist.push_back(XMFLOAT2(m_pPlayer->GetPosition().x, m_pPlayer->GetPosition().z));
+}
+
+void CScene::SaveMushroomData()
+{
+	fstream out("MushroomData.txt", ios::out | ios::binary);
+	for (auto n : MushroomDatalist)
+	{
+		out << n.x <<" " << n.y<< "\n";
+	}
+}
+
+void CScene::BuildMushroomData(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList)
+{
+	CGameObject* Mushroom = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/mushroom01.bin", NULL, false);
+	CGameObject* Mushroom2 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/mushroom02.bin", NULL, false);
+
+	fstream in("MushroomData.txt", ios::in | ios::binary);
+	while (in)
+	{
+		XMFLOAT2 dat;
+		in >> dat.x;
+		in >> dat.y;
+		MushroomDatalist.emplace_back(dat);
+	}
+
+	list<XMFLOAT2>::iterator iter = MushroomDatalist.begin();
+	list<XMFLOAT2>::iterator end = MushroomDatalist.end();
+
+	for (iter; iter != end; iter++)
+	{
+		float RandomRotate = rand() % 360;
+		CGameObject* obj = new CGameObject();
+		int treerand = rand() % 2;
+		if (treerand == 0)
+			obj->SetChild(Mushroom, true);
+		else if (treerand == 1)
+			obj->SetChild(Mushroom2, true);
+		obj->SetPosition(iter->x, m_pTerrain->GetHeight(iter->x, iter->y), iter->y);
+		obj->Rotate(0, RandomRotate, 0);
+		m_Mushroomlist.push_back(obj);
 	}
 }
 
@@ -888,7 +934,14 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 		p->UpdateTransform(NULL);
 		p->Render(pd3dCommandList, pCamera);
 	}
+	for (auto p : m_Mushroomlist)
+	{
+		p->UpdateTransform(NULL);
+		p->Render(pd3dCommandList, pCamera);
+	}
 	for (int i = 0; i < m_nShaders; i++) if (m_ppShaders[i]) m_ppShaders[i]->Render(pd3dCommandList, pCamera);
+	
+
 }
 
 void CScene::ObjectsCollides()

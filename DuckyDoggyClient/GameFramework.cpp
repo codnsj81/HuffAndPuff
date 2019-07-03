@@ -342,10 +342,10 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 					break;
 				case 't':
 				case 'T':
-					m_pScene->PlusMonsterData();
+					m_pScene->PlusMushroomData();
 					break;
 				case 'Y':
-					m_pScene->SaveMonsterData();
+					m_pScene->SaveMushroomData();
 					break;
 				case 'O':
 				case 'o':

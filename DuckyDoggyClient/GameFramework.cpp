@@ -961,33 +961,43 @@ void CGameFramework::FrameAdvance()
 	::SetWindowText(m_hWnd, m_pszFrameRate);
 
 
+	/// 0703 : send thread를 만들어야 될 것 같아,,
 	// 정보 전송
 	m_dwUpdatecnt++;
-	if (g_myinfo.connected == true /*&& m_dwUpdatecnt >= 5*/) {
-		player_info playerinfo;
-		playerinfo.id = g_myinfo.id;
-		playerinfo.x = xmf3Position.x; playerinfo.y = xmf3Position.y; playerinfo.z = xmf3Position.z;
-		playerinfo.type = g_myinfo.type;
-		playerinfo.animationSet = g_myinfo.animationSet;
-		playerinfo.l_x = xmf3Look.x; playerinfo.l_y = xmf3Look.y; playerinfo.l_z = xmf3Look.z;
-		playerinfo.r_x = xmf3Right.x; playerinfo.r_y = xmf3Right.y; playerinfo.r_z = xmf3Right.z;
-		playerinfo.piggybackstate = m_pPlayer->GetPiggyBackState();
-		int retval;
-		/// 고정
-		packet_info packetinfo;
-		packetinfo.type = cs_move;
-		packetinfo.size = sizeof(player_info);
-		packetinfo.id = g_myinfo.id;
-		char buf[BUFSIZE];
-		memcpy(buf, &packetinfo, sizeof(packetinfo));
-		/// 가변 (고정 데이터에 가변 데이터 붙이는 형식으로)
-		memcpy(buf + sizeof(packetinfo), &playerinfo, sizeof(player_info));
-		retval = send(g_sock, buf, BUFSIZE, 0);
-		if (retval == SOCKET_ERROR) {
-			MessageBoxW(g_hWnd, L"send()", L"send() - cs_move", MB_OK);
-			exit(1);
+	int as = m_pPlayer->GetAnimationSet_child();
+	// cout << "as : " << as << endl;
+	if (g_myinfo.connected == true && m_dwUpdatecnt >= 5) {
+		//if (as == 0 && g_myinfo.type == player_doggy)
+		//	return;
+		//else
+		{ // 우선 도기만 애니메이션 run, jump가 있기 때문에 이렇게 짜야 함
+			player_info playerinfo;
+			playerinfo.id = g_myinfo.id;
+			playerinfo.x = xmf3Position.x; playerinfo.y = xmf3Position.y; playerinfo.z = xmf3Position.z;
+			playerinfo.type = g_myinfo.type;
+			playerinfo.animationSet = g_myinfo.animationSet;
+			playerinfo.l_x = xmf3Look.x; playerinfo.l_y = xmf3Look.y; playerinfo.l_z = xmf3Look.z;
+			playerinfo.r_x = xmf3Right.x; playerinfo.r_y = xmf3Right.y; playerinfo.r_z = xmf3Right.z;
+			playerinfo.piggybackstate = m_pPlayer->GetPiggyBackState();
+			int retval;
+			/// 고정
+			packet_info packetinfo;
+			packetinfo.type = cs_move;
+			packetinfo.size = sizeof(player_info);
+			packetinfo.id = g_myinfo.id;
+			char buf[BUFSIZE];
+			memcpy(buf, &packetinfo, sizeof(packetinfo));
+			/// 가변 (고정 데이터에 가변 데이터 붙이는 형식으로)
+			memcpy(buf + sizeof(packetinfo), &playerinfo, sizeof(player_info));
+			retval = send(g_sock, buf, BUFSIZE, 0);
+			if (retval == SOCKET_ERROR) {
+				MessageBoxW(g_hWnd, L"send()", L"send() - cs_move", MB_OK);
+				exit(1);
+			}
+			m_dwUpdatecnt = 0;
 		}
-		m_dwUpdatecnt = 0;
+
+	cout << "cs_move" << endl;
 	}
 
 }

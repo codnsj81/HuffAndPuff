@@ -133,6 +133,13 @@ void CScene::ReleaseObjects()
 			n->Release();
 		}
 	}
+
+	if (m_Mushroomlist.size() != 0)
+	{
+		for (auto n : m_Mushroomlist) {
+			n->Release();
+		}
+	}
 	if (m_ppWaters)
 	{
 		for (int i = 0; i < m_nWaters; i++) if (m_ppWaters[i]) m_ppWaters[i]->Release();
@@ -494,14 +501,17 @@ void CScene::BuildMushroomData(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandL
 	for (iter; iter != end; iter++)
 	{
 		float RandomRotate = rand() % 360;
-		CGameObject* obj = new CGameObject();
+		CMushroom* obj = new CMushroom();
 		int treerand = rand() % 2;
 		if (treerand == 0)
 			obj->SetChild(Mushroom, true);
 		else if (treerand == 1)
 			obj->SetChild(Mushroom2, true);
+
+
+		obj->SetHitBox(XMFLOAT3(5,5,5));
 		obj->SetPosition(iter->x, m_pTerrain->GetHeight(iter->x, iter->y), iter->y);
-		obj->Rotate(0, RandomRotate, 0);
+	//	obj->Rotate(0, RandomRotate, 0);
 		m_Mushroomlist.push_back(obj);
 	}
 }
@@ -877,6 +887,10 @@ void CScene::AnimateObjects(float fTimeElapsed)
 	{
 		h->Animate(fTimeElapsed);
 	}
+	for (auto h : m_Mushroomlist)
+	{
+		h->Animate(fTimeElapsed);
+	}
 
 	list<CHoneyComb*> ::iterator honeyiter = m_HoneyComblist.begin();
 	list<CHoneyComb*> ::iterator honeyend = m_HoneyComblist.end();
@@ -908,7 +922,6 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 
 	if (m_pSkyBox) m_pSkyBox->Render(pd3dCommandList, pCamera);
 	if (m_pTerrain) m_pTerrain->Render(pd3dCommandList, pCamera);
-
 
 	for (auto p : m_TreeObjectslist)
 	{
@@ -973,7 +986,6 @@ void CScene::ObjectsCollides()
 					temp->SetFloorHeight(m_pTerrain->GetHeight(n->GetPosition().x, n->GetPosition().z));
 					temp->Rotate(rand() % 360, rand() % 360, rand() % 360);
 					m_HoneyComblist.push_back(temp);
-
 				}
 
 			}
@@ -993,5 +1005,26 @@ void CScene::ObjectsCollides()
 		n->getCollision(m_pDoggy);
 		n->getCollision(m_pDucky);
 	}
+
+	for (auto n : m_Mushroomlist)
+	{
+		if (n->getCollision(m_pDoggy, false) != COLLIDE_NONE)
+		{
+			if (!n->GetCollided())
+			{
+				m_pDoggy->Damage(4);
+				n->SetCollided(true);
+			}
+		}
+		if (n->getCollision(m_pDucky, false) != COLLIDE_NONE)
+		{
+			if (!n->GetCollided())
+			{
+				m_pDucky->Damage(4);
+			}
+			n->SetCollided(true);
+		}
+	}
+
 }
 

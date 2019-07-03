@@ -592,7 +592,7 @@ void CGameObject::SetAnimationSet(int nAnimationSet)
 	if (m_pChild) m_pChild->SetAnimationSet(nAnimationSet);
 }
 
-int CGameObject::getCollision(CPlayer * player)
+int CGameObject::getCollision(CPlayer * player, bool physics)
 {
 	float minX, maxX, minY, maxY, minZ, maxZ = 0.f; // i index
 	float minX1, maxX1, minY1, maxY1, minZ1, maxZ1 = 0.f;// j index
@@ -622,6 +622,8 @@ int CGameObject::getCollision(CPlayer * player)
 	minY1 = pY ; maxY1 = pY + sY;
 	minZ1 = pZ ; maxZ1 = pZ + sZ ;
 	int result =  BBCollision(minX, maxX, minY, maxY, minZ, maxZ,minX1, maxX1, minY1, maxY1, minZ1, maxZ1);
+	if (!physics)
+		return result;
 	switch (result)
 	{
 	case COLLIDE_ON:
@@ -1380,4 +1382,25 @@ int CHoneyComb::getCollision(CPlayer * player)
 		m_bDie = true;
 	}
 	return result;
+}
+
+CMushroom::CMushroom()
+{
+}
+
+CMushroom::~CMushroom()
+{
+}
+
+void CMushroom::Animate(float fTimeElapsed)
+{
+	if (m_bcollided)
+	{
+		m_fTime += fTimeElapsed;
+		if (m_fTime > 1.5f)
+		{
+			m_fTime = 0.f;
+			m_bcollided = false;
+		}
+	}
 }

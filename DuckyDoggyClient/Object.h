@@ -317,7 +317,7 @@ public:
 
 	virtual void BuildMaterials(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList) { }
 
-	virtual int getCollision(CPlayer* player);
+	virtual int getCollision(CPlayer* player, bool physics = true);
 
 	virtual void OnPrepareAnimate() { }
 	virtual void Animate(float fTimeElapsed);
@@ -480,4 +480,18 @@ private:
 	float m_fElapsedTime;
 	bool m_bDie = false;
 	float floorHeight;
+};
+
+class CMushroom : public CGameObject
+{
+public:
+	CMushroom();
+	~CMushroom();
+	bool GetCollided() { return m_bcollided; }
+	void SetCollided(bool b) { m_bcollided = b; }
+
+	virtual void Animate(float fTimeElapsed);
+private:
+	float m_fTime = 0.f;
+	bool m_bcollided = false;
 };

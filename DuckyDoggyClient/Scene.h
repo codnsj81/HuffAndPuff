@@ -151,7 +151,7 @@ public:
 	list<CMonster*>						M_MonsterObjectslist;
 	list<CGameObject*>					m_GrassObjectlist;
 	list<CHoneyComb*>					m_HoneyComblist;
-	list<CGameObject*>					m_Mushroomlist;
+	list<CMushroom*>					m_Mushroomlist;
 
 	int									m_nWaters = 0;
 	CWater								**m_ppWaters = NULL;

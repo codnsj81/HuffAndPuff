@@ -199,7 +199,9 @@ void CPlayer::Move(const XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 				degree = minus / (xmf3Shift.x * xmf3Shift.x + minus * minus);
 
 			if (m_playerKind == PLAYER_KIND_DOGGY && CheckInWater(m_predictedPos, pTerrain))
+			{
 				return;
+			}
 
 
 		if (m_moveState == STATE_GROUND)
@@ -356,7 +358,6 @@ void CPlayer::Update(float fTimeElapsed)
 		XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed, false);
 
 		Move(xmf3Velocity, false);
-
 		if (m_pPlayerUpdatedContext) OnPlayerUpdateCallback(fTimeElapsed);
 
 		fLength = Vector3::Length(m_xmf3Velocity);
@@ -690,9 +691,9 @@ void CTerrainPlayer::OnPlayerUpdateCallback(float fTimeElapsed)
 
 		SetVelocity(xmf3PlayerVelocity);
 		xmf3PlayerPosition.y = fHeight;
+
 		SetPosition(xmf3PlayerPosition);
 	}
-
 	if ((m_moveState == STATE_GROUND || m_PiggybackState != PIGGYBACK_CRRIED))
 	{
 		m_bInWater = CheckInWater(xmf3PlayerPosition, pTerrain);
@@ -711,8 +712,10 @@ void CTerrainPlayer::OnCameraUpdateCallback(float fTimeElapsed)
 	bool bReverseQuad = ((z % 2) != 0);
 
 	float fHeight;
-	if(m_bInWater)
+	if (m_bInWater)
+	{
 		fHeight = m_xmf3Position.y + 10.0f;
+	}
 	else
 		fHeight = pTerrain->GetHeight(xmf3CameraPosition.x, xmf3CameraPosition.z, bReverseQuad) + 5.0f;
 	if (xmf3CameraPosition.y <= fHeight)

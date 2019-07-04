@@ -10,6 +10,21 @@ void CWaterMesh::CalculateTriangleListTBNs(int nVertices, XMFLOAT3 *pxmf3Positio
 {
 	
 }
+void CWaterMesh::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList)
+{
+	for (int i = 0; i < 4; i++)
+	{
+		m_pxmf2TextureCoords0[i].y += 0.05f * m_fTimeElapsed;
+	}
+
+	m_pd3dTextureCoord0Buffer = ::CreateBufferResource(m_pd3dDevice, pd3dCommandList, m_pxmf2TextureCoords0, sizeof(XMFLOAT2) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dTextureCoord0UploadBuffer);
+
+	m_d3dTextureCoord0BufferView.BufferLocation = m_pd3dTextureCoord0Buffer->GetGPUVirtualAddress();
+	m_d3dTextureCoord0BufferView.StrideInBytes = sizeof(XMFLOAT2);
+	m_d3dTextureCoord0BufferView.SizeInBytes = sizeof(XMFLOAT2) * m_nVertices;
+
+	pd3dCommandList->IASetVertexBuffers(m_nSlot, 1, &m_d3dTextureCoord0BufferView);
+}
 CMesh::CMesh()
 {
 }
@@ -769,6 +784,7 @@ void CSkinnedMesh::OnPreRender(ID3D12GraphicsCommandList *pd3dCommandList, void 
 
 CWaterMesh::CWaterMesh(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nWidth, int nLength)
 {
+	m_pd3dDevice = pd3dDevice;
 	m_nVertices = 4;
 	m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
 
@@ -786,11 +802,11 @@ CWaterMesh::CWaterMesh(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd
 	m_pxmf3BiTangents = new XMFLOAT3[m_nVertices];
 	m_pxmf3Normals = new XMFLOAT3[m_nVertices];
 
-	m_pxmf2TextureCoords0[0] = XMFLOAT2(0, 1);
-	m_pxmf2TextureCoords0[1] = XMFLOAT2(1, 1);
-	m_pxmf2TextureCoords0[2] = XMFLOAT2(0, 0);
-	m_pxmf2TextureCoords0[3] = XMFLOAT2(1, 0);
-
+	m_pxmf2TextureCoords0[0] = XMFLOAT2(0, 3);
+	m_pxmf2TextureCoords0[1] = XMFLOAT2(3.f, 3);
+	m_pxmf2TextureCoords0[2] = XMFLOAT2(0.f, 0);
+	m_pxmf2TextureCoords0[3] = XMFLOAT2(3.f, 0);
+	
 	for (int i = 0; i < m_nVertices; i++)
 	{
 		m_pxmf3Normals[i] = XMFLOAT3(0, 1, 0);

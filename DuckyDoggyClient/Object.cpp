@@ -1270,11 +1270,15 @@ CWater::CWater(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dComman
 
 	SetMaterial(0, pMaterial);
 	SetPosition(xmfPosition);
-
+	
 }
 
 CWater::~CWater()
 {
+}
+void CWater::Animate(float fTimeElapsed)
+{
+	dynamic_cast<CWaterMesh*>(m_pMesh)->setTimeElapsed(fTimeElapsed);
 }
 /////////////////////////////////////////////////////////////////////////////////
 // 

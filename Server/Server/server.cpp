@@ -386,7 +386,7 @@ void do_recv(char id)
 {
 	DWORD flags = 0;
 
-	clients[id].is_recv = true;
+ 	clients[id].is_recv = true;
 	if (WSARecv(clients[id].sock, &clients[id].wsabuf, 1,
 		NULL, &flags, &(clients[id].overlapped), recv_callback))
 	{

@@ -285,8 +285,8 @@ public:
 	CWaterMesh(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nWidth = 5.f, int nLength = 5.f);
 	virtual ~CWaterMesh();
 	void CalculateTriangleListTBNs(int nVertices, XMFLOAT3 *pxmf3Positions, XMFLOAT2 *pxmf2TexCoords, XMFLOAT3 *pxmf3Tangents, XMFLOAT3 *pxmf3BiTangents, XMFLOAT3 *pxmf3Normals);
-
-
+	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList);
+	void setTimeElapsed(float time) { m_fTimeElapsed = time; }
 protected:
 	int								m_nWidth;
 	int								m_nLength;
@@ -296,8 +296,8 @@ protected:
 	UINT							m_nIndices = 0;
 	UINT							m_nStartIndex = 0;
 	int								m_nBaseVertex = 0;
-
-
+	ID3D12Device*					m_pd3dDevice = NULL;
+	float							m_fTimeElapsed;
 };
 
 

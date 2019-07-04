@@ -667,9 +667,9 @@ void CGameFramework::BuildObjects()
 	// 도기 생성
 	m_pDoggy = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(),"Model/doggy.bin", PLAYER_KIND_DOGGY , true, m_pScene->m_pTerrain );
 
-//	m_pDoggy->SetPosition(XMFLOAT3(INITPOSITION_X, \
+	m_pDoggy->SetPosition(XMFLOAT3(INITPOSITION_X, 
 		m_pScene->m_pTerrain->GetHeight(INITPOSITION_X, INITPOSITION_Z), INITPOSITION_Z)); //시작위치
-	m_pDoggy->SetPosition(XMFLOAT3(1394, m_pScene->m_pTerrain->GetHeight(1394,1363 ), 1363)); //물 확인용
+//	m_pDoggy->SetPosition(XMFLOAT3(1394, m_pScene->m_pTerrain->GetHeight(1394,1363 ), 1363)); //물 확인용
 	m_pDoggy->SetHitBox(XMFLOAT3(5.f, 5.f, 5.f));
 	m_pDoggy->SetScale(XMFLOAT3(4.f, 4.f, 4.f));
 	m_pDoggy->Rotate(0, 80, 0);

@@ -671,6 +671,7 @@ void CTerrainPlayer::OnPlayerUpdateCallback(float fTimeElapsed)
 	XMFLOAT3 xmf3Scale = pTerrain->GetScale();
 	XMFLOAT3 xmf3PlayerPosition = GetPosition();
 	int z = (int)(xmf3PlayerPosition.z / xmf3Scale.z);
+
 	bool bReverseQuad = ((z % 2) != 0);
 	float fHeight;
 	if (m_moveState != STATE_ONOBJECTS)
@@ -688,7 +689,7 @@ void CTerrainPlayer::OnPlayerUpdateCallback(float fTimeElapsed)
 
 		XMFLOAT3 xmf3PlayerVelocity = GetVelocity();
 		xmf3PlayerVelocity.y = 0.0f;
-
+		
 		SetVelocity(xmf3PlayerVelocity);
 		xmf3PlayerPosition.y = fHeight;
 

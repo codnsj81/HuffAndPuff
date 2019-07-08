@@ -114,26 +114,28 @@ void CSnake::Animate(float fTimeElapsed)
 		}
 
 		// snake의 위치, 애니메이션 상태 서버에 전송
-		snake_info s_info;
-		s_info.id = m_iID;
-		s_info.x = m_xmf4x4ToParent._41; s_info.y = m_xmf4x4ToParent._42; s_info.z = m_xmf4x4ToParent._43;
-		s_info.l_x = m_xmf4x4ToParent._31; s_info.l_y = m_xmf4x4ToParent._32; s_info.l_z = m_xmf4x4ToParent._33;
-		s_info.r_x = m_xmf4x4ToParent._11; s_info.r_y = m_xmf4x4ToParent._12; s_info.l_z = m_xmf4x4ToParent._13;
-		s_info.animationSet = m_pChild->m_pAnimationController->GetAnimationSet();
-		int retval;
-		/// 고정
-		packet_info packetinfo;
-		packetinfo.type = cs_notify_snakeinfo;
-		packetinfo.size = sizeof(snake_info);
-		packetinfo.id = g_myinfo.id;
-		char buf[BUFSIZE];
-		memcpy(buf, &packetinfo, sizeof(packetinfo));
-		/// 가변 (고정 데이터에 가변 데이터 붙이는 형식으로)
-		memcpy(buf + sizeof(packetinfo), &s_info, sizeof(snake_info));
-		retval = send(g_sock, buf, BUFSIZE, 0);
-		if (retval == SOCKET_ERROR) {
-			MessageBoxW(g_hWnd, L"send()", L"send() - cs_notify_monsterinfo", MB_OK);
-			exit(1);
+		if (g_myinfo.connected == true) {
+			snake_info s_info;
+			s_info.id = m_iID;
+			s_info.x = m_xmf4x4ToParent._41; s_info.y = m_xmf4x4ToParent._42; s_info.z = m_xmf4x4ToParent._43;
+			s_info.l_x = m_xmf4x4ToParent._31; s_info.l_y = m_xmf4x4ToParent._32; s_info.l_z = m_xmf4x4ToParent._33;
+			s_info.r_x = m_xmf4x4ToParent._11; s_info.r_y = m_xmf4x4ToParent._12; s_info.l_z = m_xmf4x4ToParent._13;
+			s_info.animationSet = m_pChild->m_pAnimationController->GetAnimationSet();
+			int retval;
+			/// 고정
+			packet_info packetinfo;
+			packetinfo.type = cs_notify_snakeinfo;
+			packetinfo.size = sizeof(snake_info);
+			packetinfo.id = g_myinfo.id;
+			char buf[BUFSIZE];
+			memcpy(buf, &packetinfo, sizeof(packetinfo));
+			/// 가변 (고정 데이터에 가변 데이터 붙이는 형식으로)
+			memcpy(buf + sizeof(packetinfo), &s_info, sizeof(snake_info));
+			retval = send(g_sock, buf, BUFSIZE, 0);
+			if (retval == SOCKET_ERROR) {
+				MessageBoxW(g_hWnd, L"send()", L"send() - cs_notify_monsterinfo", MB_OK);
+				exit(1);
+			}
 		}
 	}
 
@@ -175,22 +177,23 @@ bool CSnake::Damage(int dam)
 		SetAnimationSet(3);
 
 		// 몬스터가 죽었다는 패킷 전송
-		int id = m_iID;
-		int retval;
-		/// 고정
-		packet_info packetinfo;
-		packetinfo.type = cs_snake_is_dead;
-		packetinfo.size = sizeof(int);
-		packetinfo.id = g_myinfo.id;
-		char buf[BUFSIZE];
-		memcpy(buf, &packetinfo, sizeof(packetinfo));
-		/// 가변 (고정 데이터에 가변 데이터 붙이는 형식으로)
-		memcpy(buf + sizeof(packetinfo), &id, sizeof(int));
-		retval = send(g_sock, buf, BUFSIZE, 0);
-		if (retval == SOCKET_ERROR) {
-			MessageBoxW(g_hWnd, L"send()", L"send() - cs_monster_is_dead", MB_OK);
-			exit(1);
+		if (g_myinfo.connected == true) {
+			int id = m_iID;
+			int retval;
+			/// 고정
+			packet_info packetinfo;
+			packetinfo.type = cs_snake_is_dead;
+			packetinfo.size = sizeof(int);
+			packetinfo.id = g_myinfo.id;
+			char buf[BUFSIZE];
+			memcpy(buf, &packetinfo, sizeof(packetinfo));
+			/// 가변 (고정 데이터에 가변 데이터 붙이는 형식으로)
+			memcpy(buf + sizeof(packetinfo), &id, sizeof(int));
+			retval = send(g_sock, buf, BUFSIZE, 0);
+			if (retval == SOCKET_ERROR) {
+				MessageBoxW(g_hWnd, L"send()", L"send() - cs_monster_is_dead", MB_OK);
+				exit(1);
+			}
 		}
-
 	}
 }

@@ -678,7 +678,7 @@ void CGameFramework::BuildObjects()
 	g_otherinfo.z = g_myinfo.z = INITPOSITION_Z;
 
 	
-	m_pDucky = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), "Model/ducky_walk.bin", PLAYER_KIND_DUCKY, true, m_pScene->m_pTerrain);
+	m_pDucky = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), "Model/ducky.bin", PLAYER_KIND_DUCKY, true, m_pScene->m_pTerrain);
 	//m_pDucky->SetPosition(XMFLOAT3(1099.0f, m_pScene->m_pTerrain->GetHeight(1099, 88.0f), 88.0f));
 
 	m_pDucky->SetPosition(XMFLOAT3(INITPOSITION_X, \
@@ -719,6 +719,12 @@ void CGameFramework::ReleaseObjects()
 {
 	if (m_pDoggy) m_pDoggy->Release();
 	if (m_pDucky) m_pDucky->Release();
+
+	if (m_UIList->size() > 0)
+		for (auto n : *m_UIList)
+			n->Release();
+	delete m_UIList;
+	m_UIList = NULL;
 
 	if (m_pScene) m_pScene->ReleaseObjects();
 	if (m_pScene) delete m_pScene;

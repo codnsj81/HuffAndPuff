@@ -145,6 +145,15 @@ void CScene::ReleaseObjects()
 		for (int i = 0; i < m_nWaters; i++) if (m_ppWaters[i]) m_ppWaters[i]->Release();
 		delete[] m_ppWaters;
 	}
+	if (M_MonsterObjectslist.size() != 0)
+	{
+		for (auto n : M_MonsterObjectslist)
+		{
+			n->Release();
+		}
+	}
+
+	if (HoneyComb) HoneyComb->Release();
 
 	ReleaseShaderVariables();
 

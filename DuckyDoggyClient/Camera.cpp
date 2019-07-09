@@ -56,6 +56,15 @@ CCamera::~CCamera()
 { 
 }
 
+int CCamera::GetFrusumCurr(const BoundingSphere& b)
+{
+	XMMATRIX view = XMLoadFloat4x4(&m_xmf4x4View);
+	XMMATRIX invvew = XMMatrixInverse(&XMMatrixDeterminant(view), view);
+	//m_frustum.Transform(m_frustum, invvew);
+	m_frustum.Origin = GetPosition();
+	return m_frustum.Contains(b);
+}
+
 void CCamera::SetViewport(int xTopLeft, int yTopLeft, int nWidth, int nHeight, float fMinZ, float fMaxZ)
 {
 	m_d3dViewport.TopLeftX = float(xTopLeft);
@@ -79,6 +88,8 @@ void CCamera::GenerateProjectionMatrix(float fNearPlaneDistance, float fFarPlane
 	m_xmf4x4Projection = Matrix4x4::PerspectiveFovLH(XMConvertToRadians(fFOVAngle), fAspectRatio, fNearPlaneDistance, fFarPlaneDistance);
 //	XMMATRIX xmmtxProjection = XMMatrixPerspectiveFovLH(XMConvertToRadians(fFOVAngle), fAspectRatio, fNearPlaneDistance, fFarPlaneDistance);
 //	XMStoreFloat4x4(&m_xmf4x4Projection, xmmtxProjection);
+	m_frustum.CreateFromMatrix(m_frustum, XMLoadFloat4x4(&m_xmf4x4Projection));
+	m_frustum.Orientation = XMFLOAT4(m_xmf3Look.x, m_xmf3Look.y, m_xmf3Look.z, 1);
 }
 
 void CCamera::GenerateViewMatrix(XMFLOAT3 xmf3Position, XMFLOAT3 xmf3LookAt, XMFLOAT3 xmf3Up)

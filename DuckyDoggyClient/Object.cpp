@@ -517,6 +517,12 @@ void CGameObject::SetChild(CGameObject *pChild, bool bReferenceUpdate)
 	}
 }
 
+BoundingBox CGameObject::GetBoundingBox()
+{
+	return BoundingBox(GetPosition(), GetHitBox());
+	
+}
+
 void CGameObject::SetAnimationSpeed(float a)
 {
 	for (int i  = 0 ; i<m_pAnimationController->m_nAnimationSets; i++)
@@ -638,7 +644,6 @@ int CGameObject::getCollision(CPlayer * player, bool physics)
 		break;
 		
 	}
-	
 	return result;
 
 }
@@ -652,7 +657,10 @@ void CGameObject::Animate(float fTimeElapsed)
 }
 
 void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
-{
+{	
+	float distance = Vector3::Length(Vector3::Subtract(pCamera->GetPosition(), GetPosition()));
+	if(distance > 500) return;
+
 	OnPrepareRender();
 
 	UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
@@ -1239,6 +1247,30 @@ CHeightMapTerrain::CHeightMapTerrain(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 CHeightMapTerrain::~CHeightMapTerrain(void)
 {
 	if (m_pHeightMapImage) delete m_pHeightMapImage;
+}
+
+void CHeightMapTerrain::Render(ID3D12GraphicsCommandList * pd3dCommandList, CCamera * pCamera)
+{
+	OnPrepareRender();
+
+	UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
+
+	if (m_nMaterials > 0)
+	{
+		for (int i = 0; i < m_nMaterials; i++)
+		{
+			if (m_ppMaterials[i])
+			{
+				if (m_ppMaterials[i]->m_pShader) m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera);
+				m_ppMaterials[i]->UpdateShaderVariable(pd3dCommandList);
+			}
+
+			if (m_pMesh) m_pMesh->Render(pd3dCommandList, i);
+		}
+	}
+
+	if (m_pSibling) m_pSibling->Render(pd3dCommandList, pCamera);
+	if (m_pChild) m_pChild->Render(pd3dCommandList, pCamera);
 }
 
 CWater::CWater(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, ID3D12RootSignature * pd3dGraphicsRootSignature, int nWidth, int nLength, XMFLOAT3 xmfPosition)

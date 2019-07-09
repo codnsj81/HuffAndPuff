@@ -45,11 +45,12 @@ protected:
 	ID3D12Resource					*m_pd3dcbCamera = NULL;
 	VS_CB_CAMERA_INFO				*m_pcbMappedCamera = NULL;
 
-
+	BoundingFrustum					m_frustum;
 public:
 	CCamera();
 	CCamera(CCamera *pCamera);
 	virtual ~CCamera();
+	int GetFrusumCurr(const BoundingSphere& b);
 
 	list<CUI*>					*m_UIList = NULL;
 	CStartUI*					m_pOverUI = NULL;

@@ -85,6 +85,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	LoadStone(pd3dDevice, pd3dCommandList);
 	LoadTree(pd3dDevice, pd3dCommandList);
 	LoadGrass(pd3dDevice, pd3dCommandList);
+	LoadTrap(pd3dDevice, pd3dCommandList);
 	BuildMushroomData(pd3dDevice, pd3dCommandList);
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
@@ -163,7 +164,6 @@ void CScene::ReleaseObjects()
 void CScene::Update()
 {
 	ObjectsCollides();
-	
 }
 
 void CScene::SetDuckyNDoggy(CPlayer * ducky, CPlayer * doggy, CPlayer * player)
@@ -424,6 +424,9 @@ void CScene::ReleaseUploadBuffers()
 	}
 	for (auto n : M_MonsterObjectslist)
 		n->ReleaseShaderVariables();
+
+	for (auto n : m_TrapList)
+		n->ReleaseShaderVariables();
 }
 
 void CScene::ResetObjects()
@@ -453,6 +456,25 @@ void CScene::SaveTreeData()
 	fstream out("TreeData.txt", ios::out | ios::binary);
 
 	for (auto n : TreeDatalist)
+	{
+		out << n.x << " " << n.y << "\n";
+	}
+}
+
+void CScene::PlusTrapData()
+{
+
+	XMFLOAT2 playerXZpos;
+	playerXZpos.x = m_pPlayer->GetPosition().x;
+	playerXZpos.y = m_pPlayer->GetPosition().z;
+	TrapDatalist.push_back(playerXZpos);
+}
+
+void CScene::SaveTrapData()
+{
+	fstream out("TrapData.txt", ios::out | ios::binary);
+
+	for (auto n : TrapDatalist)
 	{
 		out << n.x << " " << n.y << "\n";
 	}
@@ -788,6 +810,31 @@ void CScene::LoadStone(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd
 	}
 }
 
+void CScene::LoadTrap(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList)
+{
+	CGameObject *pTrap = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/trap.bin", NULL, false);
+
+	fstream in("TrapData.txt", ios::in | ios::binary);
+	while (in)
+	{
+		XMFLOAT2 dat;
+		in >> dat.x;
+		in >> dat.y;
+		TrapDatalist.emplace_back(dat);
+	}
+
+	list<XMFLOAT2>::iterator iter = TrapDatalist.begin();
+	list<XMFLOAT2>::iterator end = TrapDatalist.end();
+
+	for (iter; iter != end; iter++)
+	{
+		CGameObject* obj = new CGameObject();
+		obj->SetChild(pTrap, true);
+		obj->SetPosition(iter->x, m_pTerrain->GetHeight(iter->x, iter->y), iter->y);
+		m_TrapList.push_back(obj);
+	}
+}
+
 void CScene::LoadGrass(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList)
 {
 	CGrasshader* pShader = new CGrasshader();
@@ -957,6 +1004,11 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 		p->Render(pd3dCommandList, pCamera);
 	}
 	for (auto p : m_Mushroomlist)
+	{
+		p->UpdateTransform(NULL);
+		p->Render(pd3dCommandList, pCamera);
+	}
+	for (auto p : m_TrapList)
 	{
 		p->UpdateTransform(NULL);
 		p->Render(pd3dCommandList, pCamera);

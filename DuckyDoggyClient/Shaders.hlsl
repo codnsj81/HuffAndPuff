@@ -262,6 +262,14 @@ cbuffer waterbuffer
 	float watertranslation;
 
 };
+
+cbuffer MatrixBuffer
+{
+	matrix worldMatrix; matrix viewMatrix; matrix projectionMatrix;
+};
+cbuffer ReflectionBuffer { matrix reflectionMatrix; };
+
+
 struct VS_WATER_INPUT
 {
 	float3 position : POSITION;
@@ -298,7 +306,7 @@ VS_WATER_OUTPUT VSWater(VS_WATER_INPUT input)
 float4 PSWater(VS_WATER_OUTPUT input) : SV_TARGET
 {
 
-	float4 cColor = float4(0.0f, 1.f, 1.f, 0.2f);
+	float4 cColor = float4(0.0f, 1.f, 1.f, 0.15f);
 	float3x3 TBN = float3x3(normalize(input.tangentW), normalize(input.bitangentW), normalize(input.normalW));
 	float4 cNormal;
 	cNormal = gtxtAlbedoTexture.Sample(gssClamp, input.uv);

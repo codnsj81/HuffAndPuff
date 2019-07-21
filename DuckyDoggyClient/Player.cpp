@@ -171,7 +171,7 @@ bool CPlayer::CheckInWater(XMFLOAT3 pos, CHeightMapTerrain *pTerrain)
 	return false;
 }
 
-void CPlayer::Move(const XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
+void CPlayer::Move( XMFLOAT3 xmf3Shift, bool bUpdateVelocity)
 {
 
 	if (bUpdateVelocity)
@@ -215,14 +215,9 @@ void CPlayer::Move(const XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 			{
 				if (m_moveState == STATE_FALLING)
 				{
-					if(xmf3Shift.z <0)
-						m_xmf3Position = Vector3::Add(m_xmf3Position, XMFLOAT3(0,0,xmf3Shift.z));
+						xmf3Shift = XMFLOAT3(0, xmf3Shift.y, 0);
 				}	
-				else
-					m_xmf3Position = Vector3::Add(m_xmf3Position, XMFLOAT3(0, 0, xmf3Shift.z));
-
 			}
-			else
 				m_xmf3Position = Vector3::Add(m_xmf3Position, xmf3Shift);
 		}
 
@@ -592,11 +587,9 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 
 	CGameObject *pGameObject = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, name, NULL, banimation);
 	
-	if (m_playerKind == PLAYER_KIND_DOGGY)
-	{
 		pGameObject->m_pAnimationController->m_pAnimationSets[1].m_fSpeed = 0.8f;
-	}
-	else
+	
+	if(m_playerKind == player_ducky)
 	{
 		pGameObject->m_pAnimationController->m_pAnimationSets[0].m_fSpeed = 0.4f;
 	}

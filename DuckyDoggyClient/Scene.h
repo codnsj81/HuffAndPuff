@@ -72,6 +72,8 @@ public:
 	ID3D12RootSignature *GetGraphicsRootSignature() { return(m_pd3dGraphicsRootSignature); }
 	
 	void LoadStone(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
+	void LoadTrap(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
+
 	void LoadGrass(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	void LoadTree(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	bool ProcessInput(UCHAR *pKeysBuffer);
@@ -89,6 +91,10 @@ public:
 	void ResetObjects();
 	void PlusTreeData();
 	void SaveTreeData();
+
+
+	void PlusTrapData();
+	void SaveTrapData();
 
 	void PlusGrassData();
 	void SaveGrassData();
@@ -152,6 +158,7 @@ public:
 	list<CGameObject*>					m_GrassObjectlist;
 	list<CHoneyComb*>					m_HoneyComblist;
 	list<CMushroom*>					m_Mushroomlist;
+	list<CGameObject*>					m_TrapList;
 
 	int									m_nWaters = 0;
 	CWater								**m_ppWaters = NULL;
@@ -173,7 +180,7 @@ public:
 	ID3D12Resource						*m_pd3dcbLights = NULL;
 	LIGHTS								*m_pcbMappedLights = NULL;
 
-
+	list<XMFLOAT2> TrapDatalist;
 	list<XMFLOAT2> MushroomDatalist;
 	list<XMFLOAT2> TreeDatalist;
 	list<StoneInfo>	StoneDataList;

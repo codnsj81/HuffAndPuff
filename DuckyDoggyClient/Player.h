@@ -14,14 +14,14 @@
 
 
 // 플레이어충돌
-#define COLLIDEY	0
-#define COLLIDEN	1
+#define COLLIDEY	0 // 충돌 O
+#define COLLIDEN	1 // 충돌 X
 
 
 #include "Object.h"
 #include "Camera.h"
 #include "../Headers/Include.h"
-
+class CScene;
 class CPlayer : public CGameObject
 {
 protected:
@@ -63,7 +63,7 @@ protected:
 	int							m_iJumpnum = 0 ;
 	float						m_fSpeed = 3.25f;
 	int							m_iSkillGage = 0;
-	
+	CScene*						m_pScene = NULL;
 
 	int							m_iAtt = 50;
 	float							m_iHP = 100.f;
@@ -73,6 +73,7 @@ public:
 	CPlayer();
 	virtual ~CPlayer();
 
+	void SetScene(CScene* p) { m_pScene = p; }
 	int	GetAtt() { return m_iAtt; }
 	XMFLOAT3 GetPrecdictedPos() { return m_predictedPos; }
 	XMFLOAT3 GetPosition() { return(m_xmf3Position); }
@@ -123,7 +124,7 @@ public:
 	bool CheckInWater(XMFLOAT3 pos, CHeightMapTerrain *pTerrain);
 
 	void Move(ULONG nDirection, float fDistance, bool bVelocity = false);
-	void Move(const XMFLOAT3& xmf3Shift, bool bVelocity = false);
+	void Move( XMFLOAT3 xmf3Shift, bool bVelocity = false);
 	void Move(float fxOffset = 0.0f, float fyOffset = 0.0f, float fzOffset = 0.0f);
 	void Rotate(float x, float y, float z);
 

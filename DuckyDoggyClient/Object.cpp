@@ -24,11 +24,10 @@ int CGameObject::BBCollision(float minX, float maxX, float minY, float maxY, flo
 	if (minZ > minZ1)
 		return COLLIDE_NONE;
 
+	if ((maxY - minY1) < 0.6f && (maxY - minY1) >= 0.f)
+		return COLLIDE_ON;
 	if (maxY1 <= minY)
 		return COLLIDE_UNDER;
-	if ((maxY - minY1) < 0.5f && (maxY - minY1) >= 0.f)
-		return COLLIDE_ON;
-
 	return COLLIDE_SIDE;
 }
 
@@ -659,7 +658,7 @@ void CGameObject::Animate(float fTimeElapsed)
 void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
 {	
 	float distance = Vector3::Length(Vector3::Subtract(pCamera->GetPosition(), GetPosition()));
-	if(distance > 500) return;
+	if(distance > 450) return;
 
 	OnPrepareRender();
 

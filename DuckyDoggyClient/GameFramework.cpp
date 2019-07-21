@@ -342,10 +342,10 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 					break;
 				case 't':
 				case 'T':
-					m_pScene->PlusMushroomData();
+					m_pScene->PlusTrapData();
 					break;
 				case 'Y':
-					m_pScene->SaveMushroomData();
+					m_pScene->SaveTrapData();
 					break;
 				case 'O':
 				case 'o':
@@ -669,7 +669,7 @@ void CGameFramework::BuildObjects()
 
 	m_pDoggy->SetPosition(XMFLOAT3(INITPOSITION_X, 
 		m_pScene->m_pTerrain->GetHeight(INITPOSITION_X, INITPOSITION_Z), INITPOSITION_Z)); //시작위치
-//	m_pDoggy->SetPosition(XMFLOAT3(1394, m_pScene->m_pTerrain->GetHeight(1394,1363 ), 1363)); //물 확인용
+	//m_pDoggy->SetPosition(XMFLOAT3(1394, m_pScene->m_pTerrain->GetHeight(1394,1363 ), 1363)); //물 확인용
 	m_pDoggy->SetHitBox(XMFLOAT3(5.f, 5.f, 5.f));
 	m_pDoggy->SetScale(XMFLOAT3(4.f, 4.f, 4.f));
 	m_pDoggy->Rotate(0, 80, 0);
@@ -689,6 +689,8 @@ void CGameFramework::BuildObjects()
 
 	m_pDucky->SetParter(m_pDoggy);
 	m_pDoggy->SetParter(m_pDucky);
+	m_pDucky->SetScene(m_pScene);
+	m_pDoggy->SetScene(m_pScene);
 
 	m_pScene->m_pPlayer = m_pPlayer = m_pDoggy;
 	m_pCamera = m_pPlayer->GetCamera();
@@ -975,7 +977,7 @@ void CGameFramework::FrameAdvance()
 	int as = m_pPlayer->GetAnimationSet_child();
 	// cout << "as : " << as << endl;
 	if (g_myinfo.connected == true && m_dwUpdatecnt >= 3) {
-		//if (as == 0 && g_myinfo.type == player_doggy)
+		//if (as == 0 && g_myinfo.type == player_doggy)D
 		//	return;
 		//else
 		{ // 우선 도기만 애니메이션 run, jump가 있기 때문에 이렇게 짜야 함

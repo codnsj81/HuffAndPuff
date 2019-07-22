@@ -15,10 +15,12 @@ struct SOCKETINFO
 	WSAOVERLAPPED overlapped; // overlapped 구조체
 	WSABUF wsabuf;	// WSABUF 구조체. 버퍼 자체가 아닌, 버퍼의 포인터
 	SOCKET sock;
-	char buf[BUFSIZE + 1];	// 응용 프로그램 버퍼. 실제 버퍼가 들어갈 메시지 버퍼.
+	char buf[BUFSIZE];	// 응용 프로그램 버퍼. 실제 버퍼가 들어갈 메시지 버퍼.
+	char packet_buf[BUFSIZE];
 	player_info playerinfo = {};
 	bool connected = false;
 	bool is_recv = true;
+	int prev_size;
 };
 
 // map<SOCKET, SOCKETINFO> clients;
@@ -210,12 +212,45 @@ void CALLBACK recv_callback(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED overla
 		return;
 	}
 
-
-	// 고정 길이 패킷.
 	player_info playerinfo;
 	packet_info packetinfo;
-	memcpy(&packetinfo, clients[id].buf, sizeof(packetinfo));
+
+	// 패킷 재조립
+	int rest = dataBytes; // 도착한 데이터 양
+	char* ptr = /*socketInfo->buf*/clients[id].buf;
+	int packet_size = 0;
+	if (0 < clients[id].prev_size) // 최초 데이터 도착이면?
+		packet_size = /*sizeof(packetinfo) + sizeof(playerinfo)*/BUFSIZE;
+	while (0 < rest) { // 도착한 데이터 양 rest가 0이 될 때까지
+		if (0 == packet_size)
+			packet_size = /*sizeof(packetinfo) + sizeof(playerinfo)*/BUFSIZE;
+		int required = packet_size - clients[id].prev_size; // 앞으로 받아야 할 총 데이터
+		if (required <= rest) { // 총 도착할 데이터만큼 받았으면
+			memcpy(clients[id].packet_buf + clients[id].prev_size, ptr, required);
+			
+			rest -= required;
+			ptr += required;
+			packet_size = 0;
+			clients[id].prev_size = 0;
+		}
+		else{
+			memcpy(clients[id].packet_buf + clients[id].prev_size, ptr, rest);
+			rest = 0;
+			clients[id].prev_size += rest;
+
+			do_recv(id);
+			return;
+		}
+
+	}
+	// ---------------------------------------------
+	// 패킷 재조립이 끝난 데이터는 clients[id].packet_buffer에 있음.
+	// 따라서 데이터를 가져올 버퍼는 clients[id].buf -> clients[id].packet_buf여야 함
+
+	// 고정 길이 패킷.
+	memcpy(&packetinfo, clients[id].packet_buf, sizeof(packetinfo));
 	int fromid = packetinfo.id;
+
 
 
 	// 가변 길이 패킷.
@@ -225,7 +260,7 @@ void CALLBACK recv_callback(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED overla
 		// 1. cs_move 패킷을 보내온 클라이언트의 정보를 받아온다.
 		{
 			char buf[BUFSIZE];
-			memcpy(&playerinfo, clients[fromid].buf + sizeof(packetinfo), sizeof(player_info));
+			memcpy(&playerinfo, clients[fromid].packet_buf + sizeof(packetinfo), sizeof(player_info));
 			clients[fromid].playerinfo = playerinfo;
 		}
 
@@ -263,7 +298,7 @@ void CALLBACK recv_callback(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED overla
 		// 1. cs_put_playertype 패킷을 보내온 클라이언트의 "type" 정보를 받아온다.
 		{
 			char buf[BUFSIZE];
-			memcpy(&playerinfo, clients[fromid].buf + sizeof(packetinfo), sizeof(player_info));
+			memcpy(&playerinfo, clients[fromid].packet_buf + sizeof(packetinfo), sizeof(player_info));
 			clients[fromid].playerinfo.type = playerinfo.type;
 		}
 		// 2. 보내온 클라이언트의 소켓은 다시 Recv를 시작한다.
@@ -277,7 +312,7 @@ void CALLBACK recv_callback(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED overla
 		// 1. 죽은 몬스터의 id를 받아온다.
 		int monsterId = -1;
 		char buf[BUFSIZE];
-		memcpy(&monsterId, clients[fromid].buf + sizeof(packetinfo), sizeof(int));
+		memcpy(&monsterId, clients[fromid].packet_buf + sizeof(packetinfo), sizeof(int));
 		
 		// 2. 다른 클라이언트에게도 죽은 몬스터의 id를 알린다.
 		memset(&packetinfo, 0x00, sizeof(packetinfo));
@@ -302,7 +337,7 @@ void CALLBACK recv_callback(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED overla
 		// 1. 죽은 몬스터의 info를 받아온다.
 		snake_info s_info;
 		char buf[BUFSIZE];
-		memcpy(&s_info, clients[fromid].buf + sizeof(packetinfo), sizeof(snake_info));
+		memcpy(&s_info, clients[fromid].packet_buf + sizeof(packetinfo), sizeof(snake_info));
 
 		// 2. 다른 클라이언트에게도 몬스터의 info를 알린다.
 		memset(&packetinfo, 0x00, sizeof(packetinfo));
@@ -322,9 +357,9 @@ void CALLBACK recv_callback(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED overla
 
 	}
 	break;
-	default:
-		do_recv(fromid);
-		break;
+	//default:
+	//	do_recv(fromid);
+	//	break;
 	}
 
 

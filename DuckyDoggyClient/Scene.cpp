@@ -82,6 +82,12 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	m_nGameObjects = 0;
 	m_ppGameObjects = new CGameObject*[m_nGameObjects];
 
+
+	m_DamageUITex = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	m_DamageUITex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/tree03_Nor_01.tiff", 0, false);
+
+	CScene::CreateShaderResourceViews(pd3dDevice, m_DamageUITex, 3, false);
+
 	LoadStone(pd3dDevice, pd3dCommandList);
 	LoadTree(pd3dDevice, pd3dCommandList);
 	LoadGrass(pd3dDevice, pd3dCommandList);
@@ -1007,6 +1013,11 @@ void CScene::AnimateObjects(float fTimeElapsed)
 	{
 		h->Animate(fTimeElapsed);
 	}
+
+	for (auto h : m_DamageUIList)
+	{
+		h->Update(fTimeElapsed);
+	}
 	list<CHoneyComb*> ::iterator honeyiter = m_HoneyComblist.begin();
 	list<CHoneyComb*> ::iterator honeyend = m_HoneyComblist.end();
 	for (honeyiter; honeyiter != honeyend; honeyiter++)
@@ -1077,6 +1088,15 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 		p->UpdateTransform(NULL);
 		p->Render(pd3dCommandList, pCamera);
 	}
+	for (auto p : m_DamageUIList)
+	{
+		if (p->bRender)
+		{
+		p->UpdateTransform(NULL);
+		p->Render(pd3dCommandList, pCamera);
+
+		}
+	}
 	for (int i = 0; i < m_nShaders; i++) if (m_ppShaders[i]) m_ppShaders[i]->Render(pd3dCommandList, pCamera);
 	
 
@@ -1137,6 +1157,10 @@ void CScene::ObjectsCollides()
 		{
 			if (!n->GetCollided())
 			{
+				CDamageUI* DUI = new CDamageUI(m_pd3dDevice, m_pd3dCommandList, m_pd3dGraphicsRootSignature, 3, 3, m_pDoggy->GetPosition(), NULL);
+				DUI->SetTexture(m_DamageUITex);
+				DUI->Rotate(90,0,0);
+				m_DamageUIList.emplace_back(DUI);
 				m_pDoggy->Damage(4);
 				n->SetCollided(true);
 			}
@@ -1145,6 +1169,9 @@ void CScene::ObjectsCollides()
 		{
 			if (!n->GetCollided())
 			{
+				CDamageUI* DUI = new CDamageUI(m_pd3dDevice, m_pd3dCommandList, m_pd3dGraphicsRootSignature, 3, 3, m_pDucky->GetPosition(), NULL);
+				DUI->SetTexture(m_DamageUITex);
+				m_DamageUIList.emplace_back(DUI);
 				m_pDucky->Damage(4);
 			}
 			n->SetCollided(true);

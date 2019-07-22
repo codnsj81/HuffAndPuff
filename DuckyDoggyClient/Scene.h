@@ -15,6 +15,7 @@
 
 class CMonster;
 class CStartUI;
+class CDamageUI;
 class CTrap;
 struct StoneInfo
 {
@@ -93,7 +94,8 @@ public:
 	CPlayer								*m_pDoggy;
 	CPlayer								*m_pDucky;
 	CGameObject*						m_pSnakeObject = NULL;
-
+	ID3D12Device*						m_pd3dDevice = NULL;
+	ID3D12GraphicsCommandList*			m_pd3dCommandList = NULL;
 	void ResetObjects();
 	void PlusTreeData();
 	void SaveTreeData();
@@ -159,9 +161,10 @@ public:
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUSrvDescriptorNeLxtHandle() { return(m_d3dSrvGPUDescriptorNextHandle); }
 
 	int									m_nGameObjects = 0;
-
+	
+	CTexture*							m_DamageUITex = NULL;
 	CGameObject* HoneyComb = NULL;
-
+	
 	CGameObject							**m_ppGameObjects = NULL;
 	list<CTree*>						m_TreeObjectslist;
 	list<CGameObject*>					m_StoneObjectslist;
@@ -171,6 +174,7 @@ public:
 	list<CMushroom*>					m_Mushroomlist;
 	list<CDash*>						m_DashList;
 	list<CTrap*>						m_TrapList;
+	list<CDamageUI*>					m_DamageUIList;
 
 	int									m_nWaters = 0;
 	CWater								**m_ppWaters = NULL;

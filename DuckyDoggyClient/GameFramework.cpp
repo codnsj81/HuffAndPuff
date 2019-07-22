@@ -614,7 +614,7 @@ void CGameFramework::BuildUI()
 	m_UIList->push_back(pTemp);
 
 	m_pCamera->m_UIList = m_UIList;
-
+	
 
 	m_pOverUI = new CStartUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 4, 4, XMFLOAT3(1999, m_pScene->m_pTerrain->GetHeight(1999, 972), 972), L"Model/Textures/GAMEOVER.tiff");
 	m_pOverUI->SetWinpos(-2.5, 0);
@@ -695,7 +695,9 @@ void CGameFramework::BuildObjects()
 	m_pScene->m_pPlayer = m_pPlayer = m_pDoggy;
 	m_pCamera = m_pPlayer->GetCamera();
 	m_pScene->SetDuckyNDoggy(m_pDucky, m_pDoggy, m_pPlayer);
-	
+	m_pScene->m_pd3dDevice = m_pd3dDevice;
+	m_pScene->m_pd3dCommandList = m_pd3dCommandList;
+
 	BuildUI();
 
 	m_pd3dCommandList->Close();

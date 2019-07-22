@@ -258,6 +258,48 @@ void CMP::Update(float elapsed)
 	SetScale(ratio, 1, 1);
 }
 
+CDamageUI::CDamageUI(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, ID3D12RootSignature * pd3dGraphicsRootSignature, float nWidth, float nLength, XMFLOAT3 xmfPosition, wchar_t * pFilename)
+{
+	bRender = false;
+	m_nWidth = nWidth;
+	m_nLength = nLength;
+	m_nMaterials = 1;
+	m_ppMaterials = new CMaterial*[m_nMaterials];
+	for (int i = 0; i < m_nMaterials; i++)
+		m_ppMaterials[i] = NULL;
+
+	CMesh *pMesh = new CUIMesh(pd3dDevice, pd3dCommandList, nWidth, nLength, 1, 1);
+	SetMesh(pMesh);
+
+	CShader *pShader = new CShader();
+	pShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	pShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
 
+	CMaterial *pMaterial = new CMaterial(1);
+	pMaterial->SetMaterialType(MATERIAL_ALBEDO_MAP);
+	pMaterial->SetShader(pShader);
 
+	SetMaterial(0, pMaterial);
+	xmfPosition.y += 7.f;
+
+	//pMaterial->SetMaterialType(MATERIAL_ALBEDO_MAP);
+	SetPosition(xmfPosition);
+}
+
+CDamageUI::~CDamageUI()
+{
+}
+
+void CDamageUI::SetTexture(CTexture * tex)
+{
+	m_ppMaterials[0]->SetTexture(tex,0);
+}
+
+void CDamageUI::Update(float elapsed)
+{
+	SetPosition(Vector3::Add(GetPosition(), Vector3::ScalarProduct(GetLook(),-elapsed)));
+	TimeElapsed += elapsed;
+	if (TimeElapsed > 1.f) bRender = false;
+
+}

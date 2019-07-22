@@ -649,6 +649,7 @@ int CGameObject::getCollision(CPlayer * player, bool physics)
 
 void CGameObject::Animate(float fTimeElapsed)
 {
+	
 	if (m_pAnimationController) m_pAnimationController->AdvanceTime(fTimeElapsed, NULL);
 
 	if (m_pSibling) m_pSibling->Animate(fTimeElapsed);
@@ -1438,4 +1439,34 @@ void CMushroom::Animate(float fTimeElapsed)
 			m_bcollided = false;
 		}
 	}
+}
+
+CTrap::CTrap()
+{
+	m_bcollided = false;
+}
+
+CTrap::~CTrap()
+{
+}
+
+void CTrap::Animate(float fTimeElapsed)
+{
+	if (m_bcollided)
+	{
+		m_fTime += fTimeElapsed;
+		if (m_fTime > 7.f)
+		{
+			m_fTime = 0.f;
+			m_bcollided = false;
+		}
+	}
+}
+
+CDash::CDash()
+{
+}
+
+CDash::~CDash()
+{
 }

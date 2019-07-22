@@ -86,6 +86,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	LoadTree(pd3dDevice, pd3dCommandList);
 	LoadGrass(pd3dDevice, pd3dCommandList);
 	LoadTrap(pd3dDevice, pd3dCommandList);
+	LoadDash(pd3dDevice, pd3dCommandList);
 	BuildMushroomData(pd3dDevice, pd3dCommandList);
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
@@ -498,6 +499,38 @@ void CScene::SaveGrassData()
 	}
 }
 
+void CScene::LoadDash(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList)
+{
+	CGameObject* pOBJ = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Dash.bin", NULL, false);
+
+	fstream in("DashData.txt", ios::in | ios::binary);
+	while (in)
+	{
+		DashInfo dat;
+		in >> dat.m_pos.x;
+		in >> dat.m_pos.y;
+		in >> dat.m_pos.z;
+		in >> dat.m_rot.x;
+		in >> dat.m_rot.y;
+		in >> dat.m_rot.z;
+
+		DashDataList.emplace_back(dat);
+	}
+
+	list<DashInfo>::iterator iter = DashDataList.begin();
+	list<DashInfo>::iterator end = DashDataList.end();
+
+	for (iter; iter != end; iter++)
+	{
+		CDash* obj = new CDash();
+		obj->SetChild(pOBJ, true);
+		obj->SetHitBox(XMFLOAT3(3,3,3));
+		obj->SetPosition(iter->m_pos.x, iter->m_pos.y, iter->m_pos.z);
+		//	obj->Rotate(0, RandomRotate, 0);
+		m_DashList.push_back(obj);
+	}
+}
+
 void CScene::PlusMushroomData()
 {
 	MushroomDatalist.push_back(XMFLOAT2(m_pPlayer->GetPosition().x, m_pPlayer->GetPosition().z));
@@ -568,6 +601,29 @@ void CScene::SaveStoneData()
 	{
 		out <<n.m_iType << " " << n.m_pos.x << " " << n.m_pos.y  <<" " << n.m_pos.z << " "
 			<< n.m_size.x << " "<< n.m_size.y<<" " << n.m_size.z  << endl;
+	}
+}
+
+void CScene::PlusDashData()
+{
+	DashInfo playerPos;
+
+	playerPos.m_pos.x = m_pPlayer->GetPosition().x;
+	playerPos.m_pos.y = m_pPlayer->GetPosition().y;
+	playerPos.m_pos.z = m_pPlayer->GetPosition().z;
+	playerPos.m_rot.x = m_pPlayer->GetLookVector().x;
+	playerPos.m_rot.y = m_pPlayer->GetLookVector().y;
+	playerPos.m_rot.z = m_pPlayer->GetLookVector().z;
+	DashDataList.push_back(playerPos);
+}
+
+void CScene::SaveDashData()
+{
+	fstream out("DashData.txt", ios::out | ios::binary);
+	for (auto n : DashDataList)
+	{
+		out << n.m_pos.x << " " << n.m_pos.y + 0.1f << " " << n.m_pos.z << " "
+			<< n.m_rot.x << " "<< n.m_rot.y<< " " << n.m_rot.z << endl;
 	}
 }
 
@@ -828,8 +884,9 @@ void CScene::LoadTrap(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3
 
 	for (iter; iter != end; iter++)
 	{
-		CGameObject* obj = new CGameObject();
+		CTrap* obj = new CTrap();
 		obj->SetChild(pTrap, true);
+		obj->SetHitBox(XMFLOAT3(1.f, 1.f, 1.f));
 		obj->SetPosition(iter->x, m_pTerrain->GetHeight(iter->x, iter->y), iter->y);
 		m_TrapList.push_back(obj);
 	}
@@ -873,7 +930,6 @@ void CScene::LoadTree(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dC
 	
 	CGameObject *pTree = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Tree.bin", NULL, false);
 	CGameObject *pTree2 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Tree2.bin", NULL, false);
-	CGameObject *pTree3 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Tree3.bin", NULL, false);
 
 	fstream in("TreeData.txt", ios::in | ios::binary);
 	while (in)
@@ -947,7 +1003,10 @@ void CScene::AnimateObjects(float fTimeElapsed)
 	{
 		h->Animate(fTimeElapsed);
 	}
-
+	for (auto h : m_TrapList)
+	{
+		h->Animate(fTimeElapsed);
+	}
 	list<CHoneyComb*> ::iterator honeyiter = m_HoneyComblist.begin();
 	list<CHoneyComb*> ::iterator honeyend = m_HoneyComblist.end();
 	for (honeyiter; honeyiter != honeyend; honeyiter++)
@@ -1009,6 +1068,11 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 		p->Render(pd3dCommandList, pCamera);
 	}
 	for (auto p : m_TrapList)
+	{
+		p->UpdateTransform(NULL);
+		p->Render(pd3dCommandList, pCamera);
+	}
+	for (auto p : m_DashList)
 	{
 		p->UpdateTransform(NULL);
 		p->Render(pd3dCommandList, pCamera);
@@ -1087,5 +1151,40 @@ void CScene::ObjectsCollides()
 		}
 	}
 
+
+	for (auto n : m_TrapList)
+	{
+		if (n->getCollision(m_pDoggy, false) != COLLIDE_NONE)
+		{
+			if (!n->GetCollided())
+			{
+				m_pDoggy->SetStun();
+				m_pDoggy->Damage(4);
+				n->SetCollided(true);
+			}
+		}
+		if (n->getCollision(m_pDucky, false) != COLLIDE_NONE)
+		{
+			if (!n->GetCollided())
+			{
+				m_pDucky->SetStun();
+				m_pDucky->Damage(4);
+			}
+			n->SetCollided(true);
+		}
+
+	}
+	for (auto n : m_DashList)
+	{
+		if (n->getCollision(m_pDoggy, false) != COLLIDE_NONE)
+		{
+			m_pDoggy->Dash(m_fElapsedTime * 10);
+		}
+		if (n->getCollision(m_pDucky, false) != COLLIDE_NONE)
+		{
+			m_pDucky->Dash(m_fElapsedTime * 10);
+		}
+
+	}
 }
 

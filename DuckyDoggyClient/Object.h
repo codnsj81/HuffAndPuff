@@ -494,7 +494,24 @@ public:
 	void SetCollided(bool b) { m_bcollided = b; }
 
 	virtual void Animate(float fTimeElapsed);
-private:
+protected:
 	float m_fTime = 0.f;
 	bool m_bcollided = false;
+};
+
+class CTrap : public CMushroom
+{
+public:
+	CTrap();
+	~CTrap();
+
+	virtual void Animate(float fTimeElapsed);
+};
+
+
+class CDash : public CGameObject
+{
+public:
+	CDash();
+	~CDash();
 };

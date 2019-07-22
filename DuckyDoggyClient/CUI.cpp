@@ -257,3 +257,7 @@ void CMP::Update(float elapsed)
 	float ratio = (m_pPlayer->GetSkillGage() / 100.f);
 	SetScale(ratio, 1, 1);
 }
+
+
+
+

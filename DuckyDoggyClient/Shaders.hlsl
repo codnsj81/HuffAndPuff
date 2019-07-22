@@ -291,7 +291,7 @@ struct VS_WATER_OUTPUT
 
 VS_WATER_OUTPUT VSWater(VS_WATER_INPUT input)
 {
-	VS_STANDARD_OUTPUT output;
+	VS_WATER_OUTPUT output;
 
 	output.positionW = (float3)mul(float4(input.position, 1.0f), gmtxGameObject);
 	output.normalW = mul(input.normal, (float3x3)gmtxGameObject);

@@ -342,10 +342,10 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 					break;
 				case 't':
 				case 'T':
-					m_pScene->PlusTrapData();
+					m_pScene->PlusDashData();
 					break;
 				case 'Y':
-					m_pScene->SaveTrapData();
+					m_pScene->SaveDashData();
 					break;
 				case 'O':
 				case 'o':
@@ -789,8 +789,8 @@ void CGameFramework::AnimateObjects()
 {
 	float fTimeElapsed = m_GameTimer.GetTimeElapsed();
 
-
-	m_pPlayer->Animate(fTimeElapsed);
+	if(m_pPlayer->GetMoveState() != STATE_STUN)
+		m_pPlayer->Animate(fTimeElapsed);
 	m_pPlayer->UpdateTransform(NULL);
 	m_pScene->AnimateObjects(fTimeElapsed);
 

@@ -15,12 +15,18 @@
 
 class CMonster;
 class CStartUI;
-
+class CTrap;
 struct StoneInfo
 {
 	int							m_iType;
 	XMFLOAT3					m_pos;
 	XMFLOAT3					m_size;
+};
+
+struct DashInfo
+{
+	XMFLOAT3		m_pos;
+	XMFLOAT3		m_rot;
 };
 struct LIGHT
 {
@@ -98,6 +104,7 @@ public:
 
 	void PlusGrassData();
 	void SaveGrassData();
+	void LoadDash(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList);
 
 	void PlusMushroomData();
 	void SaveMushroomData();
@@ -105,6 +112,10 @@ public:
 
 	void PlusStoneData();
 	void SaveStoneData();
+
+
+	void PlusDashData();
+	void SaveDashData();
 
 	void PlusMonsterData();
 	void SaveMonsterData();
@@ -158,7 +169,8 @@ public:
 	list<CGameObject*>					m_GrassObjectlist;
 	list<CHoneyComb*>					m_HoneyComblist;
 	list<CMushroom*>					m_Mushroomlist;
-	list<CGameObject*>					m_TrapList;
+	list<CDash*>						m_DashList;
+	list<CTrap*>						m_TrapList;
 
 	int									m_nWaters = 0;
 	CWater								**m_ppWaters = NULL;
@@ -186,4 +198,5 @@ public:
 	list<StoneInfo>	StoneDataList;
 	list<XMFLOAT2> GrassDataList;
 	list<StoneInfo>	MonsterDataList;
+	list<DashInfo> DashDataList;
 };

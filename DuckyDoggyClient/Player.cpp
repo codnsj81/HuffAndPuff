@@ -59,12 +59,12 @@ void CPlayer::SetCheatMode()
 	if (m_bCheatmode)
 	{
 		m_bCheatmode = false;
-		m_fSpeed = 6.f;
+		m_fSpeed = 5.f;
 	}
 	else
 	{
 		m_bCheatmode = true;
-		m_fSpeed = 6.f;
+		m_fSpeed = 5.f;
 	}
 }
 
@@ -96,6 +96,7 @@ void CPlayer::ReleaseShaderVariables()
 
 void CPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
 {
+
 	if (dwDirection)
 	{
 		XMFLOAT3 xmf3Shift = XMFLOAT3(0, 0, 0);
@@ -174,6 +175,8 @@ bool CPlayer::CheckInWater(XMFLOAT3 pos, CHeightMapTerrain *pTerrain)
 void CPlayer::Move( XMFLOAT3 xmf3Shift, bool bUpdateVelocity)
 {
 
+	if (m_moveState == STATE_STUN) 
+		return;
 	if (bUpdateVelocity)
 	{
 		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, xmf3Shift);
@@ -230,8 +233,16 @@ void CPlayer::Move( XMFLOAT3 xmf3Shift, bool bUpdateVelocity)
 
 }
 
+void CPlayer::Dash(float fDistance)
+{
+	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, fDistance);
+	m_bDash = true;
+	m_fMaxVelocityXZ = 50;
+}
+
 void CPlayer::Rotate(float x, float y, float z)
 {
+	if (m_moveState == STATE_STUN) return;
 	DWORD nCurrentCameraMode = m_pCamera->GetMode();
 	if ((nCurrentCameraMode == FIRST_PERSON_CAMERA) || (nCurrentCameraMode == THIRD_PERSON_CAMERA))
 	{
@@ -300,6 +311,12 @@ void CPlayer::Rotate(float x, float y, float z)
 
 }
 
+void CPlayer::SetStun()
+{
+	m_moveState = STATE_STUN;
+	m_bDamaging = true;
+}
+
 void CPlayer::OnObject(float fy)
 {
 	m_moveState = STATE_ONOBJECTS;
@@ -325,7 +342,7 @@ void CPlayer::Update(float fTimeElapsed)
 	else
 	{
 		float fDistance = 0;
-		if (m_moveState != STATE_GROUND && m_moveState != STATE_ONOBJECTS )
+		if (m_moveState != STATE_GROUND && m_moveState != STATE_ONOBJECTS && m_moveState != STATE_STUN )
 		{
 			m_fTime += fTimeElapsed;
 			fDistance = 30.f - 90.f * m_fTime ;
@@ -341,6 +358,17 @@ void CPlayer::Update(float fTimeElapsed)
 
 		float fLength = sqrtf(m_xmf3Velocity.x * m_xmf3Velocity.x + m_xmf3Velocity.z * m_xmf3Velocity.z);
 		float fMaxVelocityXZ = m_fMaxVelocityXZ;
+		if (m_bDash)
+		{
+			m_fMaxVelocityXZ -= fTimeElapsed * 10;
+			if (m_fMaxVelocityXZ <= 30.f)
+			{
+				m_fMaxVelocityXZ = 30.f;
+				m_bDash = false;
+			}
+
+		}
+
 		if (fLength > m_fMaxVelocityXZ)
 		{
 			m_xmf3Velocity.x *= (fMaxVelocityXZ / fLength);
@@ -390,10 +418,17 @@ void CPlayer::Update(float fTimeElapsed)
 	if (m_bDamaging)
 	{
 		m_fDamagingTime += fTimeElapsed;
-		if (m_fDamagingTime > 1.f)
+		if (m_moveState !=STATE_STUN && m_fDamagingTime > 1.f)
 		{
 			m_bDamaging = false;
 			m_fDamagingTime = 0.f;
+		}
+		else if (m_moveState == STATE_STUN && m_fDamagingTime > 4.5f)
+		{
+			m_moveState = STATE_GROUND;
+			m_bDamaging = false;
+			m_fDamagingTime = 0.f;
+			
 		}
 		if (m_iHP < 0)
 			int a = 0;
@@ -675,7 +710,7 @@ void CTerrainPlayer::OnPlayerUpdateCallback(float fTimeElapsed)
 	if (xmf3PlayerPosition.y < fHeight)
 	{
 		m_fTime = 0;
-		if (m_moveState != STATE_GROUND)
+		if (m_moveState != STATE_GROUND && m_moveState != STATE_STUN)
 		{
 			m_iJumpnum = 0;
 			m_moveState = STATE_GROUND;

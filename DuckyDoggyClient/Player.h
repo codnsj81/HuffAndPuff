@@ -126,7 +126,12 @@ public:
 	void Move(ULONG nDirection, float fDistance, bool bVelocity = false);
 	void Move( XMFLOAT3 xmf3Shift, bool bVelocity = false);
 	void Move(float fxOffset = 0.0f, float fyOffset = 0.0f, float fzOffset = 0.0f);
+
+	void Dash(float fDistance);
 	void Rotate(float x, float y, float z);
+
+	void SetStun();
+	
 
 	void SetFullHP() { m_iHP = 100; }
 
@@ -162,6 +167,7 @@ public:
 	//
 	bool						m_bDamaging = false;
 	float						m_fDamagingTime = 0.f;
+	bool					m_bDash = false;
 
 };
 

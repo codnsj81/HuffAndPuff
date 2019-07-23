@@ -24,6 +24,7 @@ protected:
 	XMFLOAT3						m_xmf3Right;
 	XMFLOAT3						m_xmf3Up;
 	XMFLOAT3						m_xmf3Look;
+	XMFLOAT4X4						m_xmf4x4Rotate;
 
 	float           				m_fPitch;
 	float           				m_fRoll;
@@ -54,6 +55,8 @@ public:
 
 	list<CUI*>					*m_UIList = NULL;
 	CStartUI*					m_pOverUI = NULL;
+
+	void RotateUI(CUI* ui);
 
 	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	virtual void ReleaseShaderVariables();

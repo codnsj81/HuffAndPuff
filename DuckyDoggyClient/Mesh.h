@@ -305,6 +305,7 @@ protected:
 class CUIMesh : public CMesh
 {
 public:
+	CUIMesh();
 	CUIMesh(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, float nWidth = 5.f, float nLength = 5.f, float uvX = 1, float uvY = 1);
 	virtual ~CUIMesh();
 	virtual void OnPreRender(ID3D12GraphicsCommandList *pd3dCommandList, void *pContext);
@@ -337,4 +338,13 @@ protected:
 	ID3D12Resource					*m_pd3dTextureCoord1UploadBuffer = NULL;
 	D3D12_VERTEX_BUFFER_VIEW		m_d3dTextureCoord1BufferView;
 
+};
+
+class CDamageUIMesh : public CUIMesh
+{
+
+public:
+	CDamageUIMesh();
+	CDamageUIMesh(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int num, float nWidth = 5.f, float nLength = 5.f);
+	~CDamageUIMesh();
 };

@@ -120,6 +120,12 @@ void CCamera::RegenerateViewMatrix()
 	m_xmf4x4View._43 = -Vector3::DotProduct(m_xmf3Position, m_xmf3Look);
 }
 
+void CCamera::RotateUI(CUI * ui)
+{
+	ui->m_xmf4x4ToParent = m_xmf4x4Rotate;
+	ui->Rotate(90, 0, 0);
+}
+
 void CCamera::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
 {
 	UINT ncbElementBytes = ((sizeof(VS_CB_CAMERA_INFO) + 255) & ~255); //256ÀÇ ¹è¼ö
@@ -314,17 +320,17 @@ void CThirdPersonCamera::SetLookAt(XMFLOAT3& xmf3LookAt)
 	m_xmf3Up = XMFLOAT3(mtxLookAt._12, mtxLookAt._22, mtxLookAt._32);
 	m_xmf3Look = XMFLOAT3(mtxLookAt._13, mtxLookAt._23, mtxLookAt._33);
 
-	XMFLOAT4X4 xmf4x4Rotate = Matrix4x4::Identity();
-	xmf4x4Rotate._11 = m_xmf3Right.x; xmf4x4Rotate._21 = m_xmf3Up.x; xmf4x4Rotate._31 = m_xmf3Look.x;
-	xmf4x4Rotate._12 = m_xmf3Right.y; xmf4x4Rotate._22 = m_xmf3Up.y; xmf4x4Rotate._32 = m_xmf3Look.y;
-	xmf4x4Rotate._13 = m_xmf3Right.z; xmf4x4Rotate._23 = m_xmf3Up.z; xmf4x4Rotate._33 = m_xmf3Look.z;
+	m_xmf4x4Rotate = Matrix4x4::Identity();
+	m_xmf4x4Rotate._11 = m_xmf3Right.x; m_xmf4x4Rotate._21 = m_xmf3Up.x; m_xmf4x4Rotate._31 = m_xmf3Look.x;
+	m_xmf4x4Rotate._12 = m_xmf3Right.y; m_xmf4x4Rotate._22 = m_xmf3Up.y; m_xmf4x4Rotate._32 = m_xmf3Look.y;
+	m_xmf4x4Rotate._13 = m_xmf3Right.z; m_xmf4x4Rotate._23 = m_xmf3Up.z; m_xmf4x4Rotate._33 = m_xmf3Look.z;
 
 
 	if (m_UIList)
 	{
 		for (auto t : *m_UIList)
 		{
-			t->m_xmf4x4ToParent = xmf4x4Rotate;
+			t->m_xmf4x4ToParent = m_xmf4x4Rotate;
 			t->SetPosition(GetPosition());
 			t->MoveForward(20);
 			t->MoveStrafe(t->m_fWinposx);
@@ -335,7 +341,7 @@ void CThirdPersonCamera::SetLookAt(XMFLOAT3& xmf3LookAt)
 	}
 	if (m_pOverUI)
 	{
-		m_pOverUI->m_xmf4x4ToParent = xmf4x4Rotate;
+		m_pOverUI->m_xmf4x4ToParent = m_xmf4x4Rotate;
 		m_pOverUI->SetPosition(GetPosition());
 		m_pOverUI->MoveForward(20);
 		m_pOverUI->MoveStrafe(m_pOverUI->m_fWinposx);

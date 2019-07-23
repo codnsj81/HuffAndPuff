@@ -258,9 +258,9 @@ void CMP::Update(float elapsed)
 	SetScale(ratio, 1, 1);
 }
 
-CDamageUI::CDamageUI(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, ID3D12RootSignature * pd3dGraphicsRootSignature, float nWidth, float nLength, XMFLOAT3 xmfPosition, wchar_t * pFilename)
+CDamageUI::CDamageUI(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, ID3D12RootSignature * pd3dGraphicsRootSignature, float nWidth, float nLength, wchar_t * pFilename)
 {
-	bRender = false;
+	bRender = true;
 	m_nWidth = nWidth;
 	m_nLength = nLength;
 	m_nMaterials = 1;
@@ -268,10 +268,10 @@ CDamageUI::CDamageUI(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3d
 	for (int i = 0; i < m_nMaterials; i++)
 		m_ppMaterials[i] = NULL;
 
-	CMesh *pMesh = new CUIMesh(pd3dDevice, pd3dCommandList, nWidth, nLength, 1, 1);
+	CMesh *pMesh = new CDamageUIMesh(pd3dDevice, pd3dCommandList, 1, nWidth, nLength);
 	SetMesh(pMesh);
 
-	CShader *pShader = new CShader();
+	CShader *pShader = new CUIShader();
 	pShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	pShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
@@ -281,10 +281,8 @@ CDamageUI::CDamageUI(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3d
 	pMaterial->SetShader(pShader);
 
 	SetMaterial(0, pMaterial);
-	xmfPosition.y += 7.f;
 
 	//pMaterial->SetMaterialType(MATERIAL_ALBEDO_MAP);
-	SetPosition(xmfPosition);
 }
 
 CDamageUI::~CDamageUI()

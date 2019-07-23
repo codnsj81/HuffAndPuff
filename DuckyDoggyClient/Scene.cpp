@@ -84,7 +84,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 
 
 	m_DamageUITex = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	m_DamageUITex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/tree03_Nor_01.tiff", 0, false);
+	m_DamageUITex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/number4.tiff", 0, false);
 
 	CScene::CreateShaderResourceViews(pd3dDevice, m_DamageUITex, 3, false);
 
@@ -697,6 +697,16 @@ void CScene::BuildMonsterList(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLi
 	}
 }
 
+void CScene::CreateDamageUI(CPlayer * pPlayer)
+{
+
+	CDamageUI* DUI = new CDamageUI(m_pd3dDevice, m_pd3dCommandList, m_pd3dGraphicsRootSignature, 3, 3,  NULL);
+	DUI->SetTexture(m_DamageUITex);
+	m_pPlayer->GetCamera()->RotateUI(DUI);
+	DUI->SetPosition(pPlayer->GetPosition().x, pPlayer->GetPosition().y + 7, pPlayer->GetPosition().z);
+	m_DamageUIList.emplace_back(DUI);
+}
+
 void CScene::CreateCbvSrvDescriptorHeaps(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nConstantBufferViews, int nShaderResourceViews)
 {
 	D3D12_DESCRIPTOR_HEAP_DESC d3dDescriptorHeapDesc;
@@ -1157,10 +1167,7 @@ void CScene::ObjectsCollides()
 		{
 			if (!n->GetCollided())
 			{
-				CDamageUI* DUI = new CDamageUI(m_pd3dDevice, m_pd3dCommandList, m_pd3dGraphicsRootSignature, 3, 3, m_pDoggy->GetPosition(), NULL);
-				DUI->SetTexture(m_DamageUITex);
-				DUI->Rotate(90,0,0);
-				m_DamageUIList.emplace_back(DUI);
+				CreateDamageUI(m_pDoggy);
 				m_pDoggy->Damage(4);
 				n->SetCollided(true);
 			}
@@ -1169,9 +1176,7 @@ void CScene::ObjectsCollides()
 		{
 			if (!n->GetCollided())
 			{
-				CDamageUI* DUI = new CDamageUI(m_pd3dDevice, m_pd3dCommandList, m_pd3dGraphicsRootSignature, 3, 3, m_pDucky->GetPosition(), NULL);
-				DUI->SetTexture(m_DamageUITex);
-				m_DamageUIList.emplace_back(DUI);
+				CreateDamageUI(m_pDucky);
 				m_pDucky->Damage(4);
 			}
 			n->SetCollided(true);
@@ -1205,11 +1210,11 @@ void CScene::ObjectsCollides()
 	{
 		if (n->getCollision(m_pDoggy, false) != COLLIDE_NONE)
 		{
-			m_pDoggy->Dash(m_fElapsedTime * 10);
+			m_pDoggy->Dash(m_fElapsedTime * 20);
 		}
 		if (n->getCollision(m_pDucky, false) != COLLIDE_NONE)
 		{
-			m_pDucky->Dash(m_fElapsedTime * 10);
+			m_pDucky->Dash(m_fElapsedTime * 20);
 		}
 
 	}

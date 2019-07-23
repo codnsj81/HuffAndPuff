@@ -40,9 +40,11 @@
 #define HERO_ANIMATION_JUMP	2
 
 
-
 //몬스터 종류
-
 #define MONTYPE_SNAKE		0
 #define MONTYPE_BULKHOUSE	1
 #define MONTYPE_TOXANIUM	2
+
+
+// ----------------------------------
+enum e_scene { scene_logo, scene_menu, scene_lobby, scene_stage1, scene_stage2, scene_end };

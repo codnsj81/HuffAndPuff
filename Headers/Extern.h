@@ -7,3 +7,4 @@ extern player_info g_myinfo;
 extern player_info g_otherinfo;
 extern bool g_send;
 extern networking_state g_networkState;
+extern e_scene g_scene;

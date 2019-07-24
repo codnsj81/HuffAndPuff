@@ -1,6 +1,7 @@
 #pragma once
 #include "Object.h"
 
+class CScene;
 class CPlayer;
 class CMonster :
 	public CGameObject
@@ -22,6 +23,9 @@ public:
 
 	XMFLOAT3 FollowingPosition;
 
+	CScene* m_pScene = NULL;
+
+	void SetScene(CScene* scene) { m_pScene = scene; }
 	bool GetDeathState() { return m_bDeath; }
 	void setID(int id) { m_iID = id; }
 	int getID() { return m_iID; }

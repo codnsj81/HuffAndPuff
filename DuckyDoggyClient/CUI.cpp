@@ -258,7 +258,7 @@ void CMP::Update(float elapsed)
 	SetScale(ratio, 1, 1);
 }
 
-CDamageUI::CDamageUI(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, ID3D12RootSignature * pd3dGraphicsRootSignature, float nWidth, float nLength, wchar_t * pFilename)
+CDamageUI::CDamageUI(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, ID3D12RootSignature * pd3dGraphicsRootSignature, float nWidth, float nLength, int num, wchar_t * pFilename)
 {
 	bRender = true;
 	m_nWidth = nWidth;
@@ -268,7 +268,7 @@ CDamageUI::CDamageUI(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3d
 	for (int i = 0; i < m_nMaterials; i++)
 		m_ppMaterials[i] = NULL;
 
-	CMesh *pMesh = new CDamageUIMesh(pd3dDevice, pd3dCommandList, 1, nWidth, nLength);
+	CMesh *pMesh = new CDamageUIMesh(pd3dDevice, pd3dCommandList, num, nWidth, nLength);
 	SetMesh(pMesh);
 
 	CShader *pShader = new CUIShader();

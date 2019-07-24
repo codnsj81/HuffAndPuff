@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "CMonster.h"
 #include "Player.h"
+#include "Scene.h"
 
 CMonster::CMonster()
 {
@@ -155,6 +156,7 @@ int CSnake::getCollision(CPlayer * player)
 		if (!player->m_bDamaging && !m_bDeathING)
 		{
 			player->Damage(m_iAttack);
+			m_pScene->CreateDamageUI(player, m_iAttack);
 			player->m_bDamaging = true;
 		}
 		if (!m_bAttacking)

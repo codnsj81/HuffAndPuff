@@ -84,7 +84,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 
 
 	m_DamageUITex = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	m_DamageUITex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/number4.tiff", 0, false);
+	m_DamageUITex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/number.tiff", 0, false);
 
 	CScene::CreateShaderResourceViews(pd3dDevice, m_DamageUITex, 3, false);
 
@@ -688,6 +688,7 @@ void CScene::BuildMonsterList(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLi
 
 		CMonster* obj = new CSnake();
 		obj->SetChild(m_pSnakeObject, true);
+		obj->SetScene(this);
 		obj->SetPosition(iter->m_pos.x, iter->m_pos.y, iter->m_pos.z);
 		obj->Rotate(0, RandomRotate, 0);
 		obj->SetScale(iter->m_size.x, iter->m_size.y, iter->m_size.z);
@@ -697,10 +698,10 @@ void CScene::BuildMonsterList(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLi
 	}
 }
 
-void CScene::CreateDamageUI(CPlayer * pPlayer)
+void CScene::CreateDamageUI(CPlayer * pPlayer, int dam)
 {
 
-	CDamageUI* DUI = new CDamageUI(m_pd3dDevice, m_pd3dCommandList, m_pd3dGraphicsRootSignature, 3, 3,  NULL);
+	CDamageUI* DUI = new CDamageUI(m_pd3dDevice, m_pd3dCommandList, m_pd3dGraphicsRootSignature, 3, 3,dam,  NULL);
 	DUI->SetTexture(m_DamageUITex);
 	m_pPlayer->GetCamera()->RotateUI(DUI);
 	DUI->SetPosition(pPlayer->GetPosition().x, pPlayer->GetPosition().y + 7, pPlayer->GetPosition().z);
@@ -1167,7 +1168,7 @@ void CScene::ObjectsCollides()
 		{
 			if (!n->GetCollided())
 			{
-				CreateDamageUI(m_pDoggy);
+				CreateDamageUI(m_pDoggy, 4);
 				m_pDoggy->Damage(4);
 				n->SetCollided(true);
 			}
@@ -1176,7 +1177,7 @@ void CScene::ObjectsCollides()
 		{
 			if (!n->GetCollided())
 			{
-				CreateDamageUI(m_pDucky);
+				CreateDamageUI(m_pDucky, 4);
 				m_pDucky->Damage(4);
 			}
 			n->SetCollided(true);
@@ -1190,8 +1191,9 @@ void CScene::ObjectsCollides()
 		{
 			if (!n->GetCollided())
 			{
+				CreateDamageUI(m_pDoggy, 3);
 				m_pDoggy->SetStun();
-				m_pDoggy->Damage(4);
+				m_pDoggy->Damage(3);
 				n->SetCollided(true);
 			}
 		}
@@ -1199,8 +1201,10 @@ void CScene::ObjectsCollides()
 		{
 			if (!n->GetCollided())
 			{
+
+				CreateDamageUI(m_pDoggy, 3);
 				m_pDucky->SetStun();
-				m_pDucky->Damage(4);
+				m_pDucky->Damage(3);
 			}
 			n->SetCollided(true);
 		}

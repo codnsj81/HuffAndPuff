@@ -1,4 +1,5 @@
 #pragma once
+#include "Define.h"
 
 extern SOCKET g_sock;
 extern HWND g_hWnd;

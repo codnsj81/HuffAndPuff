@@ -974,11 +974,23 @@ CDamageUIMesh::CDamageUIMesh(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLis
 	m_d3dColorBufferView.StrideInBytes = sizeof(XMFLOAT4);
 	m_d3dColorBufferView.SizeInBytes = sizeof(XMFLOAT4) * m_nVertices;
 
+	float x1, x2, y1, y2;
+	
+	if (num < 5) {
+		y1 = 0; y2 = 0.5f;
+	}
+	else {
+		y1 = 0.5; y2 = 1.f;
+		num -= 4;
+	}		
+	x1 = 0.2f * num;
+	x2 = x1 + 0.2f;
+
 	m_pxmf2TextureCoords0 = new XMFLOAT2[m_nVertices];
-	m_pxmf2TextureCoords0[0] = XMFLOAT2(0, 1);
-	m_pxmf2TextureCoords0[1] = XMFLOAT2(1, 1);
-	m_pxmf2TextureCoords0[2] = XMFLOAT2(0, 0);
-	m_pxmf2TextureCoords0[3] = XMFLOAT2(1, 0);
+	m_pxmf2TextureCoords0[0] = XMFLOAT2(x1, y2);
+	m_pxmf2TextureCoords0[1] = XMFLOAT2(x2, y2);
+	m_pxmf2TextureCoords0[2] = XMFLOAT2(x1, y1);
+	m_pxmf2TextureCoords0[3] = XMFLOAT2(x2, y1);
 
 	m_pd3dTextureCoord0Buffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_pxmf2TextureCoords0, sizeof(XMFLOAT2) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dTextureCoord0UploadBuffer);
 

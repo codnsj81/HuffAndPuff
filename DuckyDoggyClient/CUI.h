@@ -86,7 +86,7 @@ public:
 class CDamageUI : public CStartUI
 {
 public:
-	CDamageUI(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, float nWidth, float nLength,  wchar_t* pFilename);
+	CDamageUI(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, float nWidth, float nLength, int num, wchar_t* pFilename);
 	~CDamageUI();
 	
 	void SetTexture(CTexture* tex);

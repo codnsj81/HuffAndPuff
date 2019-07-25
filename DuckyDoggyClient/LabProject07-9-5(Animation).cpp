@@ -23,7 +23,7 @@ HWND		g_hWnd;
 wchar_t		g_ipbuf[50];		// ip 입력 받는 버퍼
 player_info g_myinfo;
 player_info g_otherinfo;
-networking_state g_networkState = recv_none;
+e_scene g_scene = scene_logo;
 
 // 소켓 정보 저장을 위한 구조체와 변수
 struct SOCKETINFO

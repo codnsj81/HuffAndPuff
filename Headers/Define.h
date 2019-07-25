@@ -47,4 +47,3 @@
 
 
 // ----------------------------------
-enum e_scene { scene_logo, scene_menu, scene_lobby, scene_stage1, scene_stage2, scene_end };

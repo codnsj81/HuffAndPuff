@@ -47,130 +47,165 @@ void CScene::BuildDefaultLightsAndMaterials()
 
 void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
 {
-	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
+	if (m_scene == scene_logo) {
 
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 45); //SuperCobra(17), Gunship(2), Player:Mi24(1), Angrybot()
+	}
+	else if (m_scene == scene_menu) {
 
-	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature); 
+	}
+	else if (m_scene == scene_lobby) {
 
-	BuildDefaultLightsAndMaterials();
+	}
+	else if (m_scene == scene_stage1) {
+		m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
-	XMFLOAT3 xmf3Scale(8.0f, 3.0f, 8.0f);
-	XMFLOAT4 xmf4Color(0.3f, 0.3f, 0.3f, 0.0f);
-	m_pTerrain = new CHeightMapTerrain(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, _T("Terrain/terrain.raw"), 257, 257, xmf3Scale, xmf4Color);
+		CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 45); //SuperCobra(17), Gunship(2), Player:Mi24(1), Angrybot()
 
-	m_pSkyBox = new CSkyBox(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+		CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 
-	m_nShaders = 1;
-	m_ppShaders = new CShader*[m_nShaders];
+		BuildDefaultLightsAndMaterials();
 
-	CObjectsShader *pObjectsShader = new CObjectsShader();
-	pObjectsShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
-	pObjectsShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, m_pTerrain);
+		XMFLOAT3 xmf3Scale(8.0f, 3.0f, 8.0f);
+		XMFLOAT4 xmf4Color(0.3f, 0.3f, 0.3f, 0.0f);
+		m_pTerrain = new CHeightMapTerrain(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, _T("Terrain/terrain.raw"), 257, 257, xmf3Scale, xmf4Color);
 
-	m_ppShaders[0] = pObjectsShader;
+		m_pSkyBox = new CSkyBox(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 
-	m_nWaters = 2;
-	m_ppWaters = new CWater*[m_nWaters];
-	m_ppWaters[0] = new CWater(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 800, 600, XMFLOAT3(1490, 30.f, 922));
-	//m_ppWaters[0]->Rotate(0, 10.f, 0);
+		m_nShaders = 1;
+		m_ppShaders = new CShader * [m_nShaders];
 
-	m_ppWaters[1] = new CWater(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 670, 400, XMFLOAT3(1064, m_pTerrain->GetHeight(1064, 1446) + 30.f, 1446.f));
-	HoneyComb = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Honey.bin", NULL, false);
-	BuildMonsterList(pd3dDevice, pd3dCommandList);
+		CObjectsShader* pObjectsShader = new CObjectsShader();
+		pObjectsShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+		pObjectsShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, m_pTerrain);
 
-	m_nGameObjects = 0;
-	m_ppGameObjects = new CGameObject*[m_nGameObjects];
+		m_ppShaders[0] = pObjectsShader;
+
+		m_nWaters = 2;
+		m_ppWaters = new CWater * [m_nWaters];
+		m_ppWaters[0] = new CWater(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 800, 600, XMFLOAT3(1490, 30.f, 922));
+		//m_ppWaters[0]->Rotate(0, 10.f, 0);
+
+		m_ppWaters[1] = new CWater(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 670, 400, XMFLOAT3(1064, m_pTerrain->GetHeight(1064, 1446) + 30.f, 1446.f));
+		HoneyComb = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Honey.bin", NULL, false);
+		BuildMonsterList(pd3dDevice, pd3dCommandList);
+
+		m_nGameObjects = 0;
+		m_ppGameObjects = new CGameObject * [m_nGameObjects];
 
 
-	m_DamageUITex = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	m_DamageUITex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/number.tiff", 0, false);
+		m_DamageUITex = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+		m_DamageUITex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/number.tiff", 0, false);
 
-	CScene::CreateShaderResourceViews(pd3dDevice, m_DamageUITex, 3, false);
+		CScene::CreateShaderResourceViews(pd3dDevice, m_DamageUITex, 3, false);
 
-	LoadStone(pd3dDevice, pd3dCommandList);
-	LoadTree(pd3dDevice, pd3dCommandList);
-	LoadGrass(pd3dDevice, pd3dCommandList);
-	LoadTrap(pd3dDevice, pd3dCommandList);
-	LoadDash(pd3dDevice, pd3dCommandList);
-	BuildMushroomData(pd3dDevice, pd3dCommandList);
+		LoadStone(pd3dDevice, pd3dCommandList);
+		LoadTree(pd3dDevice, pd3dCommandList);
+		LoadGrass(pd3dDevice, pd3dCommandList);
+		LoadTrap(pd3dDevice, pd3dCommandList);
+		LoadDash(pd3dDevice, pd3dCommandList);
+		BuildMushroomData(pd3dDevice, pd3dCommandList);
 
-	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+		CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	}
+
+
 }
 
 void CScene::ReleaseObjects()
 {
-	if (m_pd3dGraphicsRootSignature) m_pd3dGraphicsRootSignature->Release();
-	if (m_pd3dCbvSrvDescriptorHeap) m_pd3dCbvSrvDescriptorHeap->Release();
+	if (m_scene == scene_logo) {
 
-	if (m_ppShaders)
-	{
-		for (int i = 0; i < m_nShaders; i++)
+	}
+	else if (m_scene == scene_menu) {
+
+	}
+	else if (m_scene == scene_lobby) {
+
+	}
+	else if (m_scene == scene_stage1) {
+		if (m_pd3dGraphicsRootSignature) m_pd3dGraphicsRootSignature->Release();
+		if (m_pd3dCbvSrvDescriptorHeap) m_pd3dCbvSrvDescriptorHeap->Release();
+
+		if (m_ppShaders)
 		{
-			m_ppShaders[i]->ReleaseShaderVariables();
-			m_ppShaders[i]->ReleaseObjects();
-			m_ppShaders[i]->Release();
+			for (int i = 0; i < m_nShaders; i++)
+			{
+				m_ppShaders[i]->ReleaseShaderVariables();
+				m_ppShaders[i]->ReleaseObjects();
+				m_ppShaders[i]->Release();
+			}
+			delete[] m_ppShaders;
 		}
-		delete[] m_ppShaders;
-	}
 
-	if (m_pTerrain) delete m_pTerrain;
-	if (m_pSkyBox) delete m_pSkyBox;
+		if (m_pTerrain) delete m_pTerrain;
+		if (m_pSkyBox) delete m_pSkyBox;
 
 
-	if (m_ppGameObjects)
-	{
-		for (int i = 0; i < m_nGameObjects; i++) if (m_ppGameObjects[i]) m_ppGameObjects[i]->Release();
-		delete[] m_ppGameObjects;
-	}
-	if (m_TreeObjectslist.size() != 0)
-	{
-		for (auto n : m_TreeObjectslist) {
-			n->Release();
-		}
-	}
-	if (m_StoneObjectslist.size() != 0)
-	{
-		for (auto n : m_StoneObjectslist) {
-			n->Release();
-		}
-	}
-	if (m_HoneyComblist.size() != 0)
-	{
-		for (auto n : m_HoneyComblist) {
-			n->Release();
-		}
-	}
-
-	if (m_Mushroomlist.size() != 0)
-	{
-		for (auto n : m_Mushroomlist) {
-			n->Release();
-		}
-	}
-	if (m_ppWaters)
-	{
-		for (int i = 0; i < m_nWaters; i++) if (m_ppWaters[i]) m_ppWaters[i]->Release();
-		delete[] m_ppWaters;
-	}
-	if (M_MonsterObjectslist.size() != 0)
-	{
-		for (auto n : M_MonsterObjectslist)
+		if (m_ppGameObjects)
 		{
-			n->Release();
+			for (int i = 0; i < m_nGameObjects; i++) if (m_ppGameObjects[i]) m_ppGameObjects[i]->Release();
+			delete[] m_ppGameObjects;
 		}
+		if (m_TreeObjectslist.size() != 0)
+		{
+			for (auto n : m_TreeObjectslist) {
+				n->Release();
+			}
+		}
+		if (m_StoneObjectslist.size() != 0)
+		{
+			for (auto n : m_StoneObjectslist) {
+				n->Release();
+			}
+		}
+		if (m_HoneyComblist.size() != 0)
+		{
+			for (auto n : m_HoneyComblist) {
+				n->Release();
+			}
+		}
+
+		if (m_Mushroomlist.size() != 0)
+		{
+			for (auto n : m_Mushroomlist) {
+				n->Release();
+			}
+		}
+		if (m_ppWaters)
+		{
+			for (int i = 0; i < m_nWaters; i++) if (m_ppWaters[i]) m_ppWaters[i]->Release();
+			delete[] m_ppWaters;
+		}
+		if (M_MonsterObjectslist.size() != 0)
+		{
+			for (auto n : M_MonsterObjectslist)
+			{
+				n->Release();
+			}
+		}
+
+		if (HoneyComb) HoneyComb->Release();
+
+		ReleaseShaderVariables();
+
+		if (m_pLights) delete[] m_pLights;
 	}
-
-	if (HoneyComb) HoneyComb->Release();
-
-	ReleaseShaderVariables();
-
-	if (m_pLights) delete[] m_pLights;
 }
 
 void CScene::Update()
 {
-	ObjectsCollides();
+	if (m_scene == scene_logo) {
+
+	}
+	else if (m_scene == scene_menu) {
+
+	}
+	else if (m_scene == scene_lobby) {
+
+	}
+	else if (m_scene == scene_stage1) {
+		ObjectsCollides();
+	}
 }
 
 void CScene::SetDuckyNDoggy(CPlayer * ducky, CPlayer * doggy, CPlayer * player)

@@ -205,4 +205,6 @@ public:
 	list<XMFLOAT2> GrassDataList;
 	list<StoneInfo>	MonsterDataList;
 	list<DashInfo> DashDataList;
+
+	e_scene m_scene = scene_stage1;
 };

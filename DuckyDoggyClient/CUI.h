@@ -20,6 +20,7 @@ public:
 	bool bRender = true;
 	bool bEx = false;
 
+	void SetTexture(CTexture*  tex);
 	void SetWinpos(float x, float y);
 	virtual void Update(float elapsed) {}
 	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dCbvGPUDescriptorHandle;

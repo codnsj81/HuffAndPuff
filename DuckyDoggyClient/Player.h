@@ -12,7 +12,6 @@
 #define PIGGYBACK_CRRIED 2
 
 
-
 // 플레이어충돌
 #define COLLIDEY	0 // 충돌 O
 #define COLLIDEN	1 // 충돌 X
@@ -68,11 +67,20 @@ protected:
 	int							m_iAtt = 50;
 	float							m_iHP = 100.f;
 	XMFLOAT3					m_predictedPos = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	XMFLOAT3					PointingPos;
+
+	list<XMFLOAT3>				m_xmNavigationList;
+	CGameObject*				m_NavGuide = NULL;
 
 public:
 	CPlayer();
 	virtual ~CPlayer();
 
+	void SetNav(CGameObject* nav);
+	void NextRoad(float fTime);
+	void LoadNavigation();
+	list<XMFLOAT3>* GetNavigationList() { return &m_xmNavigationList; }
+	void PlusNavigationList();
 	void SetScene(CScene* p) { m_pScene = p; }
 	int	GetAtt() { return m_iAtt; }
 	XMFLOAT3 GetPrecdictedPos() { return m_predictedPos; }

@@ -29,9 +29,12 @@ public:
 
 	void ChangeSwapChainState();
 
+	void BuildPlayers();
     void BuildObjects();
     void ReleaseObjects();
 	void CheckInWater();
+
+	void SaveNavigation();
 
     void ProcessInput();
     void AnimateObjects();

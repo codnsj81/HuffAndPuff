@@ -8,6 +8,10 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CPlayer
 
+
+//#define _SAVENAV_MODE_
+
+
 CPlayer::CPlayer()
 {
 	m_pCamera = NULL;
@@ -30,6 +34,13 @@ CPlayer::CPlayer()
 	m_pPlayerUpdatedContext = NULL;
 	m_pCameraUpdatedContext = NULL;
 
+
+#ifdef _SAVENAV_MODE_
+	return;
+#else
+	LoadNavigation();
+#endif
+
 }
 
 CPlayer::~CPlayer()
@@ -37,6 +48,73 @@ CPlayer::~CPlayer()
 	ReleaseShaderVariables();
 
 	if (m_pCamera) delete m_pCamera;
+}
+
+void CPlayer::SetNav(CGameObject * nav)
+{
+	m_NavGuide = nav;
+	m_NavGuide->SetPosition(GetPosition());
+}
+
+void CPlayer::NextRoad(float fTime)
+{
+	if (m_xmNavigationList.empty())
+		return;
+
+	XMFLOAT3 now = GetPosition();
+	XMFLOAT3 next = m_xmNavigationList.front();
+	float length = Vector3::Length(Vector3::Subtract(next, now));
+	
+	if (length < 20.f)
+	{
+		PointingPos = next;
+		m_xmNavigationList.pop_front();
+	}
+	now.y += 7.f;
+	if (m_NavGuide)
+	{
+		m_NavGuide->SetPosition(now);
+
+		XMFLOAT3 xmf3Look = m_NavGuide->GetLook();
+		XMFLOAT3 xmf3ToTarget = Vector3::Subtract(PointingPos, now,true);
+		float fDotProduct = Vector3::DotProduct(xmf3Look, xmf3ToTarget);
+		float fAngle = ::IsEqual(fDotProduct, 1.0f) ? 0.0f : ((fDotProduct > 0.0f) ? XMConvertToDegrees(acos(fDotProduct)) : 90.0f);
+		XMFLOAT3 xmf3CrossProduct = Vector3::CrossProduct(xmf3Look, xmf3ToTarget);
+		//	if (fAngle != 0.0f) Rotate(0.0f, fAngle * fElapsedTime * ((xmf3CrossProduct.y > 0.0f) ? 1.0f : -1.0f), 0.0f);
+		m_NavGuide->Rotate(0.0f, fAngle * fTime * ((xmf3CrossProduct.y > 0.0f) ? 1.0f : -1.0f), 0.0f);
+
+
+	}
+}
+
+void CPlayer::LoadNavigation()
+{
+	fstream in("NavData.txt", ios::in | ios::binary);
+	while (in)
+	{
+		XMFLOAT3 dat;
+		in >> dat.x;
+		in >> dat.y;
+		in >> dat.z;
+		m_xmNavigationList.emplace_back(dat);
+	}
+	m_xmNavigationList.pop_front();
+	PointingPos = m_xmNavigationList.front();
+}
+
+void CPlayer::PlusNavigationList()
+{
+	XMFLOAT3 now = GetPosition();
+	if (m_xmNavigationList.empty())
+	{
+		m_xmNavigationList.emplace_back(now);
+		return;
+	}
+	XMFLOAT3 next = m_xmNavigationList.back();
+	if (Vector3::Length(Vector3::Subtract(next, now))> 40.f)
+	{
+		m_xmNavigationList.emplace_back(now);
+	}
 }
 
 void CPlayer::SetLookVector(XMFLOAT3 xmf3Look)
@@ -230,7 +308,6 @@ void CPlayer::Move( XMFLOAT3 xmf3Shift, bool bUpdateVelocity)
 		m_pCamera->Move(xmf3Shift);
 
 	}
-
 }
 
 void CPlayer::Dash(float fDistance)
@@ -433,7 +510,12 @@ void CPlayer::Update(float fTimeElapsed)
 		if (m_iHP < 0)
 			int a = 0;
 	}
-	
+
+#ifdef _SAVENAV_MODE_
+	PlusNavigationList();
+#else
+	NextRoad(fTimeElapsed);
+#endif
 
 }
 
@@ -508,12 +590,16 @@ void CPlayer::OnPrepareRender()
 	m_xmf4x4ToParent = Matrix4x4::Multiply(XMMatrixScaling(m_xmf3Scale.x, m_xmf3Scale.y, m_xmf3Scale.z), m_xmf4x4ToParent);
 
 	UpdateTransform(NULL);
+
+	if(m_NavGuide) m_NavGuide->OnPrepareRender();
 }
 
 void CPlayer::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
 {
 	DWORD nCameraMode = (pCamera) ? pCamera->GetMode() : 0x00;
 	if (nCameraMode == THIRD_PERSON_CAMERA) CGameObject::Render(pd3dCommandList, pCamera);
+
+	if (m_NavGuide) m_NavGuide->Render(pd3dCommandList, pCamera);
 }
 
 

@@ -15,11 +15,6 @@ CHP::CHP(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList,
 	CMesh *pMesh = new CUIMesh(pd3dDevice, pd3dCommandList, nWidth, nLength,1,1);
 	SetMesh(pMesh);
 
-	CTexture *HPTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	HPTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/HPBar.tif", 0,false);
-
-	CScene::CreateShaderResourceViews(pd3dDevice, HPTexture, 3, false);
-
 	CUIShader *pShader = new CUIShader();
 	pShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	pShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
@@ -27,7 +22,6 @@ CHP::CHP(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList,
 	//SetShader(pShader);
 
 	CMaterial *pMaterial = new CMaterial(1);
-	pMaterial->SetTexture(HPTexture, 0);
 	pMaterial->SetMaterialType(MATERIAL_ALBEDO_MAP);
 	pMaterial->SetShader(pShader);
 
@@ -57,6 +51,11 @@ void CHP::FollowCamera()
 
 CUI::~CUI()
 {
+}
+
+void CUI::SetTexture(CTexture * tex)
+{
+	m_ppMaterials[0]->SetTexture(tex, 0);
 }
 
 void CUI::SetWinpos(float x, float y)
@@ -185,7 +184,7 @@ CImageUI::CImageUI(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCo
 	CMesh *pMesh = new CUIMesh(pd3dDevice, pd3dCommandList, nWidth, nLength, 1, 1);
 	SetMesh(pMesh);
 
-	CShader *pShader = new CShader();
+	CShader *pShader = new CUIShader();
 	pShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	pShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
@@ -226,11 +225,6 @@ CMP::CMP(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList,
 	CMesh *pMesh = new CUIMesh(pd3dDevice, pd3dCommandList, nWidth, nLength, 1, 1);
 	SetMesh(pMesh);
 
-	CTexture *HPTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	HPTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/SkillBar.tiff", 0, false);
-
-	CScene::CreateShaderResourceViews(pd3dDevice, HPTexture, 3, false);
-
 	CUIShader *pShader = new CUIShader();
 	pShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	pShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
@@ -238,7 +232,6 @@ CMP::CMP(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList,
 	//SetShader(pShader);
 
 	CMaterial *pMaterial = new CMaterial(1);
-	pMaterial->SetTexture(HPTexture, 0);
 	pMaterial->SetMaterialType(MATERIAL_ALBEDO_MAP);
 	pMaterial->SetShader(pShader);
 

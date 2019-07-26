@@ -327,18 +327,21 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 				case VK_F9:
 					ChangeSwapChainState();
 					break;
-				case '1':
+				case '1': // 더기 전환
 					m_pScene->m_pPlayer = m_pPlayer = m_pDucky;
 					m_pCamera->m_UIList = NULL;
 					m_pCamera = m_pPlayer->GetCamera();
 					m_pCamera->m_UIList = m_UIList;
 
 					break;
-				case '2':
+				case '2': // 도기전환
 					m_pScene->m_pPlayer = m_pPlayer = m_pDoggy;
 					m_pCamera->m_UIList = NULL;
 					m_pCamera = m_pPlayer->GetCamera();
 					m_pCamera->m_UIList = m_UIList;
+					break;
+				case '3': // 네이베게이션 저장
+					SaveNavigation();
 					break;
 				case 't':
 				case 'T':
@@ -348,13 +351,13 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 					m_pScene->SaveDashData();
 					break;
 				case 'O':
-				case 'o':
-					m_pPlayer->SetCheatMode();
+				case 'o': // HP full, 카메라 위로
+					m_pPlayer->SetCheatMode(); 
 					m_pDoggy->SetFullHP();
 					m_pDucky->SetFullHP();
 					break;
 				case 'l':
-				case 'L':
+				case 'L': // 스킬게이지 치트
 					m_pPlayer->PlusSkillGage(5);
 					break;
 					
@@ -562,31 +565,45 @@ void CGameFramework::SetPiggyBackState(player_type eType, int piggybackstate)
 void CGameFramework::BuildUI()
 {
 
+	CTexture *HPTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	HPTexture->LoadTextureFromFile(m_pd3dDevice, m_pd3dCommandList, L"Model/Textures/HPBar.tiff", 0,false);
+	CScene::CreateShaderResourceViews(m_pd3dDevice, HPTexture, 3, false);
+
 	m_UIList = new list<CUI*>();
-	CUI* m_pHPUI = new CHP(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 5, 1.5f, m_pPlayer->GetPosition());
+
+	CUI* m_pHPUI = new CHP(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 10.8f, 0.8f, m_pPlayer->GetPosition());
 	
 	m_pHPUI->m_pPlayer = m_pDoggy;
-	m_pHPUI->SetWinpos(10.f, 9.5f);
+	m_pHPUI->SetWinpos(7.2f, 9.5f);
 	m_pHPUI->bRender = TRUE;
+	m_pHPUI->SetTexture(HPTexture);
 	m_UIList->push_back(m_pHPUI);
 	
-	m_pHPUI = new CHP(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 5,1.5f, m_pPlayer->GetPosition());
+	m_pHPUI = new CHP(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 10.8f, 0.8f, m_pPlayer->GetPosition());
 
 	m_pHPUI->m_pPlayer = m_pDucky;
 	m_pHPUI->bRender = TRUE;
-	m_pHPUI->SetWinpos(-11.f, 9.5f);
+	m_pHPUI->SetWinpos(-12.3f, 9.5f);
+	m_pHPUI->SetTexture(HPTexture);
 	m_UIList->push_back(m_pHPUI);
 
-	m_pHPUI = new CMP(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 5, 1.5f, m_pPlayer->GetPosition());
+	HPTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	HPTexture->LoadTextureFromFile(m_pd3dDevice, m_pd3dCommandList, L"Model/Textures/SkillBar.tiff", 0, false);
+
+	CScene::CreateShaderResourceViews(m_pd3dDevice, HPTexture, 3, false);
+
+	m_pHPUI = new CMP(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 10.8f, 0.8f, m_pPlayer->GetPosition());
 
 	m_pHPUI->m_pPlayer = m_pDucky;
-	m_pHPUI->SetWinpos(-11.f, 8.f);
+	m_pHPUI->SetWinpos(-12.3f, 8.55f);
+	m_pHPUI->SetTexture(HPTexture);
 	m_UIList->push_back(m_pHPUI);
 
-	m_pHPUI = new CMP(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 5, 1.5f, m_pPlayer->GetPosition());
+	m_pHPUI = new CMP(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 10.8f, 0.8f, m_pPlayer->GetPosition());
 
 	m_pHPUI->m_pPlayer = m_pDoggy;
-	m_pHPUI->SetWinpos(10.f, 8.f);
+	m_pHPUI->SetTexture(HPTexture);
+	m_pHPUI->SetWinpos(7.2f, 8.55f);
 	m_UIList->push_back(m_pHPUI);
 
 
@@ -603,15 +620,15 @@ void CGameFramework::BuildUI()
 
 	m_UIList->push_back(pTemp);
 
-	pTemp = new CImageUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 4, 4, XMFLOAT3(1999, m_pScene->m_pTerrain->GetHeight(1999, 972), 972), L"Model/Textures/DoggyUI.tiff");
-	pTemp->SetWinpos(5, 9);
+	pTemp = new CImageUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 20, 3, XMFLOAT3(1999, m_pScene->m_pTerrain->GetHeight(1999, 972), 972), L"Model/Textures/DoggyUI.tiff");
+	pTemp->SetWinpos(4, 9);
 
-	m_UIList->push_back(pTemp);
+	m_UIList->push_front(pTemp);
 
-	pTemp = new CImageUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 4, 4, XMFLOAT3(1999, m_pScene->m_pTerrain->GetHeight(1999, 972), 972), L"Model/Textures/DuckyUI.tiff");
+	pTemp = new CImageUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 20, 3, XMFLOAT3(1999, m_pScene->m_pTerrain->GetHeight(1999, 972), 972), L"Model/Textures/DuckyUI.tiff");
 	pTemp->SetWinpos(-15.5 ,9);
 
-	m_UIList->push_back(pTemp);
+	m_UIList->push_front(pTemp);
 
 	m_pCamera->m_UIList = m_UIList;
 	
@@ -657,17 +674,11 @@ void CGameFramework::OnDestroy()
 
 #define _WITH_TERRAIN_PLAYER
 
-void CGameFramework::BuildObjects()
+void CGameFramework::BuildPlayers()
 {
-	m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
+	m_pDoggy = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), "Model/doggy.bin", PLAYER_KIND_DOGGY, true, m_pScene->m_pTerrain);
 
-	m_pScene = new CScene();
-	if (m_pScene) m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
-
-	// 도기 생성
-	m_pDoggy = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(),"Model/doggy.bin", PLAYER_KIND_DOGGY , true, m_pScene->m_pTerrain );
-
-	m_pDoggy->SetPosition(XMFLOAT3(INITPOSITION_X, 
+	m_pDoggy->SetPosition(XMFLOAT3(INITPOSITION_X,
 		m_pScene->m_pTerrain->GetHeight(INITPOSITION_X, INITPOSITION_Z), INITPOSITION_Z)); //시작위치
 	//m_pDoggy->SetPosition(XMFLOAT3(1394, m_pScene->m_pTerrain->GetHeight(1394,1363 ), 1363)); //물 확인용
 	m_pDoggy->SetHitBox(XMFLOAT3(5.f, 5.f, 5.f));
@@ -677,7 +688,7 @@ void CGameFramework::BuildObjects()
 	g_otherinfo.y = g_myinfo.y = m_pScene->m_pTerrain->GetHeight(INITPOSITION_X, INITPOSITION_Z);
 	g_otherinfo.z = g_myinfo.z = INITPOSITION_Z;
 
-	
+
 	m_pDucky = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), "Model/ducky.bin", PLAYER_KIND_DUCKY, true, m_pScene->m_pTerrain);
 	//m_pDucky->SetPosition(XMFLOAT3(1099.0f, m_pScene->m_pTerrain->GetHeight(1099, 88.0f), 88.0f));
 
@@ -694,11 +705,26 @@ void CGameFramework::BuildObjects()
 
 	m_pScene->m_pPlayer = m_pPlayer = m_pDoggy;
 	m_pCamera = m_pPlayer->GetCamera();
+	
+	CGameObject* Arrow = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), "Model/Arrow.bin", NULL,false);
+	Arrow->Rotate(0, 80, 0);
+	m_pPlayer->SetNav(Arrow);
+}
+
+void CGameFramework::BuildObjects()
+{
+	m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
+
+	m_pScene = new CScene();
+	if (m_pScene) m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
+
+
+	BuildPlayers();
+	BuildUI();
+
 	m_pScene->SetDuckyNDoggy(m_pDucky, m_pDoggy, m_pPlayer);
 	m_pScene->m_pd3dDevice = m_pd3dDevice;
 	m_pScene->m_pd3dCommandList = m_pd3dCommandList;
-
-	BuildUI();
 
 	m_pd3dCommandList->Close();
 	ID3D12CommandList *ppd3dCommandLists[] = { m_pd3dCommandList };
@@ -734,6 +760,17 @@ void CGameFramework::ReleaseObjects()
 	if (m_pScene) delete m_pScene;
 }
 
+
+void CGameFramework::SaveNavigation()
+{
+
+	fstream out("NavData.txt", ios::out | ios::binary);
+	list<XMFLOAT3>* list = m_pPlayer->GetNavigationList();
+	for (auto t : *list)
+	{
+		out << t.x << " " << t.y << " " << t.z << " " << endl;
+	}
+}
 
 void CGameFramework::ProcessInput()
 {

@@ -871,9 +871,9 @@ CUIMesh::CUIMesh(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dComm
 	float fx = nWidth * 0.5f, fy = nLength * 0.5f;
 	// Bottom Quad										
 	m_pxmf3Positions[0] = XMFLOAT3(-0, 0, +fy);
-	m_pxmf3Positions[1] = XMFLOAT3(+2*fx, 0, +fy);
+	m_pxmf3Positions[1] = XMFLOAT3(fx, 0, +fy);
 	m_pxmf3Positions[2] = XMFLOAT3(0, 0, -fy);
-	m_pxmf3Positions[3] = XMFLOAT3(2*fx, 0, -fy);
+	m_pxmf3Positions[3] = XMFLOAT3(fx, 0, -fy);
 
 	m_nType |= VERTEXT_COLOR;
 	m_pxmf4Colors = new XMFLOAT4[m_nVertices];

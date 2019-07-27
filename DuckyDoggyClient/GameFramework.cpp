@@ -571,13 +571,23 @@ void CGameFramework::BuildUI()
 
 	m_UIList = new list<CUI*>();
 
+	CUI* pTemp = new CImageUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 20, 3, XMFLOAT3(1999, m_pScene->m_pTerrain->GetHeight(1999, 972), 972), L"Model/Textures/DoggyUI.tiff");
+	pTemp->SetWinpos(4, 9);
+
+	m_UIList->emplace_back(pTemp);
+
+	pTemp = new CImageUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 20, 3, XMFLOAT3(1999, m_pScene->m_pTerrain->GetHeight(1999, 972), 972), L"Model/Textures/DuckyUI.tiff");
+	pTemp->SetWinpos(-15.5, 9);
+
+	m_UIList->emplace_back(pTemp);
+
 	CUI* m_pHPUI = new CHP(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 10.8f, 0.8f, m_pPlayer->GetPosition());
 	
 	m_pHPUI->m_pPlayer = m_pDoggy;
 	m_pHPUI->SetWinpos(7.2f, 9.5f);
 	m_pHPUI->bRender = TRUE;
 	m_pHPUI->SetTexture(HPTexture);
-	m_UIList->push_back(m_pHPUI);
+	m_UIList->emplace_back(m_pHPUI);
 	
 	m_pHPUI = new CHP(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 10.8f, 0.8f, m_pPlayer->GetPosition());
 
@@ -585,7 +595,7 @@ void CGameFramework::BuildUI()
 	m_pHPUI->bRender = TRUE;
 	m_pHPUI->SetWinpos(-12.3f, 9.5f);
 	m_pHPUI->SetTexture(HPTexture);
-	m_UIList->push_back(m_pHPUI);
+	m_UIList->emplace_back(m_pHPUI);
 
 	HPTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 	HPTexture->LoadTextureFromFile(m_pd3dDevice, m_pd3dCommandList, L"Model/Textures/SkillBar.tiff", 0, false);
@@ -597,41 +607,48 @@ void CGameFramework::BuildUI()
 	m_pHPUI->m_pPlayer = m_pDucky;
 	m_pHPUI->SetWinpos(-12.3f, 8.55f);
 	m_pHPUI->SetTexture(HPTexture);
-	m_UIList->push_back(m_pHPUI);
+	m_UIList->emplace_back(m_pHPUI);
 
 	m_pHPUI = new CMP(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 10.8f, 0.8f, m_pPlayer->GetPosition());
 
 	m_pHPUI->m_pPlayer = m_pDoggy;
 	m_pHPUI->SetTexture(HPTexture);
 	m_pHPUI->SetWinpos(7.2f, 8.55f);
-	m_UIList->push_back(m_pHPUI);
+	m_UIList->emplace_back(m_pHPUI);
 
 
-	CUI* pTemp = new CStartUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 5, 5, m_pPlayer->GetPosition(), L"Model/Textures/GAMESTART.tiff");
+	 pTemp = new CStartUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 10, 5, m_pPlayer->GetPosition(), L"Model/Textures/GAMESTART.tiff");
 	pTemp->SetWinpos(-2.5, 0);
 	dynamic_cast<CStartUI*> (pTemp)->bRender = true;
 	dynamic_cast<CStartUI*> (pTemp)->Trigger = true;
 	pTemp->m_pPlayer = m_pDoggy;
-	m_UIList->push_back(pTemp);
+	m_UIList->emplace_back(pTemp);
 
-	pTemp = new CEndUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 5, 5, XMFLOAT3(1999, m_pScene->m_pTerrain->GetHeight(1999, 972), 972), L"Model/Textures/GAMECLEAR.tiff");
+	pTemp = new CEndUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 10, 5, XMFLOAT3(1999, m_pScene->m_pTerrain->GetHeight(1999, 972), 972), L"Model/Textures/GAMECLEAR.tiff");
 	pTemp->SetWinpos(-2.5, 0);
 	pTemp->m_pPlayer = m_pDoggy;
 
-	m_UIList->push_back(pTemp);
+	m_UIList->emplace_back(pTemp);
 
-	pTemp = new CImageUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 20, 3, XMFLOAT3(1999, m_pScene->m_pTerrain->GetHeight(1999, 972), 972), L"Model/Textures/DoggyUI.tiff");
-	pTemp->SetWinpos(4, 9);
 
-	m_UIList->push_front(pTemp);
+	pTemp = new CImageUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 25, 2.5f, XMFLOAT3(1999, m_pScene->m_pTerrain->GetHeight(1999, 972), 972), L"Model/Textures/ProcessBar.tiff");
+	pTemp->SetWinpos(-6, -5);
+	pTemp->m_fWinposz = 10.f;
+	m_UIList->emplace_back(pTemp);
 
-	pTemp = new CImageUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 20, 3, XMFLOAT3(1999, m_pScene->m_pTerrain->GetHeight(1999, 972), 972), L"Model/Textures/DuckyUI.tiff");
-	pTemp->SetWinpos(-15.5 ,9);
+	pTemp = new CProgressUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 1, 1, - 4.25f, -5, L"Model/Textures/DoggyUI2.tiff");
+	dynamic_cast<CProgressUI*> (pTemp)->SetProgressWidth(8.5f / (m_pPlayer->GetNavListSize() + 1));
+	m_pDoggy->SetProgressUI(pTemp);
 
-	m_UIList->push_front(pTemp);
+	m_UIList->emplace_back(pTemp);
+
+	pTemp = new CProgressUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 1, 1, -4.25f, -5, L"Model/Textures/DuckyUI2.tiff");
+	dynamic_cast<CProgressUI*> (pTemp)->SetProgressWidth(8.5f /( m_pPlayer->GetNavListSize() + 1));
+	m_pDucky->SetProgressUI(pTemp);
+	
+	m_UIList->emplace_back(pTemp);
 
 	m_pCamera->m_UIList = m_UIList;
-	
 
 	m_pOverUI = new CStartUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 4, 4, XMFLOAT3(1999, m_pScene->m_pTerrain->GetHeight(1999, 972), 972), L"Model/Textures/GAMEOVER.tiff");
 	m_pOverUI->SetWinpos(-2.5, 0);
@@ -680,7 +697,7 @@ void CGameFramework::BuildPlayers()
 
 	m_pDoggy->SetPosition(XMFLOAT3(INITPOSITION_X,
 		m_pScene->m_pTerrain->GetHeight(INITPOSITION_X, INITPOSITION_Z), INITPOSITION_Z)); //시작위치
-	//m_pDoggy->SetPosition(XMFLOAT3(1394, m_pScene->m_pTerrain->GetHeight(1394,1363 ), 1363)); //물 확인용
+	m_pDoggy->SetPosition(XMFLOAT3(1394, m_pScene->m_pTerrain->GetHeight(1394,1363 ), 1363)); //물 확인용
 	m_pDoggy->SetHitBox(XMFLOAT3(5.f, 5.f, 5.f));
 	m_pDoggy->SetScale(XMFLOAT3(4.f, 4.f, 4.f));
 	m_pDoggy->Rotate(0, 80, 0);
@@ -912,6 +929,20 @@ void CGameFramework::FrameAdvance()
 	if (m_pDucky) m_pDucky->Render(m_pd3dCommandList, m_pCamera);
 	if (m_pDoggy) m_pDoggy->Render(m_pd3dCommandList, m_pCamera);
 	m_pPlayer->GetNavGuide()->Render(m_pd3dCommandList, m_pCamera);
+
+	//water 렌더
+	CWater** m_ppWaters = m_pScene->GetWaters();
+	for (int i = 0; i < 2; i++)
+	{
+		if (m_ppWaters[i])
+		{
+			m_ppWaters[i]->Animate(m_GameTimer.GetTimeElapsed());
+			m_ppWaters[i]->Render(m_pd3dCommandList, m_pCamera);
+
+		}
+	}
+
+
 	//UI렌더
 	for (auto a : *m_UIList)
 	{
@@ -924,16 +955,6 @@ void CGameFramework::FrameAdvance()
 	if (m_pOverUI->bRender) 
 		m_pOverUI->Render(m_pd3dCommandList, m_pCamera);
 
-	CWater** m_ppWaters = m_pScene->GetWaters();
-	for (int i = 0; i < 2; i++)
-	{
-		if (m_ppWaters[i])
-		{
-			m_ppWaters[i]->Animate(m_GameTimer.GetTimeElapsed());
-			m_ppWaters[i]->Render(m_pd3dCommandList, m_pCamera);
-			
-		}
-	}
 	d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
 	d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
 	d3dResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;

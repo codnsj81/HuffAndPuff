@@ -332,7 +332,7 @@ void CThirdPersonCamera::SetLookAt(XMFLOAT3& xmf3LookAt)
 		{
 			t->m_xmf4x4ToParent = m_xmf4x4Rotate;
 			t->SetPosition(GetPosition());
-			t->MoveForward(20);
+			t->MoveForward(t->m_fWinposz);
 			t->MoveStrafe(t->m_fWinposx);
 			t->MoveUp(t->m_fWinposy);
 			t->Rotate(90, 0, 0);

@@ -21,6 +21,8 @@
 #include "Camera.h"
 #include "../Headers/Include.h"
 class CScene;
+class CProgressUI;
+
 class CPlayer : public CGameObject
 {
 protected:
@@ -71,6 +73,7 @@ protected:
 
 	list<XMFLOAT3>				m_xmNavigationList;
 	CGameObject*				m_NavGuide = NULL;
+	CUI*						m_ProgressUI = NULL;
 
 	int							m_navListSize;
 	int							m_navProcess;
@@ -78,11 +81,13 @@ public:
 	CPlayer();
 	virtual ~CPlayer();
 
+	void SetProgressUI(CUI* p) { m_ProgressUI = p; }
 	void SetNav(CGameObject* nav);
 	void NextRoad(float fTime);
 	void LoadNavigation();
 	list<XMFLOAT3>* GetNavigationList() { return &m_xmNavigationList; }
-	
+	int GetNavListSize() { return m_navListSize; }
+
 	void PlusNavigationList();
 	void SetScene(CScene* p) { m_pScene = p; }
 	int	GetAtt() { return m_iAtt; }

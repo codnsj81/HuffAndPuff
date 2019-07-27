@@ -17,6 +17,7 @@ public:
 	float							m_nLength;
 	float							m_fWinposx = 10.f;
 	float							m_fWinposy = 9.f;
+	float							m_fWinposz = 20.f;
 	bool bRender = true;
 	bool bEx = false;
 
@@ -35,7 +36,6 @@ public:
 	void SetCbvGPUDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE d3dCbvGPUDescriptorHandle) { m_d3dCbvGPUDescriptorHandle = d3dCbvGPUDescriptorHandle; }
 	void SetCbvGPUDescriptorHandlePtr(UINT64 nCbvGPUDescriptorHandlePtr) { m_d3dCbvGPUDescriptorHandle.ptr = nCbvGPUDescriptorHandlePtr; }
 	virtual void Update(float elapsed);
-	void FollowCamera();
 	void SetHpScale();
 
 public:
@@ -78,6 +78,7 @@ private:
 class CImageUI : public CUI
 {
 public:
+	CImageUI() {}
 	CImageUI(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, float nWidth, float nLength, XMFLOAT3 xmfPosition, wchar_t* pFilename);
 	~CImageUI();
 
@@ -93,4 +94,19 @@ public:
 	void SetTexture(CTexture* tex);
 
 	virtual void Update(float elapsed);
+};
+
+
+class CProgressUI : public CImageUI
+{
+private:
+	int m_iProgress = 0;
+	float ProgressWidth = 16.5f;
+	float OriginPosx;
+	
+public:
+	CProgressUI(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, float nWidth, float nLength, float winPosx, float winPosy, wchar_t* pFilename);
+	~CProgressUI() {} 
+	void Progressing();
+	void SetProgressWidth(float width) { ProgressWidth = width; }
 };

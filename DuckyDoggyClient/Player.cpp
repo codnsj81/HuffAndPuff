@@ -5,6 +5,7 @@
 #include "stdafx.h"
 #include "Player.h"
 #include "Shader.h"
+#include "CUI.h"
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CPlayer
 
@@ -65,11 +66,19 @@ void CPlayer::NextRoad(float fTime)
 	XMFLOAT3 next = m_xmNavigationList.front();
 	float length = Vector3::Length(Vector3::Subtract(PointingPos, now));
 	
-	if (length < 100.f)
+
+	if (length < 100.f )
 	{
-		PointingPos = next;
-		m_xmNavigationList.pop_front();
-		m_navProcess++;
+		if (next.x != 1)
+		{
+			PointingPos = next;
+			m_xmNavigationList.pop_front();
+		}
+		if(m_navProcess < m_navListSize)
+		{
+			m_navProcess++;
+			dynamic_cast<CProgressUI*> (m_ProgressUI)->Progressing();
+		}
 	}
 	now.y += 7.f;
 	if (m_NavGuide)

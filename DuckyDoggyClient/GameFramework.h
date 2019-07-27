@@ -34,7 +34,6 @@ public:
     void ReleaseObjects();
 	void CheckInWater();
 
-	void SaveNavigation();
 
     void ProcessInput();
     void AnimateObjects();

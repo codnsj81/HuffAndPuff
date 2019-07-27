@@ -72,6 +72,8 @@ protected:
 	list<XMFLOAT3>				m_xmNavigationList;
 	CGameObject*				m_NavGuide = NULL;
 
+	int							m_navListSize;
+	int							m_navProcess;
 public:
 	CPlayer();
 	virtual ~CPlayer();
@@ -80,6 +82,7 @@ public:
 	void NextRoad(float fTime);
 	void LoadNavigation();
 	list<XMFLOAT3>* GetNavigationList() { return &m_xmNavigationList; }
+	
 	void PlusNavigationList();
 	void SetScene(CScene* p) { m_pScene = p; }
 	int	GetAtt() { return m_iAtt; }
@@ -101,6 +104,8 @@ public:
 	float	GetHp() { return m_iHP; }
 	void Damage(int d); 
 	void PlusSkillGage(int d);
+
+	CGameObject* GetNavGuide() { return m_NavGuide; }
 
 	void SetFriction(float fFriction) { m_fFriction = fFriction; }
 	void SetGravity(const XMFLOAT3& xmf3Gravity) { m_xmf3Gravity = xmf3Gravity; }

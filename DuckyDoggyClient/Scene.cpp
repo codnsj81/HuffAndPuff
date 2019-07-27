@@ -977,6 +977,17 @@ void CScene::LoadGrass(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd
 
 }
 
+
+void CScene::SaveNavigation()
+{
+	fstream out("NavData.txt", ios::out | ios::binary);
+	list<XMFLOAT3>* list = m_pPlayer->GetNavigationList();
+	for (auto t : *list)
+	{
+		out << t.x << " " << t.y << " " << t.z << " " << endl;
+	}
+}
+
 void CScene::LoadTree(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
 {
 	

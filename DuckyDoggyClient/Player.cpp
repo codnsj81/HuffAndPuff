@@ -63,12 +63,13 @@ void CPlayer::NextRoad(float fTime)
 
 	XMFLOAT3 now = GetPosition();
 	XMFLOAT3 next = m_xmNavigationList.front();
-	float length = Vector3::Length(Vector3::Subtract(next, now));
+	float length = Vector3::Length(Vector3::Subtract(PointingPos, now));
 	
-	if (length < 20.f)
+	if (length < 100.f)
 	{
 		PointingPos = next;
 		m_xmNavigationList.pop_front();
+		m_navProcess++;
 	}
 	now.y += 7.f;
 	if (m_NavGuide)
@@ -82,8 +83,6 @@ void CPlayer::NextRoad(float fTime)
 		XMFLOAT3 xmf3CrossProduct = Vector3::CrossProduct(xmf3Look, xmf3ToTarget);
 		//	if (fAngle != 0.0f) Rotate(0.0f, fAngle * fElapsedTime * ((xmf3CrossProduct.y > 0.0f) ? 1.0f : -1.0f), 0.0f);
 		m_NavGuide->Rotate(0.0f, fAngle * fTime * ((xmf3CrossProduct.y > 0.0f) ? 1.0f : -1.0f), 0.0f);
-
-
 	}
 }
 
@@ -100,10 +99,13 @@ void CPlayer::LoadNavigation()
 	}
 	m_xmNavigationList.pop_front();
 	PointingPos = m_xmNavigationList.front();
+	m_navListSize = m_xmNavigationList.size();
+	m_navProcess = 0;
 }
 
 void CPlayer::PlusNavigationList()
 {
+	if (m_NavGuide == NULL) return;
 	XMFLOAT3 now = GetPosition();
 	if (m_xmNavigationList.empty())
 	{
@@ -111,7 +113,7 @@ void CPlayer::PlusNavigationList()
 		return;
 	}
 	XMFLOAT3 next = m_xmNavigationList.back();
-	if (Vector3::Length(Vector3::Subtract(next, now))> 40.f)
+	if (Vector3::Length(Vector3::Subtract(next, now))> 200.f)
 	{
 		m_xmNavigationList.emplace_back(now);
 	}
@@ -591,7 +593,6 @@ void CPlayer::OnPrepareRender()
 
 	UpdateTransform(NULL);
 
-	if(m_NavGuide) m_NavGuide->OnPrepareRender();
 }
 
 void CPlayer::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
@@ -599,7 +600,6 @@ void CPlayer::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamer
 	DWORD nCameraMode = (pCamera) ? pCamera->GetMode() : 0x00;
 	if (nCameraMode == THIRD_PERSON_CAMERA) CGameObject::Render(pd3dCommandList, pCamera);
 
-	if (m_NavGuide) m_NavGuide->Render(pd3dCommandList, pCamera);
 }
 
 

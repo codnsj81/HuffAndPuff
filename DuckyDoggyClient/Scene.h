@@ -124,6 +124,8 @@ public:
 	void PlusMonsterData();
 	void SaveMonsterData();
 
+	void SaveNavigation();
+
 	void CreateDamageUI(CPlayer* pPlayer, int dam);
 	void BuildMonsterList(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList);
 

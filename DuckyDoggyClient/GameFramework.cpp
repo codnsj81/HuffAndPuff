@@ -341,7 +341,7 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 					m_pCamera->m_UIList = m_UIList;
 					break;
 				case '3': // 네이베게이션 저장
-					SaveNavigation();
+					m_pScene->SaveNavigation();
 					break;
 				case 't':
 				case 'T':
@@ -708,7 +708,10 @@ void CGameFramework::BuildPlayers()
 	
 	CGameObject* Arrow = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), "Model/Arrow.bin", NULL,false);
 	Arrow->Rotate(0, 80, 0);
-	m_pPlayer->SetNav(Arrow);
+	m_pDoggy->SetNav(Arrow);
+	Arrow = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), "Model/Arrow.bin", NULL, false);
+	Arrow->Rotate(0, 80, 0);
+	m_pDucky ->SetNav(Arrow);
 }
 
 void CGameFramework::BuildObjects()
@@ -761,16 +764,6 @@ void CGameFramework::ReleaseObjects()
 }
 
 
-void CGameFramework::SaveNavigation()
-{
-
-	fstream out("NavData.txt", ios::out | ios::binary);
-	list<XMFLOAT3>* list = m_pPlayer->GetNavigationList();
-	for (auto t : *list)
-	{
-		out << t.x << " " << t.y << " " << t.z << " " << endl;
-	}
-}
 
 void CGameFramework::ProcessInput()
 {
@@ -918,7 +911,7 @@ void CGameFramework::FrameAdvance()
 #endif
 	if (m_pDucky) m_pDucky->Render(m_pd3dCommandList, m_pCamera);
 	if (m_pDoggy) m_pDoggy->Render(m_pd3dCommandList, m_pCamera);
-
+	m_pPlayer->GetNavGuide()->Render(m_pd3dCommandList, m_pCamera);
 	//UI렌더
 	for (auto a : *m_UIList)
 	{

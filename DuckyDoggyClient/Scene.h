@@ -17,6 +17,7 @@ class CMonster;
 class CStartUI;
 class CDamageUI;
 class CTrap;
+class CScreen;
 struct StoneInfo
 {
 	int							m_iType;
@@ -169,6 +170,8 @@ public:
 	int									m_nGameObjects = 0;
 	
 	CTexture*							m_DamageUITex = NULL;
+	CTexture* m_SceneScreenTex = NULL; //
+
 	CGameObject* HoneyComb = NULL;
 	
 	CGameObject							**m_ppGameObjects = NULL;
@@ -181,6 +184,7 @@ public:
 	list<CDash*>						m_DashList;
 	list<CTrap*>						m_TrapList;
 	list<CDamageUI*>					m_DamageUIList;
+	list<CScreen*>					m_ScreenList; // 
 
 	int									m_nWaters = 0;
 	CWater								**m_ppWaters = NULL;

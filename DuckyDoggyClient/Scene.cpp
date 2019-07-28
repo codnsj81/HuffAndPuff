@@ -48,7 +48,20 @@ void CScene::BuildDefaultLightsAndMaterials()
 void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
 {
 	if (m_scene == scene_logo) {
+		m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
+		CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 45); //SuperCobra(17), Gunship(2), Player:Mi24(1), Angrybot()
+
+		CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+
+		BuildDefaultLightsAndMaterials();
+
+		m_SceneScreenTex = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+		m_SceneScreenTex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/logo.tiff", 0, false);
+		CScene::CreateShaderResourceViews(pd3dDevice, m_SceneScreenTex, 3, false);
+
+
+		CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	}
 	else if (m_scene == scene_menu) {
 

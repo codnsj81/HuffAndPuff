@@ -148,7 +148,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\temp10\trunk\DuckyDoggyClient\CScreen.h" />
     <ClInclude Include="..\..\..\temp10\trunk\DuckyDoggyClient\Scene.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CMonster.h" />
@@ -162,6 +161,7 @@
     <ClInclude Include="Player.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Scene.h" />
+    <ClInclude Include="SceneScreen.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -169,8 +169,6 @@
     <ClInclude Include="WICTextureLoader12.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\temp10\trunk\DuckyDoggyClient\CScreen.cpp" />
-    <ClCompile Include="..\..\..\temp10\trunk\DuckyDoggyClient\Scene.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CMonster.cpp" />
     <ClCompile Include="CUI.cpp" />
@@ -181,6 +179,7 @@
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="SceneScreen.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

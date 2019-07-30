@@ -8,6 +8,7 @@
 #include "Scene.h"
 #include "CMonster.h"
 #include "CUI.h"
+#include "SceneScreen.h"
 
 ID3D12DescriptorHeap *CScene::m_pd3dCbvSrvDescriptorHeap = NULL;
 
@@ -49,19 +50,19 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 {
 	if (m_scene == scene_logo) {
 		m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
-
 		CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 45); //SuperCobra(17), Gunship(2), Player:Mi24(1), Angrybot()
-
 		CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
-
 		BuildDefaultLightsAndMaterials();
 
+		// 스크린 텍스쳐 생성
 		m_SceneScreenTex = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 		m_SceneScreenTex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/logo.tiff", 0, false);
 		CScene::CreateShaderResourceViews(pd3dDevice, m_SceneScreenTex, 3, false);
-
-
 		CreateShaderVariables(pd3dDevice, pd3dCommandList);
+
+		// 스크린 객체 생성
+		m_pSceneScreen = new CSceneScreen(m_pd3dDevice, m_pd3dCommandList, m_pd3dGraphicsRootSignature, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, XMFLOAT3{ FRAME_BUFFER_WIDTH / 2.f, FRAME_BUFFER_HEIGHT / 2.f, 0.f });
+		m_pSceneScreen->SetTexture(m_SceneScreenTex);
 	}
 	else if (m_scene == scene_menu) {
 
@@ -71,19 +72,15 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	}
 	else if (m_scene == scene_stage1) {
 		m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
-
 		CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 60); //SuperCobra(17), Gunship(2), Player:Mi24(1), Angrybot()
-
 		CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
-
 		BuildDefaultLightsAndMaterials();
 
 		XMFLOAT3 xmf3Scale(8.0f, 3.0f, 8.0f);
 		XMFLOAT4 xmf4Color(0.3f, 0.3f, 0.3f, 0.0f);
+		
 		m_pTerrain = new CHeightMapTerrain(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, _T("Terrain/terrain.raw"), 257, 257, xmf3Scale, xmf4Color);
-
 		m_pSkyBox = new CSkyBox(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
-
 		m_nShaders = 1;
 		m_ppShaders = new CShader * [m_nShaders];
 
@@ -108,7 +105,6 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 
 		m_DamageUITex = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 		m_DamageUITex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/number.tiff", 0, false);
-
 		CScene::CreateShaderResourceViews(pd3dDevice, m_DamageUITex, 3, false);
 
 		LoadStone(pd3dDevice, pd3dCommandList);
@@ -127,7 +123,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 void CScene::ReleaseObjects()
 {
 	if (m_scene == scene_logo) {
-
+		if (m_pSceneScreen) delete m_pSceneScreen;
 	}
 	else if (m_scene == scene_menu) {
 
@@ -756,6 +752,15 @@ void CScene::CreateDamageUI(CPlayer * pPlayer, int dam)
 	m_DamageUIList.emplace_back(DUI);
 }
 
+void CScene::CreateSceneScreen(e_scene scene)
+{
+	CSceneScreen* pSS = new CSceneScreen(m_pd3dDevice, m_pd3dCommandList, m_pd3dGraphicsRootSignature, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, XMFLOAT3{ FRAME_BUFFER_WIDTH / 2.f, FRAME_BUFFER_HEIGHT / 2.f, 0.f });
+	pSS->SetTexture(m_DamageUITex);
+	// m_pPlayer->GetCamera()->RotateUI(DUI);
+	pSS->SetPosition(FRAME_BUFFER_WIDTH / 2.f, FRAME_BUFFER_HEIGHT / 2.f, 0.f);
+	// m_DamageUIList.emplace_back(DUI);
+}
+
 void CScene::CreateCbvSrvDescriptorHeaps(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nConstantBufferViews, int nShaderResourceViews)
 {
 	D3D12_DESCRIPTOR_HEAP_DESC d3dDescriptorHeapDesc;
@@ -1105,71 +1110,84 @@ void CScene::AnimateObjects(float fTimeElapsed)
 
 void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
 {
-	if (m_pd3dGraphicsRootSignature) pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
-	if (m_pd3dCbvSrvDescriptorHeap) pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
+	if (m_scene == scene_logo) {
 
-	pCamera->SetViewportsAndScissorRects(pd3dCommandList);
-	pCamera->UpdateShaderVariables(pd3dCommandList);
+		if (m_pd3dGraphicsRootSignature) pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
+		if (m_pd3dCbvSrvDescriptorHeap) pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
+		pCamera->SetViewportsAndScissorRects(pd3dCommandList);
+		pCamera->UpdateShaderVariables(pd3dCommandList);
+		D3D12_GPU_VIRTUAL_ADDRESS d3dcbLightsGpuVirtualAddress = m_pd3dcbLights->GetGPUVirtualAddress();
+		pd3dCommandList->SetGraphicsRootConstantBufferView(2, d3dcbLightsGpuVirtualAddress); //Lights
 
-	UpdateShaderVariables(pd3dCommandList);
+		if (m_pSceneScreen) m_pSceneScreen->Render(pd3dCommandList, pCamera);
+	}
+	else if (m_scene == scene_stage1) {
 
-	D3D12_GPU_VIRTUAL_ADDRESS d3dcbLightsGpuVirtualAddress = m_pd3dcbLights->GetGPUVirtualAddress();
-	pd3dCommandList->SetGraphicsRootConstantBufferView(2, d3dcbLightsGpuVirtualAddress); //Lights
+		if (m_pd3dGraphicsRootSignature) pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
+		if (m_pd3dCbvSrvDescriptorHeap) pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
 
-	if (m_pSkyBox) m_pSkyBox->Render(pd3dCommandList, pCamera);
-	if (m_pTerrain) m_pTerrain->Render(pd3dCommandList, pCamera);
+		pCamera->SetViewportsAndScissorRects(pd3dCommandList);
+		pCamera->UpdateShaderVariables(pd3dCommandList);
 
-	for (auto p : m_TreeObjectslist)
-	{
-		p->UpdateTransform(NULL);
-		p->Render(pd3dCommandList, pCamera);
-	}
-	for (auto p : m_StoneObjectslist)
-	{
-		p->UpdateTransform(NULL);
-		p->Render(pd3dCommandList, pCamera);
-	}
-	for (auto p : M_MonsterObjectslist)
-	{
-		p->Render(pd3dCommandList, pCamera);
-	}
-	for (auto p : m_GrassObjectlist)
-	{
-		p->UpdateTransform(NULL);
-		p->Render(pd3dCommandList, pCamera);
-	}
-	for (auto p : m_HoneyComblist)
-	{
-		p->UpdateTransform(NULL);
-		p->Render(pd3dCommandList, pCamera);
-	}
-	for (auto p : m_Mushroomlist)
-	{
-		p->UpdateTransform(NULL);
-		p->Render(pd3dCommandList, pCamera);
-	}
-	for (auto p : m_TrapList)
-	{
-		p->UpdateTransform(NULL);
-		p->Render(pd3dCommandList, pCamera);
-	}
-	for (auto p : m_DashList)
-	{
-		p->UpdateTransform(NULL);
-		p->Render(pd3dCommandList, pCamera);
-	}
-	for (auto p : m_DamageUIList)
-	{
-		if (p->bRender)
+		UpdateShaderVariables(pd3dCommandList);
+
+		D3D12_GPU_VIRTUAL_ADDRESS d3dcbLightsGpuVirtualAddress = m_pd3dcbLights->GetGPUVirtualAddress();
+		pd3dCommandList->SetGraphicsRootConstantBufferView(2, d3dcbLightsGpuVirtualAddress); //Lights
+
+		if (m_pSkyBox) m_pSkyBox->Render(pd3dCommandList, pCamera);
+		if (m_pTerrain) m_pTerrain->Render(pd3dCommandList, pCamera);
+
+		for (auto p : m_TreeObjectslist)
 		{
-		p->UpdateTransform(NULL);
-		p->Render(pd3dCommandList, pCamera);
-
+			p->UpdateTransform(NULL);
+			p->Render(pd3dCommandList, pCamera);
 		}
-	}
-	for (int i = 0; i < m_nShaders; i++) if (m_ppShaders[i]) m_ppShaders[i]->Render(pd3dCommandList, pCamera);
-	
+		for (auto p : m_StoneObjectslist)
+		{
+			p->UpdateTransform(NULL);
+			p->Render(pd3dCommandList, pCamera);
+		}
+		for (auto p : M_MonsterObjectslist)
+		{
+			p->Render(pd3dCommandList, pCamera);
+		}
+		for (auto p : m_GrassObjectlist)
+		{
+			p->UpdateTransform(NULL);
+			p->Render(pd3dCommandList, pCamera);
+		}
+		for (auto p : m_HoneyComblist)
+		{
+			p->UpdateTransform(NULL);
+			p->Render(pd3dCommandList, pCamera);
+		}
+		for (auto p : m_Mushroomlist)
+		{
+			p->UpdateTransform(NULL);
+			p->Render(pd3dCommandList, pCamera);
+		}
+		for (auto p : m_TrapList)
+		{
+			p->UpdateTransform(NULL);
+			p->Render(pd3dCommandList, pCamera);
+		}
+		for (auto p : m_DashList)
+		{
+			p->UpdateTransform(NULL);
+			p->Render(pd3dCommandList, pCamera);
+		}
+		for (auto p : m_DamageUIList)
+		{
+			if (p->bRender)
+			{
+				p->UpdateTransform(NULL);
+				p->Render(pd3dCommandList, pCamera);
 
+			}
+		}
+		for (int i = 0; i < m_nShaders; i++) if (m_ppShaders[i]) m_ppShaders[i]->Render(pd3dCommandList, pCamera);
+
+	}
 }
 
 void CScene::ObjectsCollides()

@@ -17,7 +17,7 @@ class CMonster;
 class CStartUI;
 class CDamageUI;
 class CTrap;
-class CScreen;
+class CSceneScreen;
 struct StoneInfo
 {
 	int							m_iType;
@@ -130,6 +130,9 @@ public:
 	void CreateDamageUI(CPlayer* pPlayer, int dam);
 	void BuildMonsterList(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList);
 
+
+	void CreateSceneScreen(e_scene scene);// 
+
 	list<CMonster*>* GetMonsterList() {
 		return &M_MonsterObjectslist;
 	}
@@ -184,7 +187,6 @@ public:
 	list<CDash*>						m_DashList;
 	list<CTrap*>						m_TrapList;
 	list<CDamageUI*>					m_DamageUIList;
-	list<CScreen*>					m_ScreenList; // 
 
 	int									m_nWaters = 0;
 	CWater								**m_ppWaters = NULL;
@@ -197,6 +199,7 @@ public:
 
 	CSkyBox								*m_pSkyBox = NULL;
 	CHeightMapTerrain					*m_pTerrain = NULL;
+	CSceneScreen* m_pSceneScreen = NULL;
 
 	LIGHT								*m_pLights = NULL;
 	int									m_nLights = 0;

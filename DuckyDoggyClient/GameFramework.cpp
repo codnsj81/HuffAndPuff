@@ -697,7 +697,7 @@ void CGameFramework::BuildPlayers()
 
 	m_pDoggy->SetPosition(XMFLOAT3(INITPOSITION_X,
 		m_pScene->m_pTerrain->GetHeight(INITPOSITION_X, INITPOSITION_Z), INITPOSITION_Z)); //시작위치
-	m_pDoggy->SetPosition(XMFLOAT3(1394, m_pScene->m_pTerrain->GetHeight(1394,1363 ), 1363)); //물 확인용
+	//m_pDoggy->SetPosition(XMFLOAT3(1394, m_pScene->m_pTerrain->GetHeight(1394,1363 ), 1363)); //물 확인용
 	m_pDoggy->SetHitBox(XMFLOAT3(5.f, 5.f, 5.f));
 	m_pDoggy->SetScale(XMFLOAT3(4.f, 4.f, 4.f));
 	m_pDoggy->Rotate(0, 80, 0);
@@ -737,10 +737,11 @@ void CGameFramework::BuildObjects()
 
 	m_pScene = new CScene();
 	if (m_pScene) m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
-
+	m_pScene->SetMainFrame(this);
 
 	BuildPlayers();
 	BuildUI();
+	m_pScene->BuildClock(m_pd3dDevice, m_pd3dCommandList);
 
 	m_pScene->SetDuckyNDoggy(m_pDucky, m_pDoggy, m_pPlayer);
 	m_pScene->m_pd3dDevice = m_pd3dDevice;
@@ -920,7 +921,7 @@ void CGameFramework::FrameAdvance()
 
 	m_pd3dCommandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, TRUE, &d3dDsvCPUDescriptorHandle);
 
-	if (m_pScene) m_pScene->Update();
+	if (m_pScene) m_pScene->Update(m_GameTimer.GetTimeElapsed());
 	if (m_pScene) m_pScene->Render(m_pd3dCommandList, m_pCamera);
 
 #ifdef _WITH_PLAYER_TOP

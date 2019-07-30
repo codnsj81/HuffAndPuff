@@ -285,9 +285,10 @@ public:
 	CWaterMesh(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nWidth = 5.f, int nLength = 5.f);
 	virtual ~CWaterMesh();
 	void CalculateTriangleListTBNs(int nVertices, XMFLOAT3 *pxmf3Positions, XMFLOAT2 *pxmf2TexCoords, XMFLOAT3 *pxmf3Tangents, XMFLOAT3 *pxmf3BiTangents, XMFLOAT3 *pxmf3Normals);
-	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList);
+
 	void setTimeElapsed(float time) { m_fTimeElapsed = time; }
-protected:
+protected:	
+	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList);
 	int								m_nWidth;
 	int								m_nLength;
 	UINT							m_nStride = 0;
@@ -347,4 +348,19 @@ public:
 	CDamageUIMesh();
 	CDamageUIMesh(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int num, float nWidth = 5.f, float nLength = 5.f);
 	~CDamageUIMesh();
+};
+
+class CFontMesh : public CUIMesh
+{
+public:
+	CFontMesh();
+	CFontMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, int num, float nWidth = 5.f, float nLength = 5.f);
+	~CFontMesh();
+
+	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
+	void SetNumber(int num) { m_iNumber = num; }
+private:
+
+	ID3D12Device* m_pd3dDevice = NULL;
+	int		m_iNumber;
 };

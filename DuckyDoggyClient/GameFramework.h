@@ -57,6 +57,7 @@ public:
 	 CTerrainPlayer* GetDucky() { if (m_pDucky != nullptr) return m_pDucky; }
 	 CScene* GetScene() { return m_pScene; }
 
+	 list<CUI*>* GetUIList() { return m_UIList; }
 	 void BuildUI();
 private:
 	HINSTANCE					m_hInstance;

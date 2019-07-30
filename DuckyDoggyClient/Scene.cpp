@@ -9,6 +9,7 @@
 #include "CMonster.h"
 #include "CUI.h"
 #include "SceneScreen.h"
+#include "GameFramework.h"
 
 ID3D12DescriptorHeap *CScene::m_pd3dCbvSrvDescriptorHeap = NULL;
 
@@ -113,11 +114,41 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 		LoadTrap(pd3dDevice, pd3dCommandList);
 		LoadDash(pd3dDevice, pd3dCommandList);
 		BuildMushroomData(pd3dDevice, pd3dCommandList);
-
 		CreateShaderVariables(pd3dDevice, pd3dCommandList);
+
 	}
 
 
+}
+
+void CScene::BuildClock(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
+{
+
+	CTexture* m_ClockTex = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	m_ClockTex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/number2.tiff", 0, false);
+	CScene::CreateShaderResourceViews(pd3dDevice, m_ClockTex, 3, false);
+	 
+	m_iClockMin = new CClockUI(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 1,1);
+	m_iClockMin->SetWinpos(-1.7, 10);
+	m_iClockMin->SetTexture(m_ClockTex);
+	
+	m_MainFramework->GetUIList()->emplace_back(m_iClockMin);
+
+	m_iClockSec1 = new CClockUI(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 1, 1);
+	m_iClockSec1->SetWinpos(0.7, 10);
+	m_iClockSec1->SetTexture(m_ClockTex);
+	m_MainFramework->GetUIList()->emplace_back(m_iClockSec1);
+
+	m_iClockSec2 = new CClockUI(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 1, 1);
+	m_iClockSec2->SetWinpos(2.2, 10);
+	m_iClockSec2->SetTexture(m_ClockTex);
+	m_MainFramework->GetUIList()->emplace_back(m_iClockSec2);
+
+	CUI* pUI = new CClockUI(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 1, 1);
+	dynamic_cast<CClockUI*> (pUI)->SetNum(10);
+	pUI->SetWinpos(0, 10);
+	pUI->SetTexture(m_ClockTex);
+	m_MainFramework->GetUIList()->emplace_back(pUI);
 }
 
 void CScene::ReleaseObjects()
@@ -201,7 +232,7 @@ void CScene::ReleaseObjects()
 	}
 }
 
-void CScene::Update()
+void CScene::Update(float fTime)
 {
 	if (m_scene == scene_logo) {
 
@@ -214,6 +245,7 @@ void CScene::Update()
 	}
 	else if (m_scene == scene_stage1) {
 		ObjectsCollides();
+		TimeCount(fTime);
 	}
 }
 
@@ -478,6 +510,24 @@ void CScene::ReleaseUploadBuffers()
 
 	for (auto n : m_TrapList)
 		n->ReleaseShaderVariables();
+}
+
+void CScene::TimeCount(float time)
+{
+	m_fStageTime += time;
+	if (m_fStageTime > 1)
+	{
+		m_iStageTime++;
+
+		int Min = int( m_iStageTime / 60);
+		int Sec = m_iStageTime % 60;
+		int Sec1 = Sec / 10;
+		int Sec2 = Sec % 10;
+		dynamic_cast<CClockUI*>(m_iClockMin)->SetNum(Min);
+		dynamic_cast<CClockUI*>(m_iClockSec1)->SetNum(Sec1);
+		dynamic_cast<CClockUI*>(m_iClockSec2)->SetNum(Sec2);
+		m_fStageTime = 0;
+	}
 }
 
 void CScene::ResetObjects()

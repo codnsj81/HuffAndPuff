@@ -17,6 +17,7 @@ class CMonster;
 class CStartUI;
 class CDamageUI;
 class CTrap;
+class CGameFramework;
 class CSceneScreen;
 struct StoneInfo
 {
@@ -69,8 +70,9 @@ public:
 
 	void BuildDefaultLightsAndMaterials();
 	void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
+	void BuildClock(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	void ReleaseObjects();
-	void Update();
+	void Update(float fTime);
 	void SetDuckyNDoggy(CPlayer* ducky, CPlayer* doggy, CPlayer* player);
 
 	void PlayerAttack();
@@ -90,6 +92,12 @@ public:
 	void ObjectsCollides();
 	void ReleaseUploadBuffers();
 	CWater** GetWaters() { return m_ppWaters; }
+
+	void TimeCount(float time);
+
+	CUI* m_iClockMin;
+	CUI* m_iClockSec1;
+	CUI* m_iClockSec2;
 
 	CPlayer								*m_pPlayer = NULL;
 	CPlayer								*m_pDoggy;
@@ -136,6 +144,8 @@ public:
 	list<CMonster*>* GetMonsterList() {
 		return &M_MonsterObjectslist;
 	}
+	
+	void SetMainFrame(CGameFramework* frame) { m_MainFramework = frame; }
 
 protected:
 	ID3D12RootSignature					*m_pd3dGraphicsRootSignature = NULL;
@@ -209,6 +219,9 @@ public:
 	ID3D12Resource						*m_pd3dcbLights = NULL;
 	LIGHTS								*m_pcbMappedLights = NULL;
 
+	float								m_fStageTime = 0;
+		int								m_iStageTime = 0;
+
 	list<XMFLOAT2> TrapDatalist;
 	list<XMFLOAT2> MushroomDatalist;
 	list<XMFLOAT2> TreeDatalist;
@@ -216,5 +229,7 @@ public:
 	list<XMFLOAT2> GrassDataList;
 	list<StoneInfo>	MonsterDataList;
 	list<DashInfo> DashDataList;
+
+	CGameFramework* m_MainFramework = NULL;
 
 };

@@ -110,3 +110,21 @@ public:
 	void Progressing();
 	void SetProgressWidth(float width) { ProgressWidth = width; }
 };
+
+class CClockUI : public CImageUI
+{
+public :
+	CClockUI() {}
+	CClockUI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, float nWidth, float nLength);
+	~CClockUI();
+
+	void SetNum(int n) { m_iNum = n; }
+	virtual void Update(float elapsed);
+	
+	
+
+private:
+	CGameObject* m_members;
+	int m_iNum = 0;
+};
+

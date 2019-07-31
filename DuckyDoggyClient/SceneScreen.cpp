@@ -3,7 +3,7 @@
 #include "Shader.h"
 #include "Scene.h"
 
-CSceneScreen::CSceneScreen(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, float nWidth, float nLength, XMFLOAT3 xmfPosition, wchar_t* pFilename)
+CSceneScreen::CSceneScreen(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, float nWidth, float nLength, XMFLOAT4X4 cameramat, wchar_t* pFilename)
 {
 	m_nWidth = nWidth;
 	m_nLength = nLength;
@@ -29,7 +29,9 @@ CSceneScreen::CSceneScreen(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 	pMaterial->SetShader(pShader);
 
 	SetMaterial(0, pMaterial);
-	SetPosition(xmfPosition);
+	m_xmf4x4World = cameramat;
+	MoveForward(30);
+	Rotate(90, 0, 0);
 }
 
 CSceneScreen::~CSceneScreen()

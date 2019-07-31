@@ -736,13 +736,13 @@ void CGameFramework::BuildObjects()
 		if (m_pScene) m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
 		m_pScene->SetMainFrame(this);
 
-		// 스크린
-		m_pSceneScreen = new CSceneScreen(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, XMFLOAT3{ FRAME_BUFFER_WIDTH * 0.5f, FRAME_BUFFER_HEIGHT * 0.5f, 0.f },  L"Model/Textures/logo.tif");
-
 
 		BuildPlayers();
 		BuildUI();
 		m_pScene->BuildClock(m_pd3dDevice, m_pd3dCommandList);
+
+		// 스크린
+		m_pSceneScreen = new CSceneScreen(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT,m_pCamera->GetRoatMatrix(),  L"Model/Textures/logo.tif");
 
 		m_pScene->SetDuckyNDoggy(m_pDucky, m_pDoggy, m_pPlayer);
 		m_pScene->m_pd3dDevice = m_pd3dDevice;

@@ -62,6 +62,7 @@ public:
 	virtual void ReleaseShaderVariables();
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList);
 
+	XMFLOAT4X4 GetRoatMatrix() { return m_xmf4x4Rotate; }
 	void GenerateViewMatrix();
 	void GenerateViewMatrix(XMFLOAT3 xmf3Position, XMFLOAT3 xmf3LookAt, XMFLOAT3 xmf3Up);
 	void RegenerateViewMatrix();

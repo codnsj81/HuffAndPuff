@@ -736,9 +736,6 @@ void CGameFramework::BuildObjects()
 		if (m_pScene) m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
 		m_pScene->SetMainFrame(this);
 
-		// 스크린
-		m_pSceneScreen = new CSceneScreen(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, XMFLOAT3{ FRAME_BUFFER_WIDTH * 0.5f, FRAME_BUFFER_HEIGHT * 0.5f, 0.f },  L"Model/Textures/logo.tif");
-
 
 		BuildPlayers();
 		BuildUI();
@@ -747,6 +744,10 @@ void CGameFramework::BuildObjects()
 		m_pScene->SetDuckyNDoggy(m_pDucky, m_pDoggy, m_pPlayer);
 		m_pScene->m_pd3dDevice = m_pd3dDevice;
 		m_pScene->m_pd3dCommandList = m_pd3dCommandList;
+
+		// 스크린
+		m_pSceneScreen = new CSceneScreen(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, XMFLOAT3{ FRAME_BUFFER_WIDTH * 0.5f, FRAME_BUFFER_HEIGHT * 0.5f, 0.f }, L"Model/Textures/logo.tif");
+		// m_pSceneScreen->SetPosition();
 
 		m_pd3dCommandList->Close();
 		ID3D12CommandList* ppd3dCommandLists[] = { m_pd3dCommandList };
@@ -763,6 +764,7 @@ void CGameFramework::BuildObjects()
 		if (m_pScene) m_pScene->ReleaseUploadBuffers();
 		if (m_pDoggy) m_pDoggy->ReleaseUploadBuffers();
 		if (m_pDucky) m_pDucky->ReleaseUploadBuffers();
+
 
 		m_GameTimer.Reset();
 
@@ -788,6 +790,8 @@ void CGameFramework::ReleaseObjects()
 void CGameFramework::ProcessInput()
 {
 	if (g_scene == scene_logo) {
+
+		// 임시방편으로 엔터 누르면 넘어가도록
 		static UCHAR pKeysBuffer[256];
 		bool bProcessedByScene = false;
 		if (GetKeyboardState(pKeysBuffer) && m_pScene)
@@ -798,6 +802,12 @@ void CGameFramework::ProcessInput()
 				g_scene = scene_stage1;
 			}
 		}
+	}
+	else if (g_scene == scene_menu) {
+		// 마우스 체크
+	}
+	else if (g_scene == scene_lobby) {
+
 	}
 	else if (g_scene == scene_stage1) {
 		static UCHAR pKeysBuffer[256];
@@ -907,9 +917,7 @@ void CGameFramework::MoveToNextFrame()
 void CGameFramework::FrameAdvance()
 {    
 	m_GameTimer.Tick(0.0f);
-
 	ProcessInput();
-
 	if (g_scene == scene_logo) {
 		HRESULT hResult = m_pd3dCommandAllocator->Reset();
 		hResult = m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
@@ -935,6 +943,9 @@ void CGameFramework::FrameAdvance()
 
 		m_pd3dCommandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, TRUE, &d3dDsvCPUDescriptorHandle);
 
+
+		if (m_pScene) m_pScene->Update(m_GameTimer.GetTimeElapsed());
+		if (m_pScene) m_pScene->Render(m_pd3dCommandList, m_pCamera);
 		// 스크린 렌더
 		m_pSceneScreen->Render(m_pd3dCommandList, m_pCamera);
 

@@ -22,7 +22,6 @@ void CWaterMesh::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandLi
 	m_d3dTextureCoord0BufferView.BufferLocation = m_pd3dTextureCoord0Buffer->GetGPUVirtualAddress();
 	m_d3dTextureCoord0BufferView.StrideInBytes = sizeof(XMFLOAT2);
 	m_d3dTextureCoord0BufferView.SizeInBytes = sizeof(XMFLOAT2) * m_nVertices;
-
 	pd3dCommandList->IASetVertexBuffers(m_nSlot, 1, &m_d3dTextureCoord0BufferView);
 }
 CMesh::CMesh()

@@ -585,7 +585,6 @@ void CPlayer::Jump()
 		m_iJumpnum++;
 		if (m_iJumpnum == 2)
 			m_fTime = 0;
-		if(m_playerKind == PLAYER_KIND_DOGGY)
 			SetAnimationSet(STATE_JUMPING);
 	}
 

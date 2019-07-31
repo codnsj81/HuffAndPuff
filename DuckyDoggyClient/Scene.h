@@ -139,8 +139,6 @@ public:
 	void BuildMonsterList(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList);
 
 
-	void CreateSceneScreen(e_scene scene);// 
-
 	list<CMonster*>* GetMonsterList() {
 		return &M_MonsterObjectslist;
 	}

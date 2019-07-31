@@ -8,6 +8,7 @@
 #include "Player.h"
 #include "Scene.h"
 #include "CUI.h"
+#include "SceneScreen.h"
 
 class CGameFramework
 {
@@ -105,6 +106,8 @@ private:
 
 	CTerrainPlayer						*m_pDucky = NULL;
 	CTerrainPlayer						*m_pDoggy = NULL;
+
+	CGameObject* m_pSceneScreen = NULL;
 	
 
 	POINT						m_ptOldCursorPos;

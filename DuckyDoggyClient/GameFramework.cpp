@@ -564,25 +564,22 @@ void CGameFramework::SetPiggyBackState(player_type eType, int piggybackstate)
 
 void CGameFramework::BuildUI()
 {
+	m_UIList = new list<CUI*>();
 
 	CTexture *HPTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 	HPTexture->LoadTextureFromFile(m_pd3dDevice, m_pd3dCommandList, L"Model/Textures/HPBar.tiff", 0,false);
 	CScene::CreateShaderResourceViews(m_pd3dDevice, HPTexture, 3, false);
 
-	m_UIList = new list<CUI*>();
 
 	CUI* pTemp = new CImageUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 20, 3, XMFLOAT3(1999, m_pScene->m_pTerrain->GetHeight(1999, 972), 972), L"Model/Textures/DoggyUI.tiff");
 	pTemp->SetWinpos(4, 9);
-
 	m_UIList->emplace_back(pTemp);
 
 	pTemp = new CImageUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 20, 3, XMFLOAT3(1999, m_pScene->m_pTerrain->GetHeight(1999, 972), 972), L"Model/Textures/DuckyUI.tiff");
 	pTemp->SetWinpos(-15.5, 9);
-
 	m_UIList->emplace_back(pTemp);
 
 	CUI* m_pHPUI = new CHP(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 10.8f, 0.8f, m_pPlayer->GetPosition());
-	
 	m_pHPUI->m_pPlayer = m_pDoggy;
 	m_pHPUI->SetWinpos(7.2f, 9.5f);
 	m_pHPUI->bRender = TRUE;
@@ -590,7 +587,6 @@ void CGameFramework::BuildUI()
 	m_UIList->emplace_back(m_pHPUI);
 	
 	m_pHPUI = new CHP(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 10.8f, 0.8f, m_pPlayer->GetPosition());
-
 	m_pHPUI->m_pPlayer = m_pDucky;
 	m_pHPUI->bRender = TRUE;
 	m_pHPUI->SetWinpos(-12.3f, 9.5f);
@@ -733,37 +729,43 @@ void CGameFramework::BuildPlayers()
 
 void CGameFramework::BuildObjects()
 {
-	m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
 
-	m_pScene = new CScene();
-	if (m_pScene) m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
-	m_pScene->SetMainFrame(this);
+		m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
 
-	BuildPlayers();
-	BuildUI();
-	m_pScene->BuildClock(m_pd3dDevice, m_pd3dCommandList);
+		m_pScene = new CScene();
+		if (m_pScene) m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
+		m_pScene->SetMainFrame(this);
 
-	m_pScene->SetDuckyNDoggy(m_pDucky, m_pDoggy, m_pPlayer);
-	m_pScene->m_pd3dDevice = m_pd3dDevice;
-	m_pScene->m_pd3dCommandList = m_pd3dCommandList;
+		// 스크린
+		m_pSceneScreen = new CSceneScreen(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, XMFLOAT3{ FRAME_BUFFER_WIDTH * 0.5f, FRAME_BUFFER_HEIGHT * 0.5f, 0.f },  L"Model/Textures/logo.tif");
 
-	m_pd3dCommandList->Close();
-	ID3D12CommandList *ppd3dCommandLists[] = { m_pd3dCommandList };
-	m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
 
-	WaitForGpuComplete();
+		BuildPlayers();
+		BuildUI();
+		m_pScene->BuildClock(m_pd3dDevice, m_pd3dCommandList);
 
-	m_pDoggy->SetWaters(m_pScene->GetWaters());
-	m_pDucky->SetWaters(m_pScene->GetWaters());
-	m_pDoggy->SetnWaters(2);
-	m_pDucky->SetnWaters(2);
-	
+		m_pScene->SetDuckyNDoggy(m_pDucky, m_pDoggy, m_pPlayer);
+		m_pScene->m_pd3dDevice = m_pd3dDevice;
+		m_pScene->m_pd3dCommandList = m_pd3dCommandList;
 
-	if (m_pScene) m_pScene->ReleaseUploadBuffers();
-	if (m_pDoggy) m_pDoggy->ReleaseUploadBuffers();
-	if (m_pDucky) m_pDucky->ReleaseUploadBuffers();
+		m_pd3dCommandList->Close();
+		ID3D12CommandList* ppd3dCommandLists[] = { m_pd3dCommandList };
+		m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
 
-	m_GameTimer.Reset();
+		WaitForGpuComplete();
+
+		m_pDoggy->SetWaters(m_pScene->GetWaters());
+		m_pDucky->SetWaters(m_pScene->GetWaters());
+		m_pDoggy->SetnWaters(2);
+		m_pDucky->SetnWaters(2);
+
+
+		if (m_pScene) m_pScene->ReleaseUploadBuffers();
+		if (m_pDoggy) m_pDoggy->ReleaseUploadBuffers();
+		if (m_pDucky) m_pDucky->ReleaseUploadBuffers();
+
+		m_GameTimer.Reset();
+
 }
 
 void CGameFramework::ReleaseObjects()
@@ -785,54 +787,67 @@ void CGameFramework::ReleaseObjects()
 
 void CGameFramework::ProcessInput()
 {
-	static UCHAR pKeysBuffer[256];
-	bool bProcessedByScene = false;
-	if (GetKeyboardState(pKeysBuffer) && m_pScene) 
-		bProcessedByScene = m_pScene->ProcessInput(pKeysBuffer);
-	if (!bProcessedByScene)
-	{
-		bool ismove = false;
-		DWORD dwDirection = 0;
-		if ((pKeysBuffer['W'] & 0xF0) || (pKeysBuffer['w'] & 0xF0)) {
-			dwDirection |= DIR_FORWARD;
-		}
-		if ((pKeysBuffer['S'] & 0xF0) || (pKeysBuffer['s'] & 0xF0)) {
-			dwDirection |= DIR_BACKWARD;
-		}
-		if ((pKeysBuffer['A'] & 0xF0) || (pKeysBuffer['a'] & 0xF0)) {
-			dwDirection |= DIR_LEFT;
-		}
-		if ((pKeysBuffer['D'] & 0xF0) || (pKeysBuffer['d'] & 0xF0)) {
-			dwDirection |= DIR_RIGHT;
-		}
-
-		float cxDelta = 0.0f, cyDelta = 0.0f;
-		POINT ptCursorPos;
-		if (GetCapture() == m_hWnd)
+	if (g_scene == scene_logo) {
+		static UCHAR pKeysBuffer[256];
+		bool bProcessedByScene = false;
+		if (GetKeyboardState(pKeysBuffer) && m_pScene)
+			bProcessedByScene = m_pScene->ProcessInput(pKeysBuffer);
+		if (!bProcessedByScene)
 		{
-			SetCursor(NULL);
-			GetCursorPos(&ptCursorPos);
-			cxDelta = (float)(ptCursorPos.x - m_ptOldCursorPos.x) / 3.0f;
-			cyDelta = (float)(ptCursorPos.y - m_ptOldCursorPos.y) / 3.0f;
-			SetCursorPos(m_ptOldCursorPos.x, m_ptOldCursorPos.y);
-		}
-
-		if ((dwDirection != 0) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
-		{
-			if (cxDelta || cyDelta)
-			{
-				m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
-			}
-			if (dwDirection) {
-				m_pPlayer->Move(dwDirection, 3.25f, true);
-				AnimateObjects();
+			if ((pKeysBuffer[VK_RETURN] & 0xF0)) {
+				g_scene = scene_stage1;
 			}
 		}
 	}
-	m_pDucky->Update(m_GameTimer.GetTimeElapsed());
-	m_pDoggy->Update(m_GameTimer.GetTimeElapsed());
+	else if (g_scene == scene_stage1) {
+		static UCHAR pKeysBuffer[256];
+		bool bProcessedByScene = false;
+		if (GetKeyboardState(pKeysBuffer) && m_pScene)
+			bProcessedByScene = m_pScene->ProcessInput(pKeysBuffer);
+		if (!bProcessedByScene)
+		{
+			bool ismove = false;
+			DWORD dwDirection = 0;
+			if ((pKeysBuffer['W'] & 0xF0) || (pKeysBuffer['w'] & 0xF0)) {
+				dwDirection |= DIR_FORWARD;
+			}
+			if ((pKeysBuffer['S'] & 0xF0) || (pKeysBuffer['s'] & 0xF0)) {
+				dwDirection |= DIR_BACKWARD;
+			}
+			if ((pKeysBuffer['A'] & 0xF0) || (pKeysBuffer['a'] & 0xF0)) {
+				dwDirection |= DIR_LEFT;
+			}
+			if ((pKeysBuffer['D'] & 0xF0) || (pKeysBuffer['d'] & 0xF0)) {
+				dwDirection |= DIR_RIGHT;
+			}
 
+			float cxDelta = 0.0f, cyDelta = 0.0f;
+			POINT ptCursorPos;
+			if (GetCapture() == m_hWnd)
+			{
+				SetCursor(NULL);
+				GetCursorPos(&ptCursorPos);
+				cxDelta = (float)(ptCursorPos.x - m_ptOldCursorPos.x) / 3.0f;
+				cyDelta = (float)(ptCursorPos.y - m_ptOldCursorPos.y) / 3.0f;
+				SetCursorPos(m_ptOldCursorPos.x, m_ptOldCursorPos.y);
+			}
 
+			if ((dwDirection != 0) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
+			{
+				if (cxDelta || cyDelta)
+				{
+					m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
+				}
+				if (dwDirection) {
+					m_pPlayer->Move(dwDirection, 3.25f, true);
+					AnimateObjects();
+				}
+			}
+		}
+		m_pDucky->Update(m_GameTimer.GetTimeElapsed());
+		m_pDoggy->Update(m_GameTimer.GetTimeElapsed());
+
+	}
 }
 
 void CGameFramework::AnimateObjects()
@@ -892,178 +907,241 @@ void CGameFramework::MoveToNextFrame()
 void CGameFramework::FrameAdvance()
 {    
 	m_GameTimer.Tick(0.0f);
-	
+
 	ProcessInput();
 
-    AnimateObjects();
+	if (g_scene == scene_logo) {
+		HRESULT hResult = m_pd3dCommandAllocator->Reset();
+		hResult = m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
 
-	HRESULT hResult = m_pd3dCommandAllocator->Reset();
-	hResult = m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
+		D3D12_RESOURCE_BARRIER d3dResourceBarrier;
+		::ZeroMemory(&d3dResourceBarrier, sizeof(D3D12_RESOURCE_BARRIER));
+		d3dResourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+		d3dResourceBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+		d3dResourceBarrier.Transition.pResource = m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex];
+		d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
+		d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+		d3dResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+		m_pd3dCommandList->ResourceBarrier(1, &d3dResourceBarrier);
 
-	D3D12_RESOURCE_BARRIER d3dResourceBarrier;
-	::ZeroMemory(&d3dResourceBarrier, sizeof(D3D12_RESOURCE_BARRIER));
-	d3dResourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-	d3dResourceBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	d3dResourceBarrier.Transition.pResource = m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex];
-	d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
-	d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
-	d3dResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-	m_pd3dCommandList->ResourceBarrier(1, &d3dResourceBarrier);
+		D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_pd3dRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+		d3dRtvCPUDescriptorHandle.ptr += (m_nSwapChainBufferIndex * m_nRtvDescriptorIncrementSize);
 
-	D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_pd3dRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-	d3dRtvCPUDescriptorHandle.ptr += (m_nSwapChainBufferIndex * m_nRtvDescriptorIncrementSize);
+		float pfClearColor[4] = { 1.0f, 1.f, 1.f, 1.0f };
+		m_pd3dCommandList->ClearRenderTargetView(d3dRtvCPUDescriptorHandle, pfClearColor/*Colors::Azure*/, 0, NULL);
 
-	float pfClearColor[4] = { 1.0f, 1.f, 1.f, 1.0f };
-	m_pd3dCommandList->ClearRenderTargetView(d3dRtvCPUDescriptorHandle, pfClearColor/*Colors::Azure*/, 0, NULL);
+		D3D12_CPU_DESCRIPTOR_HANDLE d3dDsvCPUDescriptorHandle = m_pd3dDsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+		m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
 
-	D3D12_CPU_DESCRIPTOR_HANDLE d3dDsvCPUDescriptorHandle = m_pd3dDsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-	m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
+		m_pd3dCommandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, TRUE, &d3dDsvCPUDescriptorHandle);
 
-	m_pd3dCommandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, TRUE, &d3dDsvCPUDescriptorHandle);
+		// 스크린 렌더
+		m_pSceneScreen->Render(m_pd3dCommandList, m_pCamera);
 
-	if (m_pScene) m_pScene->Update(m_GameTimer.GetTimeElapsed());
-	if (m_pScene) m_pScene->Render(m_pd3dCommandList, m_pCamera);
+		d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+		d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
+		d3dResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+		m_pd3dCommandList->ResourceBarrier(1, &d3dResourceBarrier);
 
-#ifdef _WITH_PLAYER_TOP
-	m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
-#endif
-	if (m_pDucky) m_pDucky->Render(m_pd3dCommandList, m_pCamera);
-	if (m_pDoggy) m_pDoggy->Render(m_pd3dCommandList, m_pCamera);
-	m_pPlayer->GetNavGuide()->Render(m_pd3dCommandList, m_pCamera);
+		hResult = m_pd3dCommandList->Close();
 
-	//water 렌더
-	CWater** m_ppWaters = m_pScene->GetWaters();
-	for (int i = 0; i < 2; i++)
-	{
-		if (m_ppWaters[i])
-		{
-			m_ppWaters[i]->Animate(m_GameTimer.GetTimeElapsed());
-			m_ppWaters[i]->Render(m_pd3dCommandList, m_pCamera);
+		ID3D12CommandList* ppd3dCommandLists[] = { m_pd3dCommandList };
+		m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
 
-		}
-	}
-
-
-	//UI렌더
-	for (auto a : *m_UIList)
-	{
-		 (a)->Update(m_GameTimer.GetTimeElapsed());
-		if(a->bRender)
-			a->Render(m_pd3dCommandList, m_pCamera);
-	}
-
-
-	if (m_pOverUI->bRender) 
-		m_pOverUI->Render(m_pd3dCommandList, m_pCamera);
-
-	d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
-	d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
-	d3dResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-	m_pd3dCommandList->ResourceBarrier(1, &d3dResourceBarrier);
-
-	hResult = m_pd3dCommandList->Close();
-	
-	ID3D12CommandList *ppd3dCommandLists[] = { m_pd3dCommandList };
-	m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
-
-	WaitForGpuComplete();
+		WaitForGpuComplete();
 
 #ifdef _WITH_PRESENT_PARAMETERS
-	DXGI_PRESENT_PARAMETERS dxgiPresentParameters;
-	dxgiPresentParameters.DirtyRectsCount = 0;
-	dxgiPresentParameters.pDirtyRects = NULL;
-	dxgiPresentParameters.pScrollRect = NULL;
-	dxgiPresentParameters.pScrollOffset = NULL;
-	m_pdxgiSwapChain->Present1(1, 0, &dxgiPresentParameters);
+		DXGI_PRESENT_PARAMETERS dxgiPresentParameters;
+		dxgiPresentParameters.DirtyRectsCount = 0;
+		dxgiPresentParameters.pDirtyRects = NULL;
+		dxgiPresentParameters.pScrollRect = NULL;
+		dxgiPresentParameters.pScrollOffset = NULL;
+		m_pdxgiSwapChain->Present1(1, 0, &dxgiPresentParameters);
 #else
 #ifdef _WITH_SYNCH_SWAPCHAIN
-	m_pdxgiSwapChain->Present(1, 0);
+		m_pdxgiSwapChain->Present(1, 0);
 #else
-	m_pdxgiSwapChain->Present(0, 0);
+		m_pdxgiSwapChain->Present(0, 0);
 #endif
 #endif
 
-//	m_nSwapChainBufferIndex = m_pdxgiSwapChain->GetCurrentBackBufferIndex();
-	MoveToNextFrame();
+		//	m_nSwapChainBufferIndex = m_pdxgiSwapChain->GetCurrentBackBufferIndex();
+		MoveToNextFrame();
 
 
-	if (m_bPlaying) {
-
-		if (m_pDoggy->GetHp() <= 0 || m_pDucky->GetHp() <= 0)
-		{
-			m_bPlaying = false;
-			m_pOverUI->bRender = true;
-			(m_pOverUI)->Trigger = true;
-			m_pPlayer->GetCamera()->m_pOverUI = m_pOverUI;
-		}
 	}
-
-	else
-	{
-		m_pOverUI->Update(m_GameTimer.GetTimeElapsed());
-		m_overCountDown += m_GameTimer.GetTimeElapsed();
-		if (m_overCountDown >= 3.f)
-		{
-			m_pDoggy->SetPosition(XMFLOAT3(INITPOSITION_X, \
-				m_pScene->m_pTerrain->GetHeight(INITPOSITION_X, INITPOSITION_Z), INITPOSITION_Z)); //시작위치
-			m_pDucky->SetPosition(XMFLOAT3(INITPOSITION_X, \
-				m_pScene->m_pTerrain->GetHeight(INITPOSITION_X, INITPOSITION_Z), INITPOSITION_Z)); //시작위치
-			m_bPlaying = true;
-			m_pDoggy->SetFullHP();
-			m_pDucky->SetFullHP();
-			m_pScene->ResetObjects();
+	else if (g_scene == scene_stage1) {
 	
-		}
-	}
 
-	m_GameTimer.GetFrameRate(m_pszFrameRate + 12, 37);
-	size_t nLength = _tcslen(m_pszFrameRate);
-	XMFLOAT3 xmf3Position = m_pPlayer->GetPosition();
-	XMFLOAT3 xmf3Look = m_pPlayer->GetLookVector();
-	XMFLOAT3 xmf3Right = m_pPlayer->GetRightVector();
-	_stprintf_s(m_pszFrameRate + nLength, 70 - nLength, _T("(%4f, %4f, %4f)"), xmf3Position.x, xmf3Position.y, xmf3Position.z);
-	::SetWindowText(m_hWnd, m_pszFrameRate);
+		AnimateObjects();
 
+		HRESULT hResult = m_pd3dCommandAllocator->Reset();
+		hResult = m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
 
-	/// 0703 : send thread를 만들어야 될 것 같아,, 렉 보완 문제는 일단 보류
-	// 정보 전송
-	m_dwUpdatecnt++;
-	int as = m_pPlayer->GetAnimationSet_child();
-	// cout << "as : " << as << endl;
-	if (g_myinfo.connected == true && m_dwUpdatecnt >= 3) {
-		//if (as == 0 && g_myinfo.type == player_doggy)D
-		//	return;
-		//else
-		{ // 우선 도기만 애니메이션 run, jump가 있기 때문에 이렇게 짜야 함
-			player_info playerinfo;
-			playerinfo.id = g_myinfo.id;
-			playerinfo.x = xmf3Position.x; playerinfo.y = xmf3Position.y; playerinfo.z = xmf3Position.z;
-			playerinfo.type = g_myinfo.type;
-			playerinfo.animationSet = g_myinfo.animationSet;
-			playerinfo.l_x = xmf3Look.x; playerinfo.l_y = xmf3Look.y; playerinfo.l_z = xmf3Look.z;
-			playerinfo.r_x = xmf3Right.x; playerinfo.r_y = xmf3Right.y; playerinfo.r_z = xmf3Right.z;
-			playerinfo.piggybackstate = m_pPlayer->GetPiggyBackState();
-			int retval;
-			/// 고정
-			packet_info packetinfo;
-			packetinfo.type = cs_move;
-			packetinfo.size = sizeof(player_info);
-			packetinfo.id = g_myinfo.id;
-			char buf[BUFSIZE];
-			memcpy(buf, &packetinfo, sizeof(packetinfo));
-			/// 가변 (고정 데이터에 가변 데이터 붙이는 형식으로)
-			memcpy(buf + sizeof(packetinfo), &playerinfo, sizeof(player_info));
-			retval = send(g_sock, buf, BUFSIZE, 0);
-			if (retval == SOCKET_ERROR) {
-				MessageBoxW(g_hWnd, L"send()", L"send() - cs_move", MB_OK);
-				exit(1);
+		D3D12_RESOURCE_BARRIER d3dResourceBarrier;
+		::ZeroMemory(&d3dResourceBarrier, sizeof(D3D12_RESOURCE_BARRIER));
+		d3dResourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+		d3dResourceBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+		d3dResourceBarrier.Transition.pResource = m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex];
+		d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
+		d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+		d3dResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+		m_pd3dCommandList->ResourceBarrier(1, &d3dResourceBarrier);
+
+		D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_pd3dRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+		d3dRtvCPUDescriptorHandle.ptr += (m_nSwapChainBufferIndex * m_nRtvDescriptorIncrementSize);
+
+		float pfClearColor[4] = { 1.0f, 1.f, 1.f, 1.0f };
+		m_pd3dCommandList->ClearRenderTargetView(d3dRtvCPUDescriptorHandle, pfClearColor/*Colors::Azure*/, 0, NULL);
+
+		D3D12_CPU_DESCRIPTOR_HANDLE d3dDsvCPUDescriptorHandle = m_pd3dDsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+		m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
+
+		m_pd3dCommandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, TRUE, &d3dDsvCPUDescriptorHandle);
+
+		if (m_pScene) m_pScene->Update(m_GameTimer.GetTimeElapsed());
+		if (m_pScene) m_pScene->Render(m_pd3dCommandList, m_pCamera);
+
+#ifdef _WITH_PLAYER_TOP
+		m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
+#endif
+		if (m_pDucky) m_pDucky->Render(m_pd3dCommandList, m_pCamera);
+		if (m_pDoggy) m_pDoggy->Render(m_pd3dCommandList, m_pCamera);
+		m_pPlayer->GetNavGuide()->Render(m_pd3dCommandList, m_pCamera);
+
+		//water 렌더
+		CWater** m_ppWaters = m_pScene->GetWaters();
+		for (int i = 0; i < 2; i++)
+		{
+			if (m_ppWaters[i])
+			{
+				m_ppWaters[i]->Animate(m_GameTimer.GetTimeElapsed());
+				m_ppWaters[i]->Render(m_pd3dCommandList, m_pCamera);
+
 			}
-			m_dwUpdatecnt = 0;
 		}
 
-	cout << "cs_move" << endl;
-	}
 
+		//UI렌더
+		for (auto a : *m_UIList)
+		{
+			(a)->Update(m_GameTimer.GetTimeElapsed());
+			if (a->bRender)
+				a->Render(m_pd3dCommandList, m_pCamera);
+		}
+
+
+		if (m_pOverUI->bRender)
+			m_pOverUI->Render(m_pd3dCommandList, m_pCamera);
+
+		d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+		d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
+		d3dResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+		m_pd3dCommandList->ResourceBarrier(1, &d3dResourceBarrier);
+
+		hResult = m_pd3dCommandList->Close();
+
+		ID3D12CommandList* ppd3dCommandLists[] = { m_pd3dCommandList };
+		m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
+
+		WaitForGpuComplete();
+
+#ifdef _WITH_PRESENT_PARAMETERS
+		DXGI_PRESENT_PARAMETERS dxgiPresentParameters;
+		dxgiPresentParameters.DirtyRectsCount = 0;
+		dxgiPresentParameters.pDirtyRects = NULL;
+		dxgiPresentParameters.pScrollRect = NULL;
+		dxgiPresentParameters.pScrollOffset = NULL;
+		m_pdxgiSwapChain->Present1(1, 0, &dxgiPresentParameters);
+#else
+#ifdef _WITH_SYNCH_SWAPCHAIN
+		m_pdxgiSwapChain->Present(1, 0);
+#else
+		m_pdxgiSwapChain->Present(0, 0);
+#endif
+#endif
+
+		//	m_nSwapChainBufferIndex = m_pdxgiSwapChain->GetCurrentBackBufferIndex();
+		MoveToNextFrame();
+
+
+		if (m_bPlaying) {
+
+			if (m_pDoggy->GetHp() <= 0 || m_pDucky->GetHp() <= 0)
+			{
+				m_bPlaying = false;
+				m_pOverUI->bRender = true;
+				(m_pOverUI)->Trigger = true;
+				m_pPlayer->GetCamera()->m_pOverUI = m_pOverUI;
+			}
+		}
+
+		else
+		{
+			m_pOverUI->Update(m_GameTimer.GetTimeElapsed());
+			m_overCountDown += m_GameTimer.GetTimeElapsed();
+			if (m_overCountDown >= 3.f)
+			{
+				m_pDoggy->SetPosition(XMFLOAT3(INITPOSITION_X, \
+					m_pScene->m_pTerrain->GetHeight(INITPOSITION_X, INITPOSITION_Z), INITPOSITION_Z)); //시작위치
+				m_pDucky->SetPosition(XMFLOAT3(INITPOSITION_X, \
+					m_pScene->m_pTerrain->GetHeight(INITPOSITION_X, INITPOSITION_Z), INITPOSITION_Z)); //시작위치
+				m_bPlaying = true;
+				m_pDoggy->SetFullHP();
+				m_pDucky->SetFullHP();
+				m_pScene->ResetObjects();
+
+			}
+		}
+
+		m_GameTimer.GetFrameRate(m_pszFrameRate + 12, 37);
+		size_t nLength = _tcslen(m_pszFrameRate);
+		XMFLOAT3 xmf3Position = m_pPlayer->GetPosition();
+		XMFLOAT3 xmf3Look = m_pPlayer->GetLookVector();
+		XMFLOAT3 xmf3Right = m_pPlayer->GetRightVector();
+		_stprintf_s(m_pszFrameRate + nLength, 70 - nLength, _T("(%4f, %4f, %4f)"), xmf3Position.x, xmf3Position.y, xmf3Position.z);
+		::SetWindowText(m_hWnd, m_pszFrameRate);
+
+
+		/// 0703 : send thread를 만들어야 될 것 같아,, 렉 보완 문제는 일단 보류
+		// 정보 전송
+		m_dwUpdatecnt++;
+		int as = m_pPlayer->GetAnimationSet_child();
+		// cout << "as : " << as << endl;
+		if (g_myinfo.connected == true && m_dwUpdatecnt >= 3) {
+			//if (as == 0 && g_myinfo.type == player_doggy)D
+			//	return;
+			//else
+			{ // 우선 도기만 애니메이션 run, jump가 있기 때문에 이렇게 짜야 함
+				player_info playerinfo;
+				playerinfo.id = g_myinfo.id;
+				playerinfo.x = xmf3Position.x; playerinfo.y = xmf3Position.y; playerinfo.z = xmf3Position.z;
+				playerinfo.type = g_myinfo.type;
+				playerinfo.animationSet = g_myinfo.animationSet;
+				playerinfo.l_x = xmf3Look.x; playerinfo.l_y = xmf3Look.y; playerinfo.l_z = xmf3Look.z;
+				playerinfo.r_x = xmf3Right.x; playerinfo.r_y = xmf3Right.y; playerinfo.r_z = xmf3Right.z;
+				playerinfo.piggybackstate = m_pPlayer->GetPiggyBackState();
+				int retval;
+				/// 고정
+				packet_info packetinfo;
+				packetinfo.type = cs_move;
+				packetinfo.size = sizeof(player_info);
+				packetinfo.id = g_myinfo.id;
+				char buf[BUFSIZE];
+				memcpy(buf, &packetinfo, sizeof(packetinfo));
+				/// 가변 (고정 데이터에 가변 데이터 붙이는 형식으로)
+				memcpy(buf + sizeof(packetinfo), &playerinfo, sizeof(player_info));
+				retval = send(g_sock, buf, BUFSIZE, 0);
+				if (retval == SOCKET_ERROR) {
+					MessageBoxW(g_hWnd, L"send()", L"send() - cs_move", MB_OK);
+					exit(1);
+				}
+				m_dwUpdatecnt = 0;
+			}
+
+			cout << "cs_move" << endl;
+		}
+	}
 }
 
 

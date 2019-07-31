@@ -49,29 +49,6 @@ void CScene::BuildDefaultLightsAndMaterials()
 
 void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
 {
-	if (m_scene == scene_logo) {
-		m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
-		CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 45); //SuperCobra(17), Gunship(2), Player:Mi24(1), Angrybot()
-		CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
-		BuildDefaultLightsAndMaterials();
-
-		// 스크린 텍스쳐 생성
-		m_SceneScreenTex = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-		m_SceneScreenTex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/logo.tiff", 0, false);
-		CScene::CreateShaderResourceViews(pd3dDevice, m_SceneScreenTex, 3, false);
-		CreateShaderVariables(pd3dDevice, pd3dCommandList);
-
-		// 스크린 객체 생성
-		m_pSceneScreen = new CSceneScreen(m_pd3dDevice, m_pd3dCommandList, m_pd3dGraphicsRootSignature, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, XMFLOAT3{ FRAME_BUFFER_WIDTH / 2.f, FRAME_BUFFER_HEIGHT / 2.f, 0.f });
-		m_pSceneScreen->SetTexture(m_SceneScreenTex);
-	}
-	else if (m_scene == scene_menu) {
-
-	}
-	else if (m_scene == scene_lobby) {
-
-	}
-	else if (m_scene == scene_stage1) {
 		m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 		CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 60); //SuperCobra(17), Gunship(2), Player:Mi24(1), Angrybot()
 		CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
@@ -116,9 +93,6 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 		BuildMushroomData(pd3dDevice, pd3dCommandList);
 		CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
-	}
-
-
 }
 
 void CScene::BuildClock(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
@@ -153,16 +127,7 @@ void CScene::BuildClock(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3
 
 void CScene::ReleaseObjects()
 {
-	if (m_scene == scene_logo) {
-		if (m_pSceneScreen) delete m_pSceneScreen;
-	}
-	else if (m_scene == scene_menu) {
 
-	}
-	else if (m_scene == scene_lobby) {
-
-	}
-	else if (m_scene == scene_stage1) {
 		if (m_pd3dGraphicsRootSignature) m_pd3dGraphicsRootSignature->Release();
 		if (m_pd3dCbvSrvDescriptorHeap) m_pd3dCbvSrvDescriptorHeap->Release();
 
@@ -229,24 +194,13 @@ void CScene::ReleaseObjects()
 		ReleaseShaderVariables();
 
 		if (m_pLights) delete[] m_pLights;
-	}
 }
 
 void CScene::Update(float fTime)
 {
-	if (m_scene == scene_logo) {
 
-	}
-	else if (m_scene == scene_menu) {
-
-	}
-	else if (m_scene == scene_lobby) {
-
-	}
-	else if (m_scene == scene_stage1) {
 		ObjectsCollides();
 		TimeCount(fTime);
-	}
 }
 
 void CScene::SetDuckyNDoggy(CPlayer * ducky, CPlayer * doggy, CPlayer * player)
@@ -802,14 +756,6 @@ void CScene::CreateDamageUI(CPlayer * pPlayer, int dam)
 	m_DamageUIList.emplace_back(DUI);
 }
 
-void CScene::CreateSceneScreen(e_scene scene)
-{
-	CSceneScreen* pSS = new CSceneScreen(m_pd3dDevice, m_pd3dCommandList, m_pd3dGraphicsRootSignature, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, XMFLOAT3{ FRAME_BUFFER_WIDTH / 2.f, FRAME_BUFFER_HEIGHT / 2.f, 0.f });
-	pSS->SetTexture(m_DamageUITex);
-	// m_pPlayer->GetCamera()->RotateUI(DUI);
-	pSS->SetPosition(FRAME_BUFFER_WIDTH / 2.f, FRAME_BUFFER_HEIGHT / 2.f, 0.f);
-	// m_DamageUIList.emplace_back(DUI);
-}
 
 void CScene::CreateCbvSrvDescriptorHeaps(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nConstantBufferViews, int nShaderResourceViews)
 {
@@ -1160,18 +1106,6 @@ void CScene::AnimateObjects(float fTimeElapsed)
 
 void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
 {
-	if (m_scene == scene_logo) {
-
-		if (m_pd3dGraphicsRootSignature) pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
-		if (m_pd3dCbvSrvDescriptorHeap) pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
-		pCamera->SetViewportsAndScissorRects(pd3dCommandList);
-		pCamera->UpdateShaderVariables(pd3dCommandList);
-		D3D12_GPU_VIRTUAL_ADDRESS d3dcbLightsGpuVirtualAddress = m_pd3dcbLights->GetGPUVirtualAddress();
-		pd3dCommandList->SetGraphicsRootConstantBufferView(2, d3dcbLightsGpuVirtualAddress); //Lights
-
-		if (m_pSceneScreen) m_pSceneScreen->Render(pd3dCommandList, pCamera);
-	}
-	else if (m_scene == scene_stage1) {
 
 		if (m_pd3dGraphicsRootSignature) pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
 		if (m_pd3dCbvSrvDescriptorHeap) pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
@@ -1236,8 +1170,6 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 			}
 		}
 		for (int i = 0; i < m_nShaders; i++) if (m_ppShaders[i]) m_ppShaders[i]->Render(pd3dCommandList, pCamera);
-
-	}
 }
 
 void CScene::ObjectsCollides()

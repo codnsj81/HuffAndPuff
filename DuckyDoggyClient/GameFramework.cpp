@@ -748,8 +748,6 @@ void CGameFramework::BuildObjects()
 		m_pScene->m_pd3dDevice = m_pd3dDevice;
 		m_pScene->m_pd3dCommandList = m_pd3dCommandList;
 
-		// ½ºÅ©¸°
-		m_pSceneScreen = new CSceneScreen(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, XMFLOAT3{ FRAME_BUFFER_WIDTH * 0.5f, FRAME_BUFFER_HEIGHT * 0.5f, 0.f }, L"Model/Textures/logo.tif");
 		// m_pSceneScreen->SetPosition();
 
 		m_pd3dCommandList->Close();
@@ -910,9 +908,6 @@ void CGameFramework::MoveToNextFrame()
 		hResult = m_pd3dFence->SetEventOnCompletion(nFenceValue, m_hFenceEvent);
 		::WaitForSingleObject(m_hFenceEvent, INFINITE);
 	}
-
-
-
 }
 
 //#define _WITH_PLAYER_TOP

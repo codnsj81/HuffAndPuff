@@ -36,6 +36,11 @@ using namespace std;
 
 using namespace std;
 
+// »ç¿îµå
+#include "fmod.hpp"
+#pragma comment(lib, "fmodex_vc.lib")
+
+
 #include <d3d12.h>
 #include <dxgi1_4.h>
 #include <D3Dcompiler.h>

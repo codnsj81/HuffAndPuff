@@ -9,6 +9,12 @@
 // Windows 헤더 파일:
 #include <windows.h>
 
+// 사운드
+
+
+#include "fmod.hpp"
+#pragma comment(lib, "fmod_vc.lib")
+
 // C의 런타임 헤더 파일입니다.
 #include <stdlib.h>
 #include <malloc.h>
@@ -325,7 +331,3 @@ namespace Plane
 #define COLLIDE_ON				1
 #define COLLIDE_UNDER			2
 #define COLLIDE_SIDE			3
-
-// 사운드
-#include "fmod.hpp"
-#pragma comment(lib, "fmodex_vc.lib")

@@ -105,7 +105,6 @@ public:
 	CGameObject*						m_pSnakeObject = NULL;
 	ID3D12Device*						m_pd3dDevice = NULL;
 	ID3D12GraphicsCommandList*			m_pd3dCommandList = NULL;
-	e_scene m_scene = scene_stage1;
 
 	void ResetObjects();
 	void PlusTreeData();

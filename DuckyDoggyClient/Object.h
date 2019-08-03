@@ -289,6 +289,7 @@ public:
 	CGameObject(int nMaterials);
     virtual ~CGameObject();
 
+
 public:
 	char							m_pstrFrameName[64];
 

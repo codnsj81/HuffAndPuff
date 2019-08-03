@@ -10,8 +10,6 @@
 #include <windows.h>
 
 // »ç¿îµå
-
-
 #include "fmod.hpp"
 #pragma comment(lib, "fmod_vc.lib")
 

@@ -4,6 +4,7 @@
 
 #include "stdafx.h"
 #include "GameFramework.h"
+#include "SoundMgr.h"
 
 CGameFramework::CGameFramework()
 {
@@ -729,6 +730,8 @@ void CGameFramework::BuildPlayers()
 
 void CGameFramework::BuildObjects()
 {
+	// 0802
+	// SOUNDMGR->PlayBGM(L"Menu2.wav", CHANNEL_BGM, 1.f);
 
 		m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
 
@@ -743,7 +746,6 @@ void CGameFramework::BuildObjects()
 
 		// 스크린
 		m_pSceneScreen = new CSceneScreen(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT,m_pCamera->GetRoatMatrix(),  L"Model/Textures/logo.tif");
-
 		m_pScene->SetDuckyNDoggy(m_pDucky, m_pDoggy, m_pPlayer);
 		m_pScene->m_pd3dDevice = m_pd3dDevice;
 		m_pScene->m_pd3dCommandList = m_pd3dCommandList;
@@ -784,6 +786,8 @@ void CGameFramework::ReleaseObjects()
 
 	if (m_pScene) m_pScene->ReleaseObjects();
 	if (m_pScene) delete m_pScene;
+
+	SOUNDMGR->DestroyInstance();
 }
 
 
@@ -914,6 +918,9 @@ void CGameFramework::MoveToNextFrame()
 
 void CGameFramework::FrameAdvance()
 {    
+	// 사운드
+	// SOUNDMGR->UpdateSound();
+
 	m_GameTimer.Tick(0.0f);
 	ProcessInput();
 	if (g_scene == scene_logo) {

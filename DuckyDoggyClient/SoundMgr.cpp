@@ -70,6 +70,8 @@ void CSoundMgr::LoadSoundFile(void)
 
 		FMOD_RESULT FResult = FMOD_System_CreateSound(m_pSystem, szFullPath, FMOD_HARDWARE, NULL, &pSound);
 
+		iResult = _findnext(handle, &fd);
+
 		if (FMOD_OK == FResult)
 			m_MapSound.insert(make_pair(pSoundKey, pSound));
 		else
@@ -78,7 +80,7 @@ void CSoundMgr::LoadSoundFile(void)
 			delete[] pSoundKey;
 		}
 
-		iResult = _findnext(handle, &fd);
+		//iResult = _findnext(handle, &fd);
 	}
 
 	_findclose(handle);

@@ -36,9 +36,7 @@ using namespace std;
 
 using namespace std;
 
-// 사운드
-#include "fmod.hpp"
-#pragma comment(lib, "fmodex_vc.lib")
+
 
 
 #include <d3d12.h>
@@ -54,6 +52,11 @@ using namespace std;
 #ifdef _DEBUG
 #include <dxgidebug.h>
 #endif
+
+
+#include <map>
+#include <corecrt_io.h>
+#include <algorithm>
 
 using namespace DirectX;
 using namespace DirectX::PackedVector;
@@ -322,3 +325,7 @@ namespace Plane
 #define COLLIDE_ON				1
 #define COLLIDE_UNDER			2
 #define COLLIDE_SIDE			3
+
+// 사운드
+#include "fmod.hpp"
+#pragma comment(lib, "fmodex_vc.lib")

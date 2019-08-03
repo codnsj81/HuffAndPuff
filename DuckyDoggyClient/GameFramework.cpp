@@ -787,7 +787,7 @@ void CGameFramework::ReleaseObjects()
 	if (m_pScene) m_pScene->ReleaseObjects();
 	if (m_pScene) delete m_pScene;
 
-	SOUNDMGR->DestroyInstance();
+	// SOUNDMGR->DestroyInstance();
 }
 
 

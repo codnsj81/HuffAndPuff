@@ -1,16 +1,49 @@
 #pragma once
 
-#include "Include.h"
+#include "../Headers/Enum.h"
 
 #define SOUNDMGR CSoundMgr::GetInstance()
 
-class CSoundMgr
+class CStringCmp
 {
-	DECLARE_SINGLETON(CSoundMgr)
+public:
+	CStringCmp(const TCHAR* pKey)
+		: m_pKey(pKey) {}
+
+public:
+	template <typename T>
+	bool operator()(T& dst)
+	{
+		return !_tcscmp(dst.first, m_pKey);
+	}
 
 private:
-	FMOD_SYSTEM*				m_pSystem;
-	FMOD_CHANNEL*				m_pChannel[CHANNEL_END];
+	const TCHAR* m_pKey;
+};
+
+class CSoundMgr
+{
+private:
+	CSoundMgr(const CSoundMgr&);
+	CSoundMgr& operator = (const CSoundMgr&);
+private:
+	static CSoundMgr* m_pInstance;
+public:
+	static CSoundMgr* GetInstance() {
+		if (NULL == m_pInstance)
+			m_pInstance = new CSoundMgr;
+		return m_pInstance;
+	}
+	void DestroyInstance() {
+		if (m_pInstance) {
+			delete m_pInstance;
+			m_pInstance = NULL;
+		}
+	}
+
+private:
+	FMOD_SYSTEM* m_pSystem;
+	FMOD_CHANNEL* m_pChannel[CHANNEL_END];
 
 	map<TCHAR*, FMOD_SOUND*>	m_MapSound;
 

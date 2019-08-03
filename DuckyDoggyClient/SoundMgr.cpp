@@ -1,10 +1,10 @@
 #include "StdAfx.h"
 #include "SoundMgr.h"
 
-IMPLEMENT_SINGLETON(CSoundMgr)
+CSoundMgr* CSoundMgr::m_pInstance = NULL;
 
 CSoundMgr::CSoundMgr(void)
-: m_pSystem(NULL)
+	: m_pSystem(NULL)
 {
 	Initialize();
 }
@@ -14,12 +14,12 @@ CSoundMgr::~CSoundMgr(void)
 	Release();
 }
 
-void CSoundMgr::Release( void )
+void CSoundMgr::Release(void)
 {
 	map<TCHAR*, FMOD_SOUND*>::iterator iter_begin = m_MapSound.begin();
 	map<TCHAR*, FMOD_SOUND*>::iterator iter_end = m_MapSound.end();
 
-	for(; iter_begin != iter_end; ++iter_begin)
+	for (; iter_begin != iter_end; ++iter_begin)
 	{
 		delete[] iter_begin->first;
 		FMOD_Sound_Release(iter_begin->second);
@@ -31,7 +31,7 @@ void CSoundMgr::Release( void )
 	FMOD_System_Release(m_pSystem);
 }
 
-void CSoundMgr::Initialize( void )
+void CSoundMgr::Initialize(void)
 {
 	unsigned int niVersion = NULL;//
 	FMOD_System_Create(&m_pSystem);
@@ -41,7 +41,7 @@ void CSoundMgr::Initialize( void )
 	LoadSoundFile();
 }
 
-void CSoundMgr::LoadSoundFile( void )
+void CSoundMgr::LoadSoundFile(void)
 {
 	_finddata_t	fd = {};
 	long handle;
@@ -49,15 +49,15 @@ void CSoundMgr::LoadSoundFile( void )
 
 	handle = _findfirst("../Sound/*.*", &fd);
 
-	if(-1 == handle)
+	if (-1 == handle)
 	{
 		// MessageBox(g_hWnd, L"Not found soundfile", L"Not found soundfile", MB_OK);
 		return;
 	}
 
-	while(-1 != iResult)
+	while (-1 != iResult)
 	{
-		TCHAR*	pSoundKey = new TCHAR[256];
+		TCHAR* pSoundKey = new TCHAR[256];
 		ZeroMemory(pSoundKey, sizeof(TCHAR) * 256);
 
 		MultiByteToWideChar(CP_ACP, 0, fd.name, strlen(fd.name) + 1, pSoundKey, 256);
@@ -66,11 +66,11 @@ void CSoundMgr::LoadSoundFile( void )
 		strcpy_s(szFullPath, 256, "../Sound/");
 		strcat_s(szFullPath, 256, fd.name);
 
-		FMOD_SOUND*	pSound;
+		FMOD_SOUND* pSound;
 
 		FMOD_RESULT FResult = FMOD_System_CreateSound(m_pSystem, szFullPath, FMOD_HARDWARE, NULL, &pSound);
 
-		if(FMOD_OK == FResult)
+		if (FMOD_OK == FResult)
 			m_MapSound.insert(make_pair(pSoundKey, pSound));
 		else
 		{
@@ -86,28 +86,28 @@ void CSoundMgr::LoadSoundFile( void )
 	FMOD_System_Update(m_pSystem);
 }
 
-void CSoundMgr::PlaySound( TCHAR* pSoundKey, CHANNEL_ID eChannel )
+void CSoundMgr::PlaySound(TCHAR* pSoundKey, CHANNEL_ID eChannel)
 {
 	// FMOD_System_Update(m_pSystem);
 
 	map<TCHAR*, FMOD_SOUND*>::iterator iter = find_if(m_MapSound.begin(),
 		m_MapSound.end(), CStringCmp(pSoundKey));
 
-	if(iter == m_MapSound.end())
+	if (iter == m_MapSound.end())
 		return;
 
 	FMOD_System_PlaySound(m_pSystem, FMOD_CHANNEL_FREE, iter->second, 0, &(m_pChannel[eChannel]));
 
 }
 
-void CSoundMgr::PlaySound( TCHAR* pSoundKey, CHANNEL_ID eChannel, float fVolume )
+void CSoundMgr::PlaySound(TCHAR* pSoundKey, CHANNEL_ID eChannel, float fVolume)
 {
 	//FMOD_System_Update(m_pSystem);
 
 	map<TCHAR*, FMOD_SOUND*>::iterator iter = find_if(m_MapSound.begin(),
 		m_MapSound.end(), CStringCmp(pSoundKey));
 
-	if(iter == m_MapSound.end())
+	if (iter == m_MapSound.end())
 		return;
 
 	FMOD_System_PlaySound(m_pSystem, FMOD_CHANNEL_FREE, iter->second, 0, &(m_pChannel[eChannel]));
@@ -115,18 +115,18 @@ void CSoundMgr::PlaySound( TCHAR* pSoundKey, CHANNEL_ID eChannel, float fVolume 
 }
 
 
-void CSoundMgr::OncePlaySound( TCHAR* pSoundKey, CHANNEL_ID eChannel, float fVolume )
+void CSoundMgr::OncePlaySound(TCHAR* pSoundKey, CHANNEL_ID eChannel, float fVolume)
 {
 	map<TCHAR*, FMOD_SOUND*>::iterator iter = find_if(m_MapSound.begin(),
 		m_MapSound.end(), CStringCmp(pSoundKey));
 
-	if(iter == m_MapSound.end())
+	if (iter == m_MapSound.end())
 		return;
 
 	FMOD_BOOL isPlaying;
 	FMOD_Channel_IsPlaying(m_pChannel[eChannel], &isPlaying);
 
-	if(!isPlaying)
+	if (!isPlaying)
 	{
 		FMOD_System_PlaySound(m_pSystem, FMOD_CHANNEL_FREE, iter->second, 0, &(m_pChannel[eChannel]));
 		FMOD_Channel_SetVolume(m_pChannel[eChannel], fVolume);
@@ -134,14 +134,14 @@ void CSoundMgr::OncePlaySound( TCHAR* pSoundKey, CHANNEL_ID eChannel, float fVol
 }
 
 
-void CSoundMgr::PlayBGM( TCHAR* pSoundKey, CHANNEL_ID eChannel, float fVolume)
+void CSoundMgr::PlayBGM(TCHAR* pSoundKey, CHANNEL_ID eChannel, float fVolume)
 {
 	//
 
-	map<TCHAR*, FMOD_SOUND*>::iterator iter = find_if(m_MapSound.begin(), 
+	map<TCHAR*, FMOD_SOUND*>::iterator iter = find_if(m_MapSound.begin(),
 		m_MapSound.end(), CStringCmp(pSoundKey));
 
-	if(iter == m_MapSound.end())
+	if (iter == m_MapSound.end())
 		return;
 
 	FMOD_Sound_SetLoopCount(iter->second, -1);
@@ -150,19 +150,19 @@ void CSoundMgr::PlayBGM( TCHAR* pSoundKey, CHANNEL_ID eChannel, float fVolume)
 	FMOD_Channel_SetVolume(m_pChannel[eChannel], fVolume);
 }
 
-void CSoundMgr::UpdateSound( void )
+void CSoundMgr::UpdateSound(void)
 {
 	FMOD_System_Update(m_pSystem);
 }
 
-void CSoundMgr::StopSound( CHANNEL_ID eChannel )
+void CSoundMgr::StopSound(CHANNEL_ID eChannel)
 {
 	FMOD_Channel_Stop(m_pChannel[eChannel]);
 }
 
-void CSoundMgr::StopSoundAll( void )
+void CSoundMgr::StopSoundAll(void)
 {
-	for(int i = 0; i < CHANNEL_END; ++i)
+	for (int i = 0; i < CHANNEL_END; ++i)
 		FMOD_Channel_Stop(m_pChannel[i]);
 }
 

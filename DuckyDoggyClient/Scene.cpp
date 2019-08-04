@@ -578,7 +578,7 @@ void CScene::LoadDash(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3
 	{
 		CDash* obj = new CDash();
 		obj->SetChild(pOBJ, true);
-		obj->SetHitBox(XMFLOAT3(3,3,3));
+		obj->SetHitBox(XMFLOAT3(4,4,4));
 		obj->SetPosition(iter->m_pos.x, iter->m_pos.y, iter->m_pos.z);
 		//	obj->Rotate(0, RandomRotate, 0);
 		m_DashList.push_back(obj);
@@ -1284,11 +1284,11 @@ void CScene::ObjectsCollides()
 	{
 		if (n->getCollision(m_pDoggy, false) != COLLIDE_NONE)
 		{
-			m_pDoggy->Dash(m_fElapsedTime * 20);
+			m_pDoggy->Dash(m_fElapsedTime * 30);
 		}
 		if (n->getCollision(m_pDucky, false) != COLLIDE_NONE)
 		{
-			m_pDucky->Dash(m_fElapsedTime * 20);
+			m_pDucky->Dash(m_fElapsedTime * 30);
 		}
 
 	}

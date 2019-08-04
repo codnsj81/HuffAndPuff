@@ -364,3 +364,12 @@ private:
 	ID3D12Device* m_pd3dDevice = NULL;
 	int		m_iNumber;
 };
+
+
+class CScreenMesh : public CUIMesh
+{
+public:
+	CScreenMesh();
+	CScreenMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float nWidth = 5.f, float nLength = 5.f, float uvX = 1, float uvY = 1);
+	~CScreenMesh();
+};

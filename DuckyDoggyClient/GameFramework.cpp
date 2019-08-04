@@ -745,7 +745,7 @@ void CGameFramework::BuildObjects()
 		m_pScene->BuildClock(m_pd3dDevice, m_pd3dCommandList);
 
 		// 스크린
-		m_pSceneScreen = new CSceneScreen(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT,m_pCamera->GetRoatMatrix(),  L"Model/Textures/logo.tif");
+		m_pSceneScreen = new CSceneScreen(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 400, 300,m_pCamera->GetRoatMatrix(),  L"Model/Textures/logo.tif");
 		m_pScene->SetDuckyNDoggy(m_pDucky, m_pDoggy, m_pPlayer);
 		m_pScene->m_pd3dDevice = m_pd3dDevice;
 		m_pScene->m_pd3dCommandList = m_pd3dCommandList;
@@ -940,7 +940,7 @@ void CGameFramework::FrameAdvance()
 		D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_pd3dRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 		d3dRtvCPUDescriptorHandle.ptr += (m_nSwapChainBufferIndex * m_nRtvDescriptorIncrementSize);
 
-		float pfClearColor[4] = { 1.0f, 1.f, 1.f, 1.0f };
+		float pfClearColor[4] = {1.0f, 0.f, 0.f, 1.0f };
 		m_pd3dCommandList->ClearRenderTargetView(d3dRtvCPUDescriptorHandle, pfClearColor/*Colors::Azure*/, 0, NULL);
 
 		D3D12_CPU_DESCRIPTOR_HANDLE d3dDsvCPUDescriptorHandle = m_pd3dDsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
@@ -949,9 +949,10 @@ void CGameFramework::FrameAdvance()
 		m_pd3dCommandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, TRUE, &d3dDsvCPUDescriptorHandle);
 
 
-		if (m_pScene) m_pScene->Update(m_GameTimer.GetTimeElapsed());
+		//if (m_pScene) m_pScene->Update(m_GameTimer.GetTimeElapsed());
 		if (m_pScene) m_pScene->Render(m_pd3dCommandList, m_pCamera);
 		// 스크린 렌더
+		m_pSceneScreen->UpdateTransform(NULL);
 		m_pSceneScreen->Render(m_pd3dCommandList, m_pCamera);
 
 		d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
@@ -1018,6 +1019,7 @@ void CGameFramework::FrameAdvance()
 		if (m_pScene) m_pScene->Update(m_GameTimer.GetTimeElapsed());
 		if (m_pScene) m_pScene->Render(m_pd3dCommandList, m_pCamera);
 
+		m_pSceneScreen->Render(m_pd3dCommandList, m_pCamera);
 #ifdef _WITH_PLAYER_TOP
 		m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
 #endif

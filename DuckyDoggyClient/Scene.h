@@ -137,7 +137,7 @@ public:
 	void CreateDamageUI(CPlayer* pPlayer, int dam);
 	void BuildMonsterList(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList);
 
-
+	void RenderStage1(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera);
 	list<CMonster*>* GetMonsterList() {
 		return &M_MonsterObjectslist;
 	}

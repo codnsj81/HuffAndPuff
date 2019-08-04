@@ -13,7 +13,7 @@ CSceneScreen::CSceneScreen(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 		m_ppMaterials[i] = NULL;
 
 	// UIMesh를 그대로 갖다써도 될진 모르겠지만,, 문제 생기면 CScreenMesh 를 직접 만들어 보는 걸로.
-	CMesh* pMesh = new CUIMesh(pd3dDevice, pd3dCommandList, nWidth, nLength, 1, 1);
+	CMesh* pMesh = new CScreenMesh(pd3dDevice, pd3dCommandList, nWidth, nLength, 1, 1);
 	SetMesh(pMesh);
 
 	CUIShader* pShader = new CUIShader();
@@ -26,11 +26,12 @@ CSceneScreen::CSceneScreen(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 
 	CMaterial* pMaterial = new CMaterial(1);
 	pMaterial->SetMaterialType(MATERIAL_ALBEDO_MAP);
+	pMaterial->SetTexture(Texture);
 	pMaterial->SetShader(pShader);
-
 	SetMaterial(0, pMaterial);
-	m_xmf4x4World = cameramat;
-	MoveForward(30);
+	m_xmf4x4ToParent = cameramat;
+	MoveForward(230);
+	MoveUp(-15);
 	Rotate(90, 0, 0);
 }
 
@@ -57,8 +58,6 @@ void CSceneScreen::Update(float elapsed)
 }
 void CSceneScreen::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
 {
-	//XMFLOAT3 xmf3CameraPos = pCamera->GetPosition();
-	//SetPosition(xmf3CameraPos.x, xmf3CameraPos.y, xmf3CameraPos.z);
 
 	CGameObject::Render(pd3dCommandList, pCamera);
 }

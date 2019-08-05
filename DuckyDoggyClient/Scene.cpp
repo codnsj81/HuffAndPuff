@@ -10,6 +10,7 @@
 #include "CUI.h"
 #include "SceneScreen.h"
 #include "GameFramework.h"
+#include "SoundMgr.h"
 
 ID3D12DescriptorHeap *CScene::m_pd3dCbvSrvDescriptorHeap = NULL;
 
@@ -221,6 +222,7 @@ void CScene::PlayerAttack()
 		if (distance < 10)
 		{
 			p->Damage(m_pPlayer->GetAtt());
+			SOUNDMGR->PlaySoundW(L"Sound/Sound9.mp3", CHANNEL_SKILL, 1.f);
 		}
 	}
 

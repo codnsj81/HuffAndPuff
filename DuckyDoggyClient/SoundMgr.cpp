@@ -43,6 +43,7 @@ void CSoundMgr::Initialize(void)
 
 void CSoundMgr::LoadSoundFile(void)
 {
+	FMOD_RESULT FResult;
 	FMOD_SOUND* pSound = nullptr;
 	for (int i = 0; i < 9; i++) {
 		wchar_t* pwstring = new wchar_t[100];
@@ -53,7 +54,10 @@ void CSoundMgr::LoadSoundFile(void)
 		pStr = new char[strSize];
 		WideCharToMultiByte(CP_ACP, 0, pwstring, -1, pStr, strSize, 0, 0);
 		//
-		FMOD_RESULT FResult = FMOD_System_CreateSound(m_pSystem, pStr, FMOD_LOOP_NORMAL, NULL, &pSound);
+		if(i == 6 || i ==9)
+			 FResult = FMOD_System_CreateSound(m_pSystem, pStr, FMOD_DEFAULT, NULL, &pSound);
+		else
+			FResult = FMOD_System_CreateSound(m_pSystem, pStr, FMOD_LOOP_NORMAL, NULL, &pSound);
 		if (FMOD_OK == FResult)
 			m_MapSound.insert(pair<TCHAR*, FMOD_SOUND*>(pwstring, pSound));
 	}
@@ -86,6 +90,7 @@ void CSoundMgr::PlaySound(TCHAR* pSoundKey, CHANNEL_ID eChannel, float fVolume)
 
 	FMOD_System_PlaySound(m_pSystem, iter->second, NULL, 0, &(m_pChannel[eChannel]));
 	FMOD_Channel_SetVolume(m_pChannel[eChannel], fVolume);
+
 }
 
 

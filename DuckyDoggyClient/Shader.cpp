@@ -335,7 +335,7 @@ CStandardShader::~CStandardShader()
 
 D3D12_INPUT_LAYOUT_DESC CStandardShader::CreateInputLayout()
 {
-	UINT nInputElementDescs = 5;
+	UINT nInputElementDescs = 6;
 	D3D12_INPUT_ELEMENT_DESC *pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
 
 	pd3dInputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
@@ -343,6 +343,7 @@ D3D12_INPUT_LAYOUT_DESC CStandardShader::CreateInputLayout()
 	pd3dInputElementDescs[2] = { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 2, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 	pd3dInputElementDescs[3] = { "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 3, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 	pd3dInputElementDescs[4] = { "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 4, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[5] = { "COLORNUM", 0, DXGI_FORMAT_R32G32B32_FLOAT, 4, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 
 	D3D12_INPUT_LAYOUT_DESC d3dInputLayoutDesc;
 	d3dInputLayoutDesc.pInputElementDescs = pd3dInputElementDescs;
@@ -373,7 +374,7 @@ CSkinnedAnimationShader::~CSkinnedAnimationShader()
 
 D3D12_INPUT_LAYOUT_DESC CSkinnedAnimationShader::CreateInputLayout()
 {
-	UINT nInputElementDescs = 7;
+	UINT nInputElementDescs = 8;
 	D3D12_INPUT_ELEMENT_DESC *pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
 
 	pd3dInputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
@@ -383,6 +384,7 @@ D3D12_INPUT_LAYOUT_DESC CSkinnedAnimationShader::CreateInputLayout()
 	pd3dInputElementDescs[4] = { "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 4, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 	pd3dInputElementDescs[5] = { "BONEINDEX", 0, DXGI_FORMAT_R32G32B32A32_UINT, 5, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 	pd3dInputElementDescs[6] = { "BONEWEIGHT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 6, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[7] = { "COLORNUM", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 7, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 
 	D3D12_INPUT_LAYOUT_DESC d3dInputLayoutDesc;
 	d3dInputLayoutDesc.pInputElementDescs = pd3dInputElementDescs;
@@ -673,5 +675,30 @@ D3D12_BLEND_DESC CGrasshader::CreateBlendState()
 	d3dBlendDesc.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_NOOP;
 	d3dBlendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 
+	return(d3dBlendDesc);
+}
+
+D3D12_INPUT_LAYOUT_DESC CShadowShader::CreateInputLayout()
+{
+	D3D12_INPUT_ELEMENT_DESC* pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[3];
+
+	pd3dInputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[1] = { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[2] = { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 2, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+
+	D3D12_INPUT_LAYOUT_DESC d3dInputLayoutDesc;
+	d3dInputLayoutDesc.pInputElementDescs = pd3dInputElementDescs;
+	d3dInputLayoutDesc.NumElements = 3;
+
+	return(d3dInputLayoutDesc);
+}
+
+D3D12_BLEND_DESC CShadowShader::CreateBlendState()
+{
+	D3D12_BLEND_DESC d3dBlendDesc;
+	::ZeroMemory(&d3dBlendDesc, sizeof(D3D12_BLEND_DESC));
+	d3dBlendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_ZERO;
+	d3dBlendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_COLOR;
+	d3dBlendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
 	return(d3dBlendDesc);
 }

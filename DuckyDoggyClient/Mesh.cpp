@@ -620,13 +620,20 @@ void CStandardMesh::LoadMeshFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 			break;
 		}
 	}
+	m_pxmIntColornum = new int(1);
+	m_pd3dColornumBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_pxmIntColornum, sizeof(int) , D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dColornumUploadBuffer);
+
+	m_d3dColonumBufferView.BufferLocation = m_pd3dColornumBuffer->GetGPUVirtualAddress();
+	m_d3dColonumBufferView.StrideInBytes = sizeof(int);
+	m_d3dColonumBufferView.SizeInBytes = sizeof(int);
+
 }
 
 void CStandardMesh::OnPreRender(ID3D12GraphicsCommandList *pd3dCommandList, void *pContext)
 {
 
-	D3D12_VERTEX_BUFFER_VIEW pVertexBufferViews[5] = { m_d3dPositionBufferView, m_d3dTextureCoord0BufferView, m_d3dNormalBufferView, m_d3dTangentBufferView, m_d3dBiTangentBufferView };
-	pd3dCommandList->IASetVertexBuffers(m_nSlot, 5, pVertexBufferViews);
+	D3D12_VERTEX_BUFFER_VIEW pVertexBufferViews[6] = { m_d3dPositionBufferView, m_d3dTextureCoord0BufferView, m_d3dNormalBufferView, m_d3dTangentBufferView, m_d3dBiTangentBufferView,m_d3dColonumBufferView };
+	pd3dCommandList->IASetVertexBuffers(m_nSlot, 6, pVertexBufferViews);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -674,6 +681,8 @@ void CSkinnedMesh::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandL
 			XMStoreFloat4x4(&m_pcbxmf4x4BoneTransforms[i], XMMatrixTranspose(XMLoadFloat4x4(&m_ppSkinningBoneFrameCaches[i]->m_xmf4x4World)));
 		}
 	}
+
+
 }
 
 void CSkinnedMesh::ReleaseShaderVariables()
@@ -777,8 +786,8 @@ void CSkinnedMesh::LoadSkinInfoFromFile(ID3D12Device *pd3dDevice, ID3D12Graphics
 
 void CSkinnedMesh::OnPreRender(ID3D12GraphicsCommandList *pd3dCommandList, void *pContext)
 {
-	D3D12_VERTEX_BUFFER_VIEW pVertexBufferViews[7] = { m_d3dPositionBufferView, m_d3dTextureCoord0BufferView, m_d3dNormalBufferView, m_d3dTangentBufferView, m_d3dBiTangentBufferView, m_d3dBoneIndexBufferView, m_d3dBoneWeightBufferView };
-	pd3dCommandList->IASetVertexBuffers(m_nSlot, 7, pVertexBufferViews);
+	D3D12_VERTEX_BUFFER_VIEW pVertexBufferViews[8] = { m_d3dPositionBufferView, m_d3dTextureCoord0BufferView, m_d3dNormalBufferView, m_d3dTangentBufferView, m_d3dBiTangentBufferView, m_d3dBoneIndexBufferView, m_d3dBoneWeightBufferView , m_d3dColonumBufferView };
+	pd3dCommandList->IASetVertexBuffers(m_nSlot, 8, pVertexBufferViews);
 }
 
 CWaterMesh::CWaterMesh(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nWidth, int nLength)
@@ -1129,5 +1138,18 @@ CScreenMesh::CScreenMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd
 }
 
 CScreenMesh::~CScreenMesh()
+{
+}
+
+CShadowMesh::CShadowMesh()
+{
+}
+
+CShadowMesh::CShadowMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float nWidth, float nLength, float uvX, float uvY)
+{
+	CScreenMesh::CScreenMesh(pd3dDevice, pd3dCommandList, nWidth, nLength);
+}
+
+CShadowMesh::~CShadowMesh()
 {
 }

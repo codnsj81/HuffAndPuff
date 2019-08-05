@@ -196,6 +196,7 @@ protected:
 	XMFLOAT3						*m_pxmf3BiTangents = NULL;
 	XMFLOAT2						*m_pxmf2TextureCoords0 = NULL;
 	XMFLOAT2						*m_pxmf2TextureCoords1 = NULL;
+	int* m_pxmIntColornum = NULL;
 
 	ID3D12Resource					*m_pd3dTextureCoord0Buffer = NULL;
 	ID3D12Resource					*m_pd3dTextureCoord0UploadBuffer = NULL;
@@ -216,6 +217,10 @@ protected:
 	ID3D12Resource					*m_pd3dBiTangentBuffer = NULL;
 	ID3D12Resource					*m_pd3dBiTangentUploadBuffer = NULL;
 	D3D12_VERTEX_BUFFER_VIEW		m_d3dBiTangentBufferView;
+
+	ID3D12Resource* m_pd3dColornumBuffer = NULL;
+	ID3D12Resource* m_pd3dColornumUploadBuffer = NULL;
+	D3D12_VERTEX_BUFFER_VIEW		m_d3dColonumBufferView;
 
 public:
 	void LoadMeshFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, FILE *pInFile);
@@ -372,4 +377,12 @@ public:
 	CScreenMesh();
 	CScreenMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float nWidth = 5.f, float nLength = 5.f, float uvX = 1, float uvY = 1);
 	~CScreenMesh();
+};
+
+class CShadowMesh : public CScreenMesh
+{
+public:
+	CShadowMesh();
+	CShadowMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float nWidth = 5.f, float nLength = 5.f, float uvX = 1, float uvY = 1);
+	~CShadowMesh();
 };

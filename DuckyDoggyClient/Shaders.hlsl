@@ -51,6 +51,7 @@ struct VS_STANDARD_INPUT
 	float3 normal : NORMAL;
 	float3 tangent : TANGENT;
 	float3 bitangent : BITANGENT;
+	uint	colornum : COLORNUM;
 };
 
 struct VS_STANDARD_OUTPUT
@@ -61,6 +62,7 @@ struct VS_STANDARD_OUTPUT
 	float3 tangentW : TANGENT;
 	float3 bitangentW : BITANGENT;
 	float2 uv : TEXCOORD;
+	uint	colornum : COLORNUM;
 };
 
 VS_STANDARD_OUTPUT VSStandard(VS_STANDARD_INPUT input)
@@ -73,6 +75,7 @@ VS_STANDARD_OUTPUT VSStandard(VS_STANDARD_INPUT input)
 	output.bitangentW = mul(input.bitangent, (float3x3)gmtxGameObject);
 	output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
 	output.uv = input.uv;
+	output.colornum = input.colornum;
 
 	return(output);
 }
@@ -104,7 +107,10 @@ float4 PSStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
 		normalW = normalize(input.normalW);
 	}
 	float4 cIllumination = Lighting(input.positionW, normalW);
-	return(lerp(cColor, cIllumination, 0.4f));
+	cColor = lerp(cColor, cIllumination, 0.4f);
+	if (input.colornum == 1) cColor += float4(0.3f, 0.f, 0.f, 0.f);
+
+	return(cColor);
 }
 
 
@@ -142,6 +148,7 @@ struct VS_SKINNED_STANDARD_INPUT
 	float3 bitangent : BITANGENT;
 	uint4 indices : BONEINDEX;
 	float4 weights : BONEWEIGHT;
+	uint colornum : COLORNUM;
 };
 // 애니메이션 정보를 받고 모든 뼈의 움직임을 바꾼다
 // skin mesh 를 그리기 위해서 필요한 두개의 행려 (  bone transfrom, offset 변환 ) 정점 하나를 넘겨 받으면
@@ -154,6 +161,7 @@ VS_STANDARD_OUTPUT VSSkinnedAnimationStandard(VS_SKINNED_STANDARD_INPUT input)
 	output.normalW = float3(0.0f, 0.0f, 0.0f);
 	output.tangentW = float3(0.0f, 0.0f, 0.0f);
 	output.bitangentW = float3(0.0f, 0.0f, 0.0f);
+	output.colornum = input.colornum;
 	matrix mtxVertexToBoneWorld;
 	for (int i = 0; i < MAX_VERTEX_INFLUENCES; i++) // 매번 루트를 돌면서 
 	{
@@ -191,6 +199,7 @@ struct VS_TERRAIN_OUTPUT
 	float4 color : COLOR;
 	float2 uv0 : TEXCOORD0;
 	float2 uv1 : TEXCOORD1;
+	float4 shadowPosition : TEXCOORD3;
 };
 
 VS_TERRAIN_OUTPUT VSTerrain(VS_TERRAIN_INPUT input)
@@ -220,7 +229,82 @@ float4 PSTerrain(VS_TERRAIN_OUTPUT input) : SV_TARGET
 					+ cDetailTexColor2 * cBaseTexColor.z;
 	return(cColor);
 }
+///////////////////////////////////////////////////////////////
 
+//원형 그림자
+
+Texture2D gtxCircularShadow : register(t13);
+SamplerState gssCircularShadow : register(s1);
+
+struct VS_INPUT {
+	float3 position : POSITION;
+	float4 shadow : INSTANCEPOS;
+};
+
+struct VS_OUTPUT {
+	float3 position : POSITION;
+	float size : SIZE;
+};
+struct VS_SHADOW_INPUT {
+	float3 position: POSITION;
+	float2 texCoord : TEXCOORD;
+	float4 shadow : INSTANCEPOS;
+};
+
+struct VS_SHADOW_OUTPUT {
+	float4 position: SV_POSITION;
+	float2 texCoord : TEXCOORD0;
+};
+
+VS_OUTPUT VSShadow(VS_INPUT input) {
+	VS_OUTPUT output = (VS_OUTPUT)0;
+	output.size = 0.3f * (input.shadow.y - input.shadow.w);
+	output.position = input.shadow.xyz - float3(0.0f, output.size * 2.5f, 0);
+	return (output);
+}
+
+struct GS_OUTPUT {
+	float4 position : SV_POSITION;
+	float4 color : COLOR;
+	float2 texCoord : TEXCOORD0;
+};
+
+float4 PSShadow(GS_OUTPUT input) : SV_Target{
+	return(gtxCircularShadow.Sample(gssCircularShadow, input.texCoord) * input.color);
+}
+
+
+[maxvertexcount(4)]
+void GSShadow(point VS_OUTPUT input[1], inout TriangleStream<GS_OUTPUT> outStream) {
+	GS_OUTPUT output;
+	float3 vCorners[4];
+	vCorners[0] = float3(input[0].position.x - input[0].size, input[0].position.y, input[0].position.z - input[0].size);
+	vCorners[1] = float3(input[0].position.x - input[0].size, input[0].position.y, input[0].position.z + input[0].size);
+	vCorners[2] = float3(input[0].position.x + input[0].size, input[0].position.y, input[0].position.z - input[0].size);
+	vCorners[3] = float3(input[0].position.x + input[0].size, input[0].position.y, input[0].position.z + input[0].size);
+	float2 vTexCoords[4] = { float2(0,1), float2(0,0), float2(1,1), float2(1,0) };
+	float fColor = min(1, max(0, (100 + 155 * (90 - input[0].size)) / 255.0f));
+	for (int i = 0; i < 4; i++)
+	{
+		output.position = mul(mul(float4(vCorners[i], 1), gmtxView), gmtxProjection);
+		output.texCoord = vTexCoords[i];
+		output.color = float4(fColor, fColor, fColor, 0);
+		outStream.Append(output);
+	}
+}
+VS_SHADOW_OUTPUT VSCircularShadow(VS_SHADOW_INPUT input)
+{
+	VS_SHADOW_OUTPUT output = (VS_SHADOW_OUTPUT)0;
+	output.texCoord = input.texCoord;
+	float3 position = input.position + input.shadow.xyz;
+	position.y -= (input.shadow.y - input.shadow.w) * 0.7f;
+	output.position = mul(mul(float4(position, 1.0f), gmtxView), gmtxProjection);
+	return (output);
+}
+
+float4 PSCircularShadow(VS_SHADOW_OUTPUT input) : SV_Target{
+	return (gtxCircularShadow.Sample(gssCircularShadow, input.texCoord));
+}
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 struct VS_SKYBOX_CUBEMAP_INPUT

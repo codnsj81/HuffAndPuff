@@ -1,7 +1,8 @@
 #pragma once
 
 #include "../Headers/Enum.h"
-
+// »ç¿îµå
+#include "fmod.h"
 #define SOUNDMGR CSoundMgr::GetInstance()
 
 class CStringCmp

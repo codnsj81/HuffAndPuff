@@ -33,9 +33,9 @@ void CSoundMgr::Release(void)
 
 void CSoundMgr::Initialize(void)
 {
-	unsigned int niVersion = NULL;//
+	//unsigned int niVersion = NULL;//
 	FMOD_System_Create(&m_pSystem);
-	FMOD_System_GetVersion(m_pSystem, &niVersion);//
+	//FMOD_System_GetVersion(m_pSystem, &niVersion);//
 	FMOD_System_Init(m_pSystem, CHANNEL_END, FMOD_INIT_NORMAL, NULL);
 
 	LoadSoundFile();
@@ -43,49 +43,20 @@ void CSoundMgr::Initialize(void)
 
 void CSoundMgr::LoadSoundFile(void)
 {
-	_finddata_t	fd = {};
-	long handle;
-	int iResult = 0;
-
-	handle = _findfirst("../Sound/*.*", &fd);
-
-	if (-1 == handle)
-	{
-		// MessageBox(g_hWnd, L"Not found soundfile", L"Not found soundfile", MB_OK);
-		return;
-	}
-
-	while (-1 != iResult)
-	{
-		TCHAR* pSoundKey = new TCHAR[256];
-		ZeroMemory(pSoundKey, sizeof(TCHAR) * 256);
-
-		MultiByteToWideChar(CP_ACP, 0, fd.name, strlen(fd.name) + 1, pSoundKey, 256);
-
-		char szFullPath[256] = "";
-		strcpy_s(szFullPath, 256, "../Sound/");
-		strcat_s(szFullPath, 256, fd.name);
-
-		FMOD_SOUND* pSound;
-
-		FMOD_RESULT FResult = FMOD_System_CreateSound(m_pSystem, szFullPath, FMOD_HARDWARE, NULL, &pSound);
-
-		iResult = _findnext(handle, &fd);
-
+	FMOD_SOUND* pSound = nullptr;
+	for (int i = 0; i < 3; i++) {
+		wchar_t* pwstring = new wchar_t[100];
+		wsprintf(pwstring, L"Sound/Sound%d.mp3", i);
+		// wchar_t to char
+		char* pStr;
+		int strSize = WideCharToMultiByte(CP_ACP, 0, pwstring, -1, NULL, 0, NULL, NULL);
+		pStr = new char[strSize];
+		WideCharToMultiByte(CP_ACP, 0, pwstring, -1, pStr, strSize, 0, 0);
+		//
+		FMOD_RESULT FResult = FMOD_System_CreateSound(m_pSystem, pStr, FMOD_LOOP_NORMAL, NULL, &pSound);
 		if (FMOD_OK == FResult)
-			m_MapSound.insert(make_pair(pSoundKey, pSound));
-		else
-		{
-			//MessageBox(g_hWnd, L"Sound load failed", L"Sound load failed", MB_OK);
-			delete[] pSoundKey;
-		}
-
-		//iResult = _findnext(handle, &fd);
+			m_MapSound.insert(pair<TCHAR*, FMOD_SOUND*>(pwstring, pSound));
 	}
-
-	_findclose(handle);
-
-	FMOD_System_Update(m_pSystem);
 }
 
 void CSoundMgr::PlaySound(TCHAR* pSoundKey, CHANNEL_ID eChannel)
@@ -98,7 +69,8 @@ void CSoundMgr::PlaySound(TCHAR* pSoundKey, CHANNEL_ID eChannel)
 	if (iter == m_MapSound.end())
 		return;
 
-	FMOD_System_PlaySound(m_pSystem, FMOD_CHANNEL_FREE, iter->second, 0, &(m_pChannel[eChannel]));
+	FMOD_System_PlaySound(m_pSystem, iter->second, NULL, 0, &(m_pChannel[eChannel]));
+
 
 }
 
@@ -112,7 +84,7 @@ void CSoundMgr::PlaySound(TCHAR* pSoundKey, CHANNEL_ID eChannel, float fVolume)
 	if (iter == m_MapSound.end())
 		return;
 
-	FMOD_System_PlaySound(m_pSystem, FMOD_CHANNEL_FREE, iter->second, 0, &(m_pChannel[eChannel]));
+	FMOD_System_PlaySound(m_pSystem, iter->second, NULL, 0, &(m_pChannel[eChannel]));
 	FMOD_Channel_SetVolume(m_pChannel[eChannel], fVolume);
 }
 
@@ -130,7 +102,7 @@ void CSoundMgr::OncePlaySound(TCHAR* pSoundKey, CHANNEL_ID eChannel, float fVolu
 
 	if (!isPlaying)
 	{
-		FMOD_System_PlaySound(m_pSystem, FMOD_CHANNEL_FREE, iter->second, 0, &(m_pChannel[eChannel]));
+		FMOD_System_PlaySound(m_pSystem, iter->second, NULL, 0, &(m_pChannel[eChannel]));
 		FMOD_Channel_SetVolume(m_pChannel[eChannel], fVolume);
 	}
 }
@@ -138,18 +110,15 @@ void CSoundMgr::OncePlaySound(TCHAR* pSoundKey, CHANNEL_ID eChannel, float fVolu
 
 void CSoundMgr::PlayBGM(TCHAR* pSoundKey, CHANNEL_ID eChannel, float fVolume)
 {
-	//
-
 	map<TCHAR*, FMOD_SOUND*>::iterator iter = find_if(m_MapSound.begin(),
 		m_MapSound.end(), CStringCmp(pSoundKey));
 
 	if (iter == m_MapSound.end())
 		return;
 
-	FMOD_Sound_SetLoopCount(iter->second, -1);
-	FMOD_Sound_SetMode(iter->second, FMOD_LOOP_NORMAL);
-	FMOD_System_PlaySound(m_pSystem, FMOD_CHANNEL_FREE, iter->second, 0, &(m_pChannel[eChannel]));
-	FMOD_Channel_SetVolume(m_pChannel[eChannel], fVolume);
+	//	FMOD_Sound_SetLoopCount(iter->second, -1);
+	//	FMOD_Sound_SetMode(iter->second, FMOD_LOOP_NORMAL);
+	FMOD_System_PlaySound(m_pSystem, iter->second, NULL, 0, &(m_pChannel[eChannel]));
 }
 
 void CSoundMgr::UpdateSound(void)

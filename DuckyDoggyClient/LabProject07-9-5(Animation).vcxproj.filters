@@ -167,4 +167,7 @@
     <None Include="Shaders.hlsl" />
     <None Include="Light.hlsl" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="Sound\ref.txt" />
+  </ItemGroup>
 </Project>

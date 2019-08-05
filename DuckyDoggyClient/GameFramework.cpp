@@ -434,11 +434,13 @@ LRESULT CALLBACK CGameFramework::OnProcessingWindowMessage(HWND hWnd, UINT nMess
 			break;
 		case WM_LBUTTONDOWN:
         case WM_RBUTTONDOWN:
-        case WM_LBUTTONUP:
         case WM_RBUTTONUP:
         case WM_MOUSEMOVE:
 			OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
             break;
+		case WM_LBUTTONUP:
+			OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
+			return 3;
         case WM_KEYDOWN:
         case WM_KEYUP:
 			OnProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
@@ -730,9 +732,6 @@ void CGameFramework::BuildPlayers()
 
 void CGameFramework::BuildObjects()
 {
-	// 0802
-	SOUNDMGR->PlayBGM(L"Sound/Sound0.mp3", CHANNEL_BGM, 1.f);
-
 		m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
 
 		m_pScene = new CScene();
@@ -771,6 +770,9 @@ void CGameFramework::BuildObjects()
 
 		m_GameTimer.Reset();
 
+		// 메뉴 사운드
+		SOUNDMGR->PlayBGM(L"Sound/Sound3.mp3", CHANNEL_BGM, 1.f);
+
 }
 
 void CGameFramework::ReleaseObjects()
@@ -794,9 +796,10 @@ void CGameFramework::ReleaseObjects()
 
 void CGameFramework::ProcessInput()
 {
-	if (g_scene == scene_logo) {
+	if (g_scene == scene_menu) {
 
 		// 임시방편으로 엔터 누르면 넘어가도록
+		
 		static UCHAR pKeysBuffer[256];
 		bool bProcessedByScene = false;
 		if (GetKeyboardState(pKeysBuffer) && m_pScene)
@@ -805,8 +808,14 @@ void CGameFramework::ProcessInput()
 		{
 			if ((pKeysBuffer[VK_RETURN] & 0xF0)) {
 				g_scene = scene_stage1;
+				// 사운드
+				SOUNDMGR->StopSoundAll();
+				SOUNDMGR->PlayBGM(L"Sound/Sound0.mp3", CHANNEL_BGM, 1.f);
 			}
-		}
+		 }
+
+		// -> 이제 ㄴㄴ !! 도기 접속 더기 접속 되도록
+
 	}
 	else if (g_scene == scene_menu) {
 		// 마우스 체크
@@ -923,7 +932,7 @@ void CGameFramework::FrameAdvance()
 
 	m_GameTimer.Tick(0.0f);
 	ProcessInput();
-	if (g_scene == scene_logo) {
+	if (g_scene == scene_menu) {
 		HRESULT hResult = m_pd3dCommandAllocator->Reset();
 		hResult = m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
 

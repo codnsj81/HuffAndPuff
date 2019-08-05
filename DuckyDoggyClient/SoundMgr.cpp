@@ -44,7 +44,7 @@ void CSoundMgr::Initialize(void)
 void CSoundMgr::LoadSoundFile(void)
 {
 	FMOD_SOUND* pSound = nullptr;
-	for (int i = 0; i < 3; i++) {
+	for (int i = 0; i < 9; i++) {
 		wchar_t* pwstring = new wchar_t[100];
 		wsprintf(pwstring, L"Sound/Sound%d.mp3", i);
 		// wchar_t to char

@@ -7,6 +7,7 @@
 #include "../Headers/Include.h"
 #include <comdef.h>
 #include "CMonster.h"
+#include "SoundMgr.h"
 #define MAX_LOADSTRING 100
 
 
@@ -23,7 +24,7 @@ HWND		g_hWnd;
 wchar_t		g_ipbuf[50];		// ip 입력 받는 버퍼
 player_info g_myinfo;
 player_info g_otherinfo;
-e_scene g_scene = scene_logo;
+e_scene g_scene = scene_menu;
 
 // 소켓 정보 저장을 위한 구조체와 변수
 struct SOCKETINFO
@@ -52,8 +53,8 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 {
 //#ifdef _DEBUG
 //	// api에서 콘솔창 띄우기.
-//	if (AllocConsole())
-//		freopen("CONOUT$", "w", stdout);
+	if (AllocConsole())
+		freopen("CONOUT$", "w", stdout);
 //#endif
 
 	UNREFERENCED_PARAMETER(hPrevInstance);
@@ -150,7 +151,43 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_MOUSEMOVE:
 	case WM_KEYDOWN:
 	case WM_KEYUP:
-		gGameFramework.OnProcessingWindowMessage(hWnd, message, wParam, lParam);
+		if (3 == gGameFramework.OnProcessingWindowMessage(hWnd, message, wParam, lParam)) {
+			
+			if (g_scene == scene_menu) {
+
+				POINT pt;
+				GetCursorPos(&pt);
+				ScreenToClient(hWnd, &pt); // 뷰포트 영역 상
+
+				RECT rcDucky{ 275, 184, 537, 269 }, rcDoggy{ 271, 296, 537, 373 }, rcKey{309, 434, 509, 513};
+
+				if (PtInRect(&rcDucky, pt)) {
+					// 더기로 접속
+					g_myinfo.type = player_ducky;
+					DialogBox(ghAppInstance, MAKEINTRESOURCE(IDD_DIALOG_NETWORK), hWnd, Dlg_InitNetwork_Prog);
+					g_scene = scene_stage1;
+
+					// 사운드
+					SOUNDMGR->StopSoundAll();
+					SOUNDMGR->PlayBGM(L"Sound/Sound0.mp3", CHANNEL_BGM, 1.f);
+				}
+				if (PtInRect(&rcDoggy, pt)) {
+					// 도기로 접속
+					g_myinfo.type = player_doggy;
+					DialogBox(ghAppInstance, MAKEINTRESOURCE(IDD_DIALOG_NETWORK), hWnd, Dlg_InitNetwork_Prog);
+					g_scene = scene_stage1;
+					// 사운드
+					SOUNDMGR->StopSoundAll();
+					SOUNDMGR->PlayBGM(L"Sound/Sound0.mp3", CHANNEL_BGM, 1.f);
+				}
+				if (PtInRect(&rcKey, pt)) {
+					// 조작법 
+				}
+
+
+			}
+
+		}
 		break;
 	case WM_COMMAND:
 		wmId = LOWORD(wParam);

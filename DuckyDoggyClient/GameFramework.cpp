@@ -371,6 +371,7 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 			{
 			case VK_SPACE:
 				m_pPlayer->Jump();
+				SOUNDMGR->OncePlaySound(L"Sound/Sound6.mp3", CHANNEL_EFFECT, 1.f);
 				break;
 			case 'Q':
 			case 'q':
@@ -811,6 +812,7 @@ void CGameFramework::ProcessInput()
 				// »ç¿îµå
 				SOUNDMGR->StopSoundAll();
 				SOUNDMGR->PlayBGM(L"Sound/Sound0.mp3", CHANNEL_BGM, 1.f);
+				
 			}
 		 }
 

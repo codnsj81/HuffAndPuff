@@ -678,6 +678,14 @@ D3D12_BLEND_DESC CGrasshader::CreateBlendState()
 	return(d3dBlendDesc);
 }
 
+CShadowShader::CShadowShader()
+{
+}
+
+CShadowShader::~CShadowShader()
+{
+}
+
 D3D12_INPUT_LAYOUT_DESC CShadowShader::CreateInputLayout()
 {
 	D3D12_INPUT_ELEMENT_DESC* pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[3];

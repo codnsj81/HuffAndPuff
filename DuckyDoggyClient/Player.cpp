@@ -5,6 +5,7 @@
 #include "stdafx.h"
 #include "Player.h"
 #include "Shader.h"
+#include "Object.h"
 #include "CUI.h"
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CPlayer
@@ -49,6 +50,8 @@ CPlayer::~CPlayer()
 	ReleaseShaderVariables();
 
 	if (m_pCamera) delete m_pCamera;
+	if (m_pShadow)	delete m_pShadow;
+	if (m_NavGuide) delete m_NavGuide;
 }
 
 void CPlayer::SetNav(CGameObject * nav)
@@ -607,7 +610,7 @@ void CPlayer::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamer
 {
 	DWORD nCameraMode = (pCamera) ? pCamera->GetMode() : 0x00;
 	if (nCameraMode == THIRD_PERSON_CAMERA) CGameObject::Render(pd3dCommandList, pCamera);
-
+	m_pShadow->Render(pd3dCommandList, pCamera);
 }
 
 
@@ -730,6 +733,8 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	SetPlayerUpdatedContext(pContext);
 	SetCameraUpdatedContext(pContext);
 
+	m_pShadow = new CShadow(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, 3, 3, GetPosition());
+	
 }
 
 CTerrainPlayer::~CTerrainPlayer()
@@ -795,6 +800,7 @@ void CTerrainPlayer::OnPlayerUpdateCallback(float fTimeElapsed)
 	XMFLOAT3 xmf3PlayerPosition = GetPosition();
 	int z = (int)(xmf3PlayerPosition.z / xmf3Scale.z);
 
+	m_pShadow->SetPosition(xmf3PlayerPosition.x, pTerrain->GetHeight(xmf3PlayerPosition.x, xmf3PlayerPosition.y) + 1, xmf3PlayerPosition.z);
 	bool bReverseQuad = ((z % 2) != 0);
 	float fHeight;
 	if (m_moveState != STATE_ONOBJECTS)

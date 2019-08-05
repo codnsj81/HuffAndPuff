@@ -1287,10 +1287,15 @@ void CScene::ObjectsCollides()
 		if (n->getCollision(m_pDoggy, false) != COLLIDE_NONE)
 		{
 			m_pDoggy->Dash(m_fElapsedTime * 30);
+
+			SOUNDMGR->OncePlaySound(L"Sound/Sound9.mp3", CHANNEL_EFFECT, 1.f);
+
 		}
 		if (n->getCollision(m_pDucky, false) != COLLIDE_NONE)
 		{
 			m_pDucky->Dash(m_fElapsedTime * 30);
+			SOUNDMGR->OncePlaySound(L"Sound/Sound9.mp3", CHANNEL_EFFECT, 1.f);
+
 		}
 
 	}

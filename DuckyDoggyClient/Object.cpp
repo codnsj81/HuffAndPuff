@@ -1470,3 +1470,36 @@ CDash::CDash()
 CDash::~CDash()
 {
 }
+
+CShadow::CShadow(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, int nWidth, int nLength, XMFLOAT3 xmfPosition)
+{
+	m_nMaterials = 1;
+	m_ppMaterials = new CMaterial * [m_nMaterials];
+	for (int i = 0; i < m_nMaterials; i++)
+		m_ppMaterials[i] = NULL;
+
+	CShadowMesh* pMesh = new CShadowMesh(pd3dDevice, pd3dCommandList, nWidth, nLength);
+	SetMesh(pMesh);
+
+	CShader* pShader = new CUIShader();
+	pShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	pShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+
+	CTexture* pWaterNormalTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	pWaterNormalTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/Shadow.tiff", 0, false);
+	pWaterNormalTexture->AddRef();
+
+	CScene::CreateShaderResourceViews(pd3dDevice, pWaterNormalTexture, 3, false);
+
+	CMaterial* pMaterial = new CMaterial(1);
+	pMaterial->SetTexture(pWaterNormalTexture, 0);
+	pMaterial->SetMaterialType(MATERIAL_ALBEDO_MAP);
+	pMaterial->SetShader(pShader);
+
+	SetMaterial(0, pMaterial);
+	SetPosition(xmfPosition);
+}
+
+CShadow::~CShadow()
+{
+}

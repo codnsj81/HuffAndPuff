@@ -731,7 +731,7 @@ void CGameFramework::BuildPlayers()
 void CGameFramework::BuildObjects()
 {
 	// 0802
-		SOUNDMGR->PlayBGM(L"Menu2.wav", CHANNEL_BGM, 1.f);
+	SOUNDMGR->PlayBGM(L"Sound/Sound0.mp3", CHANNEL_BGM, 1.f);
 
 		m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
 

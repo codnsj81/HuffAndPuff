@@ -1,0 +1,24 @@
+<Menu>
+Sound3.mp3 - Undertale Start menu
+Sound4.wav - TalesWeaver Main menu
+
+<Title>
+Sound0.mp3 - Kirby Title
+Sound1.mp3 - Undertale Hopes and Dreams
+Sound2.mp3 - Undertale Battle Against a Truth
+
+<Clear>
+Sound5.wav - Kirby Clear
+
+<Piggy>
+Sound6.wav - Kirby Eat
+
+<SceneChange>
+Sound7.wav - Kirby SceneChange
+
+<Dash>
+Sound8.wav - Kirby Dash
+
+<Hit>
+Sound9.wav - Dungeon And Fighter Hit
+

@@ -745,7 +745,9 @@ void CGameFramework::BuildObjects()
 		m_pScene->BuildClock(m_pd3dDevice, m_pd3dCommandList);
 
 		// 스크린
-		m_pSceneScreen = new CSceneScreen(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 400, 290,m_pCamera->GetRoatMatrix(),  L"Model/Textures/UI_Main.tiff");
+		CreateSceneScreenVec();
+
+
 		m_pScene->SetDuckyNDoggy(m_pDucky, m_pDoggy, m_pPlayer);
 		m_pScene->m_pd3dDevice = m_pd3dDevice;
 		m_pScene->m_pd3dCommandList = m_pd3dCommandList;
@@ -821,9 +823,6 @@ void CGameFramework::ProcessInput()
 	}
 	else if (g_scene == scene_menu) {
 		// 마우스 체크
-	}
-	else if (g_scene == scene_lobby) {
-
 	}
 	else if (g_scene == scene_stage1) {
 		static UCHAR pKeysBuffer[256];
@@ -963,8 +962,9 @@ void CGameFramework::FrameAdvance()
 		//if (m_pScene) m_pScene->Update(m_GameTimer.GetTimeElapsed());
 		if (m_pScene) m_pScene->Render(m_pd3dCommandList, m_pCamera);
 		// 스크린 렌더
-		m_pSceneScreen->UpdateTransform(NULL);
-		m_pSceneScreen->Render(m_pd3dCommandList, m_pCamera);
+		int screenindex = (int)g_scene;
+		m_SceneScreenVec[screenindex]->UpdateTransform(NULL);
+		m_SceneScreenVec[screenindex]->Render(m_pd3dCommandList, m_pCamera);
 
 		d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
 		d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
@@ -1132,45 +1132,73 @@ void CGameFramework::FrameAdvance()
 		::SetWindowText(m_hWnd, m_pszFrameRate);
 
 
-		/// 0703 : send thread를 만들어야 될 것 같아,, 렉 보완 문제는 일단 보류
-		// 정보 전송
-		m_dwUpdatecnt++;
-		int as = m_pPlayer->GetAnimationSet_child();
-		// cout << "as : " << as << endl;
-		if (g_myinfo.connected == true && m_dwUpdatecnt >= 3) {
-			//if (as == 0 && g_myinfo.type == player_doggy)D
-			//	return;
-			//else
-			{ // 우선 도기만 애니메이션 run, jump가 있기 때문에 이렇게 짜야 함
-				player_info playerinfo;
-				playerinfo.id = g_myinfo.id;
-				playerinfo.x = xmf3Position.x; playerinfo.y = xmf3Position.y; playerinfo.z = xmf3Position.z;
-				playerinfo.type = g_myinfo.type;
-				playerinfo.animationSet = g_myinfo.animationSet;
-				playerinfo.l_x = xmf3Look.x; playerinfo.l_y = xmf3Look.y; playerinfo.l_z = xmf3Look.z;
-				playerinfo.r_x = xmf3Right.x; playerinfo.r_y = xmf3Right.y; playerinfo.r_z = xmf3Right.z;
-				playerinfo.piggybackstate = m_pPlayer->GetPiggyBackState();
-				int retval;
-				/// 고정
-				packet_info packetinfo;
-				packetinfo.type = cs_move;
-				packetinfo.size = sizeof(player_info);
-				packetinfo.id = g_myinfo.id;
-				char buf[BUFSIZE];
-				memcpy(buf, &packetinfo, sizeof(packetinfo));
-				/// 가변 (고정 데이터에 가변 데이터 붙이는 형식으로)
-				memcpy(buf + sizeof(packetinfo), &playerinfo, sizeof(player_info));
-				retval = send(g_sock, buf, BUFSIZE, 0);
-				if (retval == SOCKET_ERROR) {
-					MessageBoxW(g_hWnd, L"send()", L"send() - cs_move", MB_OK);
-					exit(1);
-				}
-				m_dwUpdatecnt = 0;
-			}
-
-			cout << "cs_move" << endl;
-		}
+		// 서버에게 정보 전송
+		SendingToServer(&xmf3Position, &xmf3Look, &xmf3Right);
 	}
 }
 
 
+void CGameFramework::SendingToServer(XMFLOAT3* pPos, XMFLOAT3* pLook, XMFLOAT3* pRight)
+{
+	XMFLOAT3 xmf3Position = *pPos, xmf3Look = *pLook, xmf3Right = *pRight;
+
+	/// 0703 : send thread를 만들어야 될 것 같아,, 렉 보완 문제는 일단 보류
+// 정보 전송
+	m_dwUpdatecnt++;
+	int as = m_pPlayer->GetAnimationSet_child();
+	// cout << "as : " << as << endl;
+	if (g_myinfo.connected == true && m_dwUpdatecnt >= 3) {
+		//if (as == 0 && g_myinfo.type == player_doggy)D
+		//	return;
+		//else
+		{ // 우선 도기만 애니메이션 run, jump가 있기 때문에 이렇게 짜야 함
+			player_info playerinfo;
+			playerinfo.id = g_myinfo.id;
+			playerinfo.x = xmf3Position.x; playerinfo.y = xmf3Position.y; playerinfo.z = xmf3Position.z;
+			playerinfo.type = g_myinfo.type;
+			playerinfo.animationSet = g_myinfo.animationSet;
+			playerinfo.l_x = xmf3Look.x; playerinfo.l_y = xmf3Look.y; playerinfo.l_z = xmf3Look.z;
+			playerinfo.r_x = xmf3Right.x; playerinfo.r_y = xmf3Right.y; playerinfo.r_z = xmf3Right.z;
+			playerinfo.piggybackstate = m_pPlayer->GetPiggyBackState();
+			int retval;
+			/// 고정
+			packet_info packetinfo;
+			packetinfo.type = cs_move;
+			packetinfo.size = sizeof(player_info);
+			packetinfo.id = g_myinfo.id;
+			char buf[BUFSIZE];
+			memcpy(buf, &packetinfo, sizeof(packetinfo));
+			/// 가변 (고정 데이터에 가변 데이터 붙이는 형식으로)
+			memcpy(buf + sizeof(packetinfo), &playerinfo, sizeof(player_info));
+			retval = send(g_sock, buf, BUFSIZE, 0);
+			if (retval == SOCKET_ERROR) {
+				MessageBoxW(g_hWnd, L"send()", L"send() - cs_move", MB_OK);
+				exit(1);
+			}
+			m_dwUpdatecnt = 0;
+		}
+	}
+}
+
+void CGameFramework::CreateSceneScreenVec()
+{
+	CSceneScreen* pscenescreen_menu = new CSceneScreen(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 400, 290, m_pCamera->GetRoatMatrix(), L"Model/Textures/UI_Main.tiff");
+	m_SceneScreenVec.emplace_back(pscenescreen_menu);
+
+	CSceneScreen* pscenescreen_duckylobby = new CSceneScreen(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 400, 290, m_pCamera->GetRoatMatrix(), L"Model/Textures/UI_DuckyRobby.tiff");
+	m_SceneScreenVec.emplace_back(pscenescreen_duckylobby);
+
+	CSceneScreen* pscenescreen_doggylobby = new CSceneScreen(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 400, 290, m_pCamera->GetRoatMatrix(), L"Model/Textures/UI_DoggyRobby.tiff");
+	m_SceneScreenVec.emplace_back(pscenescreen_doggylobby);
+
+	CSceneScreen* pscenescreen_duckydoggyconnect = new CSceneScreen(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 400, 290, m_pCamera->GetRoatMatrix(), L"Model/Textures/UI_Connect.tiff");
+	m_SceneScreenVec.emplace_back(pscenescreen_duckydoggyconnect);
+
+	CSceneScreen* pscenescreen_gamestart = new CSceneScreen(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 400, 290, m_pCamera->GetRoatMatrix(), L"Model/Textures/UI_GameStart.tiff");
+	m_SceneScreenVec.emplace_back(pscenescreen_gamestart);
+
+	CSceneScreen* pscenescreen_manual = new CSceneScreen(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 400, 290, m_pCamera->GetRoatMatrix(), L"Model/Textures/UI_Manual.tiff");
+	m_SceneScreenVec.emplace_back(pscenescreen_manual);
+
+	// m_pSceneScreen = new CSceneScreen(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 400, 290, m_pCamera->GetRoatMatrix(), L"Model/Textures/UI_Main.tiff");
+}

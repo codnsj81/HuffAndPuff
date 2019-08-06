@@ -42,6 +42,9 @@ public:
 
 	void WaitForGpuComplete();
 	void MoveToNextFrame();
+	void CreateSceneScreenVec();
+
+	void SendingToServer(XMFLOAT3* pPos, XMFLOAT3* pLook, XMFLOAT3* pRight);
 
 	void OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	void OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
@@ -65,6 +68,7 @@ private:
 	HWND						m_hWnd; 
 
 	list<CUI*>					*m_UIList;
+	vector<CGameObject*> m_SceneScreenVec;
 	int							m_nWndClientWidth;
 	int							m_nWndClientHeight;
         

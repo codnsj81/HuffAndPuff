@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "SoundMgr.h"
+#include "../Headers/Define.h"
 
 CSoundMgr* CSoundMgr::m_pInstance = NULL;
 
@@ -45,7 +46,7 @@ void CSoundMgr::LoadSoundFile(void)
 {
 	FMOD_RESULT FResult;
 	FMOD_SOUND* pSound = nullptr;
-	for (int i = 0; i < 11; i++) {
+	for (int i = 0; i < SOUND_COUNT; i++) {
 		wchar_t* pwstring = new wchar_t[100];
 		wsprintf(pwstring, L"Sound/Sound%d.mp3", i);
 		// wchar_t to char

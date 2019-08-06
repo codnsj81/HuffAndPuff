@@ -163,9 +163,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 				if (PtInRect(&rcDucky, pt)) {
 					// 더기로 접속
+					g_scene = scene_duckylobby;
 					g_myinfo.type = player_ducky;
 					DialogBox(ghAppInstance, MAKEINTRESOURCE(IDD_DIALOG_NETWORK), hWnd, Dlg_InitNetwork_Prog);
-					g_scene = scene_duckylobby;
 
 					// 사운드
 					SOUNDMGR->StopSoundAll();
@@ -173,9 +173,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				}
 				if (PtInRect(&rcDoggy, pt)) {
 					// 도기로 접속
+					g_scene = scene_doggylobby;
 					g_myinfo.type = player_doggy;
 					DialogBox(ghAppInstance, MAKEINTRESOURCE(IDD_DIALOG_NETWORK), hWnd, Dlg_InitNetwork_Prog);
-					g_scene = scene_doggylobby;
 					// 사운드
 					SOUNDMGR->StopSoundAll();
 					SOUNDMGR->PlayBGM(L"Sound/Sound11.mp3", CHANNEL_BGM, 1.f);
@@ -452,6 +452,12 @@ DWORD __stdcall RecvThread(LPVOID arg)
 		break;
 		case sc_put_player:
 		{
+			// 더기도기 모두 접속한 상태.
+			g_scene = scene_duckydoggyconnect;
+
+			SOUNDMGR->StopSoundAll();
+			SOUNDMGR->PlayBGM(L"Sound/Sound0.mp3", CHANNEL_BGM, 1.f);
+
 			// int id = packetinfo.id; // 새로 접속했거나 이미 있던 클라이언트를 추가하기 위해, id를 받아온다.
 			g_otherinfo.connected = true;
 			memcpy(&(g_otherinfo), buf + sizeof(packetinfo), sizeof(g_otherinfo));
@@ -470,6 +476,7 @@ DWORD __stdcall RecvThread(LPVOID arg)
 					XMFLOAT3{ g_otherinfo.l_x , g_otherinfo.l_y, g_otherinfo.l_z },
 					XMFLOAT3{ g_otherinfo.r_x , g_otherinfo.r_y, g_otherinfo.r_z });
 			}
+
 		}
 		break;
 		case sc_snake_is_dead:

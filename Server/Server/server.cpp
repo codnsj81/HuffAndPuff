@@ -159,7 +159,7 @@ int main(int argc, char *argv[])
 			// (가변)
 			memcpy(buf + sizeof(packetinfo), &(clients[new_id].playerinfo), sizeof(player_info));
 			// 전송
-			send_packet(new_id, buf);
+			send_packet(i, buf);
 
 		}
 

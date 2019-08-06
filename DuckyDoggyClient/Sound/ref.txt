@@ -27,3 +27,9 @@ Sound9.wav - Dungeon And Fighter Hit
 Sound10.mp3 - CrazyArcade Village
 Sound11.mp3 - CrazyArcade Lobby2
 
+<Select>
+Sound12.mp3 - TalesWeaver Select
+Sound14.mp3 - StoneAge sam_01
+
+<Ending>
+Sound13.mp3 - Kirby Ending

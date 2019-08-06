@@ -165,20 +165,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					// 더기로 접속
 					g_myinfo.type = player_ducky;
 					DialogBox(ghAppInstance, MAKEINTRESOURCE(IDD_DIALOG_NETWORK), hWnd, Dlg_InitNetwork_Prog);
-					g_scene = scene_stage1;
+					g_scene = scene_duckylobby;
 
 					// 사운드
 					SOUNDMGR->StopSoundAll();
-					SOUNDMGR->PlayBGM(L"Sound/Sound0.mp3", CHANNEL_BGM, 1.f);
+					SOUNDMGR->PlayBGM(L"Sound/Sound11.mp3", CHANNEL_BGM, 1.f);
 				}
 				if (PtInRect(&rcDoggy, pt)) {
 					// 도기로 접속
 					g_myinfo.type = player_doggy;
 					DialogBox(ghAppInstance, MAKEINTRESOURCE(IDD_DIALOG_NETWORK), hWnd, Dlg_InitNetwork_Prog);
-					g_scene = scene_stage1;
+					g_scene = scene_doggylobby;
 					// 사운드
 					SOUNDMGR->StopSoundAll();
-					SOUNDMGR->PlayBGM(L"Sound/Sound0.mp3", CHANNEL_BGM, 1.f);
+					SOUNDMGR->PlayBGM(L"Sound/Sound11.mp3", CHANNEL_BGM, 1.f);
 				}
 				if (PtInRect(&rcKey, pt)) {
 					// 조작법 

@@ -933,7 +933,7 @@ void CGameFramework::FrameAdvance()
 
 	m_GameTimer.Tick(0.0f);
 	ProcessInput();
-	if (g_scene == scene_menu) {
+	if (g_scene == scene_menu || g_scene == scene_doggylobby || g_scene == scene_duckylobby || g_scene == scene_duckydoggyconnect || g_scene == scene_gamestart) {
 		HRESULT hResult = m_pd3dCommandAllocator->Reset();
 		hResult = m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
 

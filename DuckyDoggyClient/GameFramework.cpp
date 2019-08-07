@@ -933,7 +933,7 @@ void CGameFramework::FrameAdvance()
 
 	m_GameTimer.Tick(0.0f);
 	ProcessInput();
-	if (g_scene == scene_menu || g_scene == scene_doggylobby || g_scene == scene_duckylobby || g_scene == scene_duckydoggyconnect || g_scene == scene_gamestart) {
+	if (g_scene == scene_menu || g_scene == scene_doggylobby || g_scene == scene_duckylobby || g_scene == scene_duckydoggyconnect || g_scene == scene_gamestart || g_scene == scene_manual) {
 		HRESULT hResult = m_pd3dCommandAllocator->Reset();
 		hResult = m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
 
@@ -1148,7 +1148,7 @@ void CGameFramework::SendingToServer(XMFLOAT3* pPos, XMFLOAT3* pLook, XMFLOAT3* 
 	int as = m_pPlayer->GetAnimationSet_child();
 	// cout << "as : " << as << endl;
 	if (g_myinfo.connected == true && m_dwUpdatecnt >= 3) {
-		//if (as == 0 && g_myinfo.type == player_doggy)D
+		//if (as == 0 && g_myinfo.type == player_doggy)
 		//	return;
 		//else
 		{ // 우선 도기만 애니메이션 run, jump가 있기 때문에 이렇게 짜야 함

@@ -153,7 +153,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_KEYUP:
 		if (3 == gGameFramework.OnProcessingWindowMessage(hWnd, message, wParam, lParam)) {
 			
-			if (g_scene == scene_menu) {
+			if (g_scene == scene_menu || g_scene == scene_manual) {
 
 				POINT pt;
 				GetCursorPos(&pt);
@@ -162,6 +162,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				RECT rcDucky{ 275, 184, 537, 269 }, rcDoggy{ 271, 296, 537, 373 }, rcKey{309, 434, 509, 513};
 
 				if (PtInRect(&rcDucky, pt)) {
+					SOUNDMGR->OncePlaySound(L"Sound/Sound12.mp3", CHANNEL_EFFECT, 1.f);
 					// 더기로 접속
 					g_scene = scene_duckylobby;
 					g_myinfo.type = player_ducky;
@@ -170,8 +171,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					// 사운드
 					SOUNDMGR->StopSoundAll();
 					SOUNDMGR->PlayBGM(L"Sound/Sound11.mp3", CHANNEL_BGM, 1.f);
+
 				}
 				if (PtInRect(&rcDoggy, pt)) {
+					SOUNDMGR->OncePlaySound(L"Sound/Sound12.mp3", CHANNEL_EFFECT, 1.f);
 					// 도기로 접속
 					g_scene = scene_doggylobby;
 					g_myinfo.type = player_doggy;
@@ -181,7 +184,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					SOUNDMGR->PlayBGM(L"Sound/Sound11.mp3", CHANNEL_BGM, 1.f);
 				}
 				if (PtInRect(&rcKey, pt)) {
+					SOUNDMGR->OncePlaySound(L"Sound/Sound12.mp3", CHANNEL_EFFECT, 1.f);
 					// 조작법 
+					if (g_scene == scene_manual)
+						g_scene = scene_menu;
+					else
+						g_scene = scene_manual;
 				}
 
 

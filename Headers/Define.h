@@ -46,6 +46,6 @@
 #define MONTYPE_TOXANIUM	2
 
 // 사운드 개수
-#define SOUND_COUNT  12
+#define SOUND_COUNT  15
 
 // ----------------------------------

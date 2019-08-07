@@ -461,10 +461,7 @@ DWORD __stdcall RecvThread(LPVOID arg)
 		case sc_put_player:
 		{
 			// 더기도기 모두 접속한 상태.
-			g_scene = scene_duckydoggyconnect;
-
-			SOUNDMGR->StopSoundAll();
-			SOUNDMGR->PlayBGM(L"Sound/Sound0.mp3", CHANNEL_BGM, 1.f);
+			g_scene = scene_gamestart;
 
 			// int id = packetinfo.id; // 새로 접속했거나 이미 있던 클라이언트를 추가하기 위해, id를 받아온다.
 			g_otherinfo.connected = true;

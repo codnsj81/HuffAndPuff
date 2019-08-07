@@ -120,7 +120,8 @@ private:
 
 	// network
 	DWORD					m_dwUpdatecnt = 0;
-
+	float							m_fSceneConnectTime = 0.f;
+	bool							m_bIsSetIdleAnimation = false;
 
 
 	bool								m_bPlaying = true;

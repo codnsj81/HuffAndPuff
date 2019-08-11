@@ -486,6 +486,11 @@ void CScene::TimeCount(float time)
 	}
 }
 
+void CScene::SetBloodScreenState(bool b)
+{
+	m_BloodScreen->bRender = b;
+}
+
 void CScene::ResetObjects()
 {
 	M_MonsterObjectslist.clear();
@@ -1267,6 +1272,9 @@ void CScene::ObjectsCollides()
 				m_pDoggy->SetStun();
 				m_pDoggy->Damage(3);
 				n->SetCollided(true);
+				SOUNDMGR->OncePlaySound(L"Sound/Sound15.mp3", CHANNEL_EFFECT, 1.f);
+
+				m_BloodScreen->bRender = true;
 			}
 		}
 		if (n->getCollision(m_pDucky, false) != COLLIDE_NONE)
@@ -1277,8 +1285,11 @@ void CScene::ObjectsCollides()
 				CreateDamageUI(m_pDoggy, 3);
 				m_pDucky->SetStun();
 				m_pDucky->Damage(3);
+				n->SetCollided(true);
+				SOUNDMGR->OncePlaySound(L"Sound/Sound15.mp3", CHANNEL_EFFECT, 1.f);
+
+				m_BloodScreen->bRender = true;
 			}
-			n->SetCollided(true);
 		}
 
 	}

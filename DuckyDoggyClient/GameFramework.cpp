@@ -648,6 +648,12 @@ void CGameFramework::BuildUI()
 	
 	m_UIList->emplace_back(pTemp);
 
+
+	CSceneScreen* BloodScreen = new CSceneScreen(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 400, 290, m_pCamera->GetRoatMatrix(), L"Model/Textures/Red.tiff");
+	BloodScreen->bRender = false;
+	m_UIList->emplace_back(BloodScreen);
+	m_pScene->m_BloodScreen = BloodScreen;
+
 	m_pCamera->m_UIList = m_UIList;
 
 	m_pOverUI = new CStartUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 4, 4, XMFLOAT3(1999, m_pScene->m_pTerrain->GetHeight(1999, 972), 972), L"Model/Textures/GAMEOVER.tiff");

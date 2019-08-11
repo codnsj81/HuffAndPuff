@@ -56,8 +56,3 @@ void CSceneScreen::Update(float elapsed)
 	if(0/*Á¶°Ç*/)
 		bRender = false;
 }
-void CSceneScreen::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
-{
-
-	CGameObject::Render(pd3dCommandList, pCamera);
-}

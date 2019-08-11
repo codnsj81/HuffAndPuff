@@ -55,7 +55,7 @@ void CSoundMgr::LoadSoundFile(void)
 		pStr = new char[strSize];
 		WideCharToMultiByte(CP_ACP, 0, pwstring, -1, pStr, strSize, 0, 0);
 		//
-		if(i == 6 || i ==9 || i == 12 || i == 14)
+		if(i == 6 || i ==9 || i == 12 || i == 14 || i == 15)
 			 FResult = FMOD_System_CreateSound(m_pSystem, pStr, FMOD_DEFAULT, NULL, &pSound);
 		else
 			FResult = FMOD_System_CreateSound(m_pSystem, pStr, FMOD_LOOP_NORMAL, NULL, &pSound);

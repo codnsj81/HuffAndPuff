@@ -7,6 +7,7 @@
 #include "Shader.h"
 #include "Object.h"
 #include "CUI.h"
+#include "Scene.h"
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CPlayer
 
@@ -513,12 +514,14 @@ void CPlayer::Update(float fTimeElapsed)
 		{
 			m_bDamaging = false;
 			m_fDamagingTime = 0.f;
+			
 		}
 		else if (m_moveState == STATE_STUN && m_fDamagingTime > 4.5f)
 		{
 			m_moveState = STATE_GROUND;
 			m_bDamaging = false;
 			m_fDamagingTime = 0.f;
+			m_pScene->SetBloodScreenState(false);
 			
 		}
 		if (m_iHP < 0)

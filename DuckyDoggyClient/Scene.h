@@ -99,6 +99,9 @@ public:
 	CUI* m_iClockSec1;
 	CUI* m_iClockSec2;
 
+	CSceneScreen* m_BloodScreen = NULL;
+	void SetBloodScreenState(bool b);
+
 	CPlayer								*m_pPlayer = NULL;
 	CPlayer								*m_pDoggy;
 	CPlayer								*m_pDucky;

@@ -571,9 +571,7 @@ void CScene::LoadDash(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3
 		in >> dat.m_pos.x;
 		in >> dat.m_pos.y;
 		in >> dat.m_pos.z;
-		in >> dat.m_rot.x;
-		in >> dat.m_rot.y;
-		in >> dat.m_rot.z;
+		in >> dat.m_rot;
 
 		DashDataList.emplace_back(dat);
 	}
@@ -587,7 +585,8 @@ void CScene::LoadDash(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3
 		obj->SetChild(pOBJ, true);
 		obj->SetHitBox(XMFLOAT3(4,4,4));
 		obj->SetPosition(iter->m_pos.x, iter->m_pos.y, iter->m_pos.z);
-		//	obj->Rotate(0, RandomRotate, 0);
+		//Vector3::Normalize(iter->m_rot);
+		obj->Rotate(0, iter->m_rot, 0);
 		m_DashList.push_back(obj);
 	}
 }
@@ -672,9 +671,9 @@ void CScene::PlusDashData()
 	playerPos.m_pos.x = m_pPlayer->GetPosition().x;
 	playerPos.m_pos.y = m_pPlayer->GetPosition().y;
 	playerPos.m_pos.z = m_pPlayer->GetPosition().z;
-	playerPos.m_rot.x = m_pPlayer->GetLookVector().x;
-	playerPos.m_rot.y = m_pPlayer->GetLookVector().y;
-	playerPos.m_rot.z = m_pPlayer->GetLookVector().z;
+	XMFLOAT3 look = Vector3::Normalize( m_pPlayer->GetLookVector());
+	
+	playerPos.m_rot = 10;
 	DashDataList.push_back(playerPos);
 }
 
@@ -684,7 +683,7 @@ void CScene::SaveDashData()
 	for (auto n : DashDataList)
 	{
 		out << n.m_pos.x << " " << n.m_pos.y + 0.1f << " " << n.m_pos.z << " "
-			<< n.m_rot.x << " "<< n.m_rot.y<< " " << n.m_rot.z << endl;
+			<< n.m_rot<< endl;
 	}
 }
 

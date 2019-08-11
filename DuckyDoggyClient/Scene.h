@@ -29,7 +29,7 @@ struct StoneInfo
 struct DashInfo
 {
 	XMFLOAT3		m_pos;
-	XMFLOAT3		m_rot;
+	int		m_rot;
 };
 struct LIGHT
 {

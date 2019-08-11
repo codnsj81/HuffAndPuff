@@ -42,6 +42,7 @@ CSceneScreen::~CSceneScreen()
 
 void CSceneScreen::MoveToCamera(CCamera* cameramat)
 {
+	SetPosition(cameramat->GetPosition());
 	m_xmf4x4ToParent = cameramat->GetRoatMatrix();
 	SetPosition(cameramat->GetPosition());
 	MoveForward(230);

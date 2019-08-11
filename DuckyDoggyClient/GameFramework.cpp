@@ -346,10 +346,10 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 					break;
 				case 't':
 				case 'T':
-					m_pScene->PlusDashData();
+					m_pScene->PlusTrapData();
 					break;
 				case 'Y':
-					m_pScene->SaveDashData();
+					m_pScene->SaveTrapData();
 					break;
 				case 'O':
 				case 'o': // HP full, 카메라 위로
@@ -701,9 +701,9 @@ void CGameFramework::BuildPlayers()
 {
 	m_pDoggy = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), "Model/doggy.bin", PLAYER_KIND_DOGGY, true, m_pScene->m_pTerrain);
 
-	//m_pDoggy->SetPosition(XMFLOAT3(INITPOSITION_X,
-		//m_pScene->m_pTerrain->GetHeight(INITPOSITION_X, INITPOSITION_Z), INITPOSITION_Z)); //시작위치
-	m_pDoggy->SetPosition(XMFLOAT3(1394, m_pScene->m_pTerrain->GetHeight(1394,1363 ), 1363)); //물 확인용
+	m_pDoggy->SetPosition(XMFLOAT3(INITPOSITION_X,
+		m_pScene->m_pTerrain->GetHeight(INITPOSITION_X, INITPOSITION_Z), INITPOSITION_Z)); //시작위치
+	//m_pDoggy->SetPosition(XMFLOAT3(1394, m_pScene->m_pTerrain->GetHeight(1394,1363 ), 1363)); //물 확인용
 	m_pDoggy->SetHitBox(XMFLOAT3(5.f, 5.f, 5.f));
 	m_pDoggy->SetScale(XMFLOAT3(4.f, 4.f, 4.f));
 	m_pDoggy->Rotate(0, 80, 0);
@@ -980,7 +980,7 @@ void CGameFramework::FrameAdvance()
 		if (m_pScene) m_pScene->Render(m_pd3dCommandList, m_pCamera);
 		// 스크린 렌더
 		int screenindex = (int)g_scene;
-		dynamic_cast<CSceneScreen*>(m_SceneScreenVec[screenindex])->MoveToCamera(m_pCamera);
+	//	dynamic_cast<CSceneScreen*>(m_SceneScreenVec[screenindex])->MoveToCamera(m_pCamera);
 		m_SceneScreenVec[screenindex]->Update();
 		m_SceneScreenVec[screenindex]->UpdateTransform(NULL);
 		m_SceneScreenVec[screenindex]->Render(m_pd3dCommandList, m_pCamera);

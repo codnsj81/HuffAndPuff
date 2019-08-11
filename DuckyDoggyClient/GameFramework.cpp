@@ -701,9 +701,9 @@ void CGameFramework::BuildPlayers()
 {
 	m_pDoggy = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), "Model/doggy.bin", PLAYER_KIND_DOGGY, true, m_pScene->m_pTerrain);
 
-	m_pDoggy->SetPosition(XMFLOAT3(INITPOSITION_X,
-		m_pScene->m_pTerrain->GetHeight(INITPOSITION_X, INITPOSITION_Z), INITPOSITION_Z)); //시작위치
-	//m_pDoggy->SetPosition(XMFLOAT3(1394, m_pScene->m_pTerrain->GetHeight(1394,1363 ), 1363)); //물 확인용
+	//m_pDoggy->SetPosition(XMFLOAT3(INITPOSITION_X,
+		//m_pScene->m_pTerrain->GetHeight(INITPOSITION_X, INITPOSITION_Z), INITPOSITION_Z)); //시작위치
+	m_pDoggy->SetPosition(XMFLOAT3(1394, m_pScene->m_pTerrain->GetHeight(1394,1363 ), 1363)); //물 확인용
 	m_pDoggy->SetHitBox(XMFLOAT3(5.f, 5.f, 5.f));
 	m_pDoggy->SetScale(XMFLOAT3(4.f, 4.f, 4.f));
 	m_pDoggy->Rotate(0, 80, 0);
@@ -939,7 +939,7 @@ void CGameFramework::FrameAdvance()
 
 	m_GameTimer.Tick(0.0f);
 	ProcessInput();
-	if (g_scene == scene_menu || g_scene == scene_doggylobby || g_scene == scene_duckylobby || g_scene == scene_duckydoggyconnect || g_scene == scene_gamestart || g_scene == scene_manual) {
+	if (g_scene == scene_menu || g_scene == scene_doggylobby || g_scene == scene_duckylobby || g_scene == scene_duckydoggyconnect || g_scene == scene_gamestart || g_scene == scene_manual || g_scene == scene_success) {
 		if (g_scene == scene_gamestart) {
 			// 일정 시간 지나면 Stage1로 진입
 			m_fSceneConnectTime += m_GameTimer.GetTimeElapsed();
@@ -980,6 +980,7 @@ void CGameFramework::FrameAdvance()
 		if (m_pScene) m_pScene->Render(m_pd3dCommandList, m_pCamera);
 		// 스크린 렌더
 		int screenindex = (int)g_scene;
+		dynamic_cast<CSceneScreen*>(m_SceneScreenVec[screenindex])->MoveToCamera(m_pCamera->GetRoatMatrix());
 		m_SceneScreenVec[screenindex]->UpdateTransform(NULL);
 		m_SceneScreenVec[screenindex]->Render(m_pd3dCommandList, m_pCamera);
 
@@ -1135,7 +1136,7 @@ void CGameFramework::FrameAdvance()
 				m_bPlaying = true;
 				m_pDoggy->SetFullHP();
 				m_pDucky->SetFullHP();
-				m_pScene->ResetObjects();
+				g_scene = scene_success;
 
 			}
 		}
@@ -1243,6 +1244,9 @@ void CGameFramework::CreateSceneScreenVec()
 
 	CSceneScreen* pscenescreen_manual = new CSceneScreen(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 400, 290, m_pCamera->GetRoatMatrix(), L"Model/Textures/UI_Manual.tiff");
 	m_SceneScreenVec.emplace_back(pscenescreen_manual);
+
+		CSceneScreen* pscenescreen_success = new CSceneScreen(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 400, 290, m_pCamera->GetRoatMatrix(), L"Model/Textures/UI_Success.tiff");
+	m_SceneScreenVec.emplace_back(pscenescreen_success);
 
 	// m_pSceneScreen = new CSceneScreen(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 400, 290, m_pCamera->GetRoatMatrix(), L"Model/Textures/UI_Main.tiff");
 }

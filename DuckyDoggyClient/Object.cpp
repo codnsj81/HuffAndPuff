@@ -402,7 +402,7 @@ void CAnimationController::SetAnimationSet(int nAnimationSet)
 			m_pAnimationSets[2].m_fSpeed = 0.6f;
 			SetLoop(false);
 		}
-		else if( m_iPlayerKind == PLAYER_KIND_DOGGY)
+		else 
 		{
 			SetLoop(true);
 		}

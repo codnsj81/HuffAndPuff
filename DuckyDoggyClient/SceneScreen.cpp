@@ -39,6 +39,14 @@ CSceneScreen::~CSceneScreen()
 {
 }
 
+void CSceneScreen::MoveToCamera(XMFLOAT4X4 cameramat)
+{
+	m_xmf4x4ToParent = cameramat;
+	MoveForward(230);
+	MoveUp(-15);
+	Rotate(90, 0, 0);
+}
+
 void CSceneScreen::SetTexture(CTexture* tex)
 {
 	m_ppMaterials[0]->SetTexture(tex, 0);

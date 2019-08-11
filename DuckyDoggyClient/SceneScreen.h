@@ -12,6 +12,7 @@ public:
 	~CSceneScreen();
 
 public:
+	void MoveToCamera(XMFLOAT4X4 cameramat);
 	void SetTexture(CTexture* tex);
 	void SetWinpos(float x, float y);
 	void Update(float elapsed);

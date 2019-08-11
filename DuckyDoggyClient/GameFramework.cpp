@@ -939,7 +939,7 @@ void CGameFramework::FrameAdvance()
 
 	m_GameTimer.Tick(0.0f);
 	ProcessInput();
-	if (g_scene == scene_menu || g_scene == scene_doggylobby || g_scene == scene_duckylobby || g_scene == scene_duckydoggyconnect || g_scene == scene_gamestart || g_scene == scene_manual || g_scene == scene_success) {
+	if (g_scene == scene_menu || g_scene == scene_doggylobby || g_scene == scene_duckylobby || g_scene == scene_duckydoggyconnect || g_scene == scene_gamestart || g_scene == scene_manual ) {
 		if (g_scene == scene_gamestart) {
 			// 일정 시간 지나면 Stage1로 진입
 			m_fSceneConnectTime += m_GameTimer.GetTimeElapsed();
@@ -967,7 +967,7 @@ void CGameFramework::FrameAdvance()
 		D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_pd3dRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 		d3dRtvCPUDescriptorHandle.ptr += (m_nSwapChainBufferIndex * m_nRtvDescriptorIncrementSize);
 
-		float pfClearColor[4] = {1.0f, 0.f, 0.f, 1.0f };
+		float pfClearColor[4] = {1.0f, 1.f, 1.f, 1.0f };
 		m_pd3dCommandList->ClearRenderTargetView(d3dRtvCPUDescriptorHandle, pfClearColor/*Colors::Azure*/, 0, NULL);
 
 		D3D12_CPU_DESCRIPTOR_HANDLE d3dDsvCPUDescriptorHandle = m_pd3dDsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
@@ -980,7 +980,8 @@ void CGameFramework::FrameAdvance()
 		if (m_pScene) m_pScene->Render(m_pd3dCommandList, m_pCamera);
 		// 스크린 렌더
 		int screenindex = (int)g_scene;
-		dynamic_cast<CSceneScreen*>(m_SceneScreenVec[screenindex])->MoveToCamera(m_pCamera->GetRoatMatrix());
+		dynamic_cast<CSceneScreen*>(m_SceneScreenVec[screenindex])->MoveToCamera(m_pCamera);
+		m_SceneScreenVec[screenindex]->Update();
 		m_SceneScreenVec[screenindex]->UpdateTransform(NULL);
 		m_SceneScreenVec[screenindex]->Render(m_pd3dCommandList, m_pCamera);
 
@@ -1016,7 +1017,7 @@ void CGameFramework::FrameAdvance()
 
 
 	}
-	else if (g_scene == scene_stage1) {
+	else if (g_scene == scene_stage1 || g_scene == scene_success) {
 	
 
 		AnimateObjects();
@@ -1045,7 +1046,7 @@ void CGameFramework::FrameAdvance()
 
 		m_pd3dCommandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, TRUE, &d3dDsvCPUDescriptorHandle);
 
-		if (m_pScene) m_pScene->Update(m_GameTimer.GetTimeElapsed());
+		if (m_pScene && g_scene == scene_stage1) m_pScene->Update(m_GameTimer.GetTimeElapsed());
 		if (m_pScene) m_pScene->Render(m_pd3dCommandList, m_pCamera);
 
 		//m_pSceneScreen->Render(m_pd3dCommandList, m_pCamera);
@@ -1070,6 +1071,7 @@ void CGameFramework::FrameAdvance()
 
 
 		//UI렌더
+		if(g_scene == scene_stage1)
 		for (auto a : *m_UIList)
 		{
 			(a)->Update(m_GameTimer.GetTimeElapsed());
@@ -1080,6 +1082,18 @@ void CGameFramework::FrameAdvance()
 
 		if (m_pOverUI->bRender)
 			m_pOverUI->Render(m_pd3dCommandList, m_pCamera);
+
+		if (g_scene == scene_success)
+		{
+			// 스크린 렌더
+			int screenindex = (int)g_scene;
+			dynamic_cast<CSceneScreen*>(m_SceneScreenVec[screenindex])->MoveToCamera(m_pCamera);
+			m_SceneScreenVec[screenindex]->Update();
+			m_SceneScreenVec[screenindex]->UpdateTransform(NULL);
+			m_SceneScreenVec[screenindex]->Render(m_pd3dCommandList, m_pCamera);
+
+
+		}
 
 		d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
 		d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
@@ -1140,6 +1154,7 @@ void CGameFramework::FrameAdvance()
 
 			}
 		}
+
 
 		m_GameTimer.GetFrameRate(m_pszFrameRate + 12, 37);
 		size_t nLength = _tcslen(m_pszFrameRate);
@@ -1245,7 +1260,7 @@ void CGameFramework::CreateSceneScreenVec()
 	CSceneScreen* pscenescreen_manual = new CSceneScreen(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 400, 290, m_pCamera->GetRoatMatrix(), L"Model/Textures/UI_Manual.tiff");
 	m_SceneScreenVec.emplace_back(pscenescreen_manual);
 
-		CSceneScreen* pscenescreen_success = new CSceneScreen(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 400, 290, m_pCamera->GetRoatMatrix(), L"Model/Textures/UI_Success.tiff");
+		CSceneScreen* pscenescreen_success = new CSceneScreen(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 275, 200, m_pCamera->GetRoatMatrix(), L"Model/Textures/UI_Success.tiff");
 	m_SceneScreenVec.emplace_back(pscenescreen_success);
 
 	// m_pSceneScreen = new CSceneScreen(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 400, 290, m_pCamera->GetRoatMatrix(), L"Model/Textures/UI_Main.tiff");

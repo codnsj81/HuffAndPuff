@@ -4,6 +4,7 @@
 #include "CUI.h"
 
 class CShader;
+class CCamera;
 class CSceneScreen : public CUI 
 {
 public:
@@ -12,7 +13,7 @@ public:
 	~CSceneScreen();
 
 public:
-	void MoveToCamera(XMFLOAT4X4 cameramat);
+	void MoveToCamera(CCamera* cameramat);
 	void SetTexture(CTexture* tex);
 	void SetWinpos(float x, float y);
 	void Update(float elapsed);

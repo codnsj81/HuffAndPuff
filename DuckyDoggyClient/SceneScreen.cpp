@@ -2,6 +2,7 @@
 #include "SceneScreen.h"
 #include "Shader.h"
 #include "Scene.h"
+#include "Camera.h"
 
 CSceneScreen::CSceneScreen(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, float nWidth, float nLength, XMFLOAT4X4 cameramat, wchar_t* pFilename)
 {
@@ -39,11 +40,12 @@ CSceneScreen::~CSceneScreen()
 {
 }
 
-void CSceneScreen::MoveToCamera(XMFLOAT4X4 cameramat)
+void CSceneScreen::MoveToCamera(CCamera* cameramat)
 {
-	m_xmf4x4ToParent = cameramat;
+	m_xmf4x4ToParent = cameramat->GetRoatMatrix();
+	SetPosition(cameramat->GetPosition());
 	MoveForward(230);
-	MoveUp(-15);
+	//MoveUp(-15);
 	Rotate(90, 0, 0);
 }
 

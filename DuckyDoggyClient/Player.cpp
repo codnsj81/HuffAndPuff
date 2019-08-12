@@ -149,16 +149,8 @@ void CPlayer::SetRightVector(XMFLOAT3 xmf3Right)
 
 void CPlayer::SetCheatMode()
 {
-	if (m_bCheatmode)
-	{
-		m_bCheatmode = false;
-		m_fSpeed = 5.f;
-	}
-	else
-	{
-		m_bCheatmode = true;
-		m_fSpeed = 5.f;
-	}
+
+	m_moveState = STATE_CHEAT;
 }
 
 void CPlayer::Damage(int d)
@@ -277,14 +269,24 @@ void CPlayer::Move( XMFLOAT3 xmf3Shift, bool bUpdateVelocity)
 	else
 	{
 		CHeightMapTerrain *pTerrain = (CHeightMapTerrain *)m_pPlayerUpdatedContext;
+		if (!pTerrain) return;
+
+		XMFLOAT3 xmf3Scale = pTerrain->GetScale();
+		m_predictedPos = Vector3::Add(m_xmf3Position, xmf3Shift);
+		int z = (int)(m_predictedPos.z / xmf3Scale.z);
+		bool bReverseQuad = ((z % 2) != 0);
+		float fHeight = pTerrain->GetHeight(m_predictedPos.x, m_predictedPos.z, bReverseQuad) + 0.0f;
+
+
+		if (m_moveState == STATE_CHEAT)
+		{
+			m_xmf3Position = Vector3::Add(m_xmf3Position, xmf3Shift);
+			m_pCamera->Move(xmf3Shift);
+		}
+
 		if (pTerrain && m_fPreHeight != 0)
 		{
-			XMFLOAT3 xmf3Scale = pTerrain->GetScale();
-			m_predictedPos = Vector3::Add(m_xmf3Position, xmf3Shift);
-			int z = (int)(m_predictedPos.z / xmf3Scale.z);
-			bool bReverseQuad = ((z % 2) != 0);
-			float fHeight = pTerrain->GetHeight(m_predictedPos.x, m_predictedPos.z, bReverseQuad) + 0.0f;
-
+			
 			if (xmf3Shift.y > 0.1f) {
 				int a = 2;
 			}
@@ -431,10 +433,10 @@ void CPlayer::Update(float fTimeElapsed)
 		m_xmf3Look = m_pParter->GetLookVector();
 		m_xmf3Right = m_pParter->GetRightVector();
 	}
-	else
+	else 
 	{
 		float fDistance = 0;
-		if (m_moveState != STATE_GROUND && m_moveState != STATE_ONOBJECTS && m_moveState != STATE_STUN )
+		if (m_moveState != STATE_CHEAT && m_moveState != STATE_GROUND && m_moveState != STATE_ONOBJECTS && m_moveState != STATE_STUN )
 		{
 			m_fTime += fTimeElapsed;
 			fDistance = 30.f - 90.f * m_fTime ;
@@ -815,7 +817,7 @@ void CTerrainPlayer::OnPlayerUpdateCallback(float fTimeElapsed)
 	if (xmf3PlayerPosition.y < fHeight)
 	{
 		m_fTime = 0;
-		if (m_moveState != STATE_GROUND && m_moveState != STATE_STUN)
+		if (m_moveState != STATE_GROUND && m_moveState != STATE_STUN && m_moveState != STATE_CHEAT)
 		{
 			m_iJumpnum = 0;
 			m_moveState = STATE_GROUND;

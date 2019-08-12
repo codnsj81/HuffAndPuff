@@ -53,8 +53,8 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 {
 //#ifdef _DEBUG
 //	// api에서 콘솔창 띄우기.
-	if (AllocConsole())
-		freopen("CONOUT$", "w", stdout);
+	//if (AllocConsole())
+	//	freopen("CONOUT$", "w", stdout);
 //#endif
 
 	UNREFERENCED_PARAMETER(hPrevInstance);

@@ -1309,7 +1309,8 @@ void CScene::ObjectsCollides()
 				n->SetCollided(true);
 				SOUNDMGR->OncePlaySound(L"Sound/Sound15.mp3", CHANNEL_EFFECT, 1.f);
 
-				m_BloodScreen->bRender = true;
+				if(g_myinfo.type == player_doggy)
+					m_BloodScreen->bRender = true;
 			}
 		}
 		if (n->getCollision(m_pDucky, false) != COLLIDE_NONE)
@@ -1323,7 +1324,8 @@ void CScene::ObjectsCollides()
 				n->SetCollided(true);
 				SOUNDMGR->OncePlaySound(L"Sound/Sound15.mp3", CHANNEL_EFFECT, 1.f);
 
-				m_BloodScreen->bRender = true;
+				if (g_myinfo.type == player_ducky)
+					m_BloodScreen->bRender = true;
 			}
 		}
 

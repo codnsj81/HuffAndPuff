@@ -1161,7 +1161,7 @@ void CGameFramework::SendingToServer(XMFLOAT3* pPos, XMFLOAT3* pLook, XMFLOAT3* 
 	int as = m_pPlayer->GetAnimationSet_child();
 	int ps = m_pPlayer->GetPiggyBackState();
 	// cout << "as : " << as << endl;
-	if (g_myinfo.connected == true && m_dwUpdatecnt >= 5) {
+	if (g_myinfo.connected == true && m_dwUpdatecnt >= 3) {
 		//if (as != 0) // idle 상태가 아닐 때.
 		//{ 
 			m_bIsSetIdleAnimation = false;
@@ -1190,7 +1190,7 @@ void CGameFramework::SendingToServer(XMFLOAT3* pPos, XMFLOAT3* pLook, XMFLOAT3* 
 				exit(1);
 			}
 			m_dwUpdatecnt = 0;
-			cout << "cs_move" << endl;
+			// cout << "cs_move" << endl;
 		//}
 		//if ((as == 0 && !m_bIsSetIdleAnimation) ) { // idle 상태여도 애니메이션 때문에 최초 한 번은 보내야 해.
  	//		m_bIsSetIdleAnimation = true;

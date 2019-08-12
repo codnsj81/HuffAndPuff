@@ -719,6 +719,7 @@ void CGameFramework::BuildPlayers()
 		m_pScene->m_pTerrain->GetHeight(INITPOSITION_X, INITPOSITION_Z), INITPOSITION_Z));
 	m_pDucky->SetHitBox(XMFLOAT3(5.f, 5.f, 5.f));
 	m_pDucky->Rotate(0, 80, 0);
+
 	//m_pDucky->SetScale(XMFLOAT3(7.0f, 7.0f, 7.0f));
 
 	m_pDucky->SetParter(m_pDoggy);

@@ -1202,6 +1202,8 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 		pd3dCommandList->SetGraphicsRootConstantBufferView(2, d3dcbLightsGpuVirtualAddress); //Lights
 		list<CUI*>::iterator iter = m_UIList->begin();
 		list<CUI*>::iterator iter_end = m_UIList->end();
+		if (m_pDucky) m_pDucky->Render(m_pd3dCommandList, pCamera);
+		if (m_pDoggy) m_pDoggy->Render(m_pd3dCommandList, pCamera); 
 		switch (g_scene)
 		{
 		case scene_stage1:
@@ -1215,8 +1217,6 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 				m_ppWaters[i]->Render(m_pd3dCommandList, pCamera);
 			break;
 		}
-		if (m_pDucky) m_pDucky->Render(m_pd3dCommandList, pCamera);
-		if (m_pDoggy) m_pDoggy->Render(m_pd3dCommandList, pCamera); 
 		m_pPlayer->GetNavGuide()->Render(m_pd3dCommandList, pCamera);
 
 

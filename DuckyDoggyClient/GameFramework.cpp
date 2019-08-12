@@ -660,7 +660,7 @@ void CGameFramework::BuildUI()
 	m_pOverUI->SetWinpos(-2.5, 0);
 	(m_pOverUI)->bRender = false;
 	(m_pOverUI)->Trigger = false;
-
+	m_pScene->m_UIList = m_UIList;
 
 }
 
@@ -1054,32 +1054,11 @@ void CGameFramework::FrameAdvance()
 #ifdef _WITH_PLAYER_TOP
 		m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
 #endif
-		if (m_pDucky) m_pDucky->Render(m_pd3dCommandList, m_pCamera);
-		if (m_pDoggy) m_pDoggy->Render(m_pd3dCommandList, m_pCamera);
-		m_pPlayer->GetNavGuide()->Render(m_pd3dCommandList, m_pCamera);
-
-		//water ·»´õ
-		CWater** m_ppWaters = m_pScene->GetWaters();
-		for (int i = 0; i < 2; i++)
-		{
-			if (m_ppWaters[i])
-			{
-				m_ppWaters[i]->Animate(m_GameTimer.GetTimeElapsed());
-				m_ppWaters[i]->Render(m_pd3dCommandList, m_pCamera);
-
-			}
-		}
-
+		//if (m_pDucky) m_pDucky->Render(m_pd3dCommandList, m_pCamera);
+		//if (m_pDoggy) m_pDoggy->Render(m_pd3dCommandList, m_pCamera);
+		//m_pPlayer->GetNavGuide()->Render(m_pd3dCommandList, m_pCamera);
 
 		//UI·»´õ
-		if(g_scene == scene_stage1)
-		for (auto a : *m_UIList)
-		{
-			(a)->Update(m_GameTimer.GetTimeElapsed());
-			if (a->bRender)
-				a->Render(m_pd3dCommandList, m_pCamera);
-		}
-
 
 		if (m_pOverUI->bRender)
 			m_pOverUI->Render(m_pd3dCommandList, m_pCamera);
@@ -1123,7 +1102,7 @@ void CGameFramework::FrameAdvance()
 #endif
 #endif
 
-		//	m_nSwapChainBufferIndex = m_pdxgiSwapChain->GetCurrentBackBufferIndex();
+			m_nSwapChainBufferIndex = m_pdxgiSwapChain->GetCurrentBackBufferIndex();
 		MoveToNextFrame();
 
 

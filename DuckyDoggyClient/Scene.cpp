@@ -201,6 +201,19 @@ void CScene::Update(float fTime)
 {
 
 		ObjectsCollides();
+		for (auto a : *m_UIList)
+		{
+			(a)->Update(fTime);
+		}
+
+		for (int i = 0; i < 2; i++)
+		{
+			if (m_ppWaters[i])
+			{
+				m_ppWaters[i]->Animate(fTime);
+
+			}
+		}
 		TimeCount(fTime);
 }
 
@@ -805,6 +818,15 @@ void CScene::RenderStage1(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* p
 
 		}
 	}
+	for (int i = 0; i < 2; i++)
+	{
+		if (m_ppWaters[i])
+		{
+			m_ppWaters[i]->Render(m_pd3dCommandList, pCamera);
+
+		}
+	}
+
 }
 
 void CScene::CreateDamageUI(CPlayer * pPlayer, int dam)
@@ -1178,14 +1200,26 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 
 		D3D12_GPU_VIRTUAL_ADDRESS d3dcbLightsGpuVirtualAddress = m_pd3dcbLights->GetGPUVirtualAddress();
 		pd3dCommandList->SetGraphicsRootConstantBufferView(2, d3dcbLightsGpuVirtualAddress); //Lights
-
+		list<CUI*>::iterator iter = m_UIList->begin();
+		list<CUI*>::iterator iter_end = m_UIList->end();
 		switch (g_scene)
 		{
 		case scene_stage1:
 			RenderStage1(pd3dCommandList, pCamera);
+			for (iter; iter!= iter_end ; iter++)
+			{
+				if ((*iter)->bRender)
+					(*iter)->Render(m_pd3dCommandList, pCamera);
+			}
+			for (int i = 0; i < 2; i++)
+				m_ppWaters[i]->Render(m_pd3dCommandList, pCamera);
 			break;
 		}
-		
+		if (m_pDucky) m_pDucky->Render(m_pd3dCommandList, pCamera);
+		if (m_pDoggy) m_pDoggy->Render(m_pd3dCommandList, pCamera); 
+		m_pPlayer->GetNavGuide()->Render(m_pd3dCommandList, pCamera);
+
+
 		for (int i = 0; i < m_nShaders; i++) if (m_ppShaders[i]) m_ppShaders[i]->Render(pd3dCommandList, pCamera);
 }
 

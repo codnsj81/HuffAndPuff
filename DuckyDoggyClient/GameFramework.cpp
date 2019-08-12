@@ -1211,6 +1211,7 @@ void CGameFramework::SendingToServer(XMFLOAT3* pPos, XMFLOAT3* pLook, XMFLOAT3* 
 				exit(1);
 			}
 			m_dwUpdatecnt = 0;
+			cout << "cs_move" << endl;
 		}
 		if ((as == 0 && !m_bIsSetIdleAnimation) ) { // idle 상태여도 애니메이션 때문에 최초 한 번은 보내야 해.
 			m_bIsSetIdleAnimation = true;
@@ -1238,6 +1239,7 @@ void CGameFramework::SendingToServer(XMFLOAT3* pPos, XMFLOAT3* pLook, XMFLOAT3* 
 				exit(1);
 			}
 			m_dwUpdatecnt = 0;
+			cout << "cs_move" << endl;
 		}
 		if ((as == 0 && ps != 0 && !m_bIsSetPiggyState)) {
 			m_bIsSetPiggyState = true;
@@ -1265,6 +1267,7 @@ void CGameFramework::SendingToServer(XMFLOAT3* pPos, XMFLOAT3* pLook, XMFLOAT3* 
 				exit(1);
 			}
 			m_dwUpdatecnt = 0;
+			cout << "cs_move" << endl;
 		}
 
 	}

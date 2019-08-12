@@ -198,6 +198,8 @@ public:
 	list<CTrap*>						m_TrapList;
 	list<CDamageUI*>					m_DamageUIList;
 
+	list<CUI*>* m_UIList;
+
 	int									m_nWaters = 0;
 	CWater								**m_ppWaters = NULL;
 

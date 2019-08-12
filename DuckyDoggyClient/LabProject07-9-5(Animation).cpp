@@ -331,7 +331,7 @@ int InitializeNetwork()
 		exit(1);
 	}
 	else {
-		MessageBoxW(g_hWnd, L"Connected", L"알림", MB_OK);
+		// MessageBoxW(g_hWnd, L"Connected", L"알림", MB_OK);
 		g_myinfo.connected = true;
 
 		bool NoDelay = TRUE;

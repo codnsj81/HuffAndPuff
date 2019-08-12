@@ -1180,11 +1180,13 @@ void CGameFramework::SendingToServer(XMFLOAT3* pPos, XMFLOAT3* pLook, XMFLOAT3* 
 // 정보 전송
 	m_dwUpdatecnt++;
 	int as = m_pPlayer->GetAnimationSet_child();
+	int ps = m_pPlayer->GetPiggyBackState();
 	// cout << "as : " << as << endl;
 	if (g_myinfo.connected == true && m_dwUpdatecnt >= 2) {
 		if (as != 0) // idle 상태가 아닐 때.
 		{ 
 			m_bIsSetIdleAnimation = false;
+			m_bIsSetPiggyState = false;
 			player_info playerinfo;
 			playerinfo.id = g_myinfo.id;
 			playerinfo.x = xmf3Position.x; playerinfo.y = xmf3Position.y; playerinfo.z = xmf3Position.z;
@@ -1210,8 +1212,35 @@ void CGameFramework::SendingToServer(XMFLOAT3* pPos, XMFLOAT3* pLook, XMFLOAT3* 
 			}
 			m_dwUpdatecnt = 0;
 		}
-		if (as == 0 && !m_bIsSetIdleAnimation) { // idle 상태여도 애니메이션 때문에 최초 한 번은 보내야 해.
+		if ((as == 0 && !m_bIsSetIdleAnimation) ) { // idle 상태여도 애니메이션 때문에 최초 한 번은 보내야 해.
 			m_bIsSetIdleAnimation = true;
+			player_info playerinfo;
+			playerinfo.id = g_myinfo.id;
+			playerinfo.x = xmf3Position.x; playerinfo.y = xmf3Position.y; playerinfo.z = xmf3Position.z;
+			playerinfo.type = g_myinfo.type;
+			playerinfo.animationSet = g_myinfo.animationSet;
+			playerinfo.l_x = xmf3Look.x; playerinfo.l_y = xmf3Look.y; playerinfo.l_z = xmf3Look.z;
+			playerinfo.r_x = xmf3Right.x; playerinfo.r_y = xmf3Right.y; playerinfo.r_z = xmf3Right.z;
+			playerinfo.piggybackstate = m_pPlayer->GetPiggyBackState();
+			int retval;
+			/// 고정
+			packet_info packetinfo;
+			packetinfo.type = cs_move;
+			packetinfo.size = sizeof(player_info);
+			packetinfo.id = g_myinfo.id;
+			char buf[BUFSIZE];
+			memcpy(buf, &packetinfo, sizeof(packetinfo));
+			/// 가변 (고정 데이터에 가변 데이터 붙이는 형식으로)
+			memcpy(buf + sizeof(packetinfo), &playerinfo, sizeof(player_info));
+			retval = send(g_sock, buf, BUFSIZE, 0);
+			if (retval == SOCKET_ERROR) {
+				MessageBoxW(g_hWnd, L"send()", L"send() - cs_move", MB_OK);
+				exit(1);
+			}
+			m_dwUpdatecnt = 0;
+		}
+		if ((as == 0 && ps != 0 && !m_bIsSetPiggyState)) {
+			m_bIsSetPiggyState = true;
 			player_info playerinfo;
 			playerinfo.id = g_myinfo.id;
 			playerinfo.x = xmf3Position.x; playerinfo.y = xmf3Position.y; playerinfo.z = xmf3Position.z;

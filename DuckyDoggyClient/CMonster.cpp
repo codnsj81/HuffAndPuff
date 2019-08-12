@@ -137,6 +137,7 @@ void CSnake::Animate(float fTimeElapsed)
 				MessageBoxW(g_hWnd, L"send()", L"send() - cs_notify_monsterinfo", MB_OK);
 				exit(1);
 			}
+			cout << "send() -cs_notify_snakeinfo " << endl;
 		}
 	}
 
@@ -197,5 +198,6 @@ bool CSnake::Damage(int dam)
 				exit(1);
 			}
 		}
+		cout << "send() - cs_monster_is_dead " << endl;
 	}
 }

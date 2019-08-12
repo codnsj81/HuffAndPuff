@@ -402,6 +402,7 @@ DWORD __stdcall RecvThread(LPVOID arg)
 					MessageBoxW(g_hWnd, L"send()", L"send() - cs_move", MB_OK);
 					exit(1);
 				}
+				cout << "send() - cs_put_playertype" << endl;
 				playerinfo.type = g_myinfo.type;
 			}
 			g_myinfo = playerinfo;

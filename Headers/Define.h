@@ -18,7 +18,7 @@
 // ¼³Á¤
 #define SERVERIP   "127.0.0.1"
 #define SERVERPORT 9000
-#define BUFSIZE 4000
+#define BUFSIZE  512
 
 // °¹¼ö
 #define NUM_OF_PLAYER 2

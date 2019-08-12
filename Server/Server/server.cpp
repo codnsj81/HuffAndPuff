@@ -182,7 +182,7 @@ int main(int argc, char *argv[])
 		}
 
 		do_recv(new_id);
-		show_allplayer();
+		//show_allplayer();
 	}
 
 	// closesocket()
@@ -290,7 +290,7 @@ void CALLBACK recv_callback(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED overla
 		}
 
 		// 4. 현재 접속 중인 클라이언트 플레이어 정보 출력.
-		show_allplayer();
+		//show_allplayer();
 	}
 	break;
 	case cs_put_playertype:

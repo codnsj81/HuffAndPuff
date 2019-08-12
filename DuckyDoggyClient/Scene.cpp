@@ -1191,6 +1191,8 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 
 void CScene::ObjectsCollides()
 {
+	if (m_pPlayer->GetMoveState() == STATE_CHEAT) return;
+
 	m_pDucky->m_CollideState = 1;
 	m_pDoggy->m_CollideState = 1;
 	if (m_ppGameObjects)

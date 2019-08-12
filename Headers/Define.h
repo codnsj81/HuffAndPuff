@@ -11,6 +11,7 @@
 #define STATE_ONOBJECTS 4
 #define STATE_FALLING   5
 #define STATE_STUN		6
+#define STATE_CHEAT		7
 
 
 // -------------------------

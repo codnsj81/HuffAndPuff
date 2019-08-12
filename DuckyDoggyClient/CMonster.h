@@ -57,6 +57,7 @@ protected:
 	bool m_bRecognition = false;
 	int m_iID = -1;
 	bool m_bIsMain = true; // 처음엔 누구나 다 메인임. 이게 꺼져 있으면 혼자 패턴대로 움직이면 안 됨!!
+	int m_UpdateCnt = 0;
 };
 
 

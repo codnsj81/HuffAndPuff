@@ -90,9 +90,9 @@ void CSnake::Animate(float fTimeElapsed)
 	// 다른 클라이언트의 snake 정보 위주여야 한다면 패턴 X
 	if (m_bIsMain == false)
 		return;
-	if (m_bRecognition )
-	{
 
+	if (m_bRecognition)
+	{
 		XMFLOAT3 xmf3Position = GetPosition();
 
 		XMFLOAT3 xmf3Look = GetLook();
@@ -115,7 +115,8 @@ void CSnake::Animate(float fTimeElapsed)
 		}
 
 		// snake의 위치, 애니메이션 상태 서버에 전송
-		if (g_myinfo.connected == true) {
+		m_UpdateCnt++;
+		if (g_myinfo.connected == true && m_UpdateCnt>=3) {
 			snake_info s_info;
 			s_info.id = m_iID;
 			s_info.x = m_xmf4x4ToParent._41; s_info.y = m_xmf4x4ToParent._42; s_info.z = m_xmf4x4ToParent._43;
@@ -138,6 +139,7 @@ void CSnake::Animate(float fTimeElapsed)
 				exit(1);
 			}
 			cout << "send() -cs_notify_snakeinfo " << endl;
+			m_UpdateCnt = 0;
 		}
 	}
 

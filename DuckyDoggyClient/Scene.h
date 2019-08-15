@@ -95,9 +95,9 @@ public:
 
 	void TimeCount(float time);
 
-	CUI* m_iClockMin;
-	CUI* m_iClockSec1;
-	CUI* m_iClockSec2;
+	CUI* m_iClockMin = NULL;
+	CUI* m_iClockSec1 = NULL;
+	CUI* m_iClockSec2 = NULL;
 
 	CSceneScreen* m_BloodScreen = NULL;
 	void SetBloodScreenState(bool b);

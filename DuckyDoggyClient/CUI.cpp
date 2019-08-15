@@ -8,7 +8,7 @@ CHP::CHP(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList,
 {
 	m_nWidth = nWidth;
 	m_nLength = nLength;
-	m_nMaterials = 2;
+	m_nMaterials = 1;
 	m_ppMaterials = new CMaterial*[m_nMaterials];
 	for (int i = 0; i < m_nMaterials; i++)
 		m_ppMaterials[i] = NULL;
@@ -228,7 +228,7 @@ CMP::CMP(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList,
 {
 	m_nWidth = nWidth;
 	m_nLength = nLength;
-	m_nMaterials = 2;
+	m_nMaterials = 1;
 	m_ppMaterials = new CMaterial*[m_nMaterials];
 	for (int i = 0; i < m_nMaterials; i++)
 		m_ppMaterials[i] = NULL;

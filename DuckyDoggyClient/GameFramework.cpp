@@ -568,7 +568,6 @@ void CGameFramework::SetPiggyBackState(player_type eType, int piggybackstate)
 
 void CGameFramework::BuildUI()
 {
-	m_UIList = new list<CUI*>();
 
 	CTexture *HPTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 	HPTexture->LoadTextureFromFile(m_pd3dDevice, m_pd3dCommandList, L"Model/Textures/HPBar.tiff", 0,false);
@@ -654,13 +653,11 @@ void CGameFramework::BuildUI()
 	m_UIList->emplace_back(BloodScreen);
 	m_pScene->m_BloodScreen = BloodScreen;
 
-	m_pCamera->m_UIList = m_UIList;
 
 	m_pOverUI = new CStartUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 4, 4, XMFLOAT3(1999, m_pScene->m_pTerrain->GetHeight(1999, 972), 972), L"Model/Textures/GAMEOVER.tiff");
 	m_pOverUI->SetWinpos(-2.5, 0);
 	(m_pOverUI)->bRender = false;
 	(m_pOverUI)->Trigger = false;
-	m_pScene->m_UIList = m_UIList;
 
 }
 
@@ -748,8 +745,14 @@ void CGameFramework::BuildObjects()
 
 
 		BuildPlayers();
+
+		m_UIList = new list<CUI*>();
+		m_pScene->m_UIList = m_UIList;
+		m_pCamera->m_UIList = m_UIList;
+
 		BuildUI();
-		m_pScene->BuildClock(m_pd3dDevice, m_pd3dCommandList);
+	//	m_pScene->BuildClock(m_pd3dDevice, m_pd3dCommandList);
+
 
 		// ½ºÅ©¸°
 		CreateSceneScreenVec();
@@ -900,7 +903,6 @@ void CGameFramework::AnimateObjects()
 	}
 	else {
 			m_pDucky->Animate(fTimeElapsed);
-			m_pDucky->UpdateTransform(NULL);
 	}
 }
 
@@ -1060,8 +1062,9 @@ void CGameFramework::FrameAdvance()
 
 		//UI·»´õ
 
-		if (m_pOverUI->bRender)
-			m_pOverUI->Render(m_pd3dCommandList, m_pCamera);
+		if (m_pOverUI)
+			if( m_pOverUI->bRender)
+				m_pOverUI->Render(m_pd3dCommandList, m_pCamera);
 
 		if (g_scene == scene_success)
 		{

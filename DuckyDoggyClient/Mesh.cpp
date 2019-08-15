@@ -935,7 +935,7 @@ void CUIMesh::ReleaseUploadBuffers()
 
 	if (m_pd3dColorUploadBuffer) m_pd3dColorUploadBuffer->Release();
 	m_pd3dColorUploadBuffer = NULL;
-
+	
 
 	if (m_pd3dTextureCoord0UploadBuffer) m_pd3dTextureCoord0UploadBuffer->Release();
 	m_pd3dTextureCoord0UploadBuffer = NULL;
@@ -1075,6 +1075,9 @@ void CFontMesh::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList
 	m_pxmf2TextureCoords0[1] = XMFLOAT2((m_iNumber + 1 ) * 1/11.f, 1);
 	m_pxmf2TextureCoords0[2] = XMFLOAT2(m_iNumber * 1 / 11.f, 0);
 	m_pxmf2TextureCoords0[3] = XMFLOAT2((m_iNumber + 1) * 1 / 11.f, 0);
+
+	delete m_pd3dPositionBuffer; delete m_pd3dPositionUploadBuffer;
+	m_pd3dPositionBuffer = NULL; m_pd3dPositionUploadBuffer = NULL;
 
 	m_pd3dTextureCoord0Buffer = ::CreateBufferResource(m_pd3dDevice, pd3dCommandList, m_pxmf2TextureCoords0, sizeof(XMFLOAT2) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dTextureCoord0UploadBuffer);
 

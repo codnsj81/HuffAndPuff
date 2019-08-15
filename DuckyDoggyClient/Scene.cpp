@@ -107,23 +107,23 @@ void CScene::BuildClock(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3
 	m_iClockMin->SetWinpos(-1.7, 10);
 	m_iClockMin->SetTexture(m_ClockTex);
 	
-	m_MainFramework->GetUIList()->emplace_back(m_iClockMin);
+	m_UIList->emplace_back(m_iClockMin);
 
 	m_iClockSec1 = new CClockUI(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 1, 1);
 	m_iClockSec1->SetWinpos(0.7, 10);
 	m_iClockSec1->SetTexture(m_ClockTex);
-	m_MainFramework->GetUIList()->emplace_back(m_iClockSec1);
+	m_UIList->emplace_back(m_iClockSec1);
 
 	m_iClockSec2 = new CClockUI(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 1, 1);
 	m_iClockSec2->SetWinpos(2.2, 10);
 	m_iClockSec2->SetTexture(m_ClockTex);
-	m_MainFramework->GetUIList()->emplace_back(m_iClockSec2);
+	m_UIList ->emplace_back(m_iClockSec2);
 
 	CUI* pUI = new CClockUI(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 1, 1);
 	dynamic_cast<CClockUI*> (pUI)->SetNum(10);
 	pUI->SetWinpos(0, 10);
 	pUI->SetTexture(m_ClockTex);
-	m_MainFramework->GetUIList()->emplace_back(pUI);
+	m_UIList->emplace_back(pUI);
 }
 
 void CScene::ReleaseObjects()
@@ -483,6 +483,7 @@ void CScene::ReleaseUploadBuffers()
 
 void CScene::TimeCount(float time)
 {
+	if (!m_iClockMin && !m_iClockSec1 && !m_iClockSec2) return;
 	m_fStageTime += time;
 	if (m_fStageTime > 1)
 	{
@@ -1204,8 +1205,10 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 
 		D3D12_GPU_VIRTUAL_ADDRESS d3dcbLightsGpuVirtualAddress = m_pd3dcbLights->GetGPUVirtualAddress();
 		pd3dCommandList->SetGraphicsRootConstantBufferView(2, d3dcbLightsGpuVirtualAddress); //Lights
+
 		list<CUI*>::iterator iter = m_UIList->begin();
 		list<CUI*>::iterator iter_end = m_UIList->end();
+
 		switch (g_scene)
 		{
 		case scene_stage1:
@@ -1213,10 +1216,16 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 			for (iter; iter!= iter_end ; iter++)
 			{
 				if ((*iter)->bRender)
+				{
+					(*iter)->UpdateTransform(NULL);
 					(*iter)->Render(m_pd3dCommandList, pCamera);
+				}
 			}
 			for (int i = 0; i < 2; i++)
+			{
+				m_ppWaters[i]->UpdateTransform(NULL);
 				m_ppWaters[i]->Render(m_pd3dCommandList, pCamera);
+			}
 			break;
 		}
 		m_pPlayer->GetNavGuide()->Render(m_pd3dCommandList, pCamera);

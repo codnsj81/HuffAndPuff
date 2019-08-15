@@ -81,7 +81,8 @@ void CPlayer::NextRoad(float fTime)
 		if(m_navProcess < m_navListSize)
 		{
 			m_navProcess++;
-			dynamic_cast<CProgressUI*> (m_ProgressUI)->Progressing();
+			if(m_ProgressUI)
+				dynamic_cast<CProgressUI*> (m_ProgressUI)->Progressing();
 		}
 	}
 	now.y += 7.f;
@@ -518,7 +519,7 @@ void CPlayer::Update(float fTimeElapsed)
 			m_fDamagingTime = 0.f;
 			
 		}
-		else if (m_moveState == STATE_STUN && m_fDamagingTime > 4.5f)
+		else if (m_moveState == STATE_STUN && m_fDamagingTime > 1.5f)
 		{
 			m_moveState = STATE_GROUND;
 			m_bDamaging = false;

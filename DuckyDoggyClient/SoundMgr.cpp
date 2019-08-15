@@ -139,7 +139,11 @@ void CSoundMgr::StopSound(CHANNEL_ID eChannel)
 
 void CSoundMgr::StopSoundAll(void)
 {
+
 	for (int i = 0; i < CHANNEL_END; ++i)
-		FMOD_Channel_Stop(m_pChannel[i]);
+	{
+		if(m_pChannel[i])
+			FMOD_Channel_Stop(m_pChannel[i]);
+	}
 }
 

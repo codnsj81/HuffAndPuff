@@ -696,6 +696,17 @@ void CGameFramework::OnDestroy()
 
 void CGameFramework::BuildPlayers()
 {
+	m_pDucky = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), "Model/ducky.bin", PLAYER_KIND_DUCKY, true, m_pScene->m_pTerrain);
+	//m_pDucky->SetPosition(XMFLOAT3(1099.0f, m_pScene->m_pTerrain->GetHeight(1099, 88.0f), 88.0f));
+
+	m_pDucky->SetPosition(XMFLOAT3(INITPOSITION_X, \
+		m_pScene->m_pTerrain->GetHeight(INITPOSITION_X, INITPOSITION_Z), INITPOSITION_Z));
+	m_pDucky->SetHitBox(XMFLOAT3(5.f, 5.f, 5.f));
+	m_pDucky->Rotate(0, 80, 0);
+
+	//m_pDucky->SetScale(XMFLOAT3(7.0f, 7.0f, 7.0f));
+
+
 	m_pDoggy = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), "Model/doggy.bin", PLAYER_KIND_DOGGY, true, m_pScene->m_pTerrain);
 
 	m_pDoggy->SetPosition(XMFLOAT3(INITPOSITION_X,
@@ -709,15 +720,6 @@ void CGameFramework::BuildPlayers()
 	g_otherinfo.z = g_myinfo.z = INITPOSITION_Z;
 
 
-	m_pDucky = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), "Model/ducky.bin", PLAYER_KIND_DUCKY, true, m_pScene->m_pTerrain);
-	//m_pDucky->SetPosition(XMFLOAT3(1099.0f, m_pScene->m_pTerrain->GetHeight(1099, 88.0f), 88.0f));
-
-	m_pDucky->SetPosition(XMFLOAT3(INITPOSITION_X, \
-		m_pScene->m_pTerrain->GetHeight(INITPOSITION_X, INITPOSITION_Z), INITPOSITION_Z));
-	m_pDucky->SetHitBox(XMFLOAT3(5.f, 5.f, 5.f));
-	m_pDucky->Rotate(0, 80, 0);
-
-	//m_pDucky->SetScale(XMFLOAT3(7.0f, 7.0f, 7.0f));
 
 	m_pDucky->SetParter(m_pDoggy);
 	m_pDoggy->SetParter(m_pDucky);

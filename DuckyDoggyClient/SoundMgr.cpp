@@ -38,7 +38,8 @@ void CSoundMgr::Initialize(void)
 	FMOD_System_Create(&m_pSystem);
 	//FMOD_System_GetVersion(m_pSystem, &niVersion);//
 	FMOD_System_Init(m_pSystem, CHANNEL_END, FMOD_INIT_NORMAL, NULL);
-
+	for (int i = 0; i < CHANNEL_END; i++)
+		m_pChannel[i] = NULL;
 	LoadSoundFile();
 }
 
@@ -139,7 +140,7 @@ void CSoundMgr::StopSound(CHANNEL_ID eChannel)
 
 void CSoundMgr::StopSoundAll(void)
 {
-
+	FMOD_BOOL playing;
 	for (int i = 0; i < CHANNEL_END; ++i)
 	{
 		if(m_pChannel[i])

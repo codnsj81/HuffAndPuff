@@ -17,11 +17,13 @@ void CWaterMesh::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandLi
 		m_pxmf2TextureCoords0[i].y += 0.05f * m_fTimeElapsed;
 	}
 
+
 	m_pd3dTextureCoord0Buffer = ::CreateBufferResource(m_pd3dDevice, pd3dCommandList, m_pxmf2TextureCoords0, sizeof(XMFLOAT2) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dTextureCoord0UploadBuffer);
 
- 	m_d3dTextureCoord0BufferView.BufferLocation = m_pd3dTextureCoord0Buffer->GetGPUVirtualAddress();
+	m_d3dTextureCoord0BufferView.BufferLocation = m_pd3dTextureCoord0Buffer->GetGPUVirtualAddress();
 	m_d3dTextureCoord0BufferView.StrideInBytes = sizeof(XMFLOAT2);
 	m_d3dTextureCoord0BufferView.SizeInBytes = sizeof(XMFLOAT2) * m_nVertices;
+
 	pd3dCommandList->IASetVertexBuffers(m_nSlot, 1, &m_d3dTextureCoord0BufferView);
 }
 CMesh::CMesh()
@@ -1076,8 +1078,11 @@ void CFontMesh::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList
 	m_pxmf2TextureCoords0[2] = XMFLOAT2(m_iNumber * 1 / 11.f, 0);
 	m_pxmf2TextureCoords0[3] = XMFLOAT2((m_iNumber + 1) * 1 / 11.f, 0);
 
-	delete m_pd3dPositionBuffer; delete m_pd3dPositionUploadBuffer;
-	m_pd3dPositionBuffer = NULL; m_pd3dPositionUploadBuffer = NULL;
+	if (m_pd3dTextureCoord0Buffer)
+		m_pd3dTextureCoord0Buffer->Release();
+	if (m_pd3dTextureCoord0UploadBuffer)
+		m_pd3dTextureCoord0UploadBuffer->Release();
+	m_pd3dTextureCoord0Buffer = NULL; m_pd3dTextureCoord0UploadBuffer = NULL;
 
 	m_pd3dTextureCoord0Buffer = ::CreateBufferResource(m_pd3dDevice, pd3dCommandList, m_pxmf2TextureCoords0, sizeof(XMFLOAT2) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dTextureCoord0UploadBuffer);
 

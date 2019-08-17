@@ -751,7 +751,7 @@ void CGameFramework::BuildObjects()
 		m_pCamera->m_UIList = m_UIList;
 
 		BuildUI();
-	//	m_pScene->BuildClock(m_pd3dDevice, m_pd3dCommandList);
+		m_pScene->BuildClock(m_pd3dDevice, m_pd3dCommandList);
 
 
 		// ½ºÅ©¸°

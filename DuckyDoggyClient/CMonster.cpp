@@ -52,7 +52,7 @@ int CMonster::getCollision(CPlayer * player)
 void CMonster::Animate(float fTimeElapsed)
 {
 	CGameObject::Animate(fTimeElapsed);
-	if (m_pAnimationController) m_pAnimationController->SetLoop(true);
+	//if (m_pAnimationController) m_pAnimationController->SetLoop(true);
 
 }
 
@@ -110,7 +110,7 @@ void CSnake::Animate(float fTimeElapsed)
 		}
 		else
 		{
-			m_pChild->m_pAnimationController->SetLoop(true);
+			//m_pChild->m_pAnimationController->SetLoop(true);
 			SetAnimationSet(1);
 		}
 
@@ -178,9 +178,8 @@ bool CSnake::Damage(int dam)
 	if (result)
 	{
 		m_bDeathING = true;
-		m_pChild->m_pAnimationController->SetLoop(false);
 		SetAnimationSet(3);
-
+		m_pChild->m_pAnimationController->SetLoop(false);
 		// 몬스터가 죽었다는 패킷 전송
 		if (g_myinfo.connected == true) {
 			int id = m_iID;

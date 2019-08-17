@@ -1,6 +1,4 @@
 /.vs
-/simplegame/x64
-*.exe
 *.ilk
 *.pdb
 *.obj

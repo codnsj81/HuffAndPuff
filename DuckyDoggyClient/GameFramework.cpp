@@ -616,7 +616,7 @@ void CGameFramework::BuildUI()
 	m_UIList->emplace_back(m_pHPUI);
 
 
-	 pTemp = new CStartUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 10, 5, m_pPlayer->GetPosition(), L"Model/Textures/GAMESTART.tiff");
+	 pTemp = new CStartUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 10, 4, m_pPlayer->GetPosition(), L"Model/Textures/StartButton.tiff");
 	pTemp->SetWinpos(-2.5, 0);
 	dynamic_cast<CStartUI*> (pTemp)->bRender = true;
 	dynamic_cast<CStartUI*> (pTemp)->Trigger = true;

@@ -1377,7 +1377,7 @@ void CHoneyComb::Animate(float fTimeElapsed)
 	if (m_fElapsedTime > 3.0f)
 		m_bDie = true;
 	if(GetPosition().y >floorHeight)
-		SetPosition(GetPosition().x, GetPosition().y -( 10.f * fTimeElapsed), GetPosition().z);
+		SetPosition(GetPosition().x, GetPosition().y -( 15.f * fTimeElapsed), GetPosition().z);
 
 }
 
@@ -1455,7 +1455,7 @@ void CTrap::Animate(float fTimeElapsed)
 	if (m_bcollided)
 	{
 		m_fTime += fTimeElapsed;
-		if (m_fTime > 7.f)
+		if (m_fTime > 3.f)
 		{
 			m_fTime = 0.f;
 			m_bcollided = false;

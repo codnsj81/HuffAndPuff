@@ -513,13 +513,13 @@ void CPlayer::Update(float fTimeElapsed)
 	if (m_bDamaging)
 	{
 		m_fDamagingTime += fTimeElapsed;
-		if (m_moveState !=STATE_STUN && m_fDamagingTime > 1.f)
+		if (m_moveState !=STATE_STUN && m_fDamagingTime > 0.8f)
 		{
 			m_bDamaging = false;
 			m_fDamagingTime = 0.f;
 			
 		}
-		else if (m_moveState == STATE_STUN && m_fDamagingTime > 1.5f)
+		else if (m_moveState == STATE_STUN && m_fDamagingTime > 1.f)
 		{
 			m_moveState = STATE_GROUND;
 			m_bDamaging = false;

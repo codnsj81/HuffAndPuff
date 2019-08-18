@@ -1244,12 +1244,11 @@ void CScene::ObjectsCollides()
 	{
 		for (int i = 0; i < m_nGameObjects; i++)
 		{
-			m_ppGameObjects[i]->getCollision(m_pDucky);
-			m_ppGameObjects[i]->getCollision(m_pDoggy);
+			m_ppGameObjects[i]->getCollision(m_pPlayer);
 		}
 	}
 	for (auto n : m_TreeObjectslist) {
-		if (n->getCollision(m_pDoggy) != COLLIDE_NONE || n->getCollision(m_pDucky) != COLLIDE_NONE)
+		if (n->getCollision(m_pDucky) != COLLIDE_NONE)
 		{	
 			
 			if (!n->GetHoneyDrop())
@@ -1257,11 +1256,31 @@ void CScene::ObjectsCollides()
 				int prob = rand() % 10;
 				if (prob < 5)
 				{
-					float randomX = rand() % 3 - 4.f;
-					float randomZ = rand() % 3 - 4.f;
+					XMFLOAT3 pos = m_pDucky->GetPosition();
 					CHoneyComb* temp = new CHoneyComb();
 					temp->SetChild(HoneyComb);
-					temp->SetPosition(n->GetPosition().x + randomX, n->GetPosition().y + 20, n->GetPosition().z + randomZ);
+					temp->SetPosition(pos.x, pos.y + 20, pos.z);
+					temp->SetFloorHeight(m_pTerrain->GetHeight(n->GetPosition().x, n->GetPosition().z));
+					temp->Rotate(rand() % 360, rand() % 360, rand() % 360);
+					m_HoneyComblist.push_back(temp);
+				}
+
+			}
+
+			n->SetHoneyDrop();
+		}
+		if (n->getCollision(m_pDoggy) != COLLIDE_NONE)
+		{
+
+			if (!n->GetHoneyDrop())
+			{
+				int prob = rand() % 10;
+				if (prob < 5)
+				{
+					XMFLOAT3 pos = m_pDoggy->GetPosition();
+					CHoneyComb* temp = new CHoneyComb();
+					temp->SetChild(HoneyComb);
+					temp->SetPosition(pos.x, pos.y + 20, pos.z);
 					temp->SetFloorHeight(m_pTerrain->GetHeight(n->GetPosition().x, n->GetPosition().z));
 					temp->Rotate(rand() % 360, rand() % 360, rand() % 360);
 					m_HoneyComblist.push_back(temp);

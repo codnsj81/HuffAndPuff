@@ -186,6 +186,7 @@ public:
 	CTexture* m_SceneScreenTex = NULL; //
 
 	CGameObject* HoneyComb = NULL;
+	CGameObject* Potion = NULL;
 	
 	CGameObject							**m_ppGameObjects = NULL;
 	list<CTree*>						m_TreeObjectslist;
@@ -197,6 +198,7 @@ public:
 	list<CDash*>						m_DashList;
 	list<CTrap*>						m_TrapList;
 	list<CDamageUI*>					m_DamageUIList;
+	list<CPotion*>						m_PotionList;
 
 	list<CUI*>* m_UIList;
 
@@ -205,9 +207,6 @@ public:
 
 
 	float								m_fElapsedTime = 0.0f;
-
-	int									m_nShaders = 0;
-	CShader								**m_ppShaders = NULL;
 
 	CSkyBox								*m_pSkyBox = NULL;
 	CHeightMapTerrain					*m_pTerrain = NULL;

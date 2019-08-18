@@ -60,14 +60,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 		
 		m_pTerrain = new CHeightMapTerrain(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, _T("Terrain/terrain.raw"), 257, 257, xmf3Scale, xmf4Color);
 		m_pSkyBox = new CSkyBox(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
-		m_nShaders = 1;
-		m_ppShaders = new CShader * [m_nShaders];
 
-		CObjectsShader* pObjectsShader = new CObjectsShader();
-		pObjectsShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
-		pObjectsShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, m_pTerrain);
-
-		m_ppShaders[0] = pObjectsShader;
 
 		m_nWaters = 2;
 		m_ppWaters = new CWater * [m_nWaters];
@@ -75,6 +68,8 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 		//m_ppWaters[0]->Rotate(0, 10.f, 0);
 
 		m_ppWaters[1] = new CWater(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 670, 400, XMFLOAT3(1064, m_pTerrain->GetHeight(1064, 1446) + 30.f, 1446.f));
+		Potion = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/potion.bin", NULL, false);
+
 		HoneyComb = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Honey.bin", NULL, false);
 		BuildMonsterList(pd3dDevice, pd3dCommandList);
 
@@ -132,21 +127,12 @@ void CScene::ReleaseObjects()
 		if (m_pd3dGraphicsRootSignature) m_pd3dGraphicsRootSignature->Release();
 		if (m_pd3dCbvSrvDescriptorHeap) m_pd3dCbvSrvDescriptorHeap->Release();
 
-		if (m_ppShaders)
-		{
-			for (int i = 0; i < m_nShaders; i++)
-			{
-				m_ppShaders[i]->ReleaseShaderVariables();
-				m_ppShaders[i]->ReleaseObjects();
-				m_ppShaders[i]->Release();
-			}
-			delete[] m_ppShaders;
-		}
-
 		if (m_pTerrain) delete m_pTerrain;
 		if (m_pSkyBox) delete m_pSkyBox;
-
-
+		if (Potion)
+		{
+			Potion->Release();
+		}
 		if (m_ppGameObjects)
 		{
 			for (int i = 0; i < m_nGameObjects; i++) if (m_ppGameObjects[i]) m_ppGameObjects[i]->Release();
@@ -462,7 +448,6 @@ void CScene::ReleaseUploadBuffers()
 	if (m_pTerrain) m_pTerrain->ReleaseUploadBuffers();
 	if (m_pSkyBox) m_pSkyBox->ReleaseUploadBuffers();
 
-	for (int i = 0; i < m_nShaders; i++) m_ppShaders[i]->ReleaseUploadBuffers();
 	for (int i = 0; i < m_nGameObjects; i++) m_ppGameObjects[i]->ReleaseUploadBuffers();
 	for (int i = 0; i < m_nWaters; i++) m_ppWaters[i]->ReleaseUploadBuffers();
 
@@ -1230,8 +1215,6 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 		}
 		m_pPlayer->GetNavGuide()->Render(m_pd3dCommandList, pCamera);
 
-
-		for (int i = 0; i < m_nShaders; i++) if (m_ppShaders[i]) m_ppShaders[i]->Render(pd3dCommandList, pCamera);
 }
 
 void CScene::ObjectsCollides()
@@ -1254,7 +1237,7 @@ void CScene::ObjectsCollides()
 			if (!n->GetHoneyDrop())
 			{
 				int prob = rand() % 10;
-				if (prob < 5)
+				if (prob < 4)
 				{
 					XMFLOAT3 pos = m_pDucky->GetPosition();
 					CHoneyComb* temp = new CHoneyComb();
@@ -1264,7 +1247,16 @@ void CScene::ObjectsCollides()
 					temp->Rotate(rand() % 360, rand() % 360, rand() % 360);
 					m_HoneyComblist.push_back(temp);
 				}
+				else if (prob < 8)
+				{
 
+					XMFLOAT3 pos = m_pDucky->GetPosition();
+					CPotion* temp = new CPotion();
+					temp->SetChild(Potion);
+					temp->SetPosition(pos.x, pos.y + 20, pos.z);
+					temp->SetFloorHeight(m_pTerrain->GetHeight(n->GetPosition().x, n->GetPosition().z));
+					m_HoneyComblist.push_back(temp);
+				}
 			}
 
 			n->SetHoneyDrop();
@@ -1275,7 +1267,7 @@ void CScene::ObjectsCollides()
 			if (!n->GetHoneyDrop())
 			{
 				int prob = rand() % 10;
-				if (prob < 5)
+				if (prob < 4)
 				{
 					XMFLOAT3 pos = m_pDoggy->GetPosition();
 					CHoneyComb* temp = new CHoneyComb();
@@ -1286,6 +1278,16 @@ void CScene::ObjectsCollides()
 					m_HoneyComblist.push_back(temp);
 				}
 
+				else if (prob < 8)
+				{
+
+					XMFLOAT3 pos = m_pDoggy->GetPosition();
+					CPotion* temp = new CPotion();
+					temp->SetChild(Potion);
+					temp->SetPosition(pos.x, pos.y + 20, pos.z);
+					temp->SetFloorHeight(m_pTerrain->GetHeight(n->GetPosition().x, n->GetPosition().z));
+					m_HoneyComblist.push_back(temp);
+				}
 			}
 
 			n->SetHoneyDrop();
@@ -1348,7 +1350,7 @@ void CScene::ObjectsCollides()
 			if (!n->GetCollided())
 			{
 
-				CreateDamageUI(m_pDoggy, 3);
+				CreateDamageUI(m_pDucky, 3);
 				m_pDucky->SetStun();
 				m_pDucky->Damage(3);
 				n->SetCollided(true);

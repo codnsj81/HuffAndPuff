@@ -158,6 +158,7 @@ void CPlayer::Damage(int d)
 {
 	m_iHP -= d;
 	if (m_iHP < 0) m_iHP = 0;
+	else if (m_iHP > 100) m_iHP = 100;
 }
 
 void CPlayer::PlusSkillGage(int d)

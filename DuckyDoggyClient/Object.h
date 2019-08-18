@@ -478,14 +478,24 @@ public :
 	void SetFloorHeight(float p) { floorHeight = p; }
 	virtual void Animate(float fTimeElapsed);
 	int getCollision(CPlayer * player);
-
 	bool GetbDie() { return m_bDie; }
-private:
+	void SetFallingSpeed(float f) { m_fallingspeed = f; }
+protected:
+	int		m_iDamage  = 5;
+	float m_fallingspeed;
 	float m_fElapsedTime;
 	bool m_bDie = false;
 	float floorHeight;
 };
 
+class CPotion : public CHoneyComb
+{
+public:
+	CPotion();
+	~CPotion();
+	virtual void Animate(float fTimeElapsed);
+
+};
 class CMushroom : public CGameObject
 {
 public:

@@ -1173,7 +1173,6 @@ CGameObject *CGameObject::LoadGeometryAndAnimationFromFile(ID3D12Device *pd3dDev
 	pGameObject->CacheSkinningBoneFrames(pGameObject);
 
 #ifdef _WITH_DEBUG_FRAME_HIERARCHY
-	TCHAR pstrDebug[256] = { 0 };
 	_stprintf_s(pstrDebug, 256, "Frame Hierarchy\n"));
 	OutputDebugString(pstrDebug);
 
@@ -1365,6 +1364,7 @@ CHoneyComb::CHoneyComb()
 {
 	m_fElapsedTime = 0.f;
 	SetHitBox(XMFLOAT3(3.f, 3.f, 3.f));
+	SetFallingSpeed(15);
 }
 
 CHoneyComb::~CHoneyComb()
@@ -1377,7 +1377,7 @@ void CHoneyComb::Animate(float fTimeElapsed)
 	if (m_fElapsedTime > 3.0f)
 		m_bDie = true;
 	if(GetPosition().y >floorHeight)
-		SetPosition(GetPosition().x, GetPosition().y -( 15.f * fTimeElapsed), GetPosition().z);
+		SetPosition(GetPosition().x, GetPosition().y -( m_fallingspeed * fTimeElapsed), GetPosition().z);
 
 }
 
@@ -1414,7 +1414,7 @@ int CHoneyComb::getCollision(CPlayer * player)
 	int result = CGameObject::BBCollision(minX, maxX, minY, maxY, minZ, maxZ, minX1, maxX1, minY1, maxY1, minZ1, maxZ1);
 	if (result != COLLIDE_NONE)
 	{
-		player->Damage(5);
+		player->Damage(m_iDamage);
 		m_bDie = true;
 	}
 	return result;
@@ -1502,4 +1502,21 @@ CShadow::CShadow(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComman
 
 CShadow::~CShadow()
 {
+}
+
+CPotion::CPotion()
+{
+	CHoneyComb();
+	SetFallingSpeed(10);
+	m_iDamage = -5;
+}
+
+CPotion::~CPotion()
+{
+}
+
+void CPotion::Animate(float fTimeElapsed)
+{
+	CHoneyComb::Animate(fTimeElapsed);
+	Rotate(0, fTimeElapsed * 300, 0);
 }

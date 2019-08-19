@@ -293,7 +293,6 @@ public:
 
 	void setTimeElapsed(float time) { m_fTimeElapsed = time; }
 protected:	
-	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList);
 	int								m_nWidth;
 	int								m_nLength;
 	UINT							m_nStride = 0;

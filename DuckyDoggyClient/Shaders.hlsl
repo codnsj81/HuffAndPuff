@@ -312,7 +312,7 @@ VS_WATER_OUTPUT VSWater(VS_WATER_INPUT input)
 float4 PSWater(VS_WATER_OUTPUT input) : SV_TARGET
 {
 
-	float4 cColor = float4(0.0f, 1.f, 1.f, 0.15f);
+	float4 cColor = float4(0.0f, 1.f, 1.f, 0.1f);
 	float3x3 TBN = float3x3(normalize(input.tangentW), normalize(input.bitangentW), normalize(input.normalW));
 	float4 cNormal;
 	cNormal = gtxtAlbedoTexture.Sample(gssClamp, input.uv);
@@ -320,7 +320,7 @@ float4 PSWater(VS_WATER_OUTPUT input) : SV_TARGET
 
 	float4 cIllumination = Lighting(input.positionW, normalize(mul(vNormal, TBN)));
 
-	return(lerp(cColor, cIllumination, 0.5f));
+	return(lerp(cColor, cIllumination, 0.3f));
 	//return cNormal;
 
 }

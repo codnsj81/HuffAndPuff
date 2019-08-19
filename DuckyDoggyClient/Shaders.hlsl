@@ -227,6 +227,7 @@ float4 PSTerrain(VS_TERRAIN_OUTPUT input) : SV_TARGET
 
 	cColor = cDetailTexColor3 * cBaseTexColor.y + cDetailTexColor * cBaseTexColor.x
 					+ cDetailTexColor2 * cBaseTexColor.z;
+
 	return(cColor);
 }
 struct VS_SKYBOX_CUBEMAP_INPUT

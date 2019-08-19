@@ -38,12 +38,12 @@ void CScene::BuildDefaultLightsAndMaterials()
 	m_pLights = new LIGHT[m_nLights];
 	::ZeroMemory(m_pLights, sizeof(LIGHT) * m_nLights);
 
-	m_xmf4GlobalAmbient = XMFLOAT4(0.15f, 0.15f, 0.15f, 1.0f);
+	m_xmf4GlobalAmbient = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
 
 	m_pLights[0].m_bEnable = true;
 	m_pLights[0].m_nType = DIRECTIONAL_LIGHT;
 	m_pLights[0].m_xmf4Ambient = XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
-	m_pLights[0].m_xmf4Diffuse = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
+	m_pLights[0].m_xmf4Diffuse = XMFLOAT4(0.4f, 0.4f, 0.4f, 1.0f);
 	m_pLights[0].m_xmf4Specular = XMFLOAT4(0.0f, 0.0f, 0.4f, 0.0f);
 	m_pLights[0].m_xmf3Direction = XMFLOAT3(1.0f, 0.0f, 0.0f);
 }
@@ -824,8 +824,8 @@ void CScene::CreateDamageUI(CPlayer * pPlayer, int dam)
 
 	CDamageUI* DUI = new CDamageUI(m_pd3dDevice, m_pd3dCommandList, m_pd3dGraphicsRootSignature, 3, 3,dam,  NULL);
 	DUI->SetTexture(m_DamageUITex);
-	m_pPlayer->GetCamera()->RotateUI(DUI);
-	DUI->SetPosition(m_pPlayer->GetPosition().x, m_pPlayer->GetPosition().y + 7, m_pPlayer->GetPosition().z);
+	pPlayer->GetCamera()->RotateUI(DUI);
+	DUI->SetPosition(pPlayer->GetPosition().x, pPlayer->GetPosition().y + 7, pPlayer->GetPosition().z);
 	m_DamageUIList.emplace_back(DUI);
 }
 

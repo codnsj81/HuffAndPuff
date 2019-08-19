@@ -480,8 +480,9 @@ public :
 	int getCollision(CPlayer * player);
 	bool GetbDie() { return m_bDie; }
 	void SetFallingSpeed(float f) { m_fallingspeed = f; }
+	int GetDamage() { return m_iDamage; }
 protected:
-	int		m_iDamage  = 5;
+	int		m_iDamage  = 6;
 	float m_fallingspeed;
 	float m_fElapsedTime;
 	bool m_bDie = false;

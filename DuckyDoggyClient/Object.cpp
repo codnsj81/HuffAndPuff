@@ -1055,9 +1055,10 @@ void CGameObject::LoadAnimationFromFile(FILE *pInFile)
 	UINT nReads = 0;
 
 	for ( ; ; )
-	{
+	{		
 		nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pInFile);
 		nReads = (UINT)::fread(pstrToken, sizeof(char), nStrLength, pInFile);
+
 		pstrToken[nStrLength] = '\0';
 
 		if (!strcmp(pstrToken, "<AnimationSets>:"))

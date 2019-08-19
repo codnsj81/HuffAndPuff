@@ -324,7 +324,7 @@ float CHeightMapGridMesh::OnGetHeight(int x, int z, void *pContext)
 
 XMFLOAT4 CHeightMapGridMesh::OnGetColor(int x, int z, void *pContext)
 {
-	XMFLOAT3 xmf3LightDirection = XMFLOAT3(-1.0f, 1.0f, 1.0f);
+	XMFLOAT3 xmf3LightDirection = XMFLOAT3(-0.5f, 0.5f, 0.0f);
 	xmf3LightDirection = Vector3::Normalize(xmf3LightDirection);
 	CHeightMapImage *pHeightMapImage = (CHeightMapImage *)pContext;
 	XMFLOAT3 xmf3Scale = pHeightMapImage->GetScale();
@@ -991,7 +991,7 @@ CDamageUIMesh::CDamageUIMesh(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLis
 	}
 	else {
 		y1 = 0.5; y2 = 1.f;
-		num -= 4;
+		num -= 5;
 	}		
 	x1 = 0.2f * num;
 	x2 = x1 + 0.2f;

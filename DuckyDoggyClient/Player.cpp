@@ -428,12 +428,24 @@ void CPlayer::Update(float fTimeElapsed)
 
 	if (m_PiggybackState == PIGGYBACK_CRRIED)
 	{
-		XMFLOAT3 pos = m_pParter->GetPosition();
-		pos.y += 5.f;
-		m_xmf3Position = pos;
-
 		m_xmf3Look = m_pParter->GetLookVector();
 		m_xmf3Right = m_pParter->GetRightVector();
+
+		XMFLOAT3 pos = m_pParter->GetPosition();
+		if (m_playerKind == PLAYER_KIND_DUCKY)
+		{
+			pos.y += 5.f;
+			m_xmf3Position = pos;
+		}
+		else
+		{
+			pos.y += 2.f;
+			m_xmf3Position = pos;
+		}
+
+		if(m_playerKind == PLAYER_KIND_DOGGY)
+			SetAnimationSet(3);
+
 	}
 	else 
 	{
@@ -483,34 +495,35 @@ void CPlayer::Update(float fTimeElapsed)
 		float fDeceleration = (m_fFriction * fTimeElapsed);
 		if (fDeceleration > fLength) fDeceleration = fLength;
 		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Velocity, -fDeceleration, true));
-		
-	}
-	DWORD nCurrentCameraMode = m_pCamera->GetMode();
-	if (nCurrentCameraMode == THIRD_PERSON_CAMERA) m_pCamera->Update(m_xmf3Position, fTimeElapsed);
-	if (m_pCameraUpdatedContext) OnCameraUpdateCallback(fTimeElapsed);
-	XMFLOAT3 pos = m_xmf3Position;
-	pos.y += 7.f;
-	if (nCurrentCameraMode == THIRD_PERSON_CAMERA) m_pCamera->SetLookAt(pos);
-	m_pCamera->RegenerateViewMatrix();
-
-	if(m_pAnimationController) m_pAnimationController->SetLoop(true);
 	
-	if (m_moveState == STATE_GROUND)
-	{
-		if (!g_myinfo.connected) { // stand alone으로 채원이가 테스트할 땐 정상적으로 되어야 함.
-			if (Vector3::IsZero(m_xmf3Velocity))
-				SetAnimationSet(0);
-			else
-				SetAnimationSet(1);
-		}
+		DWORD nCurrentCameraMode = m_pCamera->GetMode();
+		if (nCurrentCameraMode == THIRD_PERSON_CAMERA) m_pCamera->Update(m_xmf3Position, fTimeElapsed);
+		if (m_pCameraUpdatedContext) OnCameraUpdateCallback(fTimeElapsed);
+		XMFLOAT3 pos = m_xmf3Position;
+		pos.y += 7.f;
+		if (nCurrentCameraMode == THIRD_PERSON_CAMERA) m_pCamera->SetLookAt(pos);
+		m_pCamera->RegenerateViewMatrix();
 
-		if (m_ismain) { // 메인 클라이언트의 플레이어가 아니라면, 서버에서 받아오는 애니메이션 정보를 토대로 SetAnimationSet() 해주어야 한다.
-			if (Vector3::IsZero(m_xmf3Velocity))
-				SetAnimationSet(0);
-			else
-				SetAnimationSet(1);
+		if (m_pAnimationController) m_pAnimationController->SetLoop(true);
+
+		if (m_moveState == STATE_GROUND)
+		{
+			if (!g_myinfo.connected) { // stand alone으로 채원이가 테스트할 땐 정상적으로 되어야 함.
+				if (Vector3::IsZero(m_xmf3Velocity))
+					SetAnimationSet(0);
+				else
+					SetAnimationSet(1);
+			}
+
+			if (m_ismain) { // 메인 클라이언트의 플레이어가 아니라면, 서버에서 받아오는 애니메이션 정보를 토대로 SetAnimationSet() 해주어야 한다.
+				if (Vector3::IsZero(m_xmf3Velocity))
+					SetAnimationSet(0);
+				else
+					SetAnimationSet(1);
+			}
 		}
 	}
+	
 	if (m_bDamaging)
 	{
 		m_fDamagingTime += fTimeElapsed;
@@ -728,12 +741,19 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 
 	CGameObject *pGameObject = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, name, NULL, banimation);
 	
-		pGameObject->m_pAnimationController->m_pAnimationSets[1].m_fSpeed = 0.8f;
 	
-	if(m_playerKind == player_ducky)
+	if(m_playerKind == PLAYER_KIND_DUCKY)
 	{
 		pGameObject->m_pAnimationController->m_pAnimationSets[0].m_fSpeed = 0.4f;
+		pGameObject->m_pAnimationController->m_pAnimationSets[1].m_fSpeed = 0.4f;
 	}
+
+	else {
+
+		pGameObject->m_pAnimationController->m_pAnimationSets[3].m_fSpeed = 0.8f;
+		pGameObject->m_pAnimationController->m_pAnimationSets[1].m_fSpeed = 0.8f;
+	}
+
 	pGameObject->m_pAnimationController->SetKind(kind);
 	SetChild(pGameObject);
 

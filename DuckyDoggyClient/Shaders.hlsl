@@ -225,8 +225,8 @@ float4 PSTerrain(VS_TERRAIN_OUTPUT input) : SV_TARGET
 	
 	float4 cDetailTexColor3 = gtxtNormalTexture.Sample(gssWrap, input.uv1);
 
-	cColor = cDetailTexColor3 * cBaseTexColor.y + cDetailTexColor * cBaseTexColor.x
-					+ cDetailTexColor2 * cBaseTexColor.z;
+	cColor = input.color * (cDetailTexColor3 * cBaseTexColor.y + cDetailTexColor * cBaseTexColor.x
+					+ cDetailTexColor2 * cBaseTexColor.z);
 	return(cColor);
 }
 struct VS_SKYBOX_CUBEMAP_INPUT

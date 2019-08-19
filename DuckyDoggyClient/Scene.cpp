@@ -38,14 +38,14 @@ void CScene::BuildDefaultLightsAndMaterials()
 	m_pLights = new LIGHT[m_nLights];
 	::ZeroMemory(m_pLights, sizeof(LIGHT) * m_nLights);
 
-	m_xmf4GlobalAmbient = XMFLOAT4(0.15f, 0.15f, 0.15f, 1.0f);
+	m_xmf4GlobalAmbient = XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f);
 
 	m_pLights[0].m_bEnable = true;
 	m_pLights[0].m_nType = DIRECTIONAL_LIGHT;
 	m_pLights[0].m_xmf4Ambient = XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
-	m_pLights[0].m_xmf4Diffuse = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
+	m_pLights[0].m_xmf4Diffuse = XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f);
 	m_pLights[0].m_xmf4Specular = XMFLOAT4(0.0f, 0.0f, 0.4f, 0.0f);
-	m_pLights[0].m_xmf3Direction = XMFLOAT3(1.0f, 0.0f, 0.0f);
+	m_pLights[0].m_xmf3Direction = XMFLOAT3(0.5f, 0.5f, 0.0f);
 }
 
 void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
@@ -822,7 +822,7 @@ void CScene::RenderStage1(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* p
 void CScene::CreateDamageUI(CPlayer * pPlayer, int dam)
 {
 
-	CDamageUI* DUI = new CDamageUI(m_pd3dDevice, m_pd3dCommandList, m_pd3dGraphicsRootSignature, 3, 3,dam,  NULL);
+	CDamageUI* DUI = new CDamageUI(m_pd3dDevice, m_pd3dCommandList, m_pd3dGraphicsRootSignature, 3, 3, dam,  NULL);
 	DUI->SetTexture(m_DamageUITex);
 	m_pPlayer->GetCamera()->RotateUI(DUI);
 	DUI->SetPosition(pPlayer->GetPosition().x, pPlayer->GetPosition().y + 7, pPlayer->GetPosition().z);
@@ -1162,18 +1162,6 @@ void CScene::AnimateObjects(float fTimeElapsed)
 	{
 		h->Update(fTimeElapsed);
 	}
-	list<CHoneyComb*> ::iterator honeyiter = m_HoneyComblist.begin();
-	list<CHoneyComb*> ::iterator honeyend = m_HoneyComblist.end();
-	for (honeyiter; honeyiter != honeyend; honeyiter++)
-	{
-		(*honeyiter)->getCollision(m_pDoggy);
-		(*honeyiter)->getCollision(m_pDucky);
-		if ((*honeyiter)->GetbDie())
-		{
-			honeyiter = m_HoneyComblist.erase(honeyiter);
-			if (honeyiter == honeyend) break;
-		}
-	}
 	
 }
 
@@ -1378,6 +1366,22 @@ void CScene::ObjectsCollides()
 
 		}
 
+	}
+
+
+	list<CHoneyComb*> ::iterator honeyiter = m_HoneyComblist.begin();
+	list<CHoneyComb*> ::iterator honeyend = m_HoneyComblist.end();
+	for (honeyiter; honeyiter != honeyend; honeyiter++)
+	{
+		if ((*honeyiter)->getCollision(m_pDoggy) && (*honeyiter)->GetDamage() == 6)
+			CreateDamageUI(m_pDoggy,6);
+		if ((*honeyiter)->getCollision(m_pDucky) && (*honeyiter)->GetDamage() == 6 )
+			CreateDamageUI(m_pDucky, 6);
+		if ((*honeyiter)->GetbDie())
+		{
+			honeyiter = m_HoneyComblist.erase(honeyiter);
+			if (honeyiter == honeyend) break;
+		}
 	}
 }
 

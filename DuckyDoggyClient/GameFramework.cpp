@@ -696,7 +696,7 @@ void CGameFramework::OnDestroy()
 
 void CGameFramework::BuildPlayers()
 {
-	m_pDucky = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), "Model/ducky.bin", PLAYER_KIND_DUCKY, true, m_pScene->m_pTerrain);
+	m_pDucky = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), "Model/ducky2.bin", PLAYER_KIND_DUCKY, true, m_pScene->m_pTerrain);
 	//m_pDucky->SetPosition(XMFLOAT3(1099.0f, m_pScene->m_pTerrain->GetHeight(1099, 88.0f), 88.0f));
 
 	m_pDucky->SetPosition(XMFLOAT3(INITPOSITION_X, \
@@ -718,7 +718,6 @@ void CGameFramework::BuildPlayers()
 	g_otherinfo.x = g_myinfo.x = INITPOSITION_X;
 	g_otherinfo.y = g_myinfo.y = m_pScene->m_pTerrain->GetHeight(INITPOSITION_X, INITPOSITION_Z);
 	g_otherinfo.z = g_myinfo.z = INITPOSITION_Z;
-
 
 
 	m_pDucky->SetParter(m_pDoggy);
@@ -891,13 +890,26 @@ void CGameFramework::AnimateObjects()
 {
 	float fTimeElapsed = m_GameTimer.GetTimeElapsed();
 
-	if(m_pPlayer->GetMoveState() != STATE_STUN)
-		m_pPlayer->Animate(fTimeElapsed);
+
+
 	m_pPlayer->UpdateTransform(NULL);
 	m_pScene->AnimateObjects(fTimeElapsed);
 
 	if (g_myinfo.connected == false)
-		return;
+	{
+
+		if (m_pDucky->GetMoveState() != STATE_STUN)
+		{
+			m_pDucky->UpdateTransform(NULL);
+			m_pDucky->Animate(fTimeElapsed);
+		}
+
+		if (m_pDoggy->GetMoveState() != STATE_STUN)
+		{
+			m_pDoggy->UpdateTransform(NULL);
+			m_pDoggy->Animate(fTimeElapsed);
+		}
+	}
 
 	if (g_myinfo.type == player_ducky) {
 		m_pDoggy->Animate(fTimeElapsed);
@@ -905,6 +917,7 @@ void CGameFramework::AnimateObjects()
 	}
 	else {
 			m_pDucky->Animate(fTimeElapsed);
+			m_pDoggy->UpdateTransform(NULL);
 	}
 }
 

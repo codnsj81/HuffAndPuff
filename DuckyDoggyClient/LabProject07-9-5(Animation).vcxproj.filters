@@ -78,9 +78,6 @@
     <ClInclude Include="CMonster.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\temp10\trunk\DuckyDoggyClient\Scene.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="SceneScreen.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>

@@ -825,7 +825,7 @@ void CScene::CreateDamageUI(CPlayer * pPlayer, int dam)
 	CDamageUI* DUI = new CDamageUI(m_pd3dDevice, m_pd3dCommandList, m_pd3dGraphicsRootSignature, 3, 3,dam,  NULL);
 	DUI->SetTexture(m_DamageUITex);
 	m_pPlayer->GetCamera()->RotateUI(DUI);
-	DUI->SetPosition(pPlayer->GetPosition().x, pPlayer->GetPosition().y + 7, pPlayer->GetPosition().z);
+	DUI->SetPosition(m_pPlayer->GetPosition().x, m_pPlayer->GetPosition().y + 7, m_pPlayer->GetPosition().z);
 	m_DamageUIList.emplace_back(DUI);
 }
 
@@ -1166,8 +1166,8 @@ void CScene::AnimateObjects(float fTimeElapsed)
 	list<CHoneyComb*> ::iterator honeyend = m_HoneyComblist.end();
 	for (honeyiter; honeyiter != honeyend; honeyiter++)
 	{
-		(*honeyiter)->getCollision(m_pDoggy);
-		(*honeyiter)->getCollision(m_pDucky);
+		if ((*honeyiter)->getCollision(m_pDoggy) != COLLIDE_NONE) CreateDamageUI(m_pDoggy, 5);
+		if ((*honeyiter)->getCollision(m_pDucky) != COLLIDE_NONE) CreateDamageUI(m_pDucky, 5);
 		if ((*honeyiter)->GetbDie())
 		{
 			honeyiter = m_HoneyComblist.erase(honeyiter);
@@ -1341,8 +1341,7 @@ void CScene::ObjectsCollides()
 				n->SetCollided(true);
 				SOUNDMGR->OncePlaySound(L"Sound/Sound15.mp3", CHANNEL_EFFECT, 1.f);
 
-				if(g_myinfo.type == player_doggy)
-					m_BloodScreen->bRender = true;
+				m_BloodScreen->bRender = true;
 			}
 		}
 		if (n->getCollision(m_pDucky, false) != COLLIDE_NONE)
@@ -1356,8 +1355,7 @@ void CScene::ObjectsCollides()
 				n->SetCollided(true);
 				SOUNDMGR->OncePlaySound(L"Sound/Sound15.mp3", CHANNEL_EFFECT, 1.f);
 
-				if (g_myinfo.type == player_ducky)
-					m_BloodScreen->bRender = true;
+				m_BloodScreen->bRender = true;
 			}
 		}
 

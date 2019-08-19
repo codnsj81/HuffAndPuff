@@ -44,16 +44,11 @@ public:
 	void MoveToNextFrame();
 	void CreateSceneScreenVec();
 
-	void SendingToServer(XMFLOAT3* pPos, XMFLOAT3* pLook, XMFLOAT3* pRight);
-
 	void OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	void OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	LRESULT CALLBACK OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 
 	// @
-	void SetPlayerType(player_type eType);
-	void SetPlayerPos(player_type eType, XMFLOAT3 pos);
-	void SetPlayerAnimationSet(player_type eType, int animationSet);
 	void SetPlayerDirection(player_type eType, XMFLOAT3 look, XMFLOAT3 right);
 	void SetPiggyBackState(player_type eType, int piggybackstate);
 	 CPlayer* GetPlayer() const { if(m_pPlayer!=nullptr) return m_pPlayer; }

@@ -1,6 +1,3 @@
-//-----------------------------------------------------------------------------
-// File: CPlayer.cpp
-//-----------------------------------------------------------------------------
 
 #include "stdafx.h"
 #include "Player.h"
@@ -8,11 +5,6 @@
 #include "Object.h"
 #include "CUI.h"
 #include "Scene.h"
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// CPlayer
-
-
-//#define _SAVENAV_MODE_
 
 
 CPlayer::CPlayer()
@@ -209,8 +201,6 @@ void CPlayer::GivePiggyBack()
 		{
 			SetPiggyBackState(PIGGYBACK_CARRY);
 			m_pParter->SetPiggyBackState(PIGGYBACK_CRRIED);
-			g_myinfo.piggybackstate = PIGGYBACK_CARRY;
-			g_otherinfo.piggybackstate = PIGGYBACK_CRRIED;
 		}
 		break;
 
@@ -218,8 +208,6 @@ void CPlayer::GivePiggyBack()
 	case PIGGYBACK_CARRY:
 		SetPiggyBackState(PIGGYBACK_NONE);
 		m_pParter->SetPiggyBackState(PIGGYBACK_NONE);
-		g_myinfo.piggybackstate = PIGGYBACK_NONE;
-		g_otherinfo.piggybackstate = PIGGYBACK_NONE;
 		break;
 	}
 }
@@ -362,19 +350,6 @@ void CPlayer::Rotate(float x, float y, float z)
 		}
 		m_pCamera->Rotate(x, y, z);
 
-		if (y != 0.0f)
-		{
-			if (!g_myinfo.connected) { // 서버 연결 안 된 stand alone 상태일 때는. 테스트용.
-				XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(y));
-				m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
-				m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
-			}
-			if (m_ismain) { // 메인 클라이언트 플레이어만 회전되도록.
-				XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(y));
-				m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
-				m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
-			}
-		}
 	}
 	else if (nCurrentCameraMode == SPACESHIP_CAMERA)
 	{
@@ -422,10 +397,6 @@ void CPlayer::OnObject(float fy)
 
 void CPlayer::Update(float fTimeElapsed)
 {
-	//cout << "m_xmf3Look (" << m_xmf3Look.x << ", " << m_xmf3Look.y << ", " << m_xmf3Look.z << ")" << endl;
-	//cout << "m_xmf3Right (" << m_xmf3Right.x << ", " << m_xmf3Right.y << ", " << m_xmf3Right.z << ")" << endl;
-	//cout << "m_xmf3Up (" << m_xmf3Up.x << ", " << m_xmf3Up.y << ", " << m_xmf3Up.z << ")" << endl << endl;
-
 	if (m_PiggybackState == PIGGYBACK_CRRIED)
 	{
 		XMFLOAT3 pos = m_pParter->GetPosition();
@@ -435,13 +406,13 @@ void CPlayer::Update(float fTimeElapsed)
 		m_xmf3Look = m_pParter->GetLookVector();
 		m_xmf3Right = m_pParter->GetRightVector();
 	}
-	else 
+	else
 	{
 		float fDistance = 0;
-		if (m_moveState != STATE_CHEAT && m_moveState != STATE_GROUND && m_moveState != STATE_ONOBJECTS && m_moveState != STATE_STUN )
+		if (m_moveState != STATE_CHEAT && m_moveState != STATE_GROUND && m_moveState != STATE_ONOBJECTS && m_moveState != STATE_STUN)
 		{
 			m_fTime += fTimeElapsed;
-			fDistance = 30.f - 90.f * m_fTime ;
+			fDistance = 30.f - 90.f * m_fTime;
 			if (fDistance < 0)
 				m_moveState = STATE_FALLING;
 
@@ -450,7 +421,7 @@ void CPlayer::Update(float fTimeElapsed)
 
 		//if (fDistance >= 0)
 		XMFLOAT3 gravity = XMFLOAT3(0, m_xmf3Gravity.y * fTimeElapsed, 0.f);
-		if(m_moveState!=STATE_FALLING)	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, gravity);
+		if (m_moveState != STATE_FALLING)	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, gravity);
 
 		float fLength = sqrtf(m_xmf3Velocity.x * m_xmf3Velocity.x + m_xmf3Velocity.z * m_xmf3Velocity.z);
 		float fMaxVelocityXZ = m_fMaxVelocityXZ;
@@ -483,7 +454,7 @@ void CPlayer::Update(float fTimeElapsed)
 		float fDeceleration = (m_fFriction * fTimeElapsed);
 		if (fDeceleration > fLength) fDeceleration = fLength;
 		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Velocity, -fDeceleration, true));
-		
+
 	}
 	DWORD nCurrentCameraMode = m_pCamera->GetMode();
 	if (nCurrentCameraMode == THIRD_PERSON_CAMERA) m_pCamera->Update(m_xmf3Position, fTimeElapsed);
@@ -493,24 +464,16 @@ void CPlayer::Update(float fTimeElapsed)
 	if (nCurrentCameraMode == THIRD_PERSON_CAMERA) m_pCamera->SetLookAt(pos);
 	m_pCamera->RegenerateViewMatrix();
 
-	if(m_pAnimationController) m_pAnimationController->SetLoop(true);
-	
+	if (m_pAnimationController) m_pAnimationController->SetLoop(true);
+
 	if (m_moveState == STATE_GROUND)
 	{
-		if (!g_myinfo.connected) { // stand alone으로 채원이가 테스트할 땐 정상적으로 되어야 함.
-			if (Vector3::IsZero(m_xmf3Velocity))
-				SetAnimationSet(0);
-			else
-				SetAnimationSet(1);
-		}
-
-		if (m_ismain) { // 메인 클라이언트의 플레이어가 아니라면, 서버에서 받아오는 애니메이션 정보를 토대로 SetAnimationSet() 해주어야 한다.
-			if (Vector3::IsZero(m_xmf3Velocity))
-				SetAnimationSet(0);
-			else
-				SetAnimationSet(1);
-		}
+		if (Vector3::IsZero(m_xmf3Velocity))
+			SetAnimationSet(0);
+		else
+			SetAnimationSet(1);
 	}
+
 	if (m_bDamaging)
 	{
 		m_fDamagingTime += fTimeElapsed;

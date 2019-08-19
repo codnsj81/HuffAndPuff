@@ -6,6 +6,7 @@
 #include "GameFramework.h"
 #include "SoundMgr.h"
 
+e_scene g_scene;
 CGameFramework::CGameFramework()
 {
 	m_pdxgiFactory = NULL;
@@ -386,28 +387,6 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 			case 'S':
 			case 'D':
 			{
-				////@ 서버한테 위치 보내기
-				//if (true == g_myinfo.connected) {
-				//	player_info playerinfo;
-				//	XMFLOAT3 pos = m_pPlayer->GetPosition();
-				//	playerinfo = g_myinfo;
-				//	playerinfo.x = pos.x; playerinfo.y = pos.y; playerinfo.z = pos.z;
-				//	playerinfo.type = g_myinfo.type;
-				//	int retval;
-				//	/// 고정
-				//	packet_info packetinfo;
-				//	packetinfo.type = cs_move;
-				//	packetinfo.size = sizeof(player_info);
-				//	packetinfo.id = g_myinfo.id;
-				//	char buf[BUFSIZE];
-				//	memcpy(buf, &packetinfo, sizeof(packetinfo));
-				//	/// 가변 (고정 데이터에 가변 데이터 붙이는 형식으로)
-				//	memcpy(buf + sizeof(packetinfo), &playerinfo, sizeof(player_info));
-				//	retval = send(g_sock, buf, BUFSIZE, 0);
-				//	if (retval == SOCKET_ERROR) {
-				//		MessageBoxW(g_hWnd, L"send()", L"send() - cs_move", MB_OK);
-				//	}
-				//}
 			}
 			break;
 			default:
@@ -450,77 +429,7 @@ LRESULT CALLBACK CGameFramework::OnProcessingWindowMessage(HWND hWnd, UINT nMess
 	return(0);
 }
 
-void CGameFramework::SetPlayerType(player_type eType)
-{
 
-		switch (eType) {
-		case player_doggy:
-			m_pScene->m_pPlayer = m_pPlayer = m_pDoggy;
-			m_pCamera->m_UIList = NULL;
-			m_pCamera = m_pPlayer->GetCamera();
-			m_pCamera->m_UIList = m_UIList;
-			//g_myinfo.x = m_pPlayer->GetPosition().x;
-			//g_myinfo.y = m_pPlayer->GetPosition().y;
-			//g_myinfo.z = m_pPlayer->GetPosition().z;
-			break;
-		case player_ducky:
-			m_pScene->m_pPlayer = m_pPlayer = m_pDucky;
-			m_pCamera->m_UIList = NULL;
-			m_pCamera = m_pPlayer->GetCamera();
-			m_pCamera->m_UIList = m_UIList;
-			//g_myinfo.x = m_pPlayer->GetPosition().x;
-			//g_myinfo.y = m_pPlayer->GetPosition().y;
-			//g_myinfo.z = m_pPlayer->GetPosition().z;
-			break;
-		}
-		m_pScene->SetDuckyNDoggy(m_pDucky, m_pDoggy, m_pPlayer);
-
-}
-
-void CGameFramework::SetPlayerPos(player_type eType, XMFLOAT3 pos)
-{
-		switch (eType) {
-		case player_ducky:
-		{
-			if(m_pDucky !=nullptr)
-				m_pDucky->SetPosition_async(pos);
-		}
-		break;
-		case player_doggy:
-		{
-			if(m_pDoggy != nullptr)	
-				m_pDoggy->SetPosition_async(pos);
-		}
-		break;
-		}
-
-}
-
-void CGameFramework::SetPlayerAnimationSet(player_type eType, int animationSet)
-{
-	switch (eType) {
-	case player_ducky:
-	{
-		if (m_pDucky != nullptr) {
-			DWORD cur_as = m_pDucky->GetAnimationSet();
-			if (cur_as != animationSet) {
-				m_pDucky->SetAnimationSet(animationSet);
-			}
-		}
-	}
-	break;
-	case player_doggy:
-	{
-		if (m_pDoggy != nullptr) {
-			DWORD cur_as = m_pDoggy->GetAnimationSet();
-			if (cur_as != animationSet) {
-				m_pDoggy->SetAnimationSet(animationSet);
-			}
-		}
-	}
-	break;
-	}
-}
 
 void CGameFramework::SetPlayerDirection(player_type eType, XMFLOAT3 l, XMFLOAT3 r)
 {
@@ -715,10 +624,6 @@ void CGameFramework::BuildPlayers()
 	m_pDoggy->SetHitBox(XMFLOAT3(5.f, 5.f, 5.f));
 	m_pDoggy->SetScale(XMFLOAT3(4.f, 4.f, 4.f));
 	m_pDoggy->Rotate(0, 80, 0);
-	g_otherinfo.x = g_myinfo.x = INITPOSITION_X;
-	g_otherinfo.y = g_myinfo.y = m_pScene->m_pTerrain->GetHeight(INITPOSITION_X, INITPOSITION_Z);
-	g_otherinfo.z = g_myinfo.z = INITPOSITION_Z;
-
 
 
 	m_pDucky->SetParter(m_pDoggy);
@@ -830,11 +735,6 @@ void CGameFramework::ProcessInput()
 			}
 		 }
 
-		// -> 이제 ㄴㄴ !! 도기 접속 더기 접속 되도록
-
-	}
-	else if (g_scene == scene_menu) {
-		// 마우스 체크
 	}
 	else if (g_scene == scene_stage1) {
 		static UCHAR pKeysBuffer[256];
@@ -894,18 +794,12 @@ void CGameFramework::AnimateObjects()
 	if(m_pPlayer->GetMoveState() != STATE_STUN)
 		m_pPlayer->Animate(fTimeElapsed);
 	m_pPlayer->UpdateTransform(NULL);
+
+	m_pDoggy->UpdateTransform(NULL);
+	m_pDucky->Animate(fTimeElapsed);
+
+
 	m_pScene->AnimateObjects(fTimeElapsed);
-
-	if (g_myinfo.connected == false)
-		return;
-
-	if (g_myinfo.type == player_ducky) {
-		m_pDoggy->Animate(fTimeElapsed);
-		m_pDoggy->UpdateTransform(NULL);
-	}
-	else {
-			m_pDucky->Animate(fTimeElapsed);
-	}
 }
 
 void CGameFramework::WaitForGpuComplete()
@@ -1150,112 +1044,9 @@ void CGameFramework::FrameAdvance()
 		::SetWindowText(m_hWnd, m_pszFrameRate);
 
 
-		// 서버에게 정보 전송
-		SendingToServer(&xmf3Position, &xmf3Look, &xmf3Right);
 	}
 }
 
-
-void CGameFramework::SendingToServer(XMFLOAT3* pPos, XMFLOAT3* pLook, XMFLOAT3* pRight)
-{
-	XMFLOAT3 xmf3Position = *pPos, xmf3Look = *pLook, xmf3Right = *pRight;
-
-	/// 0703 : send thread를 만들어야 될 것 같아,, 렉 보완 문제는 일단 보류
-// 정보 전송
-	m_dwUpdatecnt++;
-	int as = m_pPlayer->GetAnimationSet_child();
-	int ps = m_pPlayer->GetPiggyBackState();
-	// cout << "as : " << as << endl;
-	if (g_myinfo.connected == true && m_dwUpdatecnt >= 3) {
-		//if (as != 0) // idle 상태가 아닐 때.
-		//{ 
-			m_bIsSetIdleAnimation = false;
-			m_bIsSetPiggyState = false;
-			player_info playerinfo;
-			playerinfo.id = g_myinfo.id;
-			playerinfo.x = xmf3Position.x; playerinfo.y = xmf3Position.y; playerinfo.z = xmf3Position.z;
-			playerinfo.type = g_myinfo.type;
-			playerinfo.animationSet = g_myinfo.animationSet;
-			playerinfo.l_x = xmf3Look.x; playerinfo.l_y = xmf3Look.y; playerinfo.l_z = xmf3Look.z;
-			playerinfo.r_x = xmf3Right.x; playerinfo.r_y = xmf3Right.y; playerinfo.r_z = xmf3Right.z;
-			playerinfo.piggybackstate = m_pPlayer->GetPiggyBackState();
-			int retval;
-			/// 고정
-			packet_info packetinfo;
-			packetinfo.type = cs_move;
-			packetinfo.size = sizeof(player_info);
-			packetinfo.id = g_myinfo.id;
-			char buf[BUFSIZE];
-			memcpy(buf, &packetinfo, sizeof(packetinfo));
-			/// 가변 (고정 데이터에 가변 데이터 붙이는 형식으로)
-			memcpy(buf + sizeof(packetinfo), &playerinfo, sizeof(player_info));
-			retval = send(g_sock, buf, BUFSIZE, 0);
-			if (retval == SOCKET_ERROR) {
-				MessageBoxW(g_hWnd, L"send()", L"send() - cs_move", MB_OK);
-				exit(1);
-			}
-			m_dwUpdatecnt = 0;
-			// cout << "cs_move" << endl;
-		//}
-		//if ((as == 0 && !m_bIsSetIdleAnimation) ) { // idle 상태여도 애니메이션 때문에 최초 한 번은 보내야 해.
- 	//		m_bIsSetIdleAnimation = true;
-		//	player_info playerinfo;
-		//	playerinfo.id = g_myinfo.id;
-		//	playerinfo.x = xmf3Position.x; playerinfo.y = xmf3Position.y; playerinfo.z = xmf3Position.z;
-		//	playerinfo.type = g_myinfo.type;
-		//	playerinfo.animationSet = g_myinfo.animationSet;
-		//	playerinfo.l_x = xmf3Look.x; playerinfo.l_y = xmf3Look.y; playerinfo.l_z = xmf3Look.z;
-		//	playerinfo.r_x = xmf3Right.x; playerinfo.r_y = xmf3Right.y; playerinfo.r_z = xmf3Right.z;
-		//	playerinfo.piggybackstate = m_pPlayer->GetPiggyBackState();
-		//	int retval;
-		//	/// 고정
-		//	packet_info packetinfo;
-		//	packetinfo.type = cs_move;
-		//	packetinfo.size = sizeof(player_info);
-		//	packetinfo.id = g_myinfo.id;
-		//	char buf[BUFSIZE];
-		//	memcpy(buf, &packetinfo, sizeof(packetinfo));
-		//	/// 가변 (고정 데이터에 가변 데이터 붙이는 형식으로)
-		//	memcpy(buf + sizeof(packetinfo), &playerinfo, sizeof(player_info));
-		//	retval = send(g_sock, buf, BUFSIZE, 0);
-		//	if (retval == SOCKET_ERROR) {
-		//		MessageBoxW(g_hWnd, L"send()", L"send() - cs_move", MB_OK);
-		//		exit(1);
-		//	}
-		//	m_dwUpdatecnt = 0;
-		//	cout << "cs_move" << endl;
-		//}
-		//if ((as == 0 && ps != 0 && !m_bIsSetPiggyState)) {
-		//	m_bIsSetPiggyState = true;
-		//	player_info playerinfo;
-		//	playerinfo.id = g_myinfo.id;
-		//	playerinfo.x = xmf3Position.x; playerinfo.y = xmf3Position.y; playerinfo.z = xmf3Position.z;
-		//	playerinfo.type = g_myinfo.type;
-		//	playerinfo.animationSet = g_myinfo.animationSet;
-		//	playerinfo.l_x = xmf3Look.x; playerinfo.l_y = xmf3Look.y; playerinfo.l_z = xmf3Look.z;
-		//	playerinfo.r_x = xmf3Right.x; playerinfo.r_y = xmf3Right.y; playerinfo.r_z = xmf3Right.z;
-		//	playerinfo.piggybackstate = m_pPlayer->GetPiggyBackState();
-		//	int retval;
-		//	/// 고정
-		//	packet_info packetinfo;
-		//	packetinfo.type = cs_move;
-		//	packetinfo.size = sizeof(player_info);
-		//	packetinfo.id = g_myinfo.id;
-		//	char buf[BUFSIZE];
-		//	memcpy(buf, &packetinfo, sizeof(packetinfo));
-		//	/// 가변 (고정 데이터에 가변 데이터 붙이는 형식으로)
-		//	memcpy(buf + sizeof(packetinfo), &playerinfo, sizeof(player_info));
-		//	retval = send(g_sock, buf, BUFSIZE, 0);
-		//	if (retval == SOCKET_ERROR) {
-		//		MessageBoxW(g_hWnd, L"send()", L"send() - cs_move", MB_OK);
-		//		exit(1);
-		//	}
-		//	m_dwUpdatecnt = 0;
-		//	cout << "cs_move" << endl;
-		//}
-
-	}
-}
 
 void CGameFramework::CreateSceneScreenVec()
 {

@@ -431,41 +431,19 @@ LRESULT CALLBACK CGameFramework::OnProcessingWindowMessage(HWND hWnd, UINT nMess
 
 
 
-void CGameFramework::SetPlayerDirection(player_type eType, XMFLOAT3 l, XMFLOAT3 r)
+void CGameFramework::SetPiggyBackState(int eType, int piggybackstate)
 {
 	switch (eType) {
-	case player_ducky:
+	case PLAYER_KIND_DUCKY:
 	{
-		if (m_pDucky != nullptr) {
-			m_pDucky->SetLookVector(l);
-			m_pDucky->SetRightVector(r);
-		}
-	}
-	break;
-	case player_doggy:
-	{
-		if (m_pDoggy != nullptr) {
-			m_pDoggy->SetLookVector(l);
-			m_pDoggy->SetRightVector(r);
-		}
-	}
-	break;
-	}
-}
-
-void CGameFramework::SetPiggyBackState(player_type eType, int piggybackstate)
-{
-	switch (eType) {
-	case player_ducky:
-	{
-		if (m_pDucky != nullptr) {
+		if (m_pDucky) {
 			m_pDucky->SetPiggyBackState(piggybackstate);
 		}
 	}
 	break;
-	case player_doggy:
+	case PLAYER_KIND_DOGGY:
 	{
-		if (m_pDoggy != nullptr) {
+		if (m_pDoggy) {
 			m_pDoggy->SetPiggyBackState(piggybackstate);
 		}
 	}
@@ -791,13 +769,14 @@ void CGameFramework::AnimateObjects()
 {
 	float fTimeElapsed = m_GameTimer.GetTimeElapsed();
 
-	if(m_pPlayer->GetMoveState() != STATE_STUN)
-		m_pPlayer->Animate(fTimeElapsed);
-	m_pPlayer->UpdateTransform(NULL);
+	if(m_pDucky->GetMoveState() != STATE_STUN)
+		m_pDucky->Animate(fTimeElapsed);
 
+	if (m_pDoggy->GetMoveState() != STATE_STUN)
+		m_pDoggy->Animate(fTimeElapsed);
+
+	m_pDucky->UpdateTransform(NULL);
 	m_pDoggy->UpdateTransform(NULL);
-	m_pDucky->Animate(fTimeElapsed);
-
 
 	m_pScene->AnimateObjects(fTimeElapsed);
 }
@@ -952,10 +931,6 @@ void CGameFramework::FrameAdvance()
 #ifdef _WITH_PLAYER_TOP
 		m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
 #endif
-		//if (m_pDucky) m_pDucky->Render(m_pd3dCommandList, m_pCamera);
-		//if (m_pDoggy) m_pDoggy->Render(m_pd3dCommandList, m_pCamera);
-		//m_pPlayer->GetNavGuide()->Render(m_pd3dCommandList, m_pCamera);
-
 		//UI·»´õ
 
 		if (m_pOverUI)

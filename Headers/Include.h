@@ -6,8 +6,6 @@
 #include <stdio.h>
 
 #include "Enum.h"
-#include "Protocol.h"
-#include "Function.h"
 #include "Extern.h"
 #include "Define.h"
 

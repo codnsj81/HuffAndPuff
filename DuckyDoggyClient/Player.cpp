@@ -350,6 +350,13 @@ void CPlayer::Rotate(float x, float y, float z)
 		}
 		m_pCamera->Rotate(x, y, z);
 
+		if (y != 0.0f)
+		{
+			XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(y));
+			m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
+			m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
+		
+		}
 	}
 	else if (nCurrentCameraMode == SPACESHIP_CAMERA)
 	{
@@ -377,7 +384,6 @@ void CPlayer::Rotate(float x, float y, float z)
 	m_xmf3Look = Vector3::Normalize(m_xmf3Look);
 	m_xmf3Right = Vector3::CrossProduct(m_xmf3Up, m_xmf3Look, true);
 	m_xmf3Up = Vector3::CrossProduct(m_xmf3Look, m_xmf3Right, true);
-
 
 
 }
@@ -693,7 +699,7 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	
 		pGameObject->m_pAnimationController->m_pAnimationSets[1].m_fSpeed = 0.8f;
 	
-	if(m_playerKind == player_ducky)
+	if(m_playerKind == PLAYER_KIND_DUCKY)
 	{
 		pGameObject->m_pAnimationController->m_pAnimationSets[0].m_fSpeed = 0.4f;
 	}

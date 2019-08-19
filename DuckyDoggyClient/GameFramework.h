@@ -49,8 +49,7 @@ public:
 	LRESULT CALLBACK OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 
 	// @
-	void SetPlayerDirection(player_type eType, XMFLOAT3 look, XMFLOAT3 right);
-	void SetPiggyBackState(player_type eType, int piggybackstate);
+	void SetPiggyBackState(int eType, int piggybackstate);
 	 CPlayer* GetPlayer() const { if(m_pPlayer!=nullptr) return m_pPlayer; }
 	 CTerrainPlayer* GetDoggy() { if (m_pDoggy != nullptr) return m_pDoggy;  }
 	 CTerrainPlayer* GetDucky() { if (m_pDucky != nullptr) return m_pDucky; }

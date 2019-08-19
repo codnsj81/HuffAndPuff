@@ -154,6 +154,13 @@ void CPlayer::SetCheatMode()
 	m_moveState = STATE_CHEAT;
 }
 
+void CPlayer::UseSkill()
+{
+	if (m_eSkillState != SKILL_FULL) return;
+	m_eSkillState = SKILL_USING;
+	m_iSkillGage = 0;
+}
+
 void CPlayer::Damage(int d)
 {
 	m_iHP -= d;
@@ -163,8 +170,14 @@ void CPlayer::Damage(int d)
 
 void CPlayer::PlusSkillGage(int d)
 {
+	if (m_eSkillState != SKILL_CHARGING) return;
+
 	m_iSkillGage += d; 
-	if (m_iSkillGage > 100) m_iSkillGage = 100;
+	if (m_iSkillGage >= 100)
+	{
+		m_iSkillGage = 100;
+		m_eSkillState = SKILL_FULL;
+	}
 }
 
 void CPlayer::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
@@ -544,7 +557,15 @@ void CPlayer::Update(float fTimeElapsed)
 		if (m_iHP < 0)
 			int a = 0;
 	}
-
+	if (m_eSkillState == SKILL_USING)
+	{
+		m_fSkillTime += fTimeElapsed;
+		if (m_fSkillTime > 5)
+		{
+			m_eSkillState = SKILL_CHARGING;
+			m_fSkillTime = 0;
+		}
+	}
 #ifdef _SAVENAV_MODE_
 	PlusNavigationList();
 #else

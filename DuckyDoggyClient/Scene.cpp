@@ -1126,6 +1126,7 @@ void CScene::AnimateObjects(float fTimeElapsed)
 			if ((*iter)->GetDeathState())
 			{
 				iter = M_MonsterObjectslist.erase(iter);
+				m_pPlayer->PlusSkillGage(100);
 				if(iter == end )
 					break;
 			}
@@ -1186,6 +1187,11 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 		{
 		case scene_stage1:
 			RenderStage1(pd3dCommandList, pCamera);
+			for (int i = 0; i < 2; i++)
+			{
+				m_ppWaters[i]->UpdateTransform(NULL);
+				m_ppWaters[i]->Render(m_pd3dCommandList, pCamera);
+			}
 			for (iter; iter!= iter_end ; iter++)
 			{
 				if ((*iter)->bRender)
@@ -1194,11 +1200,7 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 					(*iter)->Render(m_pd3dCommandList, pCamera);
 				}
 			}
-			for (int i = 0; i < 2; i++)
-			{
-				m_ppWaters[i]->UpdateTransform(NULL);
-				m_ppWaters[i]->Render(m_pd3dCommandList, pCamera);
-			}
+			
 			break;
 		}
 		m_pPlayer->GetNavGuide()->Render(m_pd3dCommandList, pCamera);

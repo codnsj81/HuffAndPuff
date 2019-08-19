@@ -353,7 +353,7 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 					break;
 				case 'O':
 				case 'o': // HP full, 카메라 위로
-					m_pPlayer->SetCheatMode(); 
+					m_pPlayer->UseSkill(); 
 					m_pDoggy->SetFullHP();
 					m_pDucky->SetFullHP();
 					break;
@@ -696,7 +696,7 @@ void CGameFramework::OnDestroy()
 
 void CGameFramework::BuildPlayers()
 {
-	m_pDucky = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), "Model/ducky2.bin", PLAYER_KIND_DUCKY, true, m_pScene->m_pTerrain);
+	m_pDucky = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), "Model/ducky.bin", PLAYER_KIND_DUCKY, true, m_pScene->m_pTerrain);
 	//m_pDucky->SetPosition(XMFLOAT3(1099.0f, m_pScene->m_pTerrain->GetHeight(1099, 88.0f), 88.0f));
 
 	m_pDucky->SetPosition(XMFLOAT3(INITPOSITION_X, \

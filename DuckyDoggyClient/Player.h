@@ -23,6 +23,8 @@
 class CScene;
 class CProgressUI;
 
+enum SkillState {SKILL_CHARGING, SKILL_FULL, SKILL_USING};
+
 class CPlayer : public CGameObject
 {
 protected:
@@ -78,6 +80,9 @@ protected:
 
 	int							m_navListSize;
 	int							m_navProcess;
+	SkillState						m_eSkillState = SKILL_CHARGING;
+	float						m_fSkillTime = 0;
+
 public:
 	CPlayer();
 	virtual ~CPlayer();
@@ -106,6 +111,7 @@ public:
 	int GetMoveState() { return m_moveState; }
 	void SetCheatMode();
 	int GetSkillGage() { return m_iSkillGage; }
+	void UseSkill();
 	
 	float	GetHp() { return m_iHP; }
 	void Damage(int d); 

@@ -14,15 +14,6 @@
 #define STATE_CHEAT		7
 
 
-// -------------------------
-// ¼³Á¤
-#define SERVERIP   "127.0.0.1"
-#define SERVERPORT 9000
-#define BUFSIZE  512
-
-// °¹¼ö
-#define NUM_OF_PLAYER 2
-
 // 
 #define CS_UP    1
 #define CS_DOWN  2

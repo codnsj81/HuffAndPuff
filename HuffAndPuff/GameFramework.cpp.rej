@@ -1,0 +1,15 @@
+diff a/DuckyDoggyClient/GameFramework.cpp b/DuckyDoggyClient/GameFramework.cpp	(rejected hunks)
+@@ -3,12 +3,13 @@
+ //-----------------------------------------------------------------------------
+ 
+ #include "stdafx.h"
+ #include "GameFramework.h"
+ #include "SoundMgr.h"
+ 
++e_scene g_scene;
+ CGameFramework::CGameFramework()
+ {
+ 	m_pdxgiFactory = NULL;
+ 	m_pdxgiSwapChain = NULL;
+ 	m_pd3dDevice = NULL;
+ 

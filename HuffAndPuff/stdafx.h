@@ -35,7 +35,12 @@ using namespace std;
 //#include "../Headers/Define.h"
 //#include "../Headers/Include.h"
 
-using namespace std;
+#include "fmod.hpp"
+#include "fmod.h"
+#pragma comment (lib, "fmod_vc.lib")
+#pragma comment (lib, "fmodL_vc.lib")
+
+using namespace FMOD;
 
 
 

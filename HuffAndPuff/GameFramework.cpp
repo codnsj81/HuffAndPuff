@@ -5,6 +5,7 @@
 #include "stdafx.h"
 #include "GameFramework.h"
 #include "Player.h"
+#include "SoundMgr.h"
 
 CGameFramework::CGameFramework()
 {
@@ -35,6 +36,7 @@ CGameFramework::CGameFramework()
 	m_pScene = NULL;
 	m_pPlayer = NULL;
 
+	CSoundMgr::GetInstacne()->LoadSoundFile();
 	_tcscpy_s(m_pszFrameRate, _T("HuffAndPuff("));
 }
 
@@ -577,7 +579,10 @@ void CGameFramework::BuildObjects()
 
 		if (m_pScene) m_pScene->ReleaseUploadBuffers();
 		if (m_pPlayer) m_pPlayer->ReleaseUploadBuffers();
+		
 
+		TCHAR* pName = _T("LogoBGM");
+		CSoundMgr::GetInstacne()->PlayBGMSound(pName);
 
 		m_GameTimer.Reset();
 

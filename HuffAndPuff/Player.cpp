@@ -792,7 +792,7 @@ void CTerrainPlayer::OnPlayerUpdateCallback(float fTimeElapsed)
 
 		SetPosition(xmf3PlayerPosition);
 	}
-	if (m_moveState == STATE_GROUND )
+	if (m_moveState == STATE_GROUND || m_moveState == STATE_FALLING )
 	{
 		m_bInWater = CheckInWater(xmf3PlayerPosition, pTerrain);
 	}

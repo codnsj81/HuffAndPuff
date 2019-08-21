@@ -4,7 +4,6 @@
 
 #include "stdafx.h"
 #include "GameFramework.h"
-#include "SoundMgr.h"
 
 CGameFramework::CGameFramework()
 {
@@ -371,7 +370,6 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 			{
 			case VK_SPACE:
 				m_pPlayer->Jump();
-				SOUNDMGR->OncePlaySound(L"Sound/Sound6.mp3", CHANNEL_EFFECT, 1.f);
 				break;
 			case 'Q':
 			case 'q':
@@ -513,8 +511,9 @@ void CGameFramework::BuildUI()
 	m_UIList->emplace_back(pTemp);
 
 
-	CSceneScreen* BloodScreen = new CSceneScreen(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 400, 290, m_pCamera->GetRoatMatrix(), L"Model/Textures/Red.tiff");
+	CUI* BloodScreen = new CImageUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 400, 290, XMFLOAT3(1999, m_pScene->m_pTerrain->GetHeight(1999, 972), 972), L"Model/Textures/Red.tiff");
 	BloodScreen->bRender = false;
+	BloodScreen->SetWinpos(-50, 0);
 	m_UIList->emplace_back(BloodScreen);
 	m_pScene->m_BloodScreen = BloodScreen;
 
@@ -617,10 +616,6 @@ void CGameFramework::BuildObjects()
 		m_pScene->BuildClock(m_pd3dDevice, m_pd3dCommandList);
 
 
-		// 스크린
-		CreateSceneScreenVec();
-
-
 		m_pScene->SetDuckyNDoggy(m_pDucky, m_pDoggy, m_pPlayer);
 		m_pScene->m_pd3dDevice = m_pd3dDevice;
 		m_pScene->m_pd3dCommandList = m_pd3dCommandList;
@@ -646,8 +641,6 @@ void CGameFramework::BuildObjects()
 
 		m_GameTimer.Reset();
 
-		// 메뉴 사운드
-		SOUNDMGR->PlayBGM(L"Sound/Sound3.mp3", CHANNEL_BGM, 1.f);
 
 }
 
@@ -665,36 +658,12 @@ void CGameFramework::ReleaseObjects()
 	if (m_pScene) m_pScene->ReleaseObjects();
 	if (m_pScene) delete m_pScene;
 
-	// SOUNDMGR->DestroyInstance();
 }
 
 
 
 void CGameFramework::ProcessInput()
 {
-	if (g_scene == scene_menu) {
-
-		// 임시방편으로 엔터 누르면 넘어가도록
-		
-		static UCHAR pKeysBuffer[256];
-		bool bProcessedByScene = false;
-		if (GetKeyboardState(pKeysBuffer) && m_pScene)
-			bProcessedByScene = m_pScene->ProcessInput(pKeysBuffer);
-		if (!bProcessedByScene)
-		{
-			if ((pKeysBuffer[VK_RETURN] & 0xF0)) {
-				g_scene = scene_stage1;
-				// 사운드
-				SOUNDMGR->StopSoundAll();
-				SOUNDMGR->PlayBGM(L"Sound/Sound0.mp3", CHANNEL_BGM, 1.f);
-				
-			}
-		 }
-
-		// -> 이제 ㄴㄴ !! 도기 접속 더기 접속 되도록
-
-	}
-	else if (g_scene == scene_stage1) {
 		static UCHAR pKeysBuffer[256];
 		bool bProcessedByScene = false;
 		if (GetKeyboardState(pKeysBuffer) && m_pScene)
@@ -741,8 +710,6 @@ void CGameFramework::ProcessInput()
 		}
 		m_pDucky->Update(m_GameTimer.GetTimeElapsed());
 		m_pDoggy->Update(m_GameTimer.GetTimeElapsed());
-
-	}
 }
 
 void CGameFramework::AnimateObjects()
@@ -794,91 +761,9 @@ void CGameFramework::MoveToNextFrame()
 
 void CGameFramework::FrameAdvance()
 {    
-	// 사운드
-	// SOUNDMGR->UpdateSound();
 
 	m_GameTimer.Tick(0.0f);
 	ProcessInput();
-	if (g_scene == scene_menu || g_scene == scene_doggylobby || g_scene == scene_duckylobby || g_scene == scene_duckydoggyconnect || g_scene == scene_gamestart || g_scene == scene_manual ) {
-		if (g_scene == scene_gamestart) {
-			// 일정 시간 지나면 Stage1로 진입
-			m_fSceneConnectTime += m_GameTimer.GetTimeElapsed();
-			if (m_fSceneConnectTime > 4.f) {
-				g_scene = scene_stage1;
-				SOUNDMGR->StopSoundAll();
-				SOUNDMGR->PlayBGM(L"Sound/Sound0.mp3", CHANNEL_BGM, 1.f);
-				return;
-			}
-		}
-
-		HRESULT hResult = m_pd3dCommandAllocator->Reset();
-		hResult = m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
-
-		D3D12_RESOURCE_BARRIER d3dResourceBarrier;
-		::ZeroMemory(&d3dResourceBarrier, sizeof(D3D12_RESOURCE_BARRIER));
-		d3dResourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-		d3dResourceBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-		d3dResourceBarrier.Transition.pResource = m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex];
-		d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
-		d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
-		d3dResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-		m_pd3dCommandList->ResourceBarrier(1, &d3dResourceBarrier);
-
-		D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_pd3dRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-		d3dRtvCPUDescriptorHandle.ptr += (m_nSwapChainBufferIndex * m_nRtvDescriptorIncrementSize);
-
-		float pfClearColor[4] = {1.0f, 1.f, 1.f, 1.0f };
-		m_pd3dCommandList->ClearRenderTargetView(d3dRtvCPUDescriptorHandle, pfClearColor/*Colors::Azure*/, 0, NULL);
-
-		D3D12_CPU_DESCRIPTOR_HANDLE d3dDsvCPUDescriptorHandle = m_pd3dDsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-		m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
-
-		m_pd3dCommandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, TRUE, &d3dDsvCPUDescriptorHandle);
-
-
-		//if (m_pScene) m_pScene->Update(m_GameTimer.GetTimeElapsed());
-		if (m_pScene) m_pScene->Render(m_pd3dCommandList, m_pCamera);
-		// 스크린 렌더
-		int screenindex = (int)g_scene;
-	//	dynamic_cast<CSceneScreen*>(m_SceneScreenVec[screenindex])->MoveToCamera(m_pCamera);
-		m_SceneScreenVec[screenindex]->Update();
-		m_SceneScreenVec[screenindex]->UpdateTransform(NULL);
-		m_SceneScreenVec[screenindex]->Render(m_pd3dCommandList, m_pCamera);
-
-		d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
-		d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
-		d3dResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-		m_pd3dCommandList->ResourceBarrier(1, &d3dResourceBarrier);
-
-		hResult = m_pd3dCommandList->Close();
-
-		ID3D12CommandList* ppd3dCommandLists[] = { m_pd3dCommandList };
-		m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
-
-		WaitForGpuComplete();
-
-#ifdef _WITH_PRESENT_PARAMETERS
-		DXGI_PRESENT_PARAMETERS dxgiPresentParameters;
-		dxgiPresentParameters.DirtyRectsCount = 0;
-		dxgiPresentParameters.pDirtyRects = NULL;
-		dxgiPresentParameters.pScrollRect = NULL;
-		dxgiPresentParameters.pScrollOffset = NULL;
-		m_pdxgiSwapChain->Present1(1, 0, &dxgiPresentParameters);
-#else
-#ifdef _WITH_SYNCH_SWAPCHAIN
-		m_pdxgiSwapChain->Present(1, 0);
-#else
-		m_pdxgiSwapChain->Present(0, 0);
-#endif
-#endif
-
-		//	m_nSwapChainBufferIndex = m_pdxgiSwapChain->GetCurrentBackBufferIndex();
-		MoveToNextFrame();
-
-
-	}
-	else if (g_scene == scene_stage1 || g_scene == scene_success) {
-	
 
 		AnimateObjects();
 
@@ -906,7 +791,7 @@ void CGameFramework::FrameAdvance()
 
 		m_pd3dCommandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, TRUE, &d3dDsvCPUDescriptorHandle);
 
-		if (m_pScene && g_scene == scene_stage1) m_pScene->Update(m_GameTimer.GetTimeElapsed());
+		m_pScene->Update(m_GameTimer.GetTimeElapsed());
 		if (m_pScene) m_pScene->Render(m_pd3dCommandList, m_pCamera);
 
 		//m_pSceneScreen->Render(m_pd3dCommandList, m_pCamera);
@@ -923,17 +808,6 @@ void CGameFramework::FrameAdvance()
 			if( m_pOverUI->bRender)
 				m_pOverUI->Render(m_pd3dCommandList, m_pCamera);
 
-		if (g_scene == scene_success)
-		{
-			// 스크린 렌더
-			int screenindex = (int)g_scene;
-			dynamic_cast<CSceneScreen*>(m_SceneScreenVec[screenindex])->MoveToCamera(m_pCamera);
-			m_SceneScreenVec[screenindex]->Update();
-			m_SceneScreenVec[screenindex]->UpdateTransform(NULL);
-			m_SceneScreenVec[screenindex]->Render(m_pd3dCommandList, m_pCamera);
-
-
-		}
 
 		d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
 		d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
@@ -995,8 +869,6 @@ void CGameFramework::FrameAdvance()
 		}
 
 
-
-	}
 	m_GameTimer.GetFrameRate(m_pszFrameRate + 12, 37);
 	size_t nLength = _tcslen(m_pszFrameRate);
 	XMFLOAT3 xmf3Position = m_pPlayer->GetPosition();
@@ -1007,30 +879,3 @@ void CGameFramework::FrameAdvance()
 
 }
 
-
-
-void CGameFramework::CreateSceneScreenVec()
-{
-	CSceneScreen* pscenescreen_menu = new CSceneScreen(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 410, 280, m_pCamera->GetRoatMatrix(), L"Model/Textures/UI_Main.tiff");
-	m_SceneScreenVec.emplace_back(pscenescreen_menu);
-
-	CSceneScreen* pscenescreen_duckylobby = new CSceneScreen(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 410, 280, m_pCamera->GetRoatMatrix(), L"Model/Textures/UI_DuckyRobby.tiff");
-	m_SceneScreenVec.emplace_back(pscenescreen_duckylobby);
-
-	CSceneScreen* pscenescreen_doggylobby = new CSceneScreen(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 410, 280, m_pCamera->GetRoatMatrix(), L"Model/Textures/UI_DoggyRobby.tiff");
-	m_SceneScreenVec.emplace_back(pscenescreen_doggylobby);
-
-	CSceneScreen* pscenescreen_duckydoggyconnect = new CSceneScreen(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 410, 280, m_pCamera->GetRoatMatrix(), L"Model/Textures/UI_Connect.tiff");
-	m_SceneScreenVec.emplace_back(pscenescreen_duckydoggyconnect);
-
-	CSceneScreen* pscenescreen_gamestart = new CSceneScreen(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 410, 280, m_pCamera->GetRoatMatrix(), L"Model/Textures/UI_GameStart.tiff");
-	m_SceneScreenVec.emplace_back(pscenescreen_gamestart);
-
-	CSceneScreen* pscenescreen_manual = new CSceneScreen(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 410, 280, m_pCamera->GetRoatMatrix(), L"Model/Textures/UI_Manual.tiff");
-	m_SceneScreenVec.emplace_back(pscenescreen_manual);
-
-		CSceneScreen* pscenescreen_success = new CSceneScreen(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 275, 200, m_pCamera->GetRoatMatrix(), L"Model/Textures/UI_Success.tiff");
-	m_SceneScreenVec.emplace_back(pscenescreen_success);
-
-	// m_pSceneScreen = new CSceneScreen(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 400, 290, m_pCamera->GetRoatMatrix(), L"Model/Textures/UI_Main.tiff");
-}

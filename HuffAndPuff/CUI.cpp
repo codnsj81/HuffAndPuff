@@ -2,7 +2,6 @@
 #include "CUI.h"
 #include "Shader.h"
 #include "Scene.h"
-#include "SoundMgr.h"
 
 CHP::CHP(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, ID3D12RootSignature * pd3dGraphicsRootSignature, float nWidth, float nLength, XMFLOAT3 xmfPosition)
 {
@@ -172,10 +171,6 @@ void CEndUI::Update(float elapsed)
 			Trigger = false;
 			bRender = false;
 			bEx = true;
-			g_scene = scene_success;
-
-			SOUNDMGR->StopSoundAll();
-			SOUNDMGR->PlayBGM(L"Sound/Sound13.mp3", CHANNEL_BGM, 1.f);
 
 				
 		}

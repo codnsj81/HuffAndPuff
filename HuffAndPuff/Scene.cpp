@@ -8,9 +8,7 @@
 #include "Scene.h"
 #include "CMonster.h"
 #include "CUI.h"
-#include "SceneScreen.h"
 #include "GameFramework.h"
-#include "SoundMgr.h"
 
 ID3D12DescriptorHeap *CScene::m_pd3dCbvSrvDescriptorHeap = NULL;
 
@@ -55,7 +53,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 		CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 		BuildDefaultLightsAndMaterials();
 
-		XMFLOAT3 xmf3Scale(8.0f, 3.0f, 8.0f);
+		XMFLOAT3 xmf3Scale(8.0f, 3.0f, 8.0f); // -> 나중에 크기 6,3,6으로 바꾸기
 		XMFLOAT4 xmf4Color(0.3f, 0.3f, 0.3f, 0.0f);
 		
 		m_pTerrain = new CHeightMapTerrain(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, _T("Terrain/terrain.raw"), 257, 257, xmf3Scale, xmf4Color);
@@ -221,7 +219,6 @@ void CScene::PlayerAttack()
 		if (distance < 10)
 		{
 			p->Damage(m_pPlayer->GetAtt());
-			SOUNDMGR->PlaySoundW(L"Sound/Sound9.mp3", CHANNEL_SKILL, 1.f);
 		}
 	}
 
@@ -1183,9 +1180,6 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 		list<CUI*>::iterator iter = m_UIList->begin();
 		list<CUI*>::iterator iter_end = m_UIList->end();
 
-		switch (g_scene)
-		{
-		case scene_stage1:
 			RenderStage1(pd3dCommandList, pCamera);
 			for (int i = 0; i < 2; i++)
 			{
@@ -1201,8 +1195,6 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 				}
 			}
 			
-			break;
-		}
 		m_pPlayer->GetNavGuide()->Render(m_pd3dCommandList, pCamera);
 
 }
@@ -1329,7 +1321,6 @@ void CScene::ObjectsCollides()
 				m_pDoggy->SetStun();
 				m_pDoggy->Damage(3);
 				n->SetCollided(true);
-				SOUNDMGR->OncePlaySound(L"Sound/Sound15.mp3", CHANNEL_EFFECT, 1.f);
 
 				m_BloodScreen->bRender = true;
 			}
@@ -1343,7 +1334,6 @@ void CScene::ObjectsCollides()
 				m_pDucky->SetStun();
 				m_pDucky->Damage(3);
 				n->SetCollided(true);
-				SOUNDMGR->OncePlaySound(L"Sound/Sound15.mp3", CHANNEL_EFFECT, 1.f);
 				m_BloodScreen->bRender = true;
 			}
 		}
@@ -1355,13 +1345,11 @@ void CScene::ObjectsCollides()
 		{
 			m_pDoggy->Dash(m_fElapsedTime * 30);
 
-			SOUNDMGR->OncePlaySound(L"Sound/Sound9.mp3", CHANNEL_EFFECT, 1.f);
 
 		}
 		if (n->getCollision(m_pDucky, false) != COLLIDE_NONE)
 		{
 			m_pDucky->Dash(m_fElapsedTime * 30);
-			SOUNDMGR->OncePlaySound(L"Sound/Sound9.mp3", CHANNEL_EFFECT, 1.f);
 
 		}
 

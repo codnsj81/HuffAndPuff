@@ -8,7 +8,6 @@
 #include "Player.h"
 #include "Scene.h"
 #include "CUI.h"
-#include "SceneScreen.h"
 
 class CGameFramework
 {
@@ -42,7 +41,6 @@ public:
 
 	void WaitForGpuComplete();
 	void MoveToNextFrame();
-	void CreateSceneScreenVec();
 
 
 	void OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);

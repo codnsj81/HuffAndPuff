@@ -5,7 +5,6 @@
 #include "LabProject07-9-5(Animation).h"
 #include "GameFramework.h"
 
-e_scene g_scene;
 
 #define MAX_LOADSTRING 100
 

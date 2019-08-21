@@ -7,11 +7,6 @@
 #define DIR_UP					0x10
 #define DIR_DOWN				0x20
 
-#define PIGGYBACK_NONE 0
-#define PIGGYBACK_CARRY	1
-#define PIGGYBACK_CRRIED 2
-
-
 // 플레이어충돌
 #define COLLIDEY	0 // 충돌 O
 #define COLLIDEN	1 // 충돌 X
@@ -56,7 +51,6 @@ protected:
 	bool						m_bInWater = false;
 	bool						m_bCheatmode = false;
 
-	int							m_PiggybackState = PIGGYBACK_NONE;
 	int							m_moveState = STATE_GROUND;
 	float						m_fTime = 0.f;
 	float						m_fPreHeight = 0;
@@ -127,11 +121,6 @@ public:
 	void SetPosition(const XMFLOAT3& xmf3Position) { Move(XMFLOAT3(xmf3Position.x - m_xmf3Position.x, xmf3Position.y - m_xmf3Position.y, xmf3Position.z - m_xmf3Position.z), false); }
 	void SetParter(CPlayer* pPlayer) { m_pPartner = pPlayer; }
 	void SetScale(XMFLOAT3& xmf3Scale) { m_xmf3Scale = xmf3Scale; }
-	void SetPiggyBackState(int state) { m_PiggybackState = state; }
-
-	int GetPiggyBackState() { return m_PiggybackState; }
-
-	void GivePiggyBack();
 	void CollideSide();
 
 	const XMFLOAT3& GetVelocity() const { return(m_xmf3Velocity); }
@@ -183,10 +172,6 @@ public:
 
 	int							m_CollideState = COLLIDEN;
 
-	void SetPosition_async(const XMFLOAT3& xmf3Position) { 
-		if(m_PiggybackState == PIGGYBACK_NONE)
-			m_xmf3Position = xmf3Position;
-	}
 
 
 	//

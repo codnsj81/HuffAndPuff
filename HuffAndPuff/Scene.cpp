@@ -201,13 +201,6 @@ void CScene::Update(float fTime)
 		TimeCount(fTime);
 }
 
-void CScene::SetDuckyNDoggy(CPlayer * ducky, CPlayer * doggy, CPlayer * player)
-{
-	m_pDoggy = doggy;
-	m_pDucky = ducky;
-	m_pPlayer = player;
-}
-
 void CScene::PlayerAttack()
 {
 
@@ -460,6 +453,9 @@ void CScene::ReleaseUploadBuffers()
 		n->ReleaseShaderVariables();
 
 	for (auto n : m_TrapList)
+		n->ReleaseShaderVariables();
+
+	for (auto n : *m_UIList)
 		n->ReleaseShaderVariables();
 }
 
@@ -802,8 +798,7 @@ void CScene::RenderStage1(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* p
 		}
 	}
 
-	if (m_pDucky) m_pDucky->Render(m_pd3dCommandList, pCamera);
-	if (m_pDoggy) m_pDoggy->Render(m_pd3dCommandList, pCamera);
+	if (m_pPlayer) m_pPlayer->Render(m_pd3dCommandList, pCamera);
 
 	for (int i = 0; i < 2; i++)
 	{
@@ -818,8 +813,7 @@ void CScene::RenderStage1(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* p
 
 void CScene::CreateDamageUI(CPlayer * pPlayer, int dam)
 {
-
-	CDamageUI* DUI = new CDamageUI(m_pd3dDevice, m_pd3dCommandList, m_pd3dGraphicsRootSignature, 3, 3, dam,  NULL);
+	CDamageUI* DUI = new CDamageUI(m_pd3dDevice, m_pd3dCommandList, m_pd3dGraphicsRootSignature, 4, 4, dam, NULL);
 	DUI->SetTexture(m_DamageUITex);
 	m_pPlayer->GetCamera()->RotateUI(DUI);
 	DUI->SetPosition(pPlayer->GetPosition().x, pPlayer->GetPosition().y + 7, pPlayer->GetPosition().z);
@@ -1203,8 +1197,7 @@ void CScene::ObjectsCollides()
 {
 	if (m_pPlayer->GetMoveState() == STATE_CHEAT) return;
 
-	m_pDucky->m_CollideState = 1;
-	m_pDoggy->m_CollideState = 1;
+	m_pPlayer->m_CollideState = 1;
 	if (m_ppGameObjects)
 	{
 		for (int i = 0; i < m_nGameObjects; i++)
@@ -1213,37 +1206,7 @@ void CScene::ObjectsCollides()
 		}
 	}
 	for (auto n : m_TreeObjectslist) {
-		if (n->getCollision(m_pDucky) != COLLIDE_NONE)
-		{	
-			
-			if (!n->GetHoneyDrop())
-			{
-				int prob = rand() % 10;
-				if (prob < 4)
-				{
-					XMFLOAT3 pos = m_pDucky->GetPosition();
-					CHoneyComb* temp = new CHoneyComb();
-					temp->SetChild(HoneyComb);
-					temp->SetPosition(pos.x, pos.y + 20, pos.z);
-					temp->SetFloorHeight(m_pTerrain->GetHeight(n->GetPosition().x, n->GetPosition().z));
-					temp->Rotate(rand() % 360, rand() % 360, rand() % 360);
-					m_HoneyComblist.push_back(temp);
-				}
-				else if (prob < 8)
-				{
-
-					XMFLOAT3 pos = m_pDucky->GetPosition();
-					CPotion* temp = new CPotion();
-					temp->SetChild(Potion);
-					temp->SetPosition(pos.x, pos.y + 20, pos.z);
-					temp->SetFloorHeight(m_pTerrain->GetHeight(n->GetPosition().x, n->GetPosition().z));
-					m_HoneyComblist.push_back(temp);
-				}
-			}
-
-			n->SetHoneyDrop();
-		}
-		if (n->getCollision(m_pDoggy) != COLLIDE_NONE)
+		if (n->getCollision(m_pPlayer) != COLLIDE_NONE)
 		{
 
 			if (!n->GetHoneyDrop())
@@ -1251,7 +1214,7 @@ void CScene::ObjectsCollides()
 				int prob = rand() % 10;
 				if (prob < 4)
 				{
-					XMFLOAT3 pos = m_pDoggy->GetPosition();
+					XMFLOAT3 pos = m_pPlayer->GetPosition();
 					CHoneyComb* temp = new CHoneyComb();
 					temp->SetChild(HoneyComb);
 					temp->SetPosition(pos.x, pos.y + 20, pos.z);
@@ -1263,7 +1226,7 @@ void CScene::ObjectsCollides()
 				else if (prob < 8)
 				{
 
-					XMFLOAT3 pos = m_pDoggy->GetPosition();
+					XMFLOAT3 pos = m_pPlayer->GetPosition();
 					CPotion* temp = new CPotion();
 					temp->SetChild(Potion);
 					temp->SetPosition(pos.x, pos.y + 20, pos.z);
@@ -1279,32 +1242,21 @@ void CScene::ObjectsCollides()
 
 	for (auto n : m_StoneObjectslist)
 	{
-		n->getCollision(m_pDoggy);
-		n->getCollision(m_pDucky);
+		n->getCollision(m_pPlayer);
 	}
 	for (auto n : M_MonsterObjectslist)
 	{
-		n->getCollision(m_pDoggy);
-		n->getCollision(m_pDucky);
+		n->getCollision(m_pPlayer);
 	}
 
 	for (auto n : m_Mushroomlist)
 	{
-		if (n->getCollision(m_pDoggy, false) != COLLIDE_NONE)
+		if (n->getCollision(m_pPlayer, false) != COLLIDE_NONE)
 		{
 			if (!n->GetCollided())
 			{
-				CreateDamageUI(m_pDoggy, 4);
-				m_pDoggy->Damage(4);
-				n->SetCollided(true);
-			}
-		}
-		if (n->getCollision(m_pDucky, false) != COLLIDE_NONE)
-		{
-			if (!n->GetCollided())
-			{
-				CreateDamageUI(m_pDucky, 4);
-				m_pDucky->Damage(4);
+				CreateDamageUI(m_pPlayer, 4);
+				m_pPlayer->Damage(4);
 			}
 			n->SetCollided(true);
 		}
@@ -1313,26 +1265,14 @@ void CScene::ObjectsCollides()
 
 	for (auto n : m_TrapList)
 	{
-		if (n->getCollision(m_pDoggy, false) != COLLIDE_NONE)
-		{
-			if (!n->GetCollided())
-			{
-				CreateDamageUI(m_pDoggy, 3);
-				m_pDoggy->SetStun();
-				m_pDoggy->Damage(3);
-				n->SetCollided(true);
-
-				m_BloodScreen->bRender = true;
-			}
-		}
-		if (n->getCollision(m_pDucky, false) != COLLIDE_NONE)
+		if (n->getCollision(m_pPlayer, false) != COLLIDE_NONE)
 		{
 			if (!n->GetCollided())
 			{
 
-				CreateDamageUI(m_pDucky, 3);
-				m_pDucky->SetStun();
-				m_pDucky->Damage(3);
+				CreateDamageUI(m_pPlayer, 3);
+				m_pPlayer->SetStun();
+				m_pPlayer->Damage(3);
 				n->SetCollided(true);
 				m_BloodScreen->bRender = true;
 			}
@@ -1341,15 +1281,10 @@ void CScene::ObjectsCollides()
 	}
 	for (auto n : m_DashList)
 	{
-		if (n->getCollision(m_pDoggy, false) != COLLIDE_NONE)
+		if (n->getCollision(m_pPlayer, false) != COLLIDE_NONE)
 		{
-			m_pDoggy->Dash(m_fElapsedTime * 30);
+			m_pPlayer->Dash(m_fElapsedTime * 30);
 
-
-		}
-		if (n->getCollision(m_pDucky, false) != COLLIDE_NONE)
-		{
-			m_pDucky->Dash(m_fElapsedTime * 30);
 
 		}
 
@@ -1360,10 +1295,8 @@ void CScene::ObjectsCollides()
 	list<CHoneyComb*> ::iterator honeyend = m_HoneyComblist.end();
 	for (honeyiter; honeyiter != honeyend; honeyiter++)
 	{
-		if ((*honeyiter)->getCollision(m_pDoggy) && (*honeyiter)->GetDamage() == 6)
-			CreateDamageUI(m_pDoggy,6);
-		if ((*honeyiter)->getCollision(m_pDucky) && (*honeyiter)->GetDamage() == 6 )
-			CreateDamageUI(m_pDucky, 6);
+		if ((*honeyiter)->getCollision(m_pPlayer) && (*honeyiter)->GetDamage() == 6)
+			CreateDamageUI(m_pPlayer,6);
 		if ((*honeyiter)->GetbDie())
 		{
 			honeyiter = m_HoneyComblist.erase(honeyiter);

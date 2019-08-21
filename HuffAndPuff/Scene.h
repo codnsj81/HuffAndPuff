@@ -73,7 +73,6 @@ public:
 	void BuildClock(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	void ReleaseObjects();
 	void Update(float fTime);
-	void SetDuckyNDoggy(CPlayer* ducky, CPlayer* doggy, CPlayer* player);
 
 	void PlayerAttack();
 
@@ -103,8 +102,6 @@ public:
 	void SetBloodScreenState(bool b);
 
 	CPlayer								*m_pPlayer = NULL;
-	CPlayer								*m_pDoggy;
-	CPlayer								*m_pDucky;
 	CGameObject*						m_pSnakeObject = NULL;
 	ID3D12Device*						m_pd3dDevice = NULL;
 	ID3D12GraphicsCommandList*			m_pd3dCommandList = NULL;
@@ -112,7 +109,6 @@ public:
 	void ResetObjects();
 	void PlusTreeData();
 	void SaveTreeData();
-
 
 	void PlusTrapData();
 	void SaveTrapData();

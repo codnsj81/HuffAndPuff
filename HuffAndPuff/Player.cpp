@@ -212,27 +212,6 @@ void CPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
 }
 
 
-void CPlayer::GivePiggyBack()
-{
-	switch (m_PiggybackState)
-	{
-	case PIGGYBACK_NONE:
-		XMFLOAT3 subvector = Vector3::Subtract(m_xmf3Position, m_pPartner->GetPosition());
-		if (Vector3::Length(subvector) < 10.f)
-		{
-			SetPiggyBackState(PIGGYBACK_CARRY);
-			m_pPartner->SetPiggyBackState(PIGGYBACK_CRRIED);
-		}
-		break;
-
-	case PIGGYBACK_CRRIED:
-	case PIGGYBACK_CARRY:
-		SetPiggyBackState(PIGGYBACK_NONE);
-		m_pPartner->SetPiggyBackState(PIGGYBACK_NONE);
-		break;
-	}
-}
-
 void CPlayer::CollideSide()
 {
 	m_CollideState = COLLIDEY;
@@ -306,11 +285,6 @@ void CPlayer::Move( XMFLOAT3 xmf3Shift, bool bUpdateVelocity)
 			if (minus == 0) degree = 0;
 			else
 				degree = minus / (xmf3Shift.x * xmf3Shift.x + minus * minus);
-
-			if (m_playerKind == PLAYER_KIND_DOGGY && CheckInWater(m_predictedPos, pTerrain))
-			{
-				return;
-			}
 
 
 		if (m_moveState == STATE_GROUND)
@@ -424,95 +398,73 @@ void CPlayer::OnObject(float fy)
 
 void CPlayer::Update(float fTimeElapsed)
 {
-	if (m_PiggybackState == PIGGYBACK_CRRIED)
-	{
-		m_xmf3Look = m_pPartner->GetLookVector();
-		m_xmf3Right = m_pPartner->GetRightVector();
-
-		XMFLOAT3 pos = m_pPartner->GetPosition();
-		if (m_playerKind == PLAYER_KIND_DUCKY)
-		{
-			pos.y += 5.f;
-			m_xmf3Position = pos;
-		}
-		else
-		{
-			pos.y += 2.f;
-			m_xmf3Position = pos;
-		}
-
-		if(m_playerKind == PLAYER_KIND_DOGGY)
-			SetAnimationSet(3);
-
-	}
-	else 
-	{
-		float fDistance = 0;
-		if (m_moveState != STATE_CHEAT && m_moveState != STATE_GROUND && m_moveState != STATE_ONOBJECTS && m_moveState != STATE_STUN )
-		{
-			m_fTime += fTimeElapsed;
-			fDistance = 30.f - 90.f * m_fTime ;
-			if (fDistance < 0)
-				m_moveState = STATE_FALLING;
-
-			m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Up, fDistance);
-		}
-
-		//if (fDistance >= 0)
-		XMFLOAT3 gravity = XMFLOAT3(0, m_xmf3Gravity.y * fTimeElapsed, 0.f);
-		if(m_moveState!=STATE_FALLING)	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, gravity);
-
-		float fLength = sqrtf(m_xmf3Velocity.x * m_xmf3Velocity.x + m_xmf3Velocity.z * m_xmf3Velocity.z);
-		float fMaxVelocityXZ = m_fMaxVelocityXZ;
-		if (m_bDash)
-		{
-			m_fMaxVelocityXZ -= fTimeElapsed * 10;
-			if (m_fMaxVelocityXZ <= 30.f)
-			{
-				m_fMaxVelocityXZ = 30.f;
-				m_bDash = false;
-			}
-
-		}
-
-		if (fLength > m_fMaxVelocityXZ)
-		{
-			m_xmf3Velocity.x *= (fMaxVelocityXZ / fLength);
-			m_xmf3Velocity.z *= (fMaxVelocityXZ / fLength);
-		}
-		float fMaxVelocityY = m_fMaxVelocityY;
-		fLength = sqrtf(m_xmf3Velocity.y * m_xmf3Velocity.y);
-		if (fLength > m_fMaxVelocityY) m_xmf3Velocity.y *= (fMaxVelocityY / fLength);
-
-		XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed, false);
-
-		Move(xmf3Velocity, false);
-		if (m_pPlayerUpdatedContext) OnPlayerUpdateCallback(fTimeElapsed);
-
-		fLength = Vector3::Length(m_xmf3Velocity);
-		float fDeceleration = (m_fFriction * fTimeElapsed);
-		if (fDeceleration > fLength) fDeceleration = fLength;
-		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Velocity, -fDeceleration, true));
 	
-		DWORD nCurrentCameraMode = m_pCamera->GetMode();
-		if (nCurrentCameraMode == THIRD_PERSON_CAMERA) m_pCamera->Update(m_xmf3Position, fTimeElapsed);
-		if (m_pCameraUpdatedContext) OnCameraUpdateCallback(fTimeElapsed);
-		XMFLOAT3 pos = m_xmf3Position;
-		pos.y += 7.f;
-		if (nCurrentCameraMode == THIRD_PERSON_CAMERA) m_pCamera->SetLookAt(pos);
-		m_pCamera->RegenerateViewMatrix();
+	float fDistance = 0;
+	if (m_moveState != STATE_CHEAT && m_moveState != STATE_GROUND && m_moveState != STATE_ONOBJECTS && m_moveState != STATE_STUN )
+	{
+		m_fTime += fTimeElapsed;
+		fDistance = 30.f - 90.f * m_fTime ;
+		if (fDistance < 0)
+			m_moveState = STATE_FALLING;
 
-		if (m_pAnimationController) m_pAnimationController->SetLoop(true);
-
-		if (m_moveState == STATE_GROUND)
-		{
-			if (Vector3::IsZero(m_xmf3Velocity))
-				SetAnimationSet(0);
-			else
-				SetAnimationSet(1);
-			
-		}
+		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Up, fDistance);
 	}
+
+	//if (fDistance >= 0)
+	XMFLOAT3 gravity = XMFLOAT3(0, m_xmf3Gravity.y * fTimeElapsed, 0.f);
+	if(m_moveState!=STATE_FALLING)	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, gravity);
+
+	float fLength = sqrtf(m_xmf3Velocity.x * m_xmf3Velocity.x + m_xmf3Velocity.z * m_xmf3Velocity.z);
+	float fMaxVelocityXZ = m_fMaxVelocityXZ;
+	if (m_bDash)
+	{
+		m_fMaxVelocityXZ -= fTimeElapsed * 10;
+		if (m_fMaxVelocityXZ <= 30.f)
+		{
+			m_fMaxVelocityXZ = 30.f;
+			m_bDash = false;
+		}
+
+	}
+
+	if (fLength > m_fMaxVelocityXZ)
+	{
+		m_xmf3Velocity.x *= (fMaxVelocityXZ / fLength);
+		m_xmf3Velocity.z *= (fMaxVelocityXZ / fLength);
+	}
+	float fMaxVelocityY = m_fMaxVelocityY;
+	fLength = sqrtf(m_xmf3Velocity.y * m_xmf3Velocity.y);
+	if (fLength > m_fMaxVelocityY) m_xmf3Velocity.y *= (fMaxVelocityY / fLength);
+
+	XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed, false);
+
+	Move(xmf3Velocity, false);
+	if (m_pPlayerUpdatedContext) OnPlayerUpdateCallback(fTimeElapsed);
+
+	fLength = Vector3::Length(m_xmf3Velocity);
+	float fDeceleration = (m_fFriction * fTimeElapsed);
+	if (fDeceleration > fLength) fDeceleration = fLength;
+	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Velocity, -fDeceleration, true));
+	
+	DWORD nCurrentCameraMode = m_pCamera->GetMode();
+	if (nCurrentCameraMode == THIRD_PERSON_CAMERA) m_pCamera->Update(m_xmf3Position, fTimeElapsed);
+	if (m_pCameraUpdatedContext) OnCameraUpdateCallback(fTimeElapsed);
+	XMFLOAT3 pos = m_xmf3Position;
+	pos.y += 7.f;
+	if (nCurrentCameraMode == THIRD_PERSON_CAMERA) m_pCamera->SetLookAt(pos);
+	m_pCamera->RegenerateViewMatrix();
+
+	if (m_pAnimationController) m_pAnimationController->SetLoop(true);
+
+	if (m_moveState == STATE_GROUND)
+	{
+		if (Vector3::IsZero(m_xmf3Velocity))
+			SetAnimationSet(0);
+		else
+			SetAnimationSet(1);
+		
+	}
+	
 	
 	if (m_bDamaging)
 	{
@@ -600,8 +552,6 @@ void CPlayer::Jump()
 
 	if (m_iJumpnum < 2)
 	{
-		if (m_playerKind == PLAYER_KIND_DUCKY && m_iJumpnum == 1)
-			return;
 		m_fTime = 0;
 		m_moveState = STATE_JUMPING;
 
@@ -740,17 +690,8 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	CGameObject *pGameObject = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, name, NULL, banimation);
 	
 	
-	if(m_playerKind == PLAYER_KIND_DUCKY)
-	{
-		pGameObject->m_pAnimationController->m_pAnimationSets[0].m_fSpeed = 0.4f;
-		pGameObject->m_pAnimationController->m_pAnimationSets[1].m_fSpeed = 0.4f;
-	}
-
-	else {
-
 		pGameObject->m_pAnimationController->m_pAnimationSets[3].m_fSpeed = 0.8f;
 		pGameObject->m_pAnimationController->m_pAnimationSets[1].m_fSpeed = 0.8f;
-	}
 
 	pGameObject->m_pAnimationController->SetKind(kind);
 	SetChild(pGameObject);
@@ -851,7 +792,7 @@ void CTerrainPlayer::OnPlayerUpdateCallback(float fTimeElapsed)
 
 		SetPosition(xmf3PlayerPosition);
 	}
-	if ((m_moveState == STATE_GROUND || m_PiggybackState != PIGGYBACK_CRRIED))
+	if (m_moveState == STATE_GROUND )
 	{
 		m_bInWater = CheckInWater(xmf3PlayerPosition, pTerrain);
 	}

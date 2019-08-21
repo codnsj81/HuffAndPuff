@@ -48,8 +48,6 @@ public:
 	LRESULT CALLBACK OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 
 	 CPlayer* GetPlayer() const { if(m_pPlayer!=nullptr) return m_pPlayer; }
-	 CTerrainPlayer* GetDoggy() { if (m_pDoggy != nullptr) return m_pDoggy;  }
-	 CTerrainPlayer* GetDucky() { if (m_pDucky != nullptr) return m_pDucky; }
 	 CScene* GetScene() { return m_pScene; }
 
 	 list<CUI*>* GetUIList() { return m_UIList; }
@@ -70,7 +68,7 @@ private:
 	bool						m_bMsaa4xEnable = false;
 	UINT						m_nMsaa4xQualityLevels = 0;
 
-	static const UINT			m_nSwapChainBuffers = 2;
+	static const UINT			m_nSwapChainBuffers = 4;
 	UINT						m_nSwapChainBufferIndex;
 
 	ID3D12Resource				*m_ppd3dSwapChainBackBuffers[m_nSwapChainBuffers];
@@ -98,9 +96,6 @@ private:
 	CScene						*m_pScene = NULL;
 	CPlayer						*m_pPlayer = NULL;
 	CCamera						*m_pCamera = NULL;
-
-	CTerrainPlayer						*m_pDucky = NULL;
-	CTerrainPlayer						*m_pDoggy = NULL;
 
 	CGameObject* m_pSceneScreen = NULL;
 	

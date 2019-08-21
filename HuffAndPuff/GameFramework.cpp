@@ -4,6 +4,7 @@
 
 #include "stdafx.h"
 #include "GameFramework.h"
+#include "Player.h"
 
 CGameFramework::CGameFramework()
 {
@@ -327,19 +328,6 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 				case VK_F9:
 					ChangeSwapChainState();
 					break;
-				case '1': // 더기 전환
-					m_pScene->m_pPlayer = m_pPlayer = m_pDucky;
-					m_pCamera->m_UIList = NULL;
-					m_pCamera = m_pPlayer->GetCamera();
-					m_pCamera->m_UIList = m_UIList;
-
-					break;
-				case '2': // 도기전환
-					m_pScene->m_pPlayer = m_pPlayer = m_pDoggy;
-					m_pCamera->m_UIList = NULL;
-					m_pCamera = m_pPlayer->GetCamera();
-					m_pCamera->m_UIList = m_UIList;
-					break;
 				case '3': // 네이베게이션 저장
 					m_pScene->SaveNavigation();
 					break;
@@ -353,8 +341,7 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 				case 'O':
 				case 'o': // HP full, 카메라 위로
 					m_pPlayer->UseSkill(); 
-					m_pDoggy->SetFullHP();
-					m_pDucky->SetFullHP();
+					m_pPlayer->SetFullHP();
 					break;
 				case 'l':
 				case 'L': // 스킬게이지 치트
@@ -370,10 +357,6 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 			{
 			case VK_SPACE:
 				m_pPlayer->Jump();
-				break;
-			case 'Q':
-			case 'q':
-				m_pPlayer->GivePiggyBack();
 				break;
 			case 'w':
 			case 'a':
@@ -441,23 +424,13 @@ void CGameFramework::BuildUI()
 	pTemp->SetWinpos(4.6, 9.5);
 	m_UIList->emplace_back(pTemp);
 
-	pTemp = new CImageUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 20, 3, XMFLOAT3(1999, m_pScene->m_pTerrain->GetHeight(1999, 972), 972), L"Model/Textures/DuckyUI.tiff");
-	pTemp->SetWinpos(-15.5, 9.5);
-	m_UIList->emplace_back(pTemp);
-
 	CUI* m_pHPUI = new CHP(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 10.8f, 0.8f, m_pPlayer->GetPosition());
-	m_pHPUI->m_pPlayer = m_pDoggy;
+	m_pHPUI->m_pPlayer = m_pPlayer;
 	m_pHPUI->SetWinpos(7.8f, 10.f);
 	m_pHPUI->bRender = TRUE;
 	m_pHPUI->SetTexture(HPTexture);
 	m_UIList->emplace_back(m_pHPUI);
 	
-	m_pHPUI = new CHP(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 10.8f, 0.8f, m_pPlayer->GetPosition());
-	m_pHPUI->m_pPlayer = m_pDucky;
-	m_pHPUI->bRender = TRUE;
-	m_pHPUI->SetWinpos(-12.3f, 10.f);
-	m_pHPUI->SetTexture(HPTexture);
-	m_UIList->emplace_back(m_pHPUI);
 
 	HPTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 	HPTexture->LoadTextureFromFile(m_pd3dDevice, m_pd3dCommandList, L"Model/Textures/SkillBar.tiff", 0, false);
@@ -466,14 +439,7 @@ void CGameFramework::BuildUI()
 
 	m_pHPUI = new CMP(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 10.8f, 0.8f, m_pPlayer->GetPosition());
 
-	m_pHPUI->m_pPlayer = m_pDucky;
-	m_pHPUI->SetWinpos(-12.3f, 9.05f);
-	m_pHPUI->SetTexture(HPTexture);
-	m_UIList->emplace_back(m_pHPUI);
-
-	m_pHPUI = new CMP(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 10.8f, 0.8f, m_pPlayer->GetPosition());
-
-	m_pHPUI->m_pPlayer = m_pDoggy;
+	m_pHPUI->m_pPlayer = m_pPlayer;
 	m_pHPUI->SetTexture(HPTexture);
 	m_pHPUI->SetWinpos(7.8f, 9.05f);
 	m_UIList->emplace_back(m_pHPUI);
@@ -483,12 +449,12 @@ void CGameFramework::BuildUI()
 	pTemp->SetWinpos(-2.5, 0);
 	dynamic_cast<CStartUI*> (pTemp)->bRender = true;
 	dynamic_cast<CStartUI*> (pTemp)->Trigger = true;
-	pTemp->m_pPlayer = m_pDoggy;
+	pTemp->m_pPlayer = m_pPlayer;
 	m_UIList->emplace_back(pTemp);
 
 	pTemp = new CEndUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 10, 5, XMFLOAT3(1999, m_pScene->m_pTerrain->GetHeight(1999, 972), 972), L"Model/Textures/GAMECLEAR.tiff");
 	pTemp->SetWinpos(-2.5, 0);
-	pTemp->m_pPlayer = m_pDoggy;
+	pTemp->m_pPlayer = m_pPlayer;
 
 	m_UIList->emplace_back(pTemp);
 
@@ -500,14 +466,8 @@ void CGameFramework::BuildUI()
 
 	pTemp = new CProgressUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 1, 1, - 4.25f, -5, L"Model/Textures/DoggyUI2.tiff");
 	dynamic_cast<CProgressUI*> (pTemp)->SetProgressWidth(8.5f / (m_pPlayer->GetNavListSize() + 1));
-	m_pDoggy->SetProgressUI(pTemp);
+	m_pPlayer->SetProgressUI(pTemp);
 
-	m_UIList->emplace_back(pTemp);
-
-	pTemp = new CProgressUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 1, 1, -4.25f, -5, L"Model/Textures/DuckyUI2.tiff");
-	dynamic_cast<CProgressUI*> (pTemp)->SetProgressWidth(8.5f /( m_pPlayer->GetNavListSize() + 1));
-	m_pDucky->SetProgressUI(pTemp);
-	
 	m_UIList->emplace_back(pTemp);
 
 
@@ -560,41 +520,25 @@ void CGameFramework::OnDestroy()
 
 void CGameFramework::BuildPlayers()
 {
-	m_pDucky = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), "Model/ducky.bin", PLAYER_KIND_DUCKY, true, m_pScene->m_pTerrain);
-	//m_pDucky->SetPosition(XMFLOAT3(1099.0f, m_pScene->m_pTerrain->GetHeight(1099, 88.0f), 88.0f));
 
-	m_pDucky->SetPosition(XMFLOAT3(INITPOSITION_X, \
-		m_pScene->m_pTerrain->GetHeight(INITPOSITION_X, INITPOSITION_Z), INITPOSITION_Z));
-	m_pDucky->SetHitBox(XMFLOAT3(5.f, 5.f, 5.f));
-	m_pDucky->Rotate(0, 80, 0);
+	m_pPlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), "Model/doggy.bin", PLAYER_KIND_DOGGY, true, m_pScene->m_pTerrain);
 
-	//m_pDucky->SetScale(XMFLOAT3(7.0f, 7.0f, 7.0f));
-
-
-	m_pDoggy = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), "Model/doggy.bin", PLAYER_KIND_DOGGY, true, m_pScene->m_pTerrain);
-
-	m_pDoggy->SetPosition(XMFLOAT3(INITPOSITION_X,
+	m_pPlayer->SetPosition(XMFLOAT3(INITPOSITION_X,
 		m_pScene->m_pTerrain->GetHeight(INITPOSITION_X, INITPOSITION_Z), INITPOSITION_Z)); //시작위치
 	//m_pDoggy->SetPosition(XMFLOAT3(1394, m_pScene->m_pTerrain->GetHeight(1394,1363 ), 1363)); //물 확인용
-	m_pDoggy->SetHitBox(XMFLOAT3(5.f, 5.f, 5.f));
-	m_pDoggy->SetScale(XMFLOAT3(4.f, 4.f, 4.f));
-	m_pDoggy->Rotate(0, 80, 0);
+	m_pPlayer->SetHitBox(XMFLOAT3(5.f, 5.f, 5.f));
+	m_pPlayer->SetScale(XMFLOAT3(4.f, 4.f, 4.f));
+	m_pPlayer->Rotate(0, 80, 0);
 
 
-	m_pDucky->SetParter(m_pDoggy);
-	m_pDoggy->SetParter(m_pDucky);
-	m_pDucky->SetScene(m_pScene);
-	m_pDoggy->SetScene(m_pScene);
+	m_pPlayer->SetScene(m_pScene);
 
-	m_pScene->m_pPlayer = m_pPlayer = m_pDoggy;
+	m_pScene->m_pPlayer = m_pPlayer = m_pPlayer;
 	m_pCamera = m_pPlayer->GetCamera();
 	
 	CGameObject* Arrow = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), "Model/Arrow.bin", NULL,false);
 	Arrow->Rotate(0, 80, 0);
-	m_pDoggy->SetNav(Arrow);
-	Arrow = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), "Model/Arrow.bin", NULL, false);
-	Arrow->Rotate(0, 80, 0);
-	m_pDucky ->SetNav(Arrow);
+	m_pPlayer->SetNav(Arrow);
 }
 
 void CGameFramework::BuildObjects()
@@ -615,8 +559,7 @@ void CGameFramework::BuildObjects()
 		BuildUI();
 		m_pScene->BuildClock(m_pd3dDevice, m_pd3dCommandList);
 
-
-		m_pScene->SetDuckyNDoggy(m_pDucky, m_pDoggy, m_pPlayer);
+		m_pScene->m_pPlayer = m_pPlayer;
 		m_pScene->m_pd3dDevice = m_pd3dDevice;
 		m_pScene->m_pd3dCommandList = m_pd3dCommandList;
 
@@ -628,15 +571,12 @@ void CGameFramework::BuildObjects()
 
 		WaitForGpuComplete();
 
-		m_pDoggy->SetWaters(m_pScene->GetWaters());
-		m_pDucky->SetWaters(m_pScene->GetWaters());
-		m_pDoggy->SetnWaters(2);
-		m_pDucky->SetnWaters(2);
+		m_pPlayer->SetWaters(m_pScene->GetWaters());\
+		m_pPlayer->SetnWaters(2);
 
 
 		if (m_pScene) m_pScene->ReleaseUploadBuffers();
-		if (m_pDoggy) m_pDoggy->ReleaseUploadBuffers();
-		if (m_pDucky) m_pDucky->ReleaseUploadBuffers();
+		if (m_pPlayer) m_pPlayer->ReleaseUploadBuffers();
 
 
 		m_GameTimer.Reset();
@@ -646,8 +586,7 @@ void CGameFramework::BuildObjects()
 
 void CGameFramework::ReleaseObjects()
 {
-	if (m_pDoggy) m_pDoggy->Release();
-	if (m_pDucky) m_pDucky->Release();
+	if (m_pPlayer) m_pPlayer->Release();
 
 	if (m_UIList->size() > 0)
 		for (auto n : *m_UIList)
@@ -708,8 +647,7 @@ void CGameFramework::ProcessInput()
 				}
 			}
 		}
-		m_pDucky->Update(m_GameTimer.GetTimeElapsed());
-		m_pDoggy->Update(m_GameTimer.GetTimeElapsed());
+		m_pPlayer->Update(m_GameTimer.GetTimeElapsed());
 }
 
 void CGameFramework::AnimateObjects()
@@ -717,16 +655,11 @@ void CGameFramework::AnimateObjects()
 	float fTimeElapsed = m_GameTimer.GetTimeElapsed();
 	m_pScene->AnimateObjects(fTimeElapsed);
 
-	if (m_pDucky->GetMoveState() != STATE_STUN)
-	{
-		m_pDucky->UpdateTransform(NULL);
-		m_pDucky->Animate(fTimeElapsed);
-	}
 
-	if (m_pDoggy->GetMoveState() != STATE_STUN)
+	if (m_pPlayer->GetMoveState() != STATE_STUN)
 	{
-		m_pDoggy->UpdateTransform(NULL);
-		m_pDoggy->Animate(fTimeElapsed);
+		m_pPlayer->UpdateTransform(NULL);
+		m_pPlayer->Animate(fTimeElapsed);
 	}
 }
 
@@ -842,7 +775,7 @@ void CGameFramework::FrameAdvance()
 
 		if (m_bPlaying) {
 
-			if (m_pDoggy->GetHp() <= 0 || m_pDucky->GetHp() <= 0)
+			if (m_pPlayer->GetHp() <= 0 )
 			{
 				m_bPlaying = false;
 				m_pOverUI->bRender = true;
@@ -857,13 +790,10 @@ void CGameFramework::FrameAdvance()
 			m_overCountDown += m_GameTimer.GetTimeElapsed();
 			if (m_overCountDown >= 3.f)
 			{
-				m_pDoggy->SetPosition(XMFLOAT3(INITPOSITION_X, \
-					m_pScene->m_pTerrain->GetHeight(INITPOSITION_X, INITPOSITION_Z), INITPOSITION_Z)); //시작위치
-				m_pDucky->SetPosition(XMFLOAT3(INITPOSITION_X, \
+				m_pPlayer->SetPosition(XMFLOAT3(INITPOSITION_X, \
 					m_pScene->m_pTerrain->GetHeight(INITPOSITION_X, INITPOSITION_Z), INITPOSITION_Z)); //시작위치
 				m_bPlaying = true;
-				m_pDoggy->SetFullHP();
-				m_pDucky->SetFullHP();
+				m_pPlayer->SetFullHP();
 
 			}
 		}

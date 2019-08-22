@@ -79,6 +79,10 @@ public:
 		return m_pInstance;
 	}
 
+	void Update(void) {
+		m_pSystem->update();
+	}
+
 	void Destroy(void)
 	{
 		if(m_pInstance)

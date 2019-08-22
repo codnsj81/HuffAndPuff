@@ -803,6 +803,7 @@ void CGameFramework::FrameAdvance()
 			}
 		}
 
+		CSoundMgr::GetInstacne()->Update();
 
 	m_GameTimer.GetFrameRate(m_pszFrameRate + 12, 37);
 	size_t nLength = _tcslen(m_pszFrameRate);

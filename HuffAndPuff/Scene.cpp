@@ -9,6 +9,7 @@
 #include "CMonster.h"
 #include "CUI.h"
 #include "GameFramework.h"
+#include "SoundMgr.h"
 
 ID3D12DescriptorHeap *CScene::m_pd3dCbvSrvDescriptorHeap = NULL;
 
@@ -1322,8 +1323,13 @@ void CScene::ObjectsCollides()
 	list<CHoneyComb*> ::iterator honeyend = m_HoneyComblist.end();
 	for (honeyiter; honeyiter != honeyend; honeyiter++)
 	{
-		if ((*honeyiter)->getCollision(m_pPlayer) && (*honeyiter)->GetDamage() == 6)
-			CreateDamageUI(6);
+		if ((*honeyiter)->getCollision(m_pPlayer) )
+		{
+			if ((*honeyiter)->GetDamage() == 6)
+				CreateDamageUI(6);
+			else
+				CSoundMgr::GetInstacne()->PlayEffectSound(_T("Gulp"));
+		}
 		if ((*honeyiter)->GetbDie())
 		{
 			honeyiter = m_HoneyComblist.erase(honeyiter);

@@ -63,14 +63,26 @@ void CSoundMgr::LoadSoundFile(void)
 
 
 	FMOD::Sound* pSound;
-	m_Result = m_pSystem->createSound("SoundFile/LogoBGM.mp3", FMOD_DEFAULT, 0, &pSound);
+	m_Result = m_pSystem->createSound("SoundFile/LogoBGM.mp3", FMOD_LOOP_NORMAL, 0, &pSound);
 	TCHAR* pName = _T("LogoBGM");
 	if (m_Result == FMOD_OK)
 	{
 		m_mapSound.insert(make_pair(pName, pSound));
 	}
-	else
-		delete[] pName;
+
+	m_Result = m_pSystem->createSound("SoundFile/Gulp.mp3", FMOD_DEFAULT, 0, &pSound);
+	pName = _T("Gulp");
+	if (m_Result == FMOD_OK)
+	{
+		m_mapSound.insert(make_pair(pName, pSound));
+	}
+
+	m_Result = m_pSystem->createSound("SoundFile/Jump.mp3", FMOD_DEFAULT, 0, &pSound);
+	pName = _T("Jump");
+	if (m_Result == FMOD_OK)
+	{
+		m_mapSound.insert(make_pair(pName, pSound));
+	}
 
 	m_Result = m_pSystem->update();
 	ErrorCheck(m_Result);

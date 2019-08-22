@@ -7,6 +7,7 @@
 #include "Shader.h"
 #include "Object.h"
 #include "CUI.h"
+#include "SoundMgr.h"
 #include "Scene.h"
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CPlayer
@@ -556,9 +557,8 @@ void CPlayer::Jump()
 		m_moveState = STATE_JUMPING;
 
 		m_iJumpnum++;
-		if (m_iJumpnum == 2)
-			m_fTime = 0;
-			SetAnimationSet(STATE_JUMPING);
+		SetAnimationSet(STATE_JUMPING);
+		CSoundMgr::GetInstacne()->PlayEffectSound(_T("Jump"));
 	}
 
 }

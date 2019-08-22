@@ -459,10 +459,12 @@ void CPlayer::Update(float fTimeElapsed)
 
 	if (m_moveState == STATE_GROUND)
 	{
-		if (Vector3::IsZero(m_xmf3Velocity))
+		if(m_bInWater) SetAnimationSet(4);
+		else if (Vector3::IsZero(m_xmf3Velocity))
 			SetAnimationSet(0);
 		else
 			SetAnimationSet(1);
+
 		
 	}
 	
@@ -689,7 +691,8 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 
 	CGameObject *pGameObject = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, name, NULL, banimation);
 	
-	
+
+	pGameObject->m_pAnimationController->m_pAnimationSets[4].m_fSpeed = 0.6f;
 		pGameObject->m_pAnimationController->m_pAnimationSets[3].m_fSpeed = 0.8f;
 		pGameObject->m_pAnimationController->m_pAnimationSets[1].m_fSpeed = 0.8f;
 

@@ -126,7 +126,7 @@ int CSnake::getCollision(CPlayer * player)
 		if (!player->m_bDamaging && !m_bDeathING)
 		{
 			player->Damage(m_iAttack);
-			m_pScene->CreateDamageUI(player, m_iAttack);
+			m_pScene->CreateDamageUI( m_iAttack);
 			player->m_bDamaging = true;
 		}
 		if (!m_bAttacking)

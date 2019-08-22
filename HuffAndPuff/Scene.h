@@ -67,7 +67,7 @@ public:
 	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList);
 	virtual void ReleaseShaderVariables();
-
+	
 	void BuildDefaultLightsAndMaterials();
 	void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	void BuildClock(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
@@ -93,6 +93,9 @@ public:
 	CWater** GetWaters() { return m_ppWaters; }
 
 	void TimeCount(float time);
+
+	bool bCreatePDUI = false;
+	XMFLOAT3 monDUIPos;
 
 	CUI* m_iClockMin = NULL;
 	CUI* m_iClockSec1 = NULL;
@@ -132,8 +135,9 @@ public:
 	void SaveMonsterData();
 
 	void SaveNavigation();
-
-	void CreateDamageUI(CPlayer* pPlayer, int dam);
+	
+	void CreateDamageUI(int dam);
+	void CreateDamageUIP(const XMFLOAT3 & pos);
 	void BuildMonsterList(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList);
 
 	void RenderStage1(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera);
@@ -179,6 +183,7 @@ public:
 	int									m_nGameObjects = 0;
 	
 	CTexture*							m_DamageUITex = NULL;
+	CTexture*							m_DamageUITexYellow = NULL;
 	CTexture* m_SceneScreenTex = NULL; //
 
 	CGameObject* HoneyComb = NULL;

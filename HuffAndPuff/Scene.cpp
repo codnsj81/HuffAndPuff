@@ -79,6 +79,11 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 		m_DamageUITex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/number.tiff", 0, false);
 		CScene::CreateShaderResourceViews(pd3dDevice, m_DamageUITex, 3, false);
 
+
+		m_DamageUITexYellow = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+		m_DamageUITexYellow->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/number3.tiff", 0, false);
+		CScene::CreateShaderResourceViews(pd3dDevice, m_DamageUITexYellow, 3, false);
+
 		LoadStone(pd3dDevice, pd3dCommandList);
 		LoadTree(pd3dDevice, pd3dCommandList);
 		LoadGrass(pd3dDevice, pd3dCommandList);
@@ -175,6 +180,8 @@ void CScene::ReleaseObjects()
 		}
 
 		if (HoneyComb) HoneyComb->Release();
+		if (m_DamageUITex) m_DamageUITex->Release();
+		if (m_DamageUITexYellow) m_DamageUITexYellow->Release();
 
 		ReleaseShaderVariables();
 
@@ -198,20 +205,29 @@ void CScene::Update(float fTime)
 
 			}
 		}
+
+		if (bCreatePDUI)
+		{
+			CreateDamageUIP(monDUIPos);
+			bCreatePDUI = false;
+		}
 		TimeCount(fTime);
 }
 
 void CScene::PlayerAttack()
 {
-
-	for (auto p : M_MonsterObjectslist)
+	list<CMonster*>::iterator iter = M_MonsterObjectslist.begin();
+	list<CMonster*>::iterator iter_end = M_MonsterObjectslist.end();
+	for (iter; iter != iter_end; iter++)
 	{
-		XMFLOAT3 pos1 = p->GetPosition();
+		XMFLOAT3 pos1 = (*iter)->GetPosition();
 		XMFLOAT3 pos2 = m_pPlayer->GetPosition();
 		float distance = Vector3::Length(Vector3::Subtract(pos1, pos2));
 		if (distance < 10)
 		{
-			p->Damage(m_pPlayer->GetAtt());
+			(*iter)->Damage(m_pPlayer->GetAtt());
+			bCreatePDUI = true; 
+			monDUIPos = pos1;
 		}
 	}
 
@@ -811,12 +827,23 @@ void CScene::RenderStage1(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* p
 
 }
 
-void CScene::CreateDamageUI(CPlayer * pPlayer, int dam)
+void CScene::CreateDamageUI(int dam)
 {
 	CDamageUI* DUI = new CDamageUI(m_pd3dDevice, m_pd3dCommandList, m_pd3dGraphicsRootSignature, 4, 4, dam, NULL);
 	DUI->SetTexture(m_DamageUITex);
 	m_pPlayer->GetCamera()->RotateUI(DUI);
-	DUI->SetPosition(pPlayer->GetPosition().x, pPlayer->GetPosition().y + 7, pPlayer->GetPosition().z);
+	DUI->SetPosition(m_pPlayer->GetPosition().x, m_pPlayer->GetPosition().y + 7, m_pPlayer->GetPosition().z);
+	m_DamageUIList.emplace_back(DUI);
+}
+
+
+
+void CScene::CreateDamageUIP(const XMFLOAT3 & pos)
+{
+	CDamageUI* DUI = new CDamageUI(m_pd3dDevice, m_pd3dCommandList, m_pd3dGraphicsRootSignature, 4, 4, 8, NULL);
+	DUI->SetTexture(m_DamageUITexYellow);
+	m_pPlayer->GetCamera()->RotateUI(DUI);
+	DUI->SetPosition(pos.x, pos.y + 7, pos.z);
 	m_DamageUIList.emplace_back(DUI);
 }
 
@@ -1255,7 +1282,7 @@ void CScene::ObjectsCollides()
 		{
 			if (!n->GetCollided())
 			{
-				CreateDamageUI(m_pPlayer, 4);
+				CreateDamageUI( 4);
 				m_pPlayer->Damage(4);
 			}
 			n->SetCollided(true);
@@ -1270,7 +1297,7 @@ void CScene::ObjectsCollides()
 			if (!n->GetCollided())
 			{
 
-				CreateDamageUI(m_pPlayer, 3);
+				CreateDamageUI( 3);
 				m_pPlayer->SetStun();
 				m_pPlayer->Damage(3);
 				n->SetCollided(true);
@@ -1296,7 +1323,7 @@ void CScene::ObjectsCollides()
 	for (honeyiter; honeyiter != honeyend; honeyiter++)
 	{
 		if ((*honeyiter)->getCollision(m_pPlayer) && (*honeyiter)->GetDamage() == 6)
-			CreateDamageUI(m_pPlayer,6);
+			CreateDamageUI(6);
 		if ((*honeyiter)->GetbDie())
 		{
 			honeyiter = m_HoneyComblist.erase(honeyiter);

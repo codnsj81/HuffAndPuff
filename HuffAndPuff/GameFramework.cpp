@@ -7,6 +7,8 @@
 #include "Player.h"
 #include "SoundMgr.h"
 
+
+
 CGameFramework::CGameFramework()
 {
 	m_pdxgiFactory = NULL;
@@ -291,21 +293,33 @@ void CGameFramework::ChangeSwapChainState()
 void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
 	if (m_pScene) m_pScene->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
-	switch (nMessageID)
+	if (m_FLOWSTATE == SCENE_STAGE1)
 	{
-		case WM_LBUTTONDOWN :
+		switch (nMessageID)
+		{
+			case WM_LBUTTONDOWN :
+				::SetCapture(hWnd);
+				::GetCursorPos(&m_ptOldCursorPos);
+				break;
+			case WM_RBUTTONDOWN:
+				m_pScene->PlayerAttack();
+				break;
+			case WM_LBUTTONUP:
+			case WM_RBUTTONUP:
+				::ReleaseCapture();
+				break;
+			default:
+				break;
+		}
+	}
+	else if (m_FLOWSTATE == SCENE_MAIN)
+	{
+		if (nMessageID == WM_LBUTTONDOWN)
+		{
 			::SetCapture(hWnd);
 			::GetCursorPos(&m_ptOldCursorPos);
-			break;
-		case WM_RBUTTONDOWN:
-			m_pScene->PlayerAttack();
-			break;
-		case WM_LBUTTONUP:
-		case WM_RBUTTONUP:
-			::ReleaseCapture();
-			break;
-		default:
-			break;
+			MouseClickInMain(m_ptOldCursorPos);
+		}
 	}
 }
 
@@ -360,17 +374,6 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 			case VK_SPACE:
 				m_pPlayer->Jump();
 				break;
-			case 'w':
-			case 'a':
-			case 's':
-			case 'd':
-			case 'W':
-			case 'A':
-			case 'S':
-			case 'D':
-			{
-			}
-			break;
 			default:
 				break;
 			}
@@ -416,7 +419,7 @@ LRESULT CALLBACK CGameFramework::OnProcessingWindowMessage(HWND hWnd, UINT nMess
 
 void CGameFramework::BuildUI()
 {
-
+	// SCENE 내 UI
 	CTexture *HPTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 	HPTexture->LoadTextureFromFile(m_pd3dDevice, m_pd3dCommandList, L"Model/Textures/HPBar.tiff", 0,false);
 	CScene::CreateShaderResourceViews(m_pd3dDevice, HPTexture, 3, false);
@@ -485,6 +488,12 @@ void CGameFramework::BuildUI()
 	(m_pOverUI)->bRender = false;
 	(m_pOverUI)->Trigger = false;
 
+
+	//BackgrundUI Build
+	int buiCount = 1;
+	m_pBackUIArr = new CBackgroundUI* [buiCount];
+	CBackgroundUI* buiMain = new CBackgroundUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 400, 290, m_pCamera->GetRoatMatrix(), L"Model/Textures/UI_MAIN.tiff");
+	m_pBackUIArr[0] = buiMain;
 }
 
 void CGameFramework::OnDestroy()
@@ -579,10 +588,6 @@ void CGameFramework::BuildObjects()
 
 		if (m_pScene) m_pScene->ReleaseUploadBuffers();
 		if (m_pPlayer) m_pPlayer->ReleaseUploadBuffers();
-		
-
-		TCHAR* pName = _T("LogoBGM");
-		CSoundMgr::GetInstacne()->PlayBGMSound(pName);
 
 		m_GameTimer.Reset();
 
@@ -601,6 +606,12 @@ void CGameFramework::ReleaseObjects()
 
 	if (m_pScene) m_pScene->ReleaseObjects();
 	if (m_pScene) delete m_pScene;
+	if (m_pBackUIArr)
+	{
+		for (int i = 0; i < 1; i++)
+			m_pBackUIArr[i]->Release();
+		delete m_pBackUIArr;
+	}
 
 }
 
@@ -612,7 +623,7 @@ void CGameFramework::ProcessInput()
 		bool bProcessedByScene = false;
 		if (GetKeyboardState(pKeysBuffer) && m_pScene)
 			bProcessedByScene = m_pScene->ProcessInput(pKeysBuffer);
-		if (!bProcessedByScene)
+		if (!bProcessedByScene && m_FLOWSTATE == SCENE_STAGE1)
 		{
 			bool ismove = false;
 			DWORD dwDirection = 0;
@@ -695,6 +706,17 @@ void CGameFramework::MoveToNextFrame()
 	}
 }
 
+void CGameFramework::MouseClickInMain(POINT pos)
+{
+	if (pos.x > 434 && pos.x < 810 && pos.y>437 && pos.y < 561)
+	{
+		m_FLOWSTATE = SCENE_STAGE1;
+		CSoundMgr::GetInstacne()->StopALL();
+		TCHAR* pName = _T("LogoBGM");
+		CSoundMgr::GetInstacne()->PlayBGMSound(pName);
+	}
+} 
+
 //#define _WITH_PLAYER_TOP
 
 void CGameFramework::FrameAdvance()
@@ -729,8 +751,18 @@ void CGameFramework::FrameAdvance()
 
 		m_pd3dCommandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, TRUE, &d3dDsvCPUDescriptorHandle);
 
-		m_pScene->Update(m_GameTimer.GetTimeElapsed());
-		if (m_pScene) m_pScene->Render(m_pd3dCommandList, m_pCamera);
+		m_pScene->Render(m_pd3dCommandList, m_pCamera);
+
+		switch (m_FLOWSTATE)
+		{
+		case SCENE_MAIN:
+			m_pBackUIArr[0]->MoveToCamera(m_pCamera);
+			m_pBackUIArr[0]->Render(m_pd3dCommandList, m_pCamera);
+			break;
+		case SCENE_STAGE1:
+			m_pScene->Update(m_GameTimer.GetTimeElapsed());
+			break;
+		}
 
 		//m_pSceneScreen->Render(m_pd3dCommandList, m_pCamera);
 #ifdef _WITH_PLAYER_TOP
@@ -759,22 +791,8 @@ void CGameFramework::FrameAdvance()
 
 		WaitForGpuComplete();
 
-#ifdef _WITH_PRESENT_PARAMETERS
-		DXGI_PRESENT_PARAMETERS dxgiPresentParameters;
-		dxgiPresentParameters.DirtyRectsCount = 0;
-		dxgiPresentParameters.pDirtyRects = NULL;
-		dxgiPresentParameters.pScrollRect = NULL;
-		dxgiPresentParameters.pScrollOffset = NULL;
-		m_pdxgiSwapChain->Present1(1, 0, &dxgiPresentParameters);
-#else
-#ifdef _WITH_SYNCH_SWAPCHAIN
-		m_pdxgiSwapChain->Present(1, 0);
-#else
 		m_pdxgiSwapChain->Present(0, 0);
-#endif
-#endif
-
-			m_nSwapChainBufferIndex = m_pdxgiSwapChain->GetCurrentBackBufferIndex();
+		m_nSwapChainBufferIndex = m_pdxgiSwapChain->GetCurrentBackBufferIndex();
 		MoveToNextFrame();
 
 
@@ -786,20 +804,6 @@ void CGameFramework::FrameAdvance()
 				m_pOverUI->bRender = true;
 				(m_pOverUI)->Trigger = true;
 				m_pPlayer->GetCamera()->m_pOverUI = m_pOverUI;
-			}
-		}
-
-		else
-		{
-			m_pOverUI->Update(m_GameTimer.GetTimeElapsed());
-			m_overCountDown += m_GameTimer.GetTimeElapsed();
-			if (m_overCountDown >= 3.f)
-			{
-				m_pPlayer->SetPosition(XMFLOAT3(INITPOSITION_X, \
-					m_pScene->m_pTerrain->GetHeight(INITPOSITION_X, INITPOSITION_Z), INITPOSITION_Z)); //시작위치
-				m_bPlaying = true;
-				m_pPlayer->SetFullHP();
-
 			}
 		}
 

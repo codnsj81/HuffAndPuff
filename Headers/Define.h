@@ -14,17 +14,6 @@
 #define STATE_CHEAT		7
 
 
-// 
-#define CS_UP    1
-#define CS_DOWN  2
-#define CS_LEFT  3
-#define CS_RIGHT    4
-
-#define SC_POS           1
-#define SC_PUT_PLAYER    2
-#define SC_REMOVE_PLAYER 3
-#define SC_CHAT			 4
-
 
 //캐릭터 애니메이션
 #define HERO_ANIMATION_IDLE 	0
@@ -37,7 +26,5 @@
 #define MONTYPE_BULKHOUSE	1
 #define MONTYPE_TOXANIUM	2
 
-// 사운드 개수
-#define SOUND_COUNT  16
 
 // ----------------------------------

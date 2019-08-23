@@ -3,6 +3,9 @@
 #define FRAME_BUFFER_WIDTH		1000
 #define FRAME_BUFFER_HEIGHT		750
 
+#define SCENE_MAIN			0
+#define SCENE_STAGE1		1
+
 #include "../Headers/Include.h"
 #include "Timer.h"
 #include "Player.h"
@@ -42,6 +45,7 @@ public:
 	void WaitForGpuComplete();
 	void MoveToNextFrame();
 
+	void MouseClickInMain(POINT pos);
 
 	void OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	void OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
@@ -50,14 +54,17 @@ public:
 	 CPlayer* GetPlayer() const { if(m_pPlayer!=nullptr) return m_pPlayer; }
 	 CScene* GetScene() { return m_pScene; }
 
+	 int	GetFlowState() { return m_FLOWSTATE; }
 	 list<CUI*>* GetUIList() { return m_UIList; }
 	 void BuildUI();
+
 private:
+
+	int							m_FLOWSTATE = SCENE_MAIN;
 	HINSTANCE					m_hInstance;
 	HWND						m_hWnd; 
 
 	list<CUI*>					*m_UIList;
-	vector<CGameObject*> m_SceneScreenVec;
 	int							m_nWndClientWidth;
 	int							m_nWndClientHeight;
         
@@ -97,18 +104,12 @@ private:
 	CPlayer						*m_pPlayer = NULL;
 	CCamera						*m_pCamera = NULL;
 
-	CGameObject* m_pSceneScreen = NULL;
+	CBackgroundUI**						m_pBackUIArr;
 	
 
 	POINT						m_ptOldCursorPos;
 
 	_TCHAR						m_pszFrameRate[70];
-
-	// network
-	DWORD					m_dwUpdatecnt = 0;
-	float							m_fSceneConnectTime = 0.f;
-	bool							m_bIsSetIdleAnimation = false;
-	bool							m_bIsSetPiggyState = false;
 
 
 	bool								m_bPlaying = true;

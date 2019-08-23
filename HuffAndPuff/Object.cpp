@@ -657,7 +657,7 @@ void CGameObject::Animate(float fTimeElapsed)
 void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
 {	
 	float distance = Vector3::Length(Vector3::Subtract(pCamera->GetPosition(), GetPosition()));
-	if(distance > 368) return;
+	if(distance > 400) return;
 
 	OnPrepareRender();
 

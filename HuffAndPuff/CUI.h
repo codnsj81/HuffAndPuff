@@ -128,3 +128,15 @@ private:
 	int m_iNum = 0;
 };
 
+
+class CBackgroundUI : public CUI
+{
+public:
+	CBackgroundUI() {}
+	CBackgroundUI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, float nWidth, float nLength, XMFLOAT4X4 cameramat, wchar_t* pFilename);
+	~CBackgroundUI();
+
+public:
+	void MoveToCamera(CCamera* cameramat);
+	virtual void Update(float elapsed);
+};

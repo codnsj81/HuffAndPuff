@@ -4,7 +4,8 @@
 #define FRAME_BUFFER_HEIGHT		750
 
 #define SCENE_MAIN			0
-#define SCENE_STAGE1		1
+#define SCENE_MANUAL		1
+#define SCENE_STAGE1		2
 
 #include "../Headers/Include.h"
 #include "Timer.h"
@@ -45,6 +46,7 @@ public:
 	void WaitForGpuComplete();
 	void MoveToNextFrame();
 
+	void MouseClickInManual(POINT pos);
 	void MouseClickInMain(POINT pos);
 
 	void OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);

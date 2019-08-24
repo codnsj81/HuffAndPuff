@@ -312,15 +312,18 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 				break;
 		}
 	}
-	else if (m_FLOWSTATE == SCENE_MAIN)
+	else if (nMessageID == WM_LBUTTONDOWN)
 	{
-		if (nMessageID == WM_LBUTTONDOWN)
+		::SetCapture(hWnd);
+		::GetCursorPos(&m_ptOldCursorPos);
+		if (m_FLOWSTATE == SCENE_MAIN)
 		{
-			::SetCapture(hWnd);
-			::GetCursorPos(&m_ptOldCursorPos);
 			MouseClickInMain(m_ptOldCursorPos);
 		}
+		else if(m_FLOWSTATE == SCENE_MANUAL)
+			MouseClickInManual(m_ptOldCursorPos);
 	}
+
 }
 
 void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
@@ -491,10 +494,14 @@ void CGameFramework::BuildUI()
 
 
 	//BackgrundUI Build
-	int buiCount = 1;
+	int buiCount = 2;
 	m_pBackUIArr = new CBackgroundUI* [buiCount];
-	CBackgroundUI* buiMain = new CBackgroundUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 400, 290, m_pCamera->GetRoatMatrix(), L"Model/Textures/UI_MAIN.tiff");
-	m_pBackUIArr[0] = buiMain;
+	CBackgroundUI* bui = new CBackgroundUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 400, 290, m_pCamera->GetRoatMatrix(), L"Model/Textures/UI_MAIN.tiff");
+	m_pBackUIArr[0] = bui;
+
+	bui = new CBackgroundUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 230, 200, m_pCamera->GetRoatMatrix(), L"Model/Textures/UI_Manual.tiff");
+	m_pBackUIArr[1] = bui;
+
 }
 
 void CGameFramework::OnDestroy()
@@ -707,6 +714,14 @@ void CGameFramework::MoveToNextFrame()
 	}
 }
 
+void CGameFramework::MouseClickInManual(POINT pos)
+{
+	if (pos.x > 906 && pos.x <973 && pos.y <296 && pos.y>245 )
+	{ 
+		m_FLOWSTATE = SCENE_MAIN;
+	}
+}
+
 void CGameFramework::MouseClickInMain(POINT pos)
 {
 	if (pos.x > 434 && pos.x < 810 && pos.y>437 && pos.y < 561)
@@ -715,6 +730,10 @@ void CGameFramework::MouseClickInMain(POINT pos)
 		CSoundMgr::GetInstacne()->StopALL();
 		TCHAR* pName = _T("LogoBGM");
 		CSoundMgr::GetInstacne()->PlayBGMSound(pName);
+	}
+	else if(pos.y < 758 && pos.x < 840)
+	{
+		m_FLOWSTATE = SCENE_MANUAL;
 	}
 } 
 
@@ -759,6 +778,12 @@ void CGameFramework::FrameAdvance()
 		case SCENE_MAIN:
 			m_pBackUIArr[0]->MoveToCamera(m_pCamera);
 			m_pBackUIArr[0]->Render(m_pd3dCommandList, m_pCamera);
+			break;
+		case SCENE_MANUAL:
+			m_pBackUIArr[0]->MoveToCamera(m_pCamera);
+			m_pBackUIArr[0]->Render(m_pd3dCommandList, m_pCamera);
+			m_pBackUIArr[1]->MoveToCamera(m_pCamera);
+			m_pBackUIArr[1]->Render(m_pd3dCommandList, m_pCamera);
 			break;
 		case SCENE_STAGE1:
 			m_pScene->Update(m_GameTimer.GetTimeElapsed());

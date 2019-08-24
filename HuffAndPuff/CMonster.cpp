@@ -70,7 +70,7 @@ CSnake::CSnake()
 {
 	CMonster::CMonster();
 	setAP(10);
-	SetaggroDistance(50.f);
+	SetaggroDistance(70.f);
 }
 
 void CSnake::Animate(float fTimeElapsed)

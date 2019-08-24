@@ -3,8 +3,8 @@
 // ------------------------
 
 // 플레이어 초기 위치
-#define INITPOSITION_X 62
-#define INITPOSITION_Z 378
+#define INITPOSITION_X 64
+#define INITPOSITION_Z 237
 
 #define STATE_GROUND	 1
 #define STATE_JUMPING 	2

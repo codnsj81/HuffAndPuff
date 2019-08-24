@@ -72,7 +72,7 @@ void CPlayer::NextRoad(float fTime)
 	float length = Vector3::Length(Vector3::Subtract(PointingPos, now));
 	
 
-	if (length < 100.f )
+	if (length < 80.f )
 	{
 		if (next.x != 1)
 		{
@@ -128,7 +128,7 @@ void CPlayer::PlusNavigationList()
 		return;
 	}
 	XMFLOAT3 next = m_xmNavigationList.back();
-	if (Vector3::Length(Vector3::Subtract(next, now))> 200.f)
+	if (Vector3::Length(Vector3::Subtract(next, now))> 160.f)
 	{
 		m_xmNavigationList.emplace_back(now);
 	}

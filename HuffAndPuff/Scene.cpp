@@ -54,7 +54,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 		CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 		BuildDefaultLightsAndMaterials();
 
-		XMFLOAT3 xmf3Scale(8.0f, 3.0f, 8.0f); // -> 나중에 크기 6,3,6으로 바꾸기
+		XMFLOAT3 xmf3Scale(5.0f, 3.0f, 5.0f); // -> 나중에 크기 6,3,6으로 바꾸기
 		XMFLOAT4 xmf4Color(0.3f, 0.3f, 0.3f, 0.0f);
 		
 		m_pTerrain = new CHeightMapTerrain(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, _T("Terrain/terrain.raw"), 257, 257, xmf3Scale, xmf4Color);
@@ -63,10 +63,10 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 
 		m_nWaters = 2;
 		m_ppWaters = new CWater * [m_nWaters];
-		m_ppWaters[0] = new CWater(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 800, 600, XMFLOAT3(1490, 30.f, 922));
+		m_ppWaters[0] = new CWater(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 400, 200, XMFLOAT3(955, 30.f, 515));
 		//m_ppWaters[0]->Rotate(0, 10.f, 0);
 
-		m_ppWaters[1] = new CWater(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 670, 400, XMFLOAT3(1064, m_pTerrain->GetHeight(1064, 1446) + 30.f, 1446.f));
+		m_ppWaters[1] = new CWater(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 500, 350, XMFLOAT3(714, 30.f, 803.f));
 		Potion = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/potion.bin", NULL, false);
 
 		HoneyComb = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Honey.bin", NULL, false);
@@ -656,7 +656,7 @@ void CScene::PlusStoneData()
 	playerPos.m_pos.x = m_pPlayer->GetPosition().x;
 	playerPos.m_pos.y = m_pPlayer->GetPosition().y ;
 	playerPos.m_pos.z = m_pPlayer->GetPosition().z;
-	playerPos.m_size = XMFLOAT3(1.f, 1.f, 1.f);
+	playerPos.m_size = XMFLOAT3(3.f, 3.f, 3.f);
 	playerPos.m_iType = 0;
 
 	StoneDataList.push_back(playerPos);
@@ -703,7 +703,7 @@ void CScene::PlusMonsterData()
 	playerPos.m_pos.x = m_pPlayer->GetPosition().x;
 	playerPos.m_pos.y = m_pPlayer->GetPosition().y;
 	playerPos.m_pos.z = m_pPlayer->GetPosition().z;
-	playerPos.m_size = XMFLOAT3(2,2,2);
+	playerPos.m_size = XMFLOAT3(3,3,3);
 	playerPos.m_iType = MONTYPE_SNAKE;
 
 	MonsterDataList.push_back(playerPos);
@@ -741,7 +741,6 @@ void CScene::BuildMonsterList(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLi
 	list<StoneInfo>::iterator iter = MonsterDataList.begin();
 	list<StoneInfo>::iterator end = MonsterDataList.end();
 
-	int cnt{ 0 };
 	for (iter; iter != end; iter++)
 	{
 		m_pSnakeObject = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/snake.bin", NULL, true);
@@ -755,8 +754,7 @@ void CScene::BuildMonsterList(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLi
 		obj->SetPosition(iter->m_pos.x, iter->m_pos.y, iter->m_pos.z);
 		obj->Rotate(0, RandomRotate, 0);
 		obj->SetScale(iter->m_size.x, iter->m_size.y, iter->m_size.z);
-		obj->SetHitBox(XMFLOAT3(3.f, 3.f, 8.f));
-		(obj)->setID(cnt++); // 몬스터에 id 부여
+		obj->SetHitBox(XMFLOAT3(4.f, 3.f, 9.f));
 		M_MonsterObjectslist.push_back(obj);
 	}
 }
@@ -811,7 +809,6 @@ void CScene::RenderStage1(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* p
 		{
 			p->UpdateTransform(NULL);
 			p->Render(pd3dCommandList, pCamera);
-
 		}
 	}
 

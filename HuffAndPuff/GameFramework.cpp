@@ -357,6 +357,7 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 				case 'O':
 				case 'o': // HP full, 카메라 위로
 					m_pPlayer->UseSkill(); 
+					m_pPlayer->SetCheatMode();
 					m_pPlayer->SetFullHP();
 					break;
 				case 'l':
@@ -457,7 +458,7 @@ void CGameFramework::BuildUI()
 	pTemp->m_pPlayer = m_pPlayer;
 	m_UIList->emplace_back(pTemp);
 
-	pTemp = new CEndUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 10, 5, XMFLOAT3(1999, m_pScene->m_pTerrain->GetHeight(1999, 972), 972), L"Model/Textures/GAMECLEAR.tiff");
+	pTemp = new CEndUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 10, 5, XMFLOAT3(1235, m_pScene->m_pTerrain->GetHeight(1235, 616), 616), L"Model/Textures/GAMECLEAR.tiff");
 	pTemp->SetWinpos(-2.5, 0);
 	pTemp->m_pPlayer = m_pPlayer;
 

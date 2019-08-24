@@ -63,8 +63,24 @@ void CSoundMgr::LoadSoundFile(void)
 
 
 	FMOD::Sound* pSound;
-	m_Result = m_pSystem->createSound("SoundFile/LogoBGM.mp3", FMOD_LOOP_NORMAL, 0, &pSound);
+	m_Result = m_pSystem->createSound("SoundFile/LogoBGM.wav", FMOD_LOOP_NORMAL, 0, &pSound);
 	TCHAR* pName = _T("LogoBGM");
+	if (m_Result == FMOD_OK)
+	{
+		m_mapSound.insert(make_pair(pName, pSound));
+	}
+
+	m_Result = m_pSystem->createSound("SoundFile/InGame.flac", FMOD_DEFAULT, 0, &pSound);
+	pName = _T("InGame");
+	if (m_Result == FMOD_OK)
+	{
+		m_mapSound.insert(make_pair(pName, pSound));
+	}
+
+
+
+	m_Result = m_pSystem->createSound("SoundFile/Trap.ogg", FMOD_DEFAULT, 0, &pSound);
+	pName = _T("Trap");
 	if (m_Result == FMOD_OK)
 	{
 		m_mapSound.insert(make_pair(pName, pSound));
@@ -79,6 +95,34 @@ void CSoundMgr::LoadSoundFile(void)
 
 	m_Result = m_pSystem->createSound("SoundFile/Jump.mp3", FMOD_DEFAULT, 0, &pSound);
 	pName = _T("Jump");
+	if (m_Result == FMOD_OK)
+	{
+		m_mapSound.insert(make_pair(pName, pSound));
+	}
+	m_Result = m_pSystem->createSound("SoundFile/Button.ogg", FMOD_DEFAULT, 0, &pSound);
+	pName = _T("Button");
+	if (m_Result == FMOD_OK)
+	{
+		m_mapSound.insert(make_pair(pName, pSound));
+	}
+
+	m_Result = m_pSystem->createSound("SoundFile/MonAtt.ogg", FMOD_DEFAULT, 0, &pSound);
+	pName = _T("MonAtt");
+	if (m_Result == FMOD_OK)
+	{
+		m_mapSound.insert(make_pair(pName, pSound));
+	}
+
+	m_Result = m_pSystem->createSound("SoundFile/PlayerAtt.ogg", FMOD_DEFAULT, 0, &pSound);
+	pName = _T("PlayerAtt");
+	if (m_Result == FMOD_OK)
+	{
+		m_mapSound.insert(make_pair(pName, pSound));
+	}
+
+
+	m_Result = m_pSystem->createSound("SoundFile/Falling.ogg", FMOD_DEFAULT, 0, &pSound);
+	pName = _T("Falling");
 	if (m_Result == FMOD_OK)
 	{
 		m_mapSound.insert(make_pair(pName, pSound));

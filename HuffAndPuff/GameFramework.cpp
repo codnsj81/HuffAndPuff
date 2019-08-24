@@ -597,6 +597,9 @@ void CGameFramework::BuildObjects()
 		if (m_pScene) m_pScene->ReleaseUploadBuffers();
 		if (m_pPlayer) m_pPlayer->ReleaseUploadBuffers();
 
+		TCHAR* pName = _T("LogoBGM");
+		CSoundMgr::GetInstacne()->PlayBGMSound(pName);
+
 		m_GameTimer.Reset();
 
 
@@ -716,9 +719,10 @@ void CGameFramework::MoveToNextFrame()
 
 void CGameFramework::MouseClickInManual(POINT pos)
 {
-	if (pos.x > 906 && pos.x <973 && pos.y <296 && pos.y>245 )
+	if (pos.x > 906 && pos.x <973 && pos.y <296 && pos.y>205 )
 	{ 
 		m_FLOWSTATE = SCENE_MAIN;
+		CSoundMgr::GetInstacne()->PlayEffectSound(_T("Button"));
 	}
 }
 
@@ -728,12 +732,14 @@ void CGameFramework::MouseClickInMain(POINT pos)
 	{
 		m_FLOWSTATE = SCENE_STAGE1;
 		CSoundMgr::GetInstacne()->StopALL();
-		TCHAR* pName = _T("LogoBGM");
+		TCHAR* pName = _T("InGame");
 		CSoundMgr::GetInstacne()->PlayBGMSound(pName);
+		CSoundMgr::GetInstacne()->PlayEffectSound(_T("Button"));
 	}
-	else if(pos.y < 758 && pos.x < 840)
+	else if(pos.x >570 && pos.y > 651 && pos.y < 758 && pos.x < 840)
 	{
 		m_FLOWSTATE = SCENE_MANUAL;
+		CSoundMgr::GetInstacne()->PlayEffectSound(_T("Button"));
 	}
 } 
 

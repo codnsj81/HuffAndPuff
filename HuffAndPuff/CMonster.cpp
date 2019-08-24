@@ -2,7 +2,7 @@
 #include "CMonster.h"
 #include "Player.h"
 #include "Scene.h"
-
+#include "SoundMgr.h"
 CMonster::CMonster()
 {
 	m_iType = MONTYPE_SNAKE;
@@ -131,6 +131,7 @@ int CSnake::getCollision(CPlayer * player)
 		}
 		if (!m_bAttacking)
 		{
+			CSoundMgr::GetInstacne()->PlayEffectSound(_T("MonAtt"));
 			SetAnimationSet(2);
 			m_bAttacking = true;
 		}

@@ -226,6 +226,7 @@ void CScene::PlayerAttack()
 		float distance = Vector3::Length(Vector3::Subtract(pos1, pos2));
 		if (distance < 10)
 		{
+			CSoundMgr::GetInstacne()->PlaySkillSound(_T("PlayerAtt"));
 			(*iter)->Damage(m_pPlayer->GetAtt());
 			bCreatePDUI = true; 
 			monDUIPos = pos1;
@@ -1252,6 +1253,7 @@ void CScene::ObjectsCollides()
 					temp->SetFloorHeight(m_pTerrain->GetHeight(n->GetPosition().x, n->GetPosition().z));
 					temp->Rotate(rand() % 360, rand() % 360, rand() % 360);
 					m_HoneyComblist.push_back(temp);
+					CSoundMgr::GetInstacne()->PlayEffectSound(_T("Falling"));
 				}
 
 				else if (prob < 8)
@@ -1263,6 +1265,7 @@ void CScene::ObjectsCollides()
 					temp->SetPosition(pos.x, pos.y + 20, pos.z);
 					temp->SetFloorHeight(m_pTerrain->GetHeight(n->GetPosition().x, n->GetPosition().z));
 					m_HoneyComblist.push_back(temp);
+					CSoundMgr::GetInstacne()->PlayEffectSound(_T("Falling"));
 				}
 			}
 
@@ -1304,6 +1307,7 @@ void CScene::ObjectsCollides()
 				CreateDamageUI( 3);
 				m_pPlayer->SetStun();
 				m_pPlayer->Damage(3);
+				CSoundMgr::GetInstacne()->PlayEffectSound(_T("Trap"));
 				n->SetCollided(true);
 				m_BloodScreen->bRender = true;
 			}

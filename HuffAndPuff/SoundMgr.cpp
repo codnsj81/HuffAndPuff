@@ -56,6 +56,7 @@ void CSoundMgr::Initialize(void)
 
 	m_pSystem->init(32, FMOD_INIT_NORMAL, NULL);
 	ErrorCheck(m_Result);
+	m_pMainBGM->setVolume(0.7f);
 }
 
 void CSoundMgr::LoadSoundFile(void)
@@ -76,8 +77,6 @@ void CSoundMgr::LoadSoundFile(void)
 	{
 		m_mapSound.insert(make_pair(pName, pSound));
 	}
-
-
 
 	m_Result = m_pSystem->createSound("SoundFile/Trap.ogg", FMOD_DEFAULT, 0, &pSound);
 	pName = _T("Trap");
@@ -120,6 +119,20 @@ void CSoundMgr::LoadSoundFile(void)
 		m_mapSound.insert(make_pair(pName, pSound));
 	}
 
+	m_Result = m_pSystem->createSound("SoundFile/Mushroom.ogg", FMOD_DEFAULT, 0, &pSound);
+	pName = _T("Mushroom");
+	if (m_Result == FMOD_OK)
+	{
+		m_mapSound.insert(make_pair(pName, pSound));
+	}
+
+
+	m_Result = m_pSystem->createSound("SoundFile/Snake.ogg", FMOD_DEFAULT, 0, &pSound);
+	pName = _T("Snake");
+	if (m_Result == FMOD_OK)
+	{
+		m_mapSound.insert(make_pair(pName, pSound));
+	}
 
 	m_Result = m_pSystem->createSound("SoundFile/Falling.ogg", FMOD_DEFAULT, 0, &pSound);
 	pName = _T("Falling");

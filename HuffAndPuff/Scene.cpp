@@ -1156,6 +1156,8 @@ void CScene::AnimateObjects(float fTimeElapsed)
 			float distance = Vector3::Length(Vector3::Subtract(pos1, pos2));
 			if (distance < (*iter)->GetAggroDistance())
 			{
+				if(!(*iter)->getRecognitionMode())
+					CSoundMgr::GetInstacne()->PlaySkillSound(_T("Snake"));
 				(*iter)->setRecognitionMode(true);
 				(*iter)->FollowingPosition = pos2;
 			}
@@ -1291,6 +1293,7 @@ void CScene::ObjectsCollides()
 			{
 				CreateDamageUI( 4);
 				m_pPlayer->Damage(4);
+				CSoundMgr::GetInstacne()->PlayEffectSound(_T("Mushroom"));
 			}
 			n->SetCollided(true);
 		}
@@ -1319,8 +1322,6 @@ void CScene::ObjectsCollides()
 		if (n->getCollision(m_pPlayer, false) != COLLIDE_NONE)
 		{
 			m_pPlayer->Dash(m_fElapsedTime * 30);
-
-
 		}
 
 	}

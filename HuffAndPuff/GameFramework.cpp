@@ -316,6 +316,7 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 	{
 		::SetCapture(hWnd);
 		::GetCursorPos(&m_ptOldCursorPos);
+		ScreenToClient(hWnd, &m_ptOldCursorPos);
 		if (m_FLOWSTATE == SCENE_MAIN)
 		{
 			MouseClickInMain(m_ptOldCursorPos);
@@ -323,6 +324,8 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 		else if(m_FLOWSTATE == SCENE_MANUAL)
 			MouseClickInManual(m_ptOldCursorPos);
 	}
+	else if (nMessageID == WM_LBUTTONUP)
+		::ReleaseCapture();
 
 }
 
@@ -719,7 +722,7 @@ void CGameFramework::MoveToNextFrame()
 
 void CGameFramework::MouseClickInManual(POINT pos)
 {
-	if (pos.x > 906 && pos.x <973 && pos.y <296 && pos.y>205 )
+	if (pos.x > 718 && pos.x <780 && pos.y >141 && pos.y<185 )
 	{ 
 		m_FLOWSTATE = SCENE_MAIN;
 		CSoundMgr::GetInstacne()->PlayEffectSound(_T("Button"));
@@ -728,7 +731,7 @@ void CGameFramework::MouseClickInManual(POINT pos)
 
 void CGameFramework::MouseClickInMain(POINT pos)
 {
-	if (pos.x > 434 && pos.x < 810 && pos.y>437 && pos.y < 561)
+	if (pos.x > 324 && pos.x < 681 && pos.y>334 && pos.y < 445)
 	{
 		m_FLOWSTATE = SCENE_STAGE1;
 		CSoundMgr::GetInstacne()->StopALL();
@@ -736,7 +739,7 @@ void CGameFramework::MouseClickInMain(POINT pos)
 		CSoundMgr::GetInstacne()->PlayBGMSound(pName);
 		CSoundMgr::GetInstacne()->PlayEffectSound(_T("Button"));
 	}
-	else if(pos.x >570 && pos.y > 651 && pos.y < 758 && pos.x < 840)
+	else if(pos.x >377 && pos.y > 546 && pos.y < 649 && pos.x < 647)
 	{
 		m_FLOWSTATE = SCENE_MANUAL;
 		CSoundMgr::GetInstacne()->PlayEffectSound(_T("Button"));

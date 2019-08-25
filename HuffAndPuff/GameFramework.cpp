@@ -352,10 +352,10 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 					break;
 				case 't':
 				case 'T':
-					m_pScene->PlusTrapData();
+					m_pScene->PlusTreeData();
 					break;
 				case 'Y':
-					m_pScene->SaveTrapData();
+					m_pScene->SaveTreeData();
 					break;
 				case 'O':
 				case 'o': // HP full, 카메라 위로
@@ -776,8 +776,11 @@ void CGameFramework::FrameAdvance()
 		m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
 
 		m_pd3dCommandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, TRUE, &d3dDsvCPUDescriptorHandle);
-
-		m_pScene->Render(m_pd3dCommandList, m_pCamera);
+		
+		if (m_FLOWSTATE == SCENE_STAGE1)
+			m_pScene->Update(m_GameTimer.GetTimeElapsed());
+		
+			m_pScene->Render(m_pd3dCommandList, m_pCamera);
 
 		switch (m_FLOWSTATE)
 		{
@@ -790,9 +793,6 @@ void CGameFramework::FrameAdvance()
 			m_pBackUIArr[0]->Render(m_pd3dCommandList, m_pCamera);
 			m_pBackUIArr[1]->MoveToCamera(m_pCamera);
 			m_pBackUIArr[1]->Render(m_pd3dCommandList, m_pCamera);
-			break;
-		case SCENE_STAGE1:
-			m_pScene->Update(m_GameTimer.GetTimeElapsed());
 			break;
 		}
 

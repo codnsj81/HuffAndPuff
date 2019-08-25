@@ -429,3 +429,33 @@ void CBackgroundUI::Update(float elapsed)
 	if (0/*Á¶°Ç*/)
 		bRender = false;
 }
+
+CEffectUI::CEffectUI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, float nWidth, float nLength)
+{
+	bRender = true;
+	m_nWidth = nWidth;
+	m_nLength = nLength;
+	m_nMaterials = 1;
+	m_ppMaterials = new CMaterial * [m_nMaterials];
+	for (int i = 0; i < m_nMaterials; i++)
+		m_ppMaterials[i] = NULL;
+
+	CMesh* pMesh = new CScreenMesh(pd3dDevice, pd3dCommandList, nWidth, nLength);
+	SetMesh(pMesh);
+	
+	CShader* pShader = new CUIShader();
+	pShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	pShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+
+	CMaterial* pMaterial = new CMaterial(1);
+	pMaterial->SetMaterialType(MATERIAL_ALBEDO_MAP);
+	pMaterial->SetShader(pShader);
+
+	SetMaterial(0, pMaterial);
+}
+
+void CEffectUI::Update(float elapsed)
+{
+	m_fTime += elapsed;
+	if (m_fTime > 0.5f) bRender = false;
+}

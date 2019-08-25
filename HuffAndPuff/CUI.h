@@ -88,6 +88,7 @@ public:
 class CDamageUI : public CStartUI
 {
 public:
+	CDamageUI() {}
 	CDamageUI(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, float nWidth, float nLength, int num, wchar_t* pFilename);
 	~CDamageUI();
 	
@@ -139,4 +140,17 @@ public:
 public:
 	void MoveToCamera(CCamera* cameramat);
 	virtual void Update(float elapsed);
+};
+
+class CEffectUI : public CDamageUI
+{
+public:
+	CEffectUI() {}
+	CEffectUI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, float nWidth, float nLength);
+	~CEffectUI() {}
+
+	virtual void Update(float elapsed);
+
+private:
+	float m_fTime = 0;
 };

@@ -81,6 +81,11 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 		CScene::CreateShaderResourceViews(pd3dDevice, m_DamageUITex, 3, false);
 
 
+		m_HitAttackEffectTex = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+		m_HitAttackEffectTex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/effect13.tiff", 0, false);
+		CScene::CreateShaderResourceViews(pd3dDevice, m_HitAttackEffectTex, 3, false);
+
+
 		m_DamageUITexYellow = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 		m_DamageUITexYellow->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/number3.tiff", 0, false);
 		CScene::CreateShaderResourceViews(pd3dDevice, m_DamageUITexYellow, 3, false);
@@ -209,6 +214,7 @@ void CScene::Update(float fTime)
 
 		if (bCreatePDUI)
 		{
+			CreateDamageDEF(monDUIPos);
 			CreateDamageUIP(monDUIPos);
 			bCreatePDUI = false;
 		}
@@ -843,6 +849,16 @@ void CScene::CreateDamageUIP(const XMFLOAT3 & pos)
 	DUI->SetTexture(m_DamageUITexYellow);
 	m_pPlayer->GetCamera()->RotateUI(DUI);
 	DUI->SetPosition(pos.x, pos.y + 7, pos.z);
+	m_DamageUIList.emplace_back(DUI);
+}
+
+void CScene::CreateDamageDEF(const XMFLOAT3& pos)
+{
+	CEffectUI* DUI = new CEffectUI(m_pd3dDevice, m_pd3dCommandList, m_pd3dGraphicsRootSignature, 12, 10);
+	DUI->SetTexture(m_HitAttackEffectTex);
+	m_pPlayer->GetCamera()->RotateUI(DUI);
+
+	DUI->SetPosition(pos.x, pos.y, pos.z);
 	m_DamageUIList.emplace_back(DUI);
 }
 

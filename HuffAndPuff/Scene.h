@@ -138,6 +138,7 @@ public:
 	
 	void CreateDamageUI(int dam);
 	void CreateDamageUIP(const XMFLOAT3 & pos);
+	void CreateDamageDEF(const XMFLOAT3& pos);
 	void BuildMonsterList(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList);
 
 	void RenderStage1(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera);
@@ -184,7 +185,7 @@ public:
 	
 	CTexture*							m_DamageUITex = NULL;
 	CTexture*							m_DamageUITexYellow = NULL;
-	CTexture* m_SceneScreenTex = NULL; //
+	CTexture*							m_HitAttackEffectTex = NULL;
 
 	CGameObject* HoneyComb = NULL;
 	CGameObject* Potion = NULL;

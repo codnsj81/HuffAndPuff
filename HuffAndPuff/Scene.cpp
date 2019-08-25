@@ -223,6 +223,7 @@ void CScene::Update(float fTime)
 
 void CScene::PlayerAttack()
 {
+	m_pPlayer->Attack();
 	list<CMonster*>::iterator iter = M_MonsterObjectslist.begin();
 	list<CMonster*>::iterator iter_end = M_MonsterObjectslist.end();
 	for (iter; iter != iter_end; iter++)
@@ -232,7 +233,6 @@ void CScene::PlayerAttack()
 		float distance = Vector3::Length(Vector3::Subtract(pos1, pos2));
 		if (distance < 10)
 		{
-			CSoundMgr::GetInstacne()->PlaySkillSound(_T("PlayerAtt"));
 			(*iter)->Damage(m_pPlayer->GetAtt());
 			bCreatePDUI = true; 
 			monDUIPos = pos1;

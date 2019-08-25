@@ -118,6 +118,17 @@ void CPlayer::LoadNavigation()
 	m_navProcess = 0;
 }
 
+void CPlayer::Attack()
+{
+	if (m_moveState == STATE_GROUND)
+	{
+		CSoundMgr::GetInstacne()->PlaySkillSound(_T("PlayerAtt"));
+		SetAnimationSet(4);
+		m_moveState = STATE_ATTACK;
+	}
+
+}
+
 void CPlayer::PlusNavigationList()
 {
 	if (m_NavGuide == NULL) return;
@@ -251,7 +262,7 @@ bool CPlayer::CheckInWater(XMFLOAT3 pos, CHeightMapTerrain *pTerrain)
 void CPlayer::Move( XMFLOAT3 xmf3Shift, bool bUpdateVelocity)
 {
 
-	if (m_moveState == STATE_STUN) 
+	if (m_moveState == STATE_STUN || m_moveState == STATE_ATTACK) 
 		return;
 	if (bUpdateVelocity)
 	{
@@ -399,9 +410,9 @@ void CPlayer::OnObject(float fy)
 
 void CPlayer::Update(float fTimeElapsed)
 {
-	
+
 	float fDistance = 0;
-	if (m_moveState != STATE_CHEAT && m_moveState != STATE_GROUND && m_moveState != STATE_ONOBJECTS && m_moveState != STATE_STUN )
+	if (m_moveState != STATE_CHEAT && m_moveState != STATE_GROUND && m_moveState != STATE_ONOBJECTS && m_moveState != STATE_STUN && m_moveState != STATE_ATTACK )
 	{
 		m_fTime += fTimeElapsed;
 		fDistance = 30.f - 90.f * m_fTime ;
@@ -459,15 +470,17 @@ void CPlayer::Update(float fTimeElapsed)
 
 	if (m_moveState == STATE_GROUND)
 	{
-		if(m_bInWater) SetAnimationSet(4);
+		if(m_bInWater) SetAnimationSet(3);
 		else if (Vector3::IsZero(m_xmf3Velocity))
 			SetAnimationSet(0);
 		else
 			SetAnimationSet(1);
-
-		
 	}
-	
+	else if (m_moveState == STATE_ATTACK)
+	{
+		if (m_pChild->m_pAnimationController->m_bAnimationEnd)
+			m_moveState = STATE_GROUND;
+	}
 	
 	if (m_bDamaging)
 	{
@@ -781,7 +794,8 @@ void CTerrainPlayer::OnPlayerUpdateCallback(float fTimeElapsed)
 	if (xmf3PlayerPosition.y < fHeight)
 	{
 		m_fTime = 0;
-		if (m_moveState != STATE_GROUND && m_moveState != STATE_STUN && m_moveState != STATE_CHEAT)
+		if (m_moveState != STATE_GROUND && m_moveState != STATE_STUN && m_moveState != STATE_CHEAT
+			&& m_moveState != STATE_ATTACK)
 		{
 			m_iJumpnum = 0;
 			m_moveState = STATE_GROUND;

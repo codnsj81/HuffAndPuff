@@ -396,10 +396,10 @@ void CAnimationController::SetAnimationSet(int nAnimationSet)
 {
 	if (m_pAnimationSets && (nAnimationSet < m_nAnimationSets))
 	{
-		if (nAnimationSet == 2)
+		if (nAnimationSet == 2 || nAnimationSet == 4)
 		{
-			m_pAnimationSets[2].m_fPosition = 0;
-			m_pAnimationSets[2].m_fSpeed = 0.6f;
+			m_pAnimationSets[nAnimationSet].m_fPosition = 0;
+			m_pAnimationSets[nAnimationSet].m_fSpeed = 0.6f;
 			SetLoop(false);
 		}
 		else 

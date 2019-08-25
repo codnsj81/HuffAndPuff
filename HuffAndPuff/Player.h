@@ -51,6 +51,7 @@ protected:
 	bool						m_bInWater = false;
 	bool						m_bCheatmode = false;
 
+	float						m_fAttTime = 0;
 	int							m_moveState = STATE_GROUND;
 	float						m_fTime = 0.f;
 	float						m_fPreHeight = 0;
@@ -87,6 +88,7 @@ public:
 	void LoadNavigation();
 	list<XMFLOAT3>* GetNavigationList() { return &m_xmNavigationList; }
 	int GetNavListSize() { return m_navListSize; }
+	void Attack();
 
 	void PlusNavigationList();
 	void SetScene(CScene* p) { m_pScene = p; }

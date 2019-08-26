@@ -152,5 +152,5 @@ public:
 	virtual void Update(float elapsed);
 
 private:
-	float m_fTime = 0;
+	float m_fTime = 1;
 };

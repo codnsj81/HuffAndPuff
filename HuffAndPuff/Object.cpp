@@ -1507,7 +1507,7 @@ CPotion::CPotion()
 {
 	CHoneyComb();
 	SetFallingSpeed(10);
-	m_iDamage = -5;
+	m_iDamage = -10;
 }
 
 CPotion::~CPotion()

@@ -456,6 +456,7 @@ CEffectUI::CEffectUI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCo
 
 void CEffectUI::Update(float elapsed)
 {
-	m_fTime += elapsed;
-	if (m_fTime > 0.5f) bRender = false;
+	m_fTime -= elapsed *1.5 ;
+	SetScale(m_fTime, m_fTime, m_fTime);
+	if (m_fTime < 0.5f) bRender = false;
 }

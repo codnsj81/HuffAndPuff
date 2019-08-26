@@ -1204,11 +1204,11 @@ CHeightMapTerrain::CHeightMapTerrain(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
 	CTexture *pTerrainBaseTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pTerrainBaseTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Terrain/terrainTex.tif", 0,false);
+	pTerrainBaseTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Terrain/terrainTex3.tif", 0,false);
 
 
 	CTexture *pTerrainBaseTexture2 = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pTerrainBaseTexture2->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Terrain/terrainTex.tif", 0, false);
+	pTerrainBaseTexture2->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Terrain/terrainTex3.tif", 0, false);
 
 
 	CTexture *pTerrainDetailTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0); // Ǯ

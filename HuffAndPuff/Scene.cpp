@@ -1309,6 +1309,7 @@ void CScene::ObjectsCollides()
 			{
 				CreateDamageUI( 4);
 				m_pPlayer->Damage(4);
+				m_pPlayer->Pop(100);
 				CSoundMgr::GetInstacne()->PlayEffectSound(_T("Mushroom"));
 			}
 			n->SetCollided(true);

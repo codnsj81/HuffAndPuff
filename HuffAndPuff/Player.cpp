@@ -209,7 +209,7 @@ void CPlayer::ReleaseShaderVariables()
 void CPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
 {
 
-	if (dwDirection)
+	if (dwDirection && !m_bPop)
 	{
 		XMFLOAT3 xmf3Shift = XMFLOAT3(0, 0, 0);
 		if (dwDirection & DIR_FORWARD) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, m_fSpeed);
@@ -331,6 +331,13 @@ void CPlayer::Dash(float fDistance)
 	m_fMaxVelocityXZ = 50;
 }
 
+void CPlayer::Pop(float fDistance)
+{
+	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, -fDistance);
+	m_bPop = true;
+	Jump();
+	m_fMaxVelocityXZ = 70;
+}
 void CPlayer::Rotate(float x, float y, float z)
 {
 	if (m_moveState == STATE_STUN) return;
@@ -428,14 +435,28 @@ void CPlayer::Update(float fTimeElapsed)
 
 	float fLength = sqrtf(m_xmf3Velocity.x * m_xmf3Velocity.x + m_xmf3Velocity.z * m_xmf3Velocity.z);
 	float fMaxVelocityXZ = m_fMaxVelocityXZ;
-	if (m_bDash)
+	if (m_bDash|| m_bPop)
 	{
-		m_fMaxVelocityXZ -= fTimeElapsed * 10;
-		if (m_fMaxVelocityXZ <= 30.f)
+		if (m_bDash)
 		{
-			m_fMaxVelocityXZ = 30.f;
-			m_bDash = false;
+			m_fMaxVelocityXZ -= fTimeElapsed * 10;
+			if (m_fMaxVelocityXZ <= 30.f)
+			{
+				m_fMaxVelocityXZ = 30.f;
+				m_bDash = false;
+			}
 		}
+		if (m_bPop)
+		{
+
+			m_fMaxVelocityXZ -= fTimeElapsed * 5;	
+			if (m_moveState == STATE_GROUND)
+			{
+				m_fMaxVelocityXZ = 30.f;
+				m_bPop = false;
+			}
+		}
+		
 
 	}
 
@@ -573,7 +594,7 @@ void CPlayer::Jump()
 
 		m_iJumpnum++;
 		SetAnimationSet(STATE_JUMPING);
-		CSoundMgr::GetInstacne()->PlayEffectSound(_T("Jump"));
+		if(!m_bPop)CSoundMgr::GetInstacne()->PlayEffectSound(_T("Jump"));
 	}
 
 }

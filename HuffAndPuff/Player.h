@@ -144,6 +144,7 @@ public:
 	void Move(float fxOffset = 0.0f, float fyOffset = 0.0f, float fzOffset = 0.0f);
 
 	void Dash(float fDistance);
+	void Pop(float fDistance);
 	void Rotate(float x, float y, float z);
 
 	void SetStun();
@@ -180,6 +181,7 @@ public:
 	bool						m_bDamaging = false;
 	float						m_fDamagingTime = 0.f;
 	bool					m_bDash = false;
+	bool						m_bPop = false;
 
 };
 

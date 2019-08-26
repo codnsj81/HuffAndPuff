@@ -13,6 +13,7 @@
 #define STATE_STUN		6
 #define STATE_CHEAT		7
 #define STATE_ATTACK	8
+#define STATE_POPPING	9
 
 
 

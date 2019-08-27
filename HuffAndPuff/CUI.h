@@ -21,7 +21,6 @@ public:
 	bool bRender = true;
 	bool bEx = false;
 
-	void SetTexture(CTexture*  tex);
 	void SetWinpos(float x, float y);
 	virtual void Update(float elapsed) {}
 	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dCbvGPUDescriptorHandle;
@@ -153,4 +152,19 @@ public:
 
 private:
 	float m_fTime = 1;
+};
+
+enum cloudstate {CLOUD_BIGGER, CLOUD_BLINDING, CLOUD_SMALLER, CLOUD_NONE};
+class CCloud : public CStartUI
+{
+public:
+	CCloud() {}
+	CCloud(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, float nWidth, float nLength, XMFLOAT3 xmfPosition, wchar_t* pFilename);
+	~CCloud() {}
+	void CloudSwitch();
+	virtual void Update(float elapsed);
+private:
+	cloudstate m_cloudstate = CLOUD_NONE;
+	float m_fTime = 0.f;
+	float m_fSize = 0.f;
 };

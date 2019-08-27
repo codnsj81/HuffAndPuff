@@ -59,9 +59,12 @@ public:
 	 int	GetFlowState() { return m_FLOWSTATE; }
 	 list<CUI*>* GetUIList() { return m_UIList; }
 	 void BuildUI();
+	 void SetbReverseControlMode();
 
 private:
 
+	float						m_fReverseTime = 0;
+	bool						m_bReverseControl = false;
 	int							m_FLOWSTATE = SCENE_MAIN;
 	HINSTANCE					m_hInstance;
 	HWND						m_hWnd; 
@@ -69,7 +72,7 @@ private:
 	list<CUI*>					*m_UIList;
 	int							m_nWndClientWidth;
 	int							m_nWndClientHeight;
-        
+       
 	IDXGIFactory4				*m_pdxgiFactory = NULL;
 	IDXGISwapChain3				*m_pdxgiSwapChain = NULL;
 	ID3D12Device				*m_pd3dDevice = NULL;

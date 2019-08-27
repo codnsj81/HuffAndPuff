@@ -317,6 +317,7 @@ public:
 
 	BoundingBox GetBoundingBox();
 
+	void SetTexture(CTexture* tex);
 	void SetAnimtaionPos(int i);
 	void SetAnimationSpeed(float a);
 	void SetMesh(CMesh *pMesh);
@@ -500,12 +501,17 @@ protected:
 	float floorHeight;
 };
 
-class CPotion : public CHoneyComb
+class CFloatingItem : public CGameObject
 {
 public:
-	CPotion();
-	~CPotion();
+	CFloatingItem(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	~CFloatingItem();
+	bool GetbDie() { return m_bDie; }
 	virtual void Animate(float fTimeElapsed);
+protected:
+
+	bool m_bDie = false;
+	float m_fElapsedTime = 0;
 
 };
 class CMushroom : public CGameObject
@@ -546,5 +552,21 @@ public:
 	~CShadow();
 	CShadow(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, int nWidth, int nLength, XMFLOAT3 xmfPosition);
 
+
+};
+
+class CItemBox : public CGameObject
+{
+public:
+	CItemBox();
+	~CItemBox() {}
+
+	void SetOriginY(float f) { m_fOriginY = f; }
+	virtual void Animate(float fTimeElapsed);
+private:
+
+	bool m_bUp = true;
+	float m_fOriginY;
+	float m_movingHeight;
 
 };

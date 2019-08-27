@@ -148,6 +148,20 @@ void CSoundMgr::LoadSoundFile(void)
 		m_mapSound.insert(make_pair(pName, pSound));
 	}
 
+	m_Result = m_pSystem->createSound("SoundFile/ItemGet.mp3", FMOD_DEFAULT, 0, &pSound);
+	pName = _T("ItemGet");
+	if (m_Result == FMOD_OK)
+	{
+		m_mapSound.insert(make_pair(pName, pSound));
+	}
+
+
+	m_Result = m_pSystem->createSound("SoundFile/Spring.mp3", FMOD_DEFAULT, 0, &pSound);
+	pName = _T("Spring");
+	if (m_Result == FMOD_OK)
+	{
+		m_mapSound.insert(make_pair(pName, pSound));
+	}
 	m_Result = m_pSystem->update();
 	ErrorCheck(m_Result);
 }

@@ -18,7 +18,9 @@ class CStartUI;
 class CDamageUI;
 class CTrap;
 class CGameFramework;
+class CItemBox;
 class CSceneScreen;
+class CCloud;
 
 struct DashInfo
 {
@@ -91,9 +93,11 @@ public:
 	bool bCreatePDUI = false;
 	XMFLOAT3 monDUIPos;
 
+	int tempint = 0; // ÀºÇý È®ÀÎ¿ë
 	CUI* m_iClockMin = NULL;
 	CUI* m_iClockSec1 = NULL;
 	CUI* m_iClockSec2 = NULL;
+	CCloud* m_pCloud = NULL;
 
 	CUI* m_BloodScreen = NULL;
 	void SetBloodScreenState(bool b);
@@ -129,8 +133,10 @@ public:
 	void PlusMonsterData();
 	void SaveMonsterData();
 
+	void LoadBoxData(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+
 	void SaveNavigation();
-	
+	void BuildTextures(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	void CreateDamageUI(int dam);
 	void CreateDamageUIP(const XMFLOAT3 & pos);
 	void CreateDamageDEF(const XMFLOAT3& pos);
@@ -180,9 +186,10 @@ public:
 	CTexture*							m_HitAttackEffectTex = NULL;
 
 	CGameObject* HoneyComb = NULL;
-	CGameObject* Potion = NULL;
-	
+	CTexture* PotionTex = NULL;
+
 	CGameObject							**m_ppGameObjects = NULL;
+	list<CItemBox*>					m_ItemBoxlist;
 	list<CTree*>						m_TreeObjectslist;
 	list<CGameObject*>					m_StoneObjectslist;
 	list<CGameObject*>					m_GrassObjectlist;
@@ -191,7 +198,7 @@ public:
 	list<CDash*>						m_DashList;
 	list<CTrap*>						m_TrapList;
 	list<CDamageUI*>					m_DamageUIList;
-	list<CPotion*>						m_PotionList;
+	list<CFloatingItem*>				m_FloatingItemList;
 
 	list<CUI*>* m_UIList;
 

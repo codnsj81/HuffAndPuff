@@ -527,6 +527,12 @@ BoundingBox CGameObject::GetBoundingBox()
 	
 }
 
+void CGameObject::SetTexture(CTexture* tex)
+{
+
+	m_ppMaterials[0]->SetTexture(tex, 0);
+}
+
 void CGameObject::SetAnimtaionPos(int i)
 {
 
@@ -1517,19 +1523,60 @@ CShadow::~CShadow()
 {
 }
 
-CPotion::CPotion()
+CFloatingItem::CFloatingItem(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-	CHoneyComb();
-	SetFallingSpeed(10);
-	m_iDamage = -10;
+	m_nMaterials = 1;
+	m_ppMaterials = new CMaterial * [m_nMaterials];
+	for (int i = 0; i < m_nMaterials; i++)
+		m_ppMaterials[i] = NULL;
+
+	CMesh* pMesh = new CScreenMesh(pd3dDevice, pd3dCommandList, 5, 5);
+	SetMesh(pMesh);
+
+	CShader* pShader = new CUIShader();
+	pShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	pShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+
+	CMaterial* pMaterial = new CMaterial(1);
+	pMaterial->SetMaterialType(MATERIAL_ALBEDO_MAP);
+	pMaterial->SetShader(pShader);
+
+	SetMaterial(0, pMaterial);
 }
 
-CPotion::~CPotion()
+CFloatingItem::~CFloatingItem()
 {
 }
 
-void CPotion::Animate(float fTimeElapsed)
+void CFloatingItem::Animate(float fTimeElapsed)
 {
-	CHoneyComb::Animate(fTimeElapsed);
-	Rotate(0, fTimeElapsed * 300, 0);
+	m_fElapsedTime += fTimeElapsed;
+	if (m_fElapsedTime > 1.f)
+		m_bDie = true;
+	SetPosition(GetPosition().x, GetPosition().y + fTimeElapsed * 10, GetPosition().z);
+
+	Rotate(0,0, fTimeElapsed * 300);
+}
+
+CItemBox::CItemBox()
+{
+	m_movingHeight = rand() % 4 - 2;
+}
+
+void CItemBox::Animate(float fTimeElapsed)
+{
+	if (m_bUp)
+	{
+		m_movingHeight += fTimeElapsed *2 ;
+		if (m_movingHeight > 2.f)
+			m_bUp = false;
+	}
+	else
+	{
+		m_movingHeight -= fTimeElapsed * 2;
+		if (m_movingHeight < -2.f)
+			m_bUp = true;
+	}
+	XMFLOAT3 pos = GetPosition();
+	SetPosition(pos.x, m_fOriginY + m_movingHeight, pos.z);
 }

@@ -496,6 +496,12 @@ void CGameFramework::BuildUI()
 	(m_pOverUI)->Trigger = false;
 
 
+	CCloud* cloud = new CCloud(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 25,15, m_pPlayer->GetPosition(), L"Model/Textures/Cloud.tiff");
+	cloud->bRender = false;
+	cloud->SetWinpos(0, 0);
+	m_pScene->m_pCloud = cloud;
+	m_UIList->emplace_back(cloud);
+
 	//BackgrundUI Build
 	int buiCount = 2;
 	m_pBackUIArr = new CBackgroundUI* [buiCount];
@@ -505,6 +511,11 @@ void CGameFramework::BuildUI()
 	bui = new CBackgroundUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 230, 200, m_pCamera->GetRoatMatrix(), L"Model/Textures/UI_Manual.tiff");
 	m_pBackUIArr[1] = bui;
 
+}
+
+void CGameFramework::SetbReverseControlMode()
+{
+	m_bReverseControl = true;
 }
 
 void CGameFramework::OnDestroy()
@@ -633,14 +644,16 @@ void CGameFramework::ReleaseObjects()
 
 void CGameFramework::ProcessInput()
 {
-		static UCHAR pKeysBuffer[256];
-		bool bProcessedByScene = false;
-		if (GetKeyboardState(pKeysBuffer) && m_pScene)
-			bProcessedByScene = m_pScene->ProcessInput(pKeysBuffer);
-		if (!bProcessedByScene && m_FLOWSTATE == SCENE_STAGE1)
+	static UCHAR pKeysBuffer[256];
+	bool bProcessedByScene = false;
+	if (GetKeyboardState(pKeysBuffer) && m_pScene)
+		bProcessedByScene = m_pScene->ProcessInput(pKeysBuffer);
+	if (!bProcessedByScene && m_FLOWSTATE == SCENE_STAGE1)
+	{
+		bool ismove = false;
+		DWORD dwDirection = 0;
+		if (!m_bReverseControl)
 		{
-			bool ismove = false;
-			DWORD dwDirection = 0;
 			if ((pKeysBuffer['W'] & 0xF0) || (pKeysBuffer['w'] & 0xF0)) {
 				dwDirection |= DIR_FORWARD;
 			}
@@ -653,30 +666,47 @@ void CGameFramework::ProcessInput()
 			if ((pKeysBuffer['D'] & 0xF0) || (pKeysBuffer['d'] & 0xF0)) {
 				dwDirection |= DIR_RIGHT;
 			}
+		}
+		else
+		{
 
-			float cxDelta = 0.0f, cyDelta = 0.0f;
-			POINT ptCursorPos;
-			if (GetCapture() == m_hWnd)
-			{
-				SetCursor(NULL);
-				GetCursorPos(&ptCursorPos);
-				cxDelta = (float)(ptCursorPos.x - m_ptOldCursorPos.x) / 3.0f;
-				cyDelta = (float)(ptCursorPos.y - m_ptOldCursorPos.y) / 3.0f;
-				SetCursorPos(m_ptOldCursorPos.x, m_ptOldCursorPos.y);
+			if ((pKeysBuffer['S'] & 0xF0) || (pKeysBuffer['s'] & 0xF0)) {
+				dwDirection |= DIR_FORWARD;
 			}
-
-			if ((dwDirection != 0) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
-			{
-				if (cxDelta || cyDelta)
-				{
-					m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
-				}
-				if (dwDirection) {
-					m_pPlayer->Move(dwDirection, 3.25f, true);
-					AnimateObjects();
-				}
+			if ((pKeysBuffer['W'] & 0xF0) || (pKeysBuffer['w'] & 0xF0)) {
+				dwDirection |= DIR_BACKWARD;
+			}
+			if ((pKeysBuffer['D'] & 0xF0) || (pKeysBuffer['d'] & 0xF0)) {
+				dwDirection |= DIR_LEFT;
+			}
+			if ((pKeysBuffer['A'] & 0xF0) || (pKeysBuffer['a'] & 0xF0)) {
+				dwDirection |= DIR_RIGHT;
 			}
 		}
+		float cxDelta = 0.0f, cyDelta = 0.0f;
+		POINT ptCursorPos;
+		if (GetCapture() == m_hWnd)
+		{
+			SetCursor(NULL);
+			GetCursorPos(&ptCursorPos);
+			cxDelta = (float)(ptCursorPos.x - m_ptOldCursorPos.x) / 3.0f;
+			cyDelta = (float)(ptCursorPos.y - m_ptOldCursorPos.y) / 3.0f;
+			SetCursorPos(m_ptOldCursorPos.x, m_ptOldCursorPos.y);
+		}
+
+		if ((dwDirection != 0) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
+		{
+			if (cxDelta || cyDelta)
+			{
+				m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
+			}
+			if (dwDirection) {
+				m_pPlayer->Move(dwDirection, 3.25f, true);
+				AnimateObjects();
+			}
+		}
+	}
+
 		m_pPlayer->Update(m_GameTimer.GetTimeElapsed());
 }
 
@@ -839,6 +869,15 @@ void CGameFramework::FrameAdvance()
 				m_pOverUI->bRender = true;
 				(m_pOverUI)->Trigger = true;
 				m_pPlayer->GetCamera()->m_pOverUI = m_pOverUI;
+			}
+		}
+		if (m_bReverseControl)
+		{
+			m_fReverseTime += m_GameTimer.GetTimeElapsed();
+			if (m_fReverseTime > 5)
+			{
+				m_bReverseControl = false;
+				m_fReverseTime = 0;
 			}
 		}
 

@@ -67,7 +67,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 		//m_ppWaters[0]->Rotate(0, 10.f, 0);
 
 		m_ppWaters[1] = new CWater(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 500, 350, XMFLOAT3(714, 30.f, 803.f));
-		Potion = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/potion.bin", NULL, false);
+		
 
 		HoneyComb = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Honey.bin", NULL, false);
 		BuildMonsterList(pd3dDevice, pd3dCommandList);
@@ -76,24 +76,12 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 		m_ppGameObjects = new CGameObject * [m_nGameObjects];
 
 
-		m_DamageUITex = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-		m_DamageUITex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/number.tiff", 0, false);
-		CScene::CreateShaderResourceViews(pd3dDevice, m_DamageUITex, 3, false);
-
-
-		m_HitAttackEffectTex = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-		m_HitAttackEffectTex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/effect13.tiff", 0, false);
-		CScene::CreateShaderResourceViews(pd3dDevice, m_HitAttackEffectTex, 3, false);
-
-
-		m_DamageUITexYellow = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-		m_DamageUITexYellow->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/number3.tiff", 0, false);
-		CScene::CreateShaderResourceViews(pd3dDevice, m_DamageUITexYellow, 3, false);
-
+		BuildTextures(pd3dDevice, pd3dCommandList);
 		LoadStone(pd3dDevice, pd3dCommandList);
 		LoadTree(pd3dDevice, pd3dCommandList);
 		LoadGrass(pd3dDevice, pd3dCommandList);
 		LoadTrap(pd3dDevice, pd3dCommandList);
+		LoadBoxData(pd3dDevice, pd3dCommandList);
 		LoadDash(pd3dDevice, pd3dCommandList);
 		BuildMushroomData(pd3dDevice, pd3dCommandList);
 		CreateShaderVariables(pd3dDevice, pd3dCommandList);
@@ -138,9 +126,9 @@ void CScene::ReleaseObjects()
 
 		if (m_pTerrain) delete m_pTerrain;
 		if (m_pSkyBox) delete m_pSkyBox;
-		if (Potion)
+		if (PotionTex)
 		{
-			Potion->Release();
+			PotionTex->Release();
 		}
 		if (m_ppGameObjects)
 		{
@@ -150,6 +138,12 @@ void CScene::ReleaseObjects()
 		if (m_TreeObjectslist.size() != 0)
 		{
 			for (auto n : m_TreeObjectslist) {
+				n->Release();
+			}
+		}
+		if (m_ItemBoxlist.size() != 0)
+		{
+			for (auto n : m_ItemBoxlist) {
 				n->Release();
 			}
 		}
@@ -463,14 +457,20 @@ void CScene::ReleaseUploadBuffers()
 	{
 		n->ReleaseUploadBuffers();
 	}
+
+
+	for (auto n : m_ItemBoxlist)
+	{
+		n->ReleaseUploadBuffers();
+	}
 	if(m_pSnakeObject)
 		m_pSnakeObject->ReleaseShaderVariables();
 
 	for (auto n : m_TrapList)
-		n->ReleaseShaderVariables();
+		n->ReleaseUploadBuffers();
 
 	for (auto n : *m_UIList)
-		n->ReleaseShaderVariables();
+		n->ReleaseUploadBuffers();
 }
 
 void CScene::TimeCount(float time)
@@ -706,6 +706,39 @@ void CScene::SaveMonsterData()
 	}
 }
 
+void CScene::LoadBoxData(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
+{
+	CGameObject* pOBJ = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/box.bin", NULL, false);
+
+	CItemBox* obj = new CItemBox();
+	obj->SetChild(pOBJ, true);
+	obj->SetHitBox(XMFLOAT3(7,7,7));
+	obj->Rotate(rand() % 360, rand() % 360, rand() % 360);
+	obj->SetOriginY(m_pTerrain->GetHeight(120, INITPOSITION_Z) + 7);
+	obj->SetPosition(120, m_pTerrain->GetHeight(120, INITPOSITION_Z), INITPOSITION_Z);
+	//Vector3::Normalize(iter->m_rot);
+	m_ItemBoxlist.push_back(obj);
+
+	obj = new CItemBox();
+	obj->SetChild(pOBJ, true);
+	obj->SetHitBox(XMFLOAT3(7,7,7));
+	obj->Rotate(rand() % 360, rand() % 360, rand() % 360);
+	obj->SetOriginY(m_pTerrain->GetHeight(80, INITPOSITION_Z) + 7);
+	obj->SetPosition(80, m_pTerrain->GetHeight(80, INITPOSITION_Z), INITPOSITION_Z);
+	//Vector3::Normalize(iter->m_rot);
+	m_ItemBoxlist.push_back(obj);
+
+	obj = new CItemBox();
+	obj->SetChild(pOBJ, true);
+	obj->SetHitBox(XMFLOAT3(7,7,7));
+	obj->Rotate(rand() % 360, rand() % 360, rand() % 360);
+	obj->SetOriginY(m_pTerrain->GetHeight(100, INITPOSITION_Z) + 7);
+	obj->SetPosition(100, m_pTerrain->GetHeight(100, INITPOSITION_Z), INITPOSITION_Z);
+	//Vector3::Normalize(iter->m_rot);
+	m_ItemBoxlist.push_back(obj);
+
+}
+
 void CScene::BuildMonsterList(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList)
 {
 	StoneInfo dat;
@@ -783,6 +816,18 @@ void CScene::RenderStage1(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* p
 		p->UpdateTransform(NULL);
 		p->Render(pd3dCommandList, pCamera);
 	}
+	for (auto p : m_ItemBoxlist)
+	{
+		p->UpdateTransform(NULL);
+		p->Render(pd3dCommandList, pCamera);
+	}
+
+	for (auto p : m_FloatingItemList)
+	{
+		p->UpdateTransform(NULL);
+		p->Render(pd3dCommandList, pCamera);
+	}
+
 	for (auto p : m_DamageUIList)
 	{
 		if (p->bRender)
@@ -791,7 +836,6 @@ void CScene::RenderStage1(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* p
 			p->Render(pd3dCommandList, pCamera);
 		}
 	}
-
 	if (m_pPlayer) m_pPlayer->Render(m_pd3dCommandList, pCamera);
 
 	for (int i = 0; i < 2; i++)
@@ -949,9 +993,6 @@ void CScene::LoadStone(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd
 {
 
 	CGameObject *pStone = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Rock.bin", NULL, false);
-	CGameObject *pStone2 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/rock4.bin", NULL, false);
-	CGameObject *pStone3 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/rock3.bin", NULL, false);
-	CGameObject *pStone4 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/rock5.bin", NULL, false);
 
 	StoneInfo dat;
 	int type = 1;
@@ -987,24 +1028,8 @@ void CScene::LoadStone(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd
 		{
 		case 0:
 			obj->SetChild(pStone, true);
-			obj->SetScale(1,1,1);
+			obj->SetScale(1, 1, 1);
 			obj->SetHitBox(XMFLOAT3(3.f * iter->m_size.x, 0.8f * iter->m_size.y, 3.f * iter->m_size.z));
-			break;
-		case 1:
-			obj->SetChild(pStone2, true);;
-			obj->Rotate(0, RandomRotate, 0);
-			obj->SetHitBox(XMFLOAT3(6 * iter->m_size.x,4 * iter->m_size.y,6 * iter->m_size.z));
-			break;
-		case 2:
-			obj->SetChild(pStone3, true);;
-			obj->Rotate(0, RandomRotate, 0);
-			obj->SetHitBox(XMFLOAT3(5 * iter->m_size.x,5 * iter->m_size.y, 5 * iter->m_size.z));
-			break;
-		case 3:
-			obj->SetChild(pStone4, true);;
-			obj->Rotate(0, RandomRotate, 0);
-			obj->SetHitBox(XMFLOAT3(8 * iter->m_size.x, 3 * iter->m_size.y, 8 * iter->m_size.z));
-			break;
 		}
 
 		m_StoneObjectslist.push_back(obj);
@@ -1079,6 +1104,29 @@ void CScene::SaveNavigation()
 	{
 		out << t.x << " " << t.y << " " << t.z << " " << endl;
 	}
+}
+
+void CScene::BuildTextures(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
+{
+
+	PotionTex = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	PotionTex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/Potion.tiff", 0, false);
+	CScene::CreateShaderResourceViews(pd3dDevice, PotionTex, 3, false);
+
+
+	m_DamageUITex = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	m_DamageUITex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/number.tiff", 0, false);
+	CScene::CreateShaderResourceViews(pd3dDevice, m_DamageUITex, 3, false);
+
+
+	m_HitAttackEffectTex = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	m_HitAttackEffectTex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/effect13.tiff", 0, false);
+	CScene::CreateShaderResourceViews(pd3dDevice, m_HitAttackEffectTex, 3, false);
+
+
+	m_DamageUITexYellow = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	m_DamageUITexYellow->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/number3.tiff", 0, false);
+	CScene::CreateShaderResourceViews(pd3dDevice, m_DamageUITexYellow, 3, false);
 }
 
 void CScene::LoadTree(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
@@ -1162,6 +1210,10 @@ void CScene::AnimateObjects(float fTimeElapsed)
 	{
 		h->Animate(fTimeElapsed);
 	}
+	for (auto h : m_FloatingItemList)
+	{
+		h->Animate(fTimeElapsed);
+	}
 	for (auto h : m_Mushroomlist)
 	{
 		h->Animate(fTimeElapsed);
@@ -1170,6 +1222,9 @@ void CScene::AnimateObjects(float fTimeElapsed)
 	{
 		h->Animate(fTimeElapsed);
 	}
+
+	for (auto h : m_ItemBoxlist)
+		h->Animate(fTimeElapsed);
 
 	for (auto h : m_DamageUIList)
 	{
@@ -1251,24 +1306,46 @@ void CScene::ObjectsCollides()
 					CSoundMgr::GetInstacne()->PlayEffectSound(_T("Falling"));
 				}
 
-				else if (prob < 8)
-				{
-
-					XMFLOAT3 pos = m_pPlayer->GetPosition();
-					CPotion* temp = new CPotion();
-					temp->SetChild(Potion);
-					temp->SetPosition(pos.x, pos.y + 20, pos.z);
-					temp->SetFloorHeight(m_pTerrain->GetHeight(n->GetPosition().x, n->GetPosition().z));
-					m_HoneyComblist.push_back(temp);
-					CSoundMgr::GetInstacne()->PlayEffectSound(_T("Falling"));
-				}
 			}
 
 			n->SetHoneyDrop();
 		}
 
 	}
+	list<CItemBox*> ::iterator iter = m_ItemBoxlist.begin();
+	list<CItemBox*> ::iterator iter_end = m_ItemBoxlist.end();
+	for (iter; iter!= iter_end; iter++)
+	{
+		if((*iter)->getCollision(m_pPlayer))
+		{
+			int random = rand() % 3;
+			CFloatingItem* temp;
+			switch (tempint)
+			{
+			case 0:
+				temp = new CFloatingItem(m_pd3dDevice, m_pd3dCommandList, m_pd3dGraphicsRootSignature);
+				temp->SetPosition((*iter)->GetPosition());
+				temp->Rotate(90, 0, 0);
+				temp->SetTexture(PotionTex);
+				m_FloatingItemList.push_back(temp);
 
+				CSoundMgr::GetInstacne()->PlayEffectSound(_T("ItemGet"));
+				m_pPlayer->Damage(-10);
+				break;
+			case 1:
+				m_pCloud->CloudSwitch();
+				CSoundMgr::GetInstacne()->PlayEffectSound(_T("Spring"));
+				break;
+			case 2:
+				m_MainFramework->SetbReverseControlMode();
+				CSoundMgr::GetInstacne()->PlayEffectSound(_T("Spring"));
+				break;
+			}
+			tempint++;
+			iter = m_ItemBoxlist.erase(iter);
+			if (iter == iter_end) break;
+		}
+	}
 	for (auto n : m_StoneObjectslist)
 	{
 		n->getCollision(m_pPlayer);
@@ -1327,13 +1404,24 @@ void CScene::ObjectsCollides()
 		{
 			if ((*honeyiter)->GetDamage() == 6)
 				CreateDamageUI(6);
-			else
-				CSoundMgr::GetInstacne()->PlayEffectSound(_T("Gulp"));
 		}
 		if ((*honeyiter)->GetbDie())
 		{
 			honeyiter = m_HoneyComblist.erase(honeyiter);
 			if (honeyiter == honeyend) break;
+		}
+	}
+
+
+
+	list<CFloatingItem*> ::iterator floatiter = m_FloatingItemList.begin();
+	list<CFloatingItem*> ::iterator floatend = m_FloatingItemList.end();
+	for (floatiter; floatiter != floatend; floatiter++)
+	{
+		if ((*floatiter)->GetbDie())
+		{
+			floatiter = m_FloatingItemList.erase(floatiter);
+			if (floatiter == floatend) break;
 		}
 	}
 }

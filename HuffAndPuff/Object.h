@@ -40,6 +40,14 @@ struct SRVROOTARGUMENTINFO
 	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dSrvGpuDescriptorHandle;
 };
 
+
+struct StoneInfo
+{
+	int							m_iType;
+	XMFLOAT3					m_pos;
+	XMFLOAT3					m_size;
+
+};
 class CTexture
 {
 public:
@@ -265,6 +273,7 @@ public:
 	void SetLoop(bool stop) { m_bLoop = stop; }
 	void SetAnimationSet(int nAnimationSet);
 
+	void ResetPosition(int i);
 	void SetCallbackKeys(int nAnimationSet, int nCallbackKeys);
 	void SetCallbackKey(int nAnimationSet, int nKeyIndex, float fTime, void *pData);
 
@@ -307,6 +316,8 @@ public:
 	CGameObject 					*m_pSibling = NULL;
 
 	BoundingBox GetBoundingBox();
+
+	void SetAnimtaionPos(int i);
 	void SetAnimationSpeed(float a);
 	void SetMesh(CMesh *pMesh);
 	void SetShader(CShader *pShader);

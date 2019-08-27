@@ -98,8 +98,15 @@ void CSoundMgr::LoadSoundFile(void)
 	{
 		m_mapSound.insert(make_pair(pName, pSound));
 	}
-	m_Result = m_pSystem->createSound("SoundFile/Button.ogg", FMOD_DEFAULT, 0, &pSound);
+	m_Result = m_pSystem->createSound("SoundFile/Button.mp3", FMOD_DEFAULT, 0, &pSound);
 	pName = _T("Button");
+	if (m_Result == FMOD_OK)
+	{
+		m_mapSound.insert(make_pair(pName, pSound));
+	}
+	
+	m_Result = m_pSystem->createSound("SoundFile/dash.wav", FMOD_DEFAULT, 0, &pSound);
+	pName = _T("dash");
 	if (m_Result == FMOD_OK)
 	{
 		m_mapSound.insert(make_pair(pName, pSound));
@@ -119,7 +126,7 @@ void CSoundMgr::LoadSoundFile(void)
 		m_mapSound.insert(make_pair(pName, pSound));
 	}
 
-	m_Result = m_pSystem->createSound("SoundFile/Mushroom.ogg", FMOD_DEFAULT, 0, &pSound);
+	m_Result = m_pSystem->createSound("SoundFile/Mushroom.mp3", FMOD_DEFAULT, 0, &pSound);
 	pName = _T("Mushroom");
 	if (m_Result == FMOD_OK)
 	{

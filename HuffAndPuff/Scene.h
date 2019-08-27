@@ -13,18 +13,12 @@
 #define SPOT_LIGHT						2
 #define DIRECTIONAL_LIGHT				3
 
-class CMonster;
+class CSnake;
 class CStartUI;
 class CDamageUI;
 class CTrap;
 class CGameFramework;
 class CSceneScreen;
-struct StoneInfo
-{
-	int							m_iType;
-	XMFLOAT3					m_pos;
-	XMFLOAT3					m_size;
-};
 
 struct DashInfo
 {
@@ -105,7 +99,8 @@ public:
 	void SetBloodScreenState(bool b);
 
 	CPlayer								*m_pPlayer = NULL;
-	CGameObject*						m_pSnakeObject = NULL;
+	CSnake*							m_pSnakeObject = NULL;
+
 	ID3D12Device*						m_pd3dDevice = NULL;
 	ID3D12GraphicsCommandList*			m_pd3dCommandList = NULL;
 
@@ -142,9 +137,6 @@ public:
 	void BuildMonsterList(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList);
 
 	void RenderStage1(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera);
-	list<CMonster*>* GetMonsterList() {
-		return &M_MonsterObjectslist;
-	}
 	
 	void SetMainFrame(CGameFramework* frame) { m_MainFramework = frame; }
 
@@ -193,7 +185,6 @@ public:
 	CGameObject							**m_ppGameObjects = NULL;
 	list<CTree*>						m_TreeObjectslist;
 	list<CGameObject*>					m_StoneObjectslist;
-	list<CMonster*>						M_MonsterObjectslist;
 	list<CGameObject*>					m_GrassObjectlist;
 	list<CHoneyComb*>					m_HoneyComblist;
 	list<CMushroom*>					m_Mushroomlist;
@@ -230,7 +221,7 @@ public:
 	list<XMFLOAT2> TreeDatalist;
 	list<StoneInfo>	StoneDataList;
 	list<XMFLOAT2> GrassDataList;
-	list<StoneInfo>	MonsterDataList;
+	vector<StoneInfo>	MonsterDataList;
 	list<DashInfo> DashDataList;
 
 	CGameFramework* m_MainFramework = NULL;

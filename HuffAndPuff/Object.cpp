@@ -380,6 +380,11 @@ CAnimationController::~CAnimationController()
 	if (m_pAnimationTracks) delete[] m_pAnimationTracks;
 }
 
+void CAnimationController::ResetPosition(int i)
+{
+	m_pAnimationSets[i].m_fPosition = 0;
+}
+
 void CAnimationController::SetCallbackKeys(int nAnimationSet, int nCallbackKeys)
 {
 	m_pAnimationSets[nAnimationSet].m_nCallbackKeys = nCallbackKeys;
@@ -520,6 +525,15 @@ BoundingBox CGameObject::GetBoundingBox()
 {
 	return BoundingBox(GetPosition(), GetHitBox());
 	
+}
+
+void CGameObject::SetAnimtaionPos(int i)
+{
+
+	if (m_pAnimationController) m_pAnimationController->ResetPosition(i);
+
+	if (m_pSibling) m_pSibling->SetAnimtaionPos(i);
+	if (m_pChild) m_pChild->SetAnimtaionPos(i);
 }
 
 void CGameObject::SetAnimationSpeed(float a)

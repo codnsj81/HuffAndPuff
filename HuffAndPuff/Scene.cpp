@@ -177,14 +177,8 @@ void CScene::ReleaseObjects()
 			for (int i = 0; i < m_nWaters; i++) if (m_ppWaters[i]) m_ppWaters[i]->Release();
 			delete[] m_ppWaters;
 		}
-		if (M_MonsterObjectslist.size() != 0)
-		{
-			for (auto n : M_MonsterObjectslist)
-			{
-				n->Release();
-			}
-		}
-
+	
+		if (m_pSnakeObject) m_pSnakeObject->Release();
 		if (HoneyComb) HoneyComb->Release();
 		if (m_DamageUITex) m_DamageUITex->Release();
 		if (m_DamageUITexYellow) m_DamageUITexYellow->Release();
@@ -224,22 +218,18 @@ void CScene::Update(float fTime)
 void CScene::PlayerAttack()
 {
 	m_pPlayer->Attack();
-	list<CMonster*>::iterator iter = M_MonsterObjectslist.begin();
-	list<CMonster*>::iterator iter_end = M_MonsterObjectslist.end();
-	for (iter; iter != iter_end; iter++)
+	if (m_pSnakeObject)
 	{
-		XMFLOAT3 pos1 = (*iter)->GetPosition();
+		XMFLOAT3 pos1 = m_pSnakeObject->GetPosition();
 		XMFLOAT3 pos2 = m_pPlayer->GetPosition();
 		float distance = Vector3::Length(Vector3::Subtract(pos1, pos2));
 		if (distance < 10)
 		{
-			(*iter)->Damage(m_pPlayer->GetAtt());
+			m_pSnakeObject->Damage(m_pPlayer->GetAtt());
 			bCreatePDUI = true; 
 			monDUIPos = pos1;
 		}
 	}
-
-
 }
 
 ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevice)
@@ -473,8 +463,8 @@ void CScene::ReleaseUploadBuffers()
 	{
 		n->ReleaseUploadBuffers();
 	}
-	for (auto n : M_MonsterObjectslist)
-		n->ReleaseShaderVariables();
+	if(m_pSnakeObject)
+		m_pSnakeObject->ReleaseShaderVariables();
 
 	for (auto n : m_TrapList)
 		n->ReleaseShaderVariables();
@@ -509,16 +499,6 @@ void CScene::SetBloodScreenState(bool b)
 
 void CScene::ResetObjects()
 {
-	M_MonsterObjectslist.clear();
-
-	CGameObject* model = new CGameObject();
-	*model = *m_pSnakeObject;
-	CMonster* obj = new CSnake();
-	obj->SetChild(m_pSnakeObject, true);
-	obj->SetPosition(XMFLOAT3(150, m_pTerrain->GetHeight(150, 374), 374));
-	obj->SetScale(2, 2, 2);
-	obj->SetHitBox(XMFLOAT3(3.f, 3.f, 8.f));
-	M_MonsterObjectslist.push_back(obj);
 }
 
 void CScene::PlusTreeData()
@@ -745,25 +725,19 @@ void CScene::BuildMonsterList(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLi
 		MonsterDataList.emplace_back(dat);
 	}
 
-	list<StoneInfo>::iterator iter = MonsterDataList.begin();
-	list<StoneInfo>::iterator end = MonsterDataList.end();
+	vector<StoneInfo>::iterator iter = MonsterDataList.begin();
 
-	for (iter; iter != end; iter++)
-	{
-		m_pSnakeObject = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/snake.bin", NULL, true);
-		m_pSnakeObject->SetAnimationSpeed(0.5f);
+	CGameObject* pSnake = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/snake.bin", NULL, true);
+	pSnake->SetAnimationSpeed(0.5f);
 
-		float RandomRotate = rand() % 360;
-
-		CMonster* obj = new CSnake();
-		obj->SetChild(m_pSnakeObject, true);
-		obj->SetScene(this);
-		obj->SetPosition(iter->m_pos.x, iter->m_pos.y, iter->m_pos.z);
-		obj->Rotate(0, RandomRotate, 0);
-		obj->SetScale(iter->m_size.x, iter->m_size.y, iter->m_size.z);
-		obj->SetHitBox(XMFLOAT3(4.f, 3.f, 9.f));
-		M_MonsterObjectslist.push_back(obj);
-	}
+	float RandomRotate = rand() % 360;\
+	m_pSnakeObject = new CSnake();
+	m_pSnakeObject->SetChild(pSnake, true);
+	m_pSnakeObject->SetScene(this);
+	m_pSnakeObject->SetPosition(iter->m_pos.x, iter->m_pos.y, iter->m_pos.z);
+	m_pSnakeObject->Rotate(0, RandomRotate, 0);
+	m_pSnakeObject->SetScale(iter->m_size.x, iter->m_size.y, iter->m_size.z);
+	m_pSnakeObject->SetHitBox(XMFLOAT3(4.f, 3.f, 9.f));
 }
 
 void CScene::RenderStage1(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
@@ -781,10 +755,9 @@ void CScene::RenderStage1(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* p
 		p->UpdateTransform(NULL);
 		p->Render(pd3dCommandList, pCamera);
 	}
-	for (auto p : M_MonsterObjectslist)
-	{
-		p->Render(pd3dCommandList, pCamera);
-	}
+
+	if (m_pSnakeObject) m_pSnakeObject->Render(pd3dCommandList, pCamera);
+
 	for (auto p : m_GrassObjectlist)
 	{
 		p->UpdateTransform(NULL);
@@ -1151,35 +1124,39 @@ bool CScene::ProcessInput(UCHAR *pKeysBuffer)
 void CScene::AnimateObjects(float fTimeElapsed)
 {
 	m_fElapsedTime = fTimeElapsed;
-	list<CMonster*>::iterator iter = M_MonsterObjectslist.begin();
-	list<CMonster*>::iterator end = M_MonsterObjectslist.end();
 
-		for (iter;iter!=end; iter++)
+	if (m_pSnakeObject)
+	{
+		if (m_pSnakeObject->GetDeathState())
 		{
-			if ((*iter)->GetDeathState())
-			{
-				iter = M_MonsterObjectslist.erase(iter);
-				m_pPlayer->PlusSkillGage(100);
-				if(iter == end )
-					break;
-			}
-				
-			(*iter)->Animate(m_fElapsedTime);
-			(*iter)->UpdateTransform(NULL);
+			m_pPlayer->PlusSkillGage(100);
+			m_pSnakeObject->Next();
+			if (m_pSnakeObject->GetIndex() == MonsterDataList.size())
+				m_pSnakeObject->Release();
+			else
+				m_pSnakeObject->ResetToNext(MonsterDataList.at(m_pSnakeObject->GetIndex()).m_pos);
+		}
+		else
+		{
 
-			XMFLOAT3 pos1 = (*iter)->GetPosition();
+			m_pSnakeObject->Animate(m_fElapsedTime);
+			m_pSnakeObject->UpdateTransform(NULL);
+
+			XMFLOAT3 pos1 = m_pSnakeObject->GetPosition();
 			XMFLOAT3 pos2 = m_pPlayer->GetPosition();
 			float distance = Vector3::Length(Vector3::Subtract(pos1, pos2));
-			if (distance < (*iter)->GetAggroDistance())
+			if (distance < m_pSnakeObject->GetAggroDistance())
 			{
-				if(!(*iter)->getRecognitionMode())
+				if(!m_pSnakeObject->getRecognitionMode())
 					CSoundMgr::GetInstacne()->PlaySkillSound(_T("Snake"));
-				(*iter)->setRecognitionMode(true);
-				(*iter)->FollowingPosition = pos2;
+				m_pSnakeObject->setRecognitionMode(true);
+				m_pSnakeObject->FollowingPosition = pos2;
 			}
 			else
-				(*iter)->setRecognitionMode(false);
+				m_pSnakeObject->setRecognitionMode(false);
 		}
+	}
+			
 
 	for (auto h : m_HoneyComblist)
 	{
@@ -1296,10 +1273,7 @@ void CScene::ObjectsCollides()
 	{
 		n->getCollision(m_pPlayer);
 	}
-	for (auto n : M_MonsterObjectslist)
-	{
-		n->getCollision(m_pPlayer);
-	}
+	m_pSnakeObject->getCollision(m_pPlayer);
 
 	for (auto n : m_Mushroomlist)
 	{
@@ -1338,6 +1312,7 @@ void CScene::ObjectsCollides()
 	{
 		if (n->getCollision(m_pPlayer, false) != COLLIDE_NONE)
 		{
+			CSoundMgr::GetInstacne()->PlayEffectSound(_T("dash"));
 			m_pPlayer->Dash(m_fElapsedTime * 30);
 		}
 

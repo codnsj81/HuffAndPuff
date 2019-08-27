@@ -66,6 +66,16 @@ bool CMonster::Damage(int dam)
 	return false;
 }
 
+void CMonster::ResetToNext(XMFLOAT3 pos)
+{
+	SetPosition(pos.x, pos.y, pos.z);
+	m_bDeath = false;
+	m_bAttacking = false;
+	m_bRecognition = false;
+	m_bDeathING = false;
+	m_iHp = 100;
+}
+
 CSnake::CSnake()
 {
 	CMonster::CMonster();
@@ -147,6 +157,7 @@ bool CSnake::Damage(int dam)
 	{
 		m_bDeathING = true;
 		SetAnimationSet(3);
+		SetAnimtaionPos(3);
 		m_pChild->m_pAnimationController->SetLoop(false);
 	}
 }

@@ -133,6 +133,9 @@ public:
 	void PlusMonsterData();
 	void SaveMonsterData();
 
+
+	void PlusBoxData();
+	void SaveBoxhData();
 	void LoadBoxData(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 
 	void SaveNavigation();
@@ -189,7 +192,7 @@ public:
 	CTexture* PotionTex = NULL;
 
 	CGameObject							**m_ppGameObjects = NULL;
-	list<CItemBox*>					m_ItemBoxlist;
+	list<CItemBox*>						m_ItemBoxList;
 	list<CTree*>						m_TreeObjectslist;
 	list<CGameObject*>					m_StoneObjectslist;
 	list<CGameObject*>					m_GrassObjectlist;
@@ -227,7 +230,8 @@ public:
 	list<XMFLOAT2> MushroomDatalist;
 	list<XMFLOAT2> TreeDatalist;
 	list<StoneInfo>	StoneDataList;
-	list<XMFLOAT2> GrassDataList;
+	list<XMFLOAT2> GrassDataList;;
+	list<StoneInfo>	BoxDataList;
 	vector<StoneInfo>	MonsterDataList;
 	list<DashInfo> DashDataList;
 

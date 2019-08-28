@@ -23,6 +23,7 @@ D3D12_GPU_DESCRIPTOR_HANDLE	CScene::m_d3dCbvGPUDescriptorNextHandle;
 D3D12_CPU_DESCRIPTOR_HANDLE	CScene::m_d3dSrvCPUDescriptorNextHandle;
 D3D12_GPU_DESCRIPTOR_HANDLE	CScene::m_d3dSrvGPUDescriptorNextHandle;
 
+
 CScene::CScene()
 {
 }
@@ -141,9 +142,9 @@ void CScene::ReleaseObjects()
 				n->Release();
 			}
 		}
-		if (m_ItemBoxlist.size() != 0)
+		if (m_ItemBoxList.size() != 0)
 		{
-			for (auto n : m_ItemBoxlist) {
+			for (auto n : m_ItemBoxList) {
 				n->Release();
 			}
 		}
@@ -459,7 +460,7 @@ void CScene::ReleaseUploadBuffers()
 	}
 
 
-	for (auto n : m_ItemBoxlist)
+	for (auto n : m_ItemBoxList)
 	{
 		n->ReleaseUploadBuffers();
 	}
@@ -706,36 +707,65 @@ void CScene::SaveMonsterData()
 	}
 }
 
+void CScene::PlusBoxData()
+{
+	StoneInfo dat;
+	XMFLOAT3 playerPos = m_pPlayer->GetPosition();
+	XMFLOAT3 playerRight = m_pPlayer->GetRight();
+	for (int i = 0; i < 6; i++)
+	{
+		dat.m_pos.x = playerPos.x;
+		dat.m_pos.y = playerPos.y;
+		dat.m_pos.z = playerPos.z;
+		dat.m_iType = 5;
+		BoxDataList.push_back(dat);
+		playerPos = Vector3::Add(playerPos, playerRight, 10);
+	}
+
+}
+
+void CScene::SaveBoxhData()
+{
+
+	fstream out("BoxData.txt", ios::out | ios::binary);
+	for (auto n : BoxDataList)
+	{
+		out << n.m_iType << " " << n.m_pos.x << " " << n.m_pos.y << " " << n.m_pos.z << " " << "\n";
+	}
+}
+
 void CScene::LoadBoxData(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	CGameObject* pOBJ = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/box.bin", NULL, false);
+	fstream in("BoxData.txt", ios::in | ios::binary);
+	StoneInfo dat;
+	while (in)
+	{
+		in >> dat.m_iType;
+		in >> dat.m_pos.x;
+		in >> dat.m_pos.y;
+		in >> dat.m_pos.z;
 
-	CItemBox* obj = new CItemBox();
-	obj->SetChild(pOBJ, true);
-	obj->SetHitBox(XMFLOAT3(7,7,7));
-	obj->Rotate(rand() % 360, rand() % 360, rand() % 360);
-	obj->SetOriginY(m_pTerrain->GetHeight(120, INITPOSITION_Z) + 7);
-	obj->SetPosition(120, m_pTerrain->GetHeight(120, INITPOSITION_Z), INITPOSITION_Z);
-	//Vector3::Normalize(iter->m_rot);
-	m_ItemBoxlist.push_back(obj);
+		BoxDataList.emplace_back(dat);
+	}
 
-	obj = new CItemBox();
-	obj->SetChild(pOBJ, true);
-	obj->SetHitBox(XMFLOAT3(7,7,7));
-	obj->Rotate(rand() % 360, rand() % 360, rand() % 360);
-	obj->SetOriginY(m_pTerrain->GetHeight(80, INITPOSITION_Z) + 7);
-	obj->SetPosition(80, m_pTerrain->GetHeight(80, INITPOSITION_Z), INITPOSITION_Z);
-	//Vector3::Normalize(iter->m_rot);
-	m_ItemBoxlist.push_back(obj);
+	list<StoneInfo>::iterator iter = BoxDataList.begin();
+	list<StoneInfo>::iterator iter_end = BoxDataList.end();
 
-	obj = new CItemBox();
-	obj->SetChild(pOBJ, true);
-	obj->SetHitBox(XMFLOAT3(7,7,7));
-	obj->Rotate(rand() % 360, rand() % 360, rand() % 360);
-	obj->SetOriginY(m_pTerrain->GetHeight(100, INITPOSITION_Z) + 7);
-	obj->SetPosition(100, m_pTerrain->GetHeight(100, INITPOSITION_Z), INITPOSITION_Z);
-	//Vector3::Normalize(iter->m_rot);
-	m_ItemBoxlist.push_back(obj);
+	for (iter; iter != iter_end; iter++)
+	{
+
+		CItemBox* obj = new CItemBox();
+		obj->SetChild(pOBJ, true);
+		obj->SetHitBox(XMFLOAT3(7,7,7));
+		obj->SetOriginY(iter->m_pos.y+ 7);
+		obj->SetGroup(iter->m_iType);
+		obj->SetPosition(iter->m_pos.x, iter->m_pos.y + 7, iter->m_pos.z);
+		obj->Rotate(30, 30, 30);
+		//Vector3::Normalize(iter->m_rot);
+		m_ItemBoxList.push_back(obj);
+	}
+
 
 }
 
@@ -816,7 +846,7 @@ void CScene::RenderStage1(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* p
 		p->UpdateTransform(NULL);
 		p->Render(pd3dCommandList, pCamera);
 	}
-	for (auto p : m_ItemBoxlist)
+	for (auto p : m_ItemBoxList)
 	{
 		p->UpdateTransform(NULL);
 		p->Render(pd3dCommandList, pCamera);
@@ -1223,7 +1253,7 @@ void CScene::AnimateObjects(float fTimeElapsed)
 		h->Animate(fTimeElapsed);
 	}
 
-	for (auto h : m_ItemBoxlist)
+	for (auto h : m_ItemBoxList)
 		h->Animate(fTimeElapsed);
 
 	for (auto h : m_DamageUIList)
@@ -1312,12 +1342,13 @@ void CScene::ObjectsCollides()
 		}
 
 	}
-	list<CItemBox*> ::iterator iter = m_ItemBoxlist.begin();
-	list<CItemBox*> ::iterator iter_end = m_ItemBoxlist.end();
+	list<CItemBox*> ::iterator iter = m_ItemBoxList.begin();
+	list<CItemBox*> ::iterator iter_end = m_ItemBoxList.end();
 	for (iter; iter!= iter_end; iter++)
 	{
 		if((*iter)->getCollision(m_pPlayer))
 		{
+			int group = (*iter)->GetGruop();
 			int random = rand() % 3;
 			CFloatingItem* temp;
 			switch (tempint)
@@ -1342,8 +1373,16 @@ void CScene::ObjectsCollides()
 				break;
 			}
 			tempint++;
-			iter = m_ItemBoxlist.erase(iter);
-			if (iter == iter_end) break;
+			while(!m_ItemBoxList.empty())
+			{
+				if (m_ItemBoxList.front()->GetGruop() == group)
+				{
+					delete m_ItemBoxList.front();
+					m_ItemBoxList.pop_front();
+				}
+				else break;
+			}
+			break;
 		}
 	}
 	for (auto n : m_StoneObjectslist)

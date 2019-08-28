@@ -563,8 +563,10 @@ public:
 
 	void SetOriginY(float f) { m_fOriginY = f; }
 	virtual void Animate(float fTimeElapsed);
+	void SetGroup(int i) { iGroup = i; }
+	int GetGruop() { return iGroup; }
 private:
-
+	int iGroup;
 	bool m_bUp = true;
 	float m_fOriginY;
 	float m_movingHeight;

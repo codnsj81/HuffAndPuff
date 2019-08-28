@@ -73,3 +73,11 @@ public:
 	}
 private:
 };
+
+class CFish : public CMonster
+{
+public:
+	CFish() {}
+	~CFish() {}
+	virtual void Animate(float fTimeElapsed);
+};

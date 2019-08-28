@@ -173,7 +173,8 @@ void CScene::ReleaseObjects()
 			delete[] m_ppWaters;
 		}
 	
-		if (m_pSnakeObject) m_pSnakeObject->Release();
+		if (m_pFish) m_pFish->Release();
+		if (m_pSnake) m_pSnake->Release();
 		if (HoneyComb) HoneyComb->Release();
 		if (m_DamageUITex) m_DamageUITex->Release();
 		if (m_DamageUITexYellow) m_DamageUITexYellow->Release();
@@ -213,14 +214,14 @@ void CScene::Update(float fTime)
 void CScene::PlayerAttack()
 {
 	m_pPlayer->Attack();
-	if (m_pSnakeObject)
+	if (m_pSnake)
 	{
-		XMFLOAT3 pos1 = m_pSnakeObject->GetPosition();
+		XMFLOAT3 pos1 = m_pSnake->GetPosition();
 		XMFLOAT3 pos2 = m_pPlayer->GetPosition();
 		float distance = Vector3::Length(Vector3::Subtract(pos1, pos2));
 		if (distance < 10)
 		{
-			m_pSnakeObject->Damage(m_pPlayer->GetAtt());
+			m_pSnake->Damage(m_pPlayer->GetAtt());
 			bCreatePDUI = true; 
 			monDUIPos = pos1;
 		}
@@ -464,9 +465,11 @@ void CScene::ReleaseUploadBuffers()
 	{
 		n->ReleaseUploadBuffers();
 	}
-	if(m_pSnakeObject)
-		m_pSnakeObject->ReleaseShaderVariables();
+	if(m_pSnake)
+		m_pSnake->ReleaseShaderVariables();
 
+	if (m_pFish)
+		m_pFish->ReleaseShaderVariables();
 	for (auto n : m_TrapList)
 		n->ReleaseUploadBuffers();
 
@@ -794,13 +797,21 @@ void CScene::BuildMonsterList(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLi
 	pSnake->SetAnimationSpeed(0.5f);
 
 	float RandomRotate = rand() % 360;\
-	m_pSnakeObject = new CSnake();
-	m_pSnakeObject->SetChild(pSnake, true);
-	m_pSnakeObject->SetScene(this);
-	m_pSnakeObject->SetPosition(iter->m_pos.x, iter->m_pos.y, iter->m_pos.z);
-	m_pSnakeObject->Rotate(0, RandomRotate, 0);
-	m_pSnakeObject->SetScale(iter->m_size.x, iter->m_size.y, iter->m_size.z);
-	m_pSnakeObject->SetHitBox(XMFLOAT3(4.f, 3.f, 9.f));
+	m_pSnake = new CSnake();
+	m_pSnake->SetChild(pSnake, true);
+	m_pSnake->SetScene(this);
+	m_pSnake->SetPosition(iter->m_pos.x, iter->m_pos.y, iter->m_pos.z);
+	m_pSnake->Rotate(0, RandomRotate, 0);
+	m_pSnake->SetScale(iter->m_size.x, iter->m_size.y, iter->m_size.z);
+	m_pSnake->SetHitBox(XMFLOAT3(4.f, 3.f, 9.f));
+
+	CGameObject* pFish = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/fish.bin", NULL, false);
+	m_pFish = new CFish();
+	m_pFish->SetChild(pFish, true);
+	m_pFish->SetPosition(XMFLOAT3(1019, 28, 536));
+	m_pFish->Rotate(0, 90, 0);
+	//m_pFish->SetPosition(XMFLOAT3(INITPOSITION_X, m_pTerrain->GetHeight(INITPOSITION_X,INITPOSITION_Z), INITPOSITION_Z));
+	m_pFish->SetHitBox(XMFLOAT3(3, 3, 3));
 }
 
 void CScene::RenderStage1(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
@@ -819,7 +830,8 @@ void CScene::RenderStage1(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* p
 		p->Render(pd3dCommandList, pCamera);
 	}
 
-	if (m_pSnakeObject) m_pSnakeObject->Render(pd3dCommandList, pCamera);
+	if (m_pSnake) m_pSnake->Render(pd3dCommandList, pCamera);
+	if (m_pFish) m_pFish->Render(pd3dCommandList, pCamera);
 
 	for (auto p : m_GrassObjectlist)
 	{
@@ -858,14 +870,6 @@ void CScene::RenderStage1(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* p
 		p->Render(pd3dCommandList, pCamera);
 	}
 
-	for (auto p : m_DamageUIList)
-	{
-		if (p->bRender)
-		{
-			p->UpdateTransform(NULL);
-			p->Render(pd3dCommandList, pCamera);
-		}
-	}
 	if (m_pPlayer) m_pPlayer->Render(m_pd3dCommandList, pCamera);
 
 	for (int i = 0; i < 2; i++)
@@ -1203,39 +1207,39 @@ void CScene::AnimateObjects(float fTimeElapsed)
 {
 	m_fElapsedTime = fTimeElapsed;
 
-	if (m_pSnakeObject)
+	if (m_pSnake)
 	{
-		if (m_pSnakeObject->GetDeathState())
+		if (m_pSnake->GetDeathState())
 		{
 			m_pPlayer->PlusSkillGage(100);
-			m_pSnakeObject->Next();
-			if (m_pSnakeObject->GetIndex() == MonsterDataList.size())
-				m_pSnakeObject->Release();
+			m_pSnake->Next();
+			if (m_pSnake->GetIndex() == MonsterDataList.size())
+				m_pSnake->Release();
 			else
-				m_pSnakeObject->ResetToNext(MonsterDataList.at(m_pSnakeObject->GetIndex()).m_pos);
+				m_pSnake->ResetToNext(MonsterDataList.at(m_pSnake->GetIndex()).m_pos);
 		}
 		else
 		{
 
-			m_pSnakeObject->Animate(m_fElapsedTime);
-			m_pSnakeObject->UpdateTransform(NULL);
+			m_pSnake->Animate(m_fElapsedTime);
+			m_pSnake->UpdateTransform(NULL);
 
-			XMFLOAT3 pos1 = m_pSnakeObject->GetPosition();
+			XMFLOAT3 pos1 = m_pSnake->GetPosition();
 			XMFLOAT3 pos2 = m_pPlayer->GetPosition();
 			float distance = Vector3::Length(Vector3::Subtract(pos1, pos2));
-			if (distance < m_pSnakeObject->GetAggroDistance())
+			if (distance < m_pSnake->GetAggroDistance())
 			{
-				if(!m_pSnakeObject->getRecognitionMode())
+				if(!m_pSnake->getRecognitionMode())
 					CSoundMgr::GetInstacne()->PlaySkillSound(_T("Snake"));
-				m_pSnakeObject->setRecognitionMode(true);
-				m_pSnakeObject->FollowingPosition = pos2;
+				m_pSnake->setRecognitionMode(true);
+				m_pSnake->FollowingPosition = pos2;
 			}
 			else
-				m_pSnakeObject->setRecognitionMode(false);
+				m_pSnake->setRecognitionMode(false);
 		}
 	}
 			
-
+	m_pFish->Animate(fTimeElapsed);
 	for (auto h : m_HoneyComblist)
 	{
 		h->Animate(fTimeElapsed);
@@ -1299,7 +1303,15 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 					(*iter)->Render(m_pd3dCommandList, pCamera);
 				}
 			}
-			
+
+			for (auto p : m_DamageUIList)
+			{
+				if (p->bRender)
+				{
+					p->UpdateTransform(NULL);
+					p->Render(pd3dCommandList, pCamera);
+				}
+			}
 			m_pPlayer->GetNavGuide()->Render(m_pd3dCommandList, pCamera);
 		}
 
@@ -1351,7 +1363,7 @@ void CScene::ObjectsCollides()
 			int group = (*iter)->GetGruop();
 			int random = rand() % 3;
 			CFloatingItem* temp;
-			switch (tempint)
+			switch (random)
 			{
 			case 0:
 				temp = new CFloatingItem(m_pd3dDevice, m_pd3dCommandList, m_pd3dGraphicsRootSignature);
@@ -1372,10 +1384,9 @@ void CScene::ObjectsCollides()
 				CSoundMgr::GetInstacne()->PlayEffectSound(_T("Spring"));
 				break;
 			}
-			tempint++;
 			while(!m_ItemBoxList.empty())
 			{
-				if (m_ItemBoxList.front()->GetGruop() == group)
+				if (m_ItemBoxList.front()->GetGruop() <= group)
 				{
 					delete m_ItemBoxList.front();
 					m_ItemBoxList.pop_front();
@@ -1389,7 +1400,7 @@ void CScene::ObjectsCollides()
 	{
 		n->getCollision(m_pPlayer);
 	}
-	m_pSnakeObject->getCollision(m_pPlayer);
+	m_pSnake->getCollision(m_pPlayer);
 
 	for (auto n : m_Mushroomlist)
 	{
@@ -1451,7 +1462,17 @@ void CScene::ObjectsCollides()
 		}
 	}
 
+	if (m_pFish)
+	{
+		if (m_pFish->getCollision(m_pPlayer) && m_pPlayer->m_bPop == false) {
 
+			CreateDamageUI(4);
+			m_pPlayer->Damage(4);
+			m_pPlayer->Pop(100);
+			CSoundMgr::GetInstacne()->PlayEffectSound(_T("Mushroom"));
+		}
+
+	}
 
 	list<CFloatingItem*> ::iterator floatiter = m_FloatingItemList.begin();
 	list<CFloatingItem*> ::iterator floatend = m_FloatingItemList.end();

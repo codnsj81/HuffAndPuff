@@ -161,3 +161,9 @@ bool CSnake::Damage(int dam)
 		m_pChild->m_pAnimationController->SetLoop(false);
 	}
 }
+
+void CFish::Animate(float fTimeElapsed)
+{
+	Rotate(0, fTimeElapsed * 60, 0);
+	MoveForward(fTimeElapsed* 20);
+}

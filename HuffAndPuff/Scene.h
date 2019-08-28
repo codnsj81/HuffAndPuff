@@ -16,6 +16,7 @@
 class CSnake;
 class CStartUI;
 class CDamageUI;
+class CFish;
 class CTrap;
 class CGameFramework;
 class CItemBox;
@@ -93,7 +94,6 @@ public:
 	bool bCreatePDUI = false;
 	XMFLOAT3 monDUIPos;
 
-	int tempint = 0; // ÀºÇý È®ÀÎ¿ë
 	CUI* m_iClockMin = NULL;
 	CUI* m_iClockSec1 = NULL;
 	CUI* m_iClockSec2 = NULL;
@@ -103,7 +103,8 @@ public:
 	void SetBloodScreenState(bool b);
 
 	CPlayer								*m_pPlayer = NULL;
-	CSnake*							m_pSnakeObject = NULL;
+	CSnake*								m_pSnake = NULL;
+	CFish*								m_pFish = NULL;
 
 	ID3D12Device*						m_pd3dDevice = NULL;
 	ID3D12GraphicsCommandList*			m_pd3dCommandList = NULL;

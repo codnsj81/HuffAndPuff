@@ -180,7 +180,7 @@ public:
 	//
 	bool						m_bDamaging = false;
 	float						m_fDamagingTime = 0.f;
-	bool					m_bDash = false;
+	bool						m_bDash = false;
 	bool						m_bPop = false;
 
 };

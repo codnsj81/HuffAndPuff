@@ -122,6 +122,7 @@ public:
 	XMFLOAT4						m_xmf4SpecularColor = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 	XMFLOAT4						m_xmf4AmbientColor = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 
+	bool m_bShare = false;
 	void SetShader(CShader *pShader);
 	void SetMaterialType(UINT nType) { m_nType |= nType; }
 	void SetTexture(CTexture *pTexture, UINT nTexture = 0);
@@ -314,6 +315,7 @@ public:
 	CGameObject 					*m_pParent = NULL;
 	CGameObject 					*m_pChild = NULL;
 	CGameObject 					*m_pSibling = NULL;
+	bool							m_pShareTexture = false;
 
 	BoundingBox GetBoundingBox();
 

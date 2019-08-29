@@ -363,12 +363,21 @@ public:
 
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
 	void SetNumber(int num) { m_iNumber = num; }
-private:
-
+protected:
 	ID3D12Device* m_pd3dDevice = NULL;
 	int		m_iNumber;
 };
 
+class CExplosionMesh : public CFontMesh
+{
+public:
+	CExplosionMesh() {}
+
+	CExplosionMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, int num, float nWidth = 5.f, float nLength = 5.f);
+	~CExplosionMesh() {}
+	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
+	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
+};
 
 class CScreenMesh : public CUIMesh
 {

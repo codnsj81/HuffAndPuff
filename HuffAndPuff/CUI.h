@@ -90,8 +90,6 @@ public:
 	CDamageUI() {}
 	CDamageUI(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, float nWidth, float nLength, int num, wchar_t* pFilename);
 	~CDamageUI();
-	
-	void SetTexture(CTexture* tex);
 
 	virtual void Update(float elapsed);
 };
@@ -150,7 +148,7 @@ public:
 
 	virtual void Update(float elapsed);
 
-private:
+protected:
 	float m_fTime = 1;
 };
 
@@ -167,4 +165,20 @@ private:
 	cloudstate m_cloudstate = CLOUD_NONE;
 	float m_fTime = 0.f;
 	float m_fSize = 0.f;
+};
+
+
+
+class CExplosion : public CDamageUI
+{
+public:
+	CExplosion() {}
+	CExplosion(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, float nWidth, float nLength);
+	~CExplosion() {}
+
+	virtual void Update(float elapsed);
+
+private:
+	float m_fTime = 0;
+	int m_iNum = 1;
 };

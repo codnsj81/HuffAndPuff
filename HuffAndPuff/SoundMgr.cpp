@@ -153,6 +153,7 @@ void CSoundMgr::LoadSoundFile(void)
 	if (m_Result == FMOD_OK)
 	{
 		m_mapSound.insert(make_pair(pName, pSound));
+		m_mapSound.insert(make_pair(pName, pSound));
 	}
 
 

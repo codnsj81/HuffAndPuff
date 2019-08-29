@@ -141,6 +141,7 @@ public:
 
 	void SaveNavigation();
 	void BuildTextures(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+	void CreateExplosion(const XMFLOAT3& pos);
 	void CreateDamageUI(int dam);
 	void CreateDamageUIP(const XMFLOAT3 & pos);
 	void CreateDamageDEF(const XMFLOAT3& pos);
@@ -188,6 +189,7 @@ public:
 	CTexture*							m_DamageUITex = NULL;
 	CTexture*							m_DamageUITexYellow = NULL;
 	CTexture*							m_HitAttackEffectTex = NULL;
+	CTexture*							m_ExplosionTex = NULL;
 
 	CGameObject* HoneyComb = NULL;
 	CTexture* PotionTex = NULL;

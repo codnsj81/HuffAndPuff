@@ -273,7 +273,7 @@ CDamageUI::CDamageUI(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3d
 	CMaterial *pMaterial = new CMaterial(1);
 	pMaterial->SetMaterialType(MATERIAL_ALBEDO_MAP);
 	pMaterial->SetShader(pShader);
-
+	pMaterial->m_bShare = true;
 	SetMaterial(0, pMaterial);
 
 	//pMaterial->SetMaterialType(MATERIAL_ALBEDO_MAP);
@@ -283,10 +283,6 @@ CDamageUI::~CDamageUI()
 {
 }
 
-void CDamageUI::SetTexture(CTexture * tex)
-{
-	m_ppMaterials[0]->SetTexture(tex,0);
-}
 
 void CDamageUI::Update(float elapsed)
 {
@@ -445,6 +441,7 @@ CEffectUI::CEffectUI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCo
 	CMaterial* pMaterial = new CMaterial(1);
 	pMaterial->SetMaterialType(MATERIAL_ALBEDO_MAP);
 	pMaterial->SetShader(pShader);
+	pMaterial->m_bShare = true;
 
 	SetMaterial(0, pMaterial);
 }
@@ -525,5 +522,42 @@ void CCloud::Update(float elapsed)
 		break;
 	case CLOUD_NONE:
 		break;
+	}
+}
+
+CExplosion::CExplosion(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, ID3D12RootSignature * pd3dGraphicsRootSignature, float nWidth, float nLength)
+{
+	bRender = true;
+	m_nWidth = nWidth;
+	m_nLength = nLength;
+	m_nMaterials = 1;
+	m_ppMaterials = new CMaterial *[m_nMaterials];
+	for (int i = 0; i < m_nMaterials; i++)
+		m_ppMaterials[i] = NULL;
+
+	CMesh* pMesh = new CExplosionMesh(pd3dDevice, pd3dCommandList, nWidth, nLength);
+	SetMesh(pMesh);
+
+	CShader* pShader = new CUIShader();
+	pShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	pShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+
+	CMaterial* pMaterial = new CMaterial(1);
+	pMaterial->SetMaterialType(MATERIAL_ALBEDO_MAP);
+	pMaterial->SetShader(pShader);
+	pMaterial->m_bShare = true;
+
+	SetMaterial(0, pMaterial);
+};
+void CExplosion::Update(float elapsed)
+{
+	m_fTime += elapsed;
+	if (m_fTime >= 0.2f)
+	{
+		m_fTime = 0;
+		m_iNum++;
+		if (m_iNum ==16)
+			bRender = false;
+		dynamic_cast<CExplosionMesh*> (m_pMesh)->SetNumber(m_iNum);
 	}
 }

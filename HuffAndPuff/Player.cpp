@@ -328,7 +328,7 @@ void CPlayer::Dash(float fDistance)
 {
 	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, fDistance);
 	m_bDash = true;
-	m_fMaxVelocityXZ = 50;
+	m_fMaxVelocityXZ = 100;
 }
 
 void CPlayer::Pop(float fDistance)
@@ -439,7 +439,7 @@ void CPlayer::Update(float fTimeElapsed)
 	{
 		if (m_bDash)
 		{
-			m_fMaxVelocityXZ -= fTimeElapsed * 10;
+			m_fMaxVelocityXZ -= fTimeElapsed * 40;
 			if (m_fMaxVelocityXZ <= 30.f)
 			{
 				m_fMaxVelocityXZ = 30.f;

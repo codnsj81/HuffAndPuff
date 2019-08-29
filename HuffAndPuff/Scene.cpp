@@ -908,7 +908,6 @@ void CScene::CreateDamageDEF(const XMFLOAT3& pos)
 	CEffectUI* DUI = new CEffectUI(m_pd3dDevice, m_pd3dCommandList, m_pd3dGraphicsRootSignature, 12, 10);
 	DUI->SetTexture(m_HitAttackEffectTex);
 	m_pPlayer->GetCamera()->RotateUI(DUI);
-
 	DUI->SetPosition(pos.x, pos.y, pos.z);
 	m_DamageUIList.emplace_back(DUI);
 }
@@ -1158,9 +1157,22 @@ void CScene::BuildTextures(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 	CScene::CreateShaderResourceViews(pd3dDevice, m_HitAttackEffectTex, 3, false);
 
 
+	m_ExplosionTex = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	m_ExplosionTex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/explosion.tiff", 0, false);
+	CScene::CreateShaderResourceViews(pd3dDevice, m_ExplosionTex, 3, false);
+
 	m_DamageUITexYellow = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 	m_DamageUITexYellow->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/number3.tiff", 0, false);
 	CScene::CreateShaderResourceViews(pd3dDevice, m_DamageUITexYellow, 3, false);
+}
+
+void CScene::CreateExplosion(const XMFLOAT3 & pos)
+{
+	CDamageUI* DUI = new CExplosion(m_pd3dDevice, m_pd3dCommandList, m_pd3dGraphicsRootSignature, 6, 6);
+	DUI->SetTexture(m_ExplosionTex);
+	m_pPlayer->GetCamera()->RotateUI(DUI);
+	DUI->SetPosition(pos.x, pos.y , pos.z);
+	m_DamageUIList.emplace_back(DUI);
 }
 
 void CScene::LoadTree(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
@@ -1304,13 +1316,26 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 				}
 			}
 
-			for (auto p : m_DamageUIList)
+
+			list<CDamageUI*>::iterator iter2 = m_DamageUIList.begin();
+			list<CDamageUI*>::iterator iter_end2= m_DamageUIList.end();
+			for (iter2;iter2 != iter_end2; iter2++)
 			{
-				if (p->bRender)
+				if ((*iter2)->bRender)
 				{
-					p->UpdateTransform(NULL);
-					p->Render(pd3dCommandList, pCamera);
+					(*iter2)->UpdateTransform(NULL);
+					(*iter2)->Render(pd3dCommandList, pCamera);
 				}
+				else
+				{
+					delete (*iter2);
+					(*iter2) = NULL;
+					iter2 = m_DamageUIList.erase(iter2);
+					if (iter2 == iter_end2)
+						iter2 = m_DamageUIList.begin();
+					if (m_DamageUIList.empty()) break;
+				}
+					
 			}
 			m_pPlayer->GetNavGuide()->Render(m_pd3dCommandList, pCamera);
 		}
@@ -1388,6 +1413,7 @@ void CScene::ObjectsCollides()
 			{
 				if (m_ItemBoxList.front()->GetGruop() <= group)
 				{
+					CreateExplosion(m_ItemBoxList.front()->GetPosition());
 					delete m_ItemBoxList.front();
 					m_ItemBoxList.pop_front();
 				}
@@ -1400,7 +1426,9 @@ void CScene::ObjectsCollides()
 	{
 		n->getCollision(m_pPlayer);
 	}
-	m_pSnake->getCollision(m_pPlayer);
+
+	if(m_pSnake)
+		m_pSnake->getCollision(m_pPlayer);
 
 	for (auto n : m_Mushroomlist)
 	{
@@ -1480,6 +1508,8 @@ void CScene::ObjectsCollides()
 	{
 		if ((*floatiter)->GetbDie())
 		{
+			delete (*floatiter);
+			(*floatiter) = NULL;
 			floatiter = m_FloatingItemList.erase(floatiter);
 			if (floatiter == floatend) break;
 		}

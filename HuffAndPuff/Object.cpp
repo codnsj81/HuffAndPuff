@@ -135,8 +135,9 @@ CMaterial::~CMaterial()
 {
 	if (m_pShader) m_pShader->Release();
 
-	if (m_nTextures > 0)
+	if (m_nTextures > 0 && !m_bShare) 
 	{
+	
 		for (int i = 0; i < m_nTextures; i++) if (m_ppTextures[i]) m_ppTextures[i]->Release();
 		delete[] m_ppTextures;
 
@@ -1540,7 +1541,7 @@ CFloatingItem::CFloatingItem(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	CMaterial* pMaterial = new CMaterial(1);
 	pMaterial->SetMaterialType(MATERIAL_ALBEDO_MAP);
 	pMaterial->SetShader(pShader);
-
+	pMaterial->m_bShare = true;
 	SetMaterial(0, pMaterial);
 }
 

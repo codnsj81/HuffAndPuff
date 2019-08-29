@@ -119,6 +119,13 @@ void CSoundMgr::LoadSoundFile(void)
 		m_mapSound.insert(make_pair(pName, pSound));
 	}
 
+	m_Result = m_pSystem->createSound("SoundFile/Clear.wav", FMOD_DEFAULT, 0, &pSound);
+	pName = _T("Clear");
+	if (m_Result == FMOD_OK)
+	{
+		m_mapSound.insert(make_pair(pName, pSound));
+	}
+
 	m_Result = m_pSystem->createSound("SoundFile/PlayerAtt.ogg", FMOD_DEFAULT, 0, &pSound);
 	pName = _T("PlayerAtt");
 	if (m_Result == FMOD_OK)

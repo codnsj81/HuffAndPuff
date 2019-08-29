@@ -69,24 +69,27 @@ protected:
 	XMFLOAT3					m_predictedPos = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	XMFLOAT3					PointingPos;
 
-	list<XMFLOAT3>				m_xmNavigationList;
+	vector<XMFLOAT3>				m_xmNavigationVector;
 	CGameObject*				m_NavGuide = NULL;
 	CUI*						m_ProgressUI = NULL;
 
 	int							m_navListSize;
 	int							m_navProcess;
-	SkillState						m_eSkillState = SKILL_CHARGING;
+	SkillState					m_eSkillState = SKILL_CHARGING;
 	float						m_fSkillTime = 0;
-
+	XMFLOAT4X4					m_originmat;
+	int							m_navIndex = 0;
 public:
 	CPlayer();
 	virtual ~CPlayer();
 
+	void SetOriginMatrix();
+	void Reset();
 	void SetProgressUI(CUI* p) { m_ProgressUI = p; }
 	void SetNav(CGameObject* nav);
 	void NextRoad(float fTime);
 	void LoadNavigation();
-	list<XMFLOAT3>* GetNavigationList() { return &m_xmNavigationList; }
+	vector<XMFLOAT3>* GetNavigationList() { return &m_xmNavigationVector; }
 	int GetNavListSize() { return m_navListSize; }
 	void Attack();
 

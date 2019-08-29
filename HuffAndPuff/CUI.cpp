@@ -2,6 +2,8 @@
 #include "CUI.h"
 #include "Shader.h"
 #include "Scene.h"
+#include "GameFramework.h"
+#include "SoundMgr.h"
 
 CHP::CHP(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, ID3D12RootSignature * pd3dGraphicsRootSignature, float nWidth, float nLength, XMFLOAT3 xmfPosition)
 {
@@ -107,8 +109,9 @@ void CStartUI::Update(float elapsed)
 	}
 }
 
-CEndUI::CEndUI(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, ID3D12RootSignature * pd3dGraphicsRootSignature, float nWidth, float nLength, XMFLOAT3 xmfPosition, wchar_t * pFilename)
+CEndUI::CEndUI(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, ID3D12RootSignature * pd3dGraphicsRootSignature, float nWidth, float nLength, XMFLOAT3 xmfPosition, wchar_t * pFilename, CGameFramework* framework)
 {
+	m_pFramework = framework;
 	bRender = false;
 	m_nWidth = nWidth;
 	m_nLength = nLength;
@@ -117,7 +120,7 @@ CEndUI::CEndUI(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dComman
 	for (int i = 0; i < m_nMaterials; i++)
 		m_ppMaterials[i] = NULL;
 
-	CMesh *pMesh = new CUIMesh(pd3dDevice, pd3dCommandList, nWidth, nLength);
+	CMesh *pMesh = new CScreenMesh(pd3dDevice, pd3dCommandList, nWidth, nLength);
 	SetMesh(pMesh);
 
 	CShader *pShader = new CShader();
@@ -153,23 +156,15 @@ void CEndUI::Update(float elapsed)
 		float distance = Vector3::Length(Vector3::Subtract(playerpos, EndPoint));
 		if (distance < 20)
 		{
+			CSoundMgr::GetInstacne()->StopALL();
+			CSoundMgr::GetInstacne()->PlayEffectSound(_T("Clear"));
+			m_pFramework->SetFlowState(SCENE_CLEAR);
 			bRender = true;
 			Trigger = true;
 		}
 		
 	}
-	else if (Trigger)
-	{
-		TimeElapsed += elapsed;
-		if (TimeElapsed > 2.f)
-		{
-			Trigger = false;
-			bRender = false;
-			bEx = true;
-
-				
-		}
-	}
+			
 }
 
 CImageUI::CImageUI(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, ID3D12RootSignature * pd3dGraphicsRootSignature, float nWidth, float nLength, XMFLOAT3 xmfPosition, wchar_t * pFilename)
@@ -552,7 +547,7 @@ CExplosion::CExplosion(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd
 void CExplosion::Update(float elapsed)
 {
 	m_fTime += elapsed;
-	if (m_fTime >= 0.2f)
+	if (m_fTime >= 0.1f)
 	{
 		m_fTime = 0;
 		m_iNum++;

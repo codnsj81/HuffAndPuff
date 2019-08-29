@@ -56,6 +56,21 @@ CPlayer::~CPlayer()
 	if (m_NavGuide) delete m_NavGuide;
 }
 
+void CPlayer::SetOriginMatrix()
+{
+	m_originmat = m_xmf4x4World;
+}
+
+void CPlayer::Reset()
+{
+	m_xmf4x4World = m_originmat;
+	m_iHP = 100;
+	m_iSkillGage = 0;
+	m_navIndex = 0;
+	m_navProcess = 0;
+	m_pCamera->SetPosition(Vector3::Add(m_xmf3Position, m_pCamera->GetOffset()));
+}
+
 void CPlayer::SetNav(CGameObject * nav)
 {
 	m_NavGuide = nav;
@@ -64,11 +79,11 @@ void CPlayer::SetNav(CGameObject * nav)
 
 void CPlayer::NextRoad(float fTime)
 {
-	if (m_xmNavigationList.empty())
+	if (m_xmNavigationVector.empty())
 		return;
 
 	XMFLOAT3 now = GetPosition();
-	XMFLOAT3 next = m_xmNavigationList.front();
+	XMFLOAT3 next = m_xmNavigationVector.at(m_navIndex);
 	float length = Vector3::Length(Vector3::Subtract(PointingPos, now));
 	
 
@@ -77,7 +92,7 @@ void CPlayer::NextRoad(float fTime)
 		if (next.x != 1)
 		{
 			PointingPos = next;
-			m_xmNavigationList.pop_front();
+			m_navIndex++;
 		}
 		if(m_navProcess < m_navListSize)
 		{
@@ -110,11 +125,10 @@ void CPlayer::LoadNavigation()
 		in >> dat.x;
 		in >> dat.y;
 		in >> dat.z;
-		m_xmNavigationList.emplace_back(dat);
+		m_xmNavigationVector.emplace_back(dat);
 	}
-	m_xmNavigationList.pop_front();
-	PointingPos = m_xmNavigationList.front();
-	m_navListSize = m_xmNavigationList.size();
+	PointingPos = m_xmNavigationVector.front();
+	m_navListSize = m_xmNavigationVector.size();
 	m_navProcess = 0;
 }
 
@@ -133,15 +147,15 @@ void CPlayer::PlusNavigationList()
 {
 	if (m_NavGuide == NULL) return;
 	XMFLOAT3 now = GetPosition();
-	if (m_xmNavigationList.empty())
+	if (m_xmNavigationVector.empty())
 	{
-		m_xmNavigationList.emplace_back(now);
+		m_xmNavigationVector.emplace_back(now);
 		return;
 	}
-	XMFLOAT3 next = m_xmNavigationList.back();
+	XMFLOAT3 next = m_xmNavigationVector.back();
 	if (Vector3::Length(Vector3::Subtract(next, now))> 160.f)
 	{
-		m_xmNavigationList.emplace_back(now);
+		m_xmNavigationVector.emplace_back(now);
 	}
 }
 
@@ -328,7 +342,7 @@ void CPlayer::Dash(float fDistance)
 {
 	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, fDistance);
 	m_bDash = true;
-	m_fMaxVelocityXZ = 100;
+	m_fMaxVelocityXZ = 70;
 }
 
 void CPlayer::Pop(float fDistance)
@@ -439,8 +453,8 @@ void CPlayer::Update(float fTimeElapsed)
 	{
 		if (m_bDash)
 		{
-			m_fMaxVelocityXZ -= fTimeElapsed * 40;
-			if (m_fMaxVelocityXZ <= 30.f)
+			m_fMaxVelocityXZ -= fTimeElapsed * 20;
+			if (m_fMaxVelocityXZ <= 50.f)
 			{
 				m_fMaxVelocityXZ = 30.f;
 				m_bDash = false;

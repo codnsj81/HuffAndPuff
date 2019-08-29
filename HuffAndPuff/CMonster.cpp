@@ -164,6 +164,6 @@ bool CSnake::Damage(int dam)
 
 void CFish::Animate(float fTimeElapsed)
 {
-	Rotate(0, fTimeElapsed * 60, 0);
+	Rotate(0, fTimeElapsed * 60 * RotateDir, 0);
 	MoveForward(fTimeElapsed* 20);
 }

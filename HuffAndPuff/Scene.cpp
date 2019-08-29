@@ -167,6 +167,12 @@ void CScene::ReleaseObjects()
 				n->Release();
 			}
 		}
+		if (m_FishList.size() != 0)
+		{
+			for (auto n : m_FishList) {
+				n->Release();
+			}
+		}
 		if (m_ppWaters)
 		{
 			for (int i = 0; i < m_nWaters; i++) if (m_ppWaters[i]) m_ppWaters[i]->Release();
@@ -174,7 +180,7 @@ void CScene::ReleaseObjects()
 		}
 	
 		if (m_pFish) m_pFish->Release();
-		if (m_pSnake) m_pSnake->Release();
+		if (m_pSnake) delete m_pSnake; m_pSnake = NULL;
 		if (HoneyComb) HoneyComb->Release();
 		if (m_DamageUITex) m_DamageUITex->Release();
 		if (m_DamageUITexYellow) m_DamageUITexYellow->Release();
@@ -503,6 +509,36 @@ void CScene::SetBloodScreenState(bool b)
 
 void CScene::ResetObjects()
 {
+	m_pPlayer->SetPosition(XMFLOAT3(INITPOSITION_X, 60, INITPOSITION_Z));
+	m_pPlayer->Reset();
+	m_pSnake->ResetToNext(MonsterDataList.front().m_pos);
+	m_fStageTime = 0;
+	dynamic_cast<CClockUI*>(m_iClockMin)->SetNum(0);
+	dynamic_cast<CClockUI*>(m_iClockSec1)->SetNum(0);
+	dynamic_cast<CClockUI*>(m_iClockSec2)->SetNum(0);
+
+	while (!m_ItemBoxList.empty())
+	{
+		delete m_ItemBoxList.front();
+		m_ItemBoxList.pop_front();
+	}
+
+	list<StoneInfo>::iterator iter = BoxDataList.begin();
+	list<StoneInfo>::iterator iter_end = BoxDataList.end();
+
+	for (iter; iter != iter_end; iter++)
+	{
+
+		CItemBox* obj = new CItemBox();
+		obj->SetChild(m_pBox, true);
+		obj->SetHitBox(XMFLOAT3(7, 7, 7));
+		obj->SetOriginY(iter->m_pos.y + 7);
+		obj->SetGroup(iter->m_iType);
+		obj->SetPosition(iter->m_pos.x, iter->m_pos.y + 7, iter->m_pos.z);
+		obj->Rotate(30, 30, 30);
+		//Vector3::Normalize(iter->m_rot);
+		m_ItemBoxList.push_back(obj);
+	}
 }
 
 void CScene::PlusTreeData()
@@ -739,7 +775,7 @@ void CScene::SaveBoxhData()
 
 void CScene::LoadBoxData(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	CGameObject* pOBJ = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/box.bin", NULL, false);
+	m_pBox = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/box.bin", NULL, false);
 	fstream in("BoxData.txt", ios::in | ios::binary);
 	StoneInfo dat;
 	while (in)
@@ -759,7 +795,7 @@ void CScene::LoadBoxData(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd
 	{
 
 		CItemBox* obj = new CItemBox();
-		obj->SetChild(pOBJ, true);
+		obj->SetChild(m_pBox, true);
 		obj->SetHitBox(XMFLOAT3(7,7,7));
 		obj->SetOriginY(iter->m_pos.y+ 7);
 		obj->SetGroup(iter->m_iType);
@@ -805,13 +841,58 @@ void CScene::BuildMonsterList(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLi
 	m_pSnake->SetScale(iter->m_size.x, iter->m_size.y, iter->m_size.z);
 	m_pSnake->SetHitBox(XMFLOAT3(4.f, 3.f, 9.f));
 
-	CGameObject* pFish = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/fish.bin", NULL, false);
-	m_pFish = new CFish();
-	m_pFish->SetChild(pFish, true);
-	m_pFish->SetPosition(XMFLOAT3(1019, 28, 536));
-	m_pFish->Rotate(0, 90, 0);
-	//m_pFish->SetPosition(XMFLOAT3(INITPOSITION_X, m_pTerrain->GetHeight(INITPOSITION_X,INITPOSITION_Z), INITPOSITION_Z));
-	m_pFish->SetHitBox(XMFLOAT3(3, 3, 3));
+	m_pFish = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/fish.bin", NULL, false);
+	CFish* pFish = new CFish();
+
+	pFish->SetChild(m_pFish, true);
+	pFish->SetPosition(XMFLOAT3(1019, 28, 536));
+	pFish->Rotate(0, 90, 0);
+	pFish->SetHitBox(XMFLOAT3(3, 3, 3));
+	m_FishList.emplace_back(pFish);
+
+	pFish = new CFish();
+
+	pFish->SetChild(m_pFish, true);
+	pFish->SetPosition(XMFLOAT3(920, 28, 517));
+	pFish->Rotate(0, 90, 0);	
+	pFish->SetHitBox(XMFLOAT3(3, 3, 3));
+	pFish->RotateDir = -1;
+	m_FishList.emplace_back(pFish);
+
+	pFish = new CFish();
+
+	pFish->SetChild(m_pFish, true);
+	pFish->SetPosition(XMFLOAT3(838, 26, 723));
+	pFish->Rotate(0, 90, 0);	pFish->SetHitBox(XMFLOAT3(3, 3, 3));
+	m_FishList.emplace_back(pFish);
+
+
+	pFish = new CFish();
+
+	pFish->SetChild(m_pFish, true);
+	pFish->SetPosition(XMFLOAT3(543, 26, 849));
+	pFish->Rotate(0, 90, 0);	pFish->SetHitBox(XMFLOAT3(3, 3, 3));
+	m_FishList.emplace_back(pFish);
+
+
+	pFish = new CFish();
+
+	pFish->SetChild(m_pFish, true);
+	pFish->SetPosition(XMFLOAT3(647, 26, 879));
+	pFish->RotateDir = -1;
+	pFish->Rotate(0, 90, 0);
+	pFish->SetHitBox(XMFLOAT3(3, 3, 3));
+	m_FishList.emplace_back(pFish);
+
+
+	pFish = new CFish();
+
+	pFish->SetChild(m_pFish, true);
+	pFish->SetPosition(XMFLOAT3(760, 26, 857));
+	pFish->Rotate(0, 90, 0);	pFish->SetHitBox(XMFLOAT3(3, 3, 3));
+	m_FishList.emplace_back(pFish);
+
+
 }
 
 void CScene::RenderStage1(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
@@ -831,7 +912,12 @@ void CScene::RenderStage1(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* p
 	}
 
 	if (m_pSnake) m_pSnake->Render(pd3dCommandList, pCamera);
-	if (m_pFish) m_pFish->Render(pd3dCommandList, pCamera);
+
+	for (auto p : m_FishList)
+	{
+		p->UpdateTransform(NULL);
+		p->Render(pd3dCommandList, pCamera);
+	}
 
 	for (auto p : m_GrassObjectlist)
 	{
@@ -1132,7 +1218,7 @@ void CScene::LoadGrass(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd
 void CScene::SaveNavigation()
 {
 	fstream out("NavData.txt", ios::out | ios::binary);
-	list<XMFLOAT3>* list = m_pPlayer->GetNavigationList();
+	vector<XMFLOAT3>* list = m_pPlayer->GetNavigationList();
 	for (auto t : *list)
 	{
 		out << t.x << " " << t.y << " " << t.z << " " << endl;
@@ -1168,7 +1254,7 @@ void CScene::BuildTextures(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 
 void CScene::CreateExplosion(const XMFLOAT3 & pos)
 {
-	CDamageUI* DUI = new CExplosion(m_pd3dDevice, m_pd3dCommandList, m_pd3dGraphicsRootSignature, 6, 6);
+	CDamageUI* DUI = new CExplosion(m_pd3dDevice, m_pd3dCommandList, m_pd3dGraphicsRootSignature,7,10);
 	DUI->SetTexture(m_ExplosionTex);
 	m_pPlayer->GetCamera()->RotateUI(DUI);
 	DUI->SetPosition(pos.x, pos.y , pos.z);
@@ -1225,9 +1311,12 @@ void CScene::AnimateObjects(float fTimeElapsed)
 		{
 			m_pPlayer->PlusSkillGage(100);
 			m_pSnake->Next();
-			if (m_pSnake->GetIndex() == MonsterDataList.size())
-				m_pSnake->Release();
-			else
+			if (m_pSnake->GetIndex() == (MonsterDataList.size() - 1))
+			{
+				m_pSnake->SetPosition(XMFLOAT3(0, 0, 0));
+
+			}
+			else 
 				m_pSnake->ResetToNext(MonsterDataList.at(m_pSnake->GetIndex()).m_pos);
 		}
 		else
@@ -1250,8 +1339,12 @@ void CScene::AnimateObjects(float fTimeElapsed)
 				m_pSnake->setRecognitionMode(false);
 		}
 	}
-			
-	m_pFish->Animate(fTimeElapsed);
+
+	for (auto h : m_FishList)
+	{
+		h->Animate(fTimeElapsed);
+	}
+
 	for (auto h : m_HoneyComblist)
 	{
 		h->Animate(fTimeElapsed);
@@ -1297,6 +1390,7 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 		switch (m_MainFramework->GetFlowState())
 		{
 		case SCENE_STAGE1:
+		case SCENE_CLEAR:
 
 			list<CUI*>::iterator iter = m_UIList->begin();
 			list<CUI*>::iterator iter_end = m_UIList->end();
@@ -1307,6 +1401,8 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 				m_ppWaters[i]->UpdateTransform(NULL);
 				m_ppWaters[i]->Render(m_pd3dCommandList, pCamera);
 			}
+
+			m_pPlayer->GetNavGuide()->Render(m_pd3dCommandList, pCamera);
 			for (iter; iter!= iter_end ; iter++)
 			{
 				if ((*iter)->bRender)
@@ -1337,7 +1433,6 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 				}
 					
 			}
-			m_pPlayer->GetNavGuide()->Render(m_pd3dCommandList, pCamera);
 		}
 
 }
@@ -1386,7 +1481,7 @@ void CScene::ObjectsCollides()
 		if((*iter)->getCollision(m_pPlayer))
 		{
 			int group = (*iter)->GetGruop();
-			int random = rand() % 3;
+			int random = rand() % 4;
 			CFloatingItem* temp;
 			switch (random)
 			{
@@ -1407,6 +1502,11 @@ void CScene::ObjectsCollides()
 			case 2:
 				m_MainFramework->SetbReverseControlMode();
 				CSoundMgr::GetInstacne()->PlayEffectSound(_T("Spring"));
+				break;
+			case 3:
+				m_pPlayer->Dash(m_fElapsedTime * 50);
+				CSoundMgr::GetInstacne()->PlayEffectSound(_T("dash"));
+
 				break;
 			}
 			while(!m_ItemBoxList.empty())
@@ -1468,7 +1568,7 @@ void CScene::ObjectsCollides()
 		if (n->getCollision(m_pPlayer, false) != COLLIDE_NONE)
 		{
 			CSoundMgr::GetInstacne()->PlayEffectSound(_T("dash"));
-			m_pPlayer->Dash(m_fElapsedTime * 30);
+			m_pPlayer->Dash(m_fElapsedTime * 50);
 		}
 
 	}
@@ -1489,10 +1589,10 @@ void CScene::ObjectsCollides()
 			if (honeyiter == honeyend) break;
 		}
 	}
-
-	if (m_pFish)
+	
+	for(auto p : m_FishList)
 	{
-		if (m_pFish->getCollision(m_pPlayer) && m_pPlayer->m_bPop == false) {
+		if (p->getCollision(m_pPlayer) && m_pPlayer->m_bPop == false) {
 
 			CreateDamageUI(4);
 			m_pPlayer->Damage(4);

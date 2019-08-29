@@ -80,4 +80,5 @@ public:
 	CFish() {}
 	~CFish() {}
 	virtual void Animate(float fTimeElapsed);
+	int RotateDir = 1;
 };

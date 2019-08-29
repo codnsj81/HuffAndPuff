@@ -321,8 +321,10 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 		{
 			MouseClickInMain(m_ptOldCursorPos);
 		}
-		else if(m_FLOWSTATE == SCENE_MANUAL)
+		else if (m_FLOWSTATE == SCENE_MANUAL)
 			MouseClickInManual(m_ptOldCursorPos);
+		else if (m_FLOWSTATE == SCENE_CLEAR)
+			MouseClickInClear(m_ptOldCursorPos);
 	}
 	else if (nMessageID == WM_LBUTTONUP)
 		::ReleaseCapture();
@@ -464,10 +466,10 @@ void CGameFramework::BuildUI()
 	pTemp->m_pPlayer = m_pPlayer;
 	m_UIList->emplace_back(pTemp);
 
-	pTemp = new CEndUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 10, 5, XMFLOAT3(1235, m_pScene->m_pTerrain->GetHeight(1235, 616), 616), L"Model/Textures/GAMECLEAR.tiff");
-	pTemp->SetWinpos(-2.5, 0);
+	pTemp = new CEndUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(),20,17, XMFLOAT3(1235, m_pScene->m_pTerrain->GetHeight(1235, 616), 616), L"Model/Textures/UI_Success.tiff", this);
+	pTemp->SetWinpos(0, 0);
 	pTemp->m_pPlayer = m_pPlayer;
-
+	m_pClearUI = pTemp;
 	m_UIList->emplace_back(pTemp);
 
 
@@ -562,7 +564,7 @@ void CGameFramework::BuildPlayers()
 	m_pPlayer->SetHitBox(XMFLOAT3(5.f, 5.f, 5.f));
 	m_pPlayer->SetScale(XMFLOAT3(4.f, 4.f, 4.f));
 	m_pPlayer->Rotate(0, 80, 0);
-
+	m_pPlayer->SetOriginMatrix();
 
 	m_pPlayer->SetScene(m_pScene);
 
@@ -604,7 +606,7 @@ void CGameFramework::BuildObjects()
 
 		WaitForGpuComplete();
 
-		m_pPlayer->SetWaters(m_pScene->GetWaters());\
+		m_pPlayer->SetWaters(m_pScene->GetWaters());
 		m_pPlayer->SetnWaters(2);
 
 
@@ -774,7 +776,22 @@ void CGameFramework::MouseClickInMain(POINT pos)
 		m_FLOWSTATE = SCENE_MANUAL;
 		CSoundMgr::GetInstacne()->PlayEffectSound(_T("Button"));
 	}
-} 
+}
+void CGameFramework::MouseClickInClear(POINT pos)
+{
+	if (pos.x > 393 && pos.y > 480 && pos.y < 575 && pos.x < 617)
+	{
+		m_FLOWSTATE = SCENE_STAGE1;
+		dynamic_cast<CEndUI*>(m_pClearUI)->Trigger = false;
+		dynamic_cast<CEndUI*>(m_pClearUI)->bEx = false;
+		m_pClearUI->bRender = false;
+		m_pScene->ResetObjects();
+		CSoundMgr::GetInstacne()->PlayEffectSound(_T("Button"));
+		TCHAR* pName = _T("InGame");
+		CSoundMgr::GetInstacne()->PlayBGMSound(pName);
+	}
+}
+
 
 //#define _WITH_PLAYER_TOP
 
@@ -813,7 +830,7 @@ void CGameFramework::FrameAdvance()
 		if (m_FLOWSTATE == SCENE_STAGE1)
 			m_pScene->Update(m_GameTimer.GetTimeElapsed());
 		
-			m_pScene->Render(m_pd3dCommandList, m_pCamera);
+		m_pScene->Render(m_pd3dCommandList, m_pCamera);
 
 		switch (m_FLOWSTATE)
 		{
@@ -842,7 +859,6 @@ void CGameFramework::FrameAdvance()
 		if (m_pOverUI)
 			if( m_pOverUI->bRender)
 				m_pOverUI->Render(m_pd3dCommandList, m_pCamera);
-
 
 		d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
 		d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;

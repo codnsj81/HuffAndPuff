@@ -102,9 +102,10 @@ public:
 	CUI* m_BloodScreen = NULL;
 	void SetBloodScreenState(bool b);
 
+	CGameObject							*m_pBox = NULL;
 	CPlayer								*m_pPlayer = NULL;
 	CSnake*								m_pSnake = NULL;
-	CFish*								m_pFish = NULL;
+	CGameObject*								m_pFish = NULL;
 
 	ID3D12Device*						m_pd3dDevice = NULL;
 	ID3D12GraphicsCommandList*			m_pd3dCommandList = NULL;
@@ -196,6 +197,7 @@ public:
 
 	CGameObject							**m_ppGameObjects = NULL;
 	list<CItemBox*>						m_ItemBoxList;
+	list<CFish*>						m_FishList;
 	list<CTree*>						m_TreeObjectslist;
 	list<CGameObject*>					m_StoneObjectslist;
 	list<CGameObject*>					m_GrassObjectlist;

@@ -6,6 +6,7 @@
 #define SCENE_MAIN			0
 #define SCENE_MANUAL		1
 #define SCENE_STAGE1		2
+#define SCENE_CLEAR			3
 
 #include "../Headers/Include.h"
 #include "Timer.h"
@@ -48,6 +49,7 @@ public:
 
 	void MouseClickInManual(POINT pos);
 	void MouseClickInMain(POINT pos);
+	void MouseClickInClear(POINT pos);
 
 	void OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	void OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
@@ -56,6 +58,7 @@ public:
 	 CPlayer* GetPlayer() const { if(m_pPlayer!=nullptr) return m_pPlayer; }
 	 CScene* GetScene() { return m_pScene; }
 
+	 void	SetFlowState(int n) { m_FLOWSTATE = n; }
 	 int	GetFlowState() { return m_FLOWSTATE; }
 	 list<CUI*>* GetUIList() { return m_UIList; }
 	 void BuildUI();
@@ -121,5 +124,6 @@ private:
 	float								m_overCountDown = 0;
 
 	CStartUI*							m_pOverUI = NULL;
+	CUI*								m_pClearUI = NULL;
 };
 

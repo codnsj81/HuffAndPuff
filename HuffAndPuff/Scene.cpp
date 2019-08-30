@@ -1304,6 +1304,19 @@ void CScene::LoadTree(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dC
 		m_TreeObjectslist.push_back(obj);
 	}
 
+	//물가에 보트
+	CGameObject *pBoat = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/boat.bin", NULL, false);
+	CTree* obj = new CTree();
+	obj->SetChild(pBoat, true);
+	obj->SetPosition(XMFLOAT3(1066, 29, 496));
+	obj->SetHitBox(XMFLOAT3(15.f, 4.f, 6.f));
+	m_TreeObjectslist.push_back(obj);
+
+	obj = new CTree();
+	obj->SetChild(pBoat, true);
+	obj->SetPosition(XMFLOAT3(717, 29, 877));
+	obj->SetHitBox(XMFLOAT3(15.f, 4.f, 6.f));
+	m_TreeObjectslist.push_back(obj);
 }
 
 bool CScene::ProcessInput(UCHAR *pKeysBuffer)

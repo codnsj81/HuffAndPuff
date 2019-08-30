@@ -544,7 +544,7 @@ D3D12_BLEND_DESC CWaterShader::CreateBlendState()
 }
 
 D3D12_DEPTH_STENCIL_DESC CWaterShader::CreateDepthStencilState()
-{
+{/*
 	D3D12_DEPTH_STENCIL_DESC d3dDepthStencilDesc;
 	::ZeroMemory(&d3dDepthStencilDesc, sizeof(D3D12_DEPTH_STENCIL_DESC));
 	d3dDepthStencilDesc.DepthEnable = TRUE;
@@ -561,8 +561,29 @@ D3D12_DEPTH_STENCIL_DESC CWaterShader::CreateDepthStencilState()
 	d3dDepthStencilDesc.BackFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
 	d3dDepthStencilDesc.BackFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
 	d3dDepthStencilDesc.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_NEVER;
+*/
 
-	return(d3dDepthStencilDesc);
+	D3D12_DEPTH_STENCIL_DESC reflectionsDSS;
+	::ZeroMemory(&reflectionsDSS, sizeof(D3D12_DEPTH_STENCIL_DESC));
+	reflectionsDSS.DepthEnable = true;
+	reflectionsDSS.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+	reflectionsDSS.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
+	reflectionsDSS.StencilEnable = true;
+	reflectionsDSS.StencilReadMask = 0xff;
+	reflectionsDSS.StencilWriteMask = 0xff;
+
+	reflectionsDSS.FrontFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+	reflectionsDSS.FrontFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
+	reflectionsDSS.FrontFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
+	reflectionsDSS.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_EQUAL;
+
+	// We are not rendering backfacing polygons, so these settings do not matter.
+	reflectionsDSS.BackFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+	reflectionsDSS.BackFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
+	reflectionsDSS.BackFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
+	reflectionsDSS.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_EQUAL;
+
+	return(reflectionsDSS);
 }
 
 CUIShader::CUIShader()

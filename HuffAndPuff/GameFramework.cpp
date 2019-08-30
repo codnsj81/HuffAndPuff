@@ -325,6 +325,8 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 			MouseClickInManual(m_ptOldCursorPos);
 		else if (m_FLOWSTATE == SCENE_CLEAR)
 			MouseClickInClear(m_ptOldCursorPos);
+		else if (m_FLOWSTATE == SCENE_OVER)
+			MouseClickInOver(m_ptOldCursorPos);
 	}
 	else if (nMessageID == WM_LBUTTONUP)
 		::ReleaseCapture();
@@ -492,10 +494,10 @@ void CGameFramework::BuildUI()
 	m_pScene->m_BloodScreen = BloodScreen;
 
 
-	m_pOverUI = new CStartUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 4, 4, XMFLOAT3(1999, m_pScene->m_pTerrain->GetHeight(1999, 972), 972), L"Model/Textures/GAMEOVER.tiff");
-	m_pOverUI->SetWinpos(-2.5, 0);
+	m_pOverUI = new CBackgroundUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 20,17, m_pCamera->GetRoatMatrix(), L"Model/Textures/UI_Failed.tiff");
+	m_pOverUI->SetWinpos(0, 0);
+	m_pCamera->m_pOverUI = m_pOverUI;
 	(m_pOverUI)->bRender = false;
-	(m_pOverUI)->Trigger = false;
 
 
 	CCloud* cloud = new CCloud(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 25,15, m_pPlayer->GetPosition(), L"Model/Textures/Cloud.tiff");
@@ -792,6 +794,20 @@ void CGameFramework::MouseClickInClear(POINT pos)
 	}
 }
 
+void CGameFramework::MouseClickInOver(POINT pos)
+{
+	if (pos.x > 529 && pos.y > 493 && pos.y < 590 && pos.x < 744)
+	{
+		m_FLOWSTATE = SCENE_STAGE1;
+		m_bPlaying = true;
+		m_pOverUI->bRender = false;
+		m_pScene->ResetObjects();
+		CSoundMgr::GetInstacne()->PlayEffectSound(_T("Button"));
+		TCHAR* pName = _T("InGame");
+		CSoundMgr::GetInstacne()->PlayBGMSound(pName);
+	}
+}
+
 
 //#define _WITH_PLAYER_TOP
 
@@ -857,8 +873,11 @@ void CGameFramework::FrameAdvance()
 		//UI·»´õ
 
 		if (m_pOverUI)
-			if( m_pOverUI->bRender)
+			if (m_pOverUI->bRender)
+			{
+				m_pOverUI->UpdateTransform(NULL);
 				m_pOverUI->Render(m_pd3dCommandList, m_pCamera);
+			}
 
 		d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
 		d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
@@ -882,9 +901,10 @@ void CGameFramework::FrameAdvance()
 			if (m_pPlayer->GetHp() <= 0 )
 			{
 				m_bPlaying = false;
+				m_FLOWSTATE = SCENE_OVER;
 				m_pOverUI->bRender = true;
-				(m_pOverUI)->Trigger = true;
-				m_pPlayer->GetCamera()->m_pOverUI = m_pOverUI;
+				m_pCamera->RotateUI(m_pOverUI);
+				CSoundMgr::GetInstacne()->StopALL();
 			}
 		}
 		if (m_bReverseControl)

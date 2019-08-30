@@ -7,6 +7,7 @@
 #define SCENE_MANUAL		1
 #define SCENE_STAGE1		2
 #define SCENE_CLEAR			3
+#define SCENE_OVER			4
 
 #include "../Headers/Include.h"
 #include "Timer.h"
@@ -50,6 +51,7 @@ public:
 	void MouseClickInManual(POINT pos);
 	void MouseClickInMain(POINT pos);
 	void MouseClickInClear(POINT pos);
+	void MouseClickInOver(POINT pos);
 
 	void OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	void OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
@@ -123,7 +125,7 @@ private:
 	bool								m_bPlaying = true;
 	float								m_overCountDown = 0;
 
-	CStartUI*							m_pOverUI = NULL;
+	CBackgroundUI*							m_pOverUI = NULL;
 	CUI*								m_pClearUI = NULL;
 };
 

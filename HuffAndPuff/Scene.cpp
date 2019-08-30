@@ -34,18 +34,28 @@ CScene::~CScene()
 
 void CScene::BuildDefaultLightsAndMaterials()
 {
-	m_nLights = 1;
+	m_nLights = 2;
 	m_pLights = new LIGHT[m_nLights];
 	::ZeroMemory(m_pLights, sizeof(LIGHT) * m_nLights);
 
-	m_xmf4GlobalAmbient = XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f);
+	m_xmf4GlobalAmbient = XMFLOAT4(0.3f, 0.3f, 0.3f,0.0f);
 
 	m_pLights[0].m_bEnable = true;
 	m_pLights[0].m_nType = DIRECTIONAL_LIGHT;
-	m_pLights[0].m_xmf4Ambient = XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
-	m_pLights[0].m_xmf4Diffuse = XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f);
+	m_pLights[0].m_xmf4Ambient = XMFLOAT4(0.1f, 0.1f, 0.1f, 0.f);
+	m_pLights[0].m_xmf4Diffuse = XMFLOAT4(0.3f, 0.3f, 0.3f, 0.5f);
 	m_pLights[0].m_xmf4Specular = XMFLOAT4(0.0f, 0.0f, 0.4f, 0.0f);
 	m_pLights[0].m_xmf3Direction = XMFLOAT3(0.5f, 0.5f, 0.0f);
+
+	m_pLights[1].m_bEnable = true;
+	m_pLights[1].m_nType = POINT_LIGHT;
+	m_pLights[1].m_fRange = 25.0f;
+	m_pLights[1].m_xmf4Ambient = XMFLOAT4(0.1f, 0.0f, 0.0f, 1.0f);
+	m_pLights[1].m_xmf4Diffuse = XMFLOAT4(0.0f, 0.0f, 0.5f, 1.0f);
+	m_pLights[1].m_xmf4Specular = XMFLOAT4(0.1f, 0.1f, 0.1f, 0.0f);
+	m_pLights[1].m_xmf3Position = XMFLOAT3(1235,100, 616);
+	m_pLights[1].m_xmf3Direction = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	m_pLights[1].m_xmf3Attenuation = XMFLOAT3(1.0f, 0.001f, 0.0001f);
 }
 
 void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
@@ -1391,6 +1401,7 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 		{
 		case SCENE_STAGE1:
 		case SCENE_CLEAR:
+		case SCENE_OVER:
 
 			list<CUI*>::iterator iter = m_UIList->begin();
 			list<CUI*>::iterator iter_end = m_UIList->end();

@@ -556,3 +556,7 @@ void CExplosion::Update(float elapsed)
 		dynamic_cast<CExplosionMesh*> (m_pMesh)->SetNumber(m_iNum);
 	}
 }
+
+CDashEffect::CDashEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, float nWidth, float nLength)
+{
+}

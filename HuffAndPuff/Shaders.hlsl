@@ -82,7 +82,7 @@ VS_STANDARD_OUTPUT VSStandard(VS_STANDARD_INPUT input)
 
 float4 PSStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
 {
-	float4 cAlbedoColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	float4 cAlbedoColor = float4(0.0f, 0.0f, 0.0f, 0.0f);
 	if (gnTexturesMask & MATERIAL_ALBEDO_MAP) cAlbedoColor = gtxtAlbedoTexture.Sample(gssWrap, input.uv);
 	//else cAlbedoColor = float4(1.0f, 0.0f, 0.0f, 0.0f);
 	float4 cSpecularColor = float4(0.0f, 0.0f, 0.0f, 0.0f);
@@ -113,6 +113,15 @@ float4 PSStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
 	return(cColor);
 }
 
+
+float4 PSEffect(VS_STANDARD_OUTPUT input) : SV_TARGET
+{
+
+	float4 cColor;
+	if (gnTexturesMask & MATERIAL_ALBEDO_MAP) cColor = gtxtAlbedoTexture.Sample(gssWrap, input.uv);
+
+	return(cColor);
+}
 
 float4 PSGrass(VS_STANDARD_OUTPUT input) : SV_TARGET
 {

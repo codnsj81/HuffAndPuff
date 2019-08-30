@@ -65,12 +65,13 @@ protected:
 	CScene*						m_pScene = NULL;
 
 	int							m_iAtt = 50;
-	float							m_iHP = 100.f;
+	float						m_iHP = 100.f;
 	XMFLOAT3					m_predictedPos = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	XMFLOAT3					PointingPos;
 
 	vector<XMFLOAT3>				m_xmNavigationVector;
 	CGameObject*				m_NavGuide = NULL;
+	CGameObject*				m_DashEffect = NULL;
 	CUI*						m_ProgressUI = NULL;
 
 	int							m_navListSize;
@@ -87,6 +88,8 @@ public:
 	void Reset();
 	void SetProgressUI(CUI* p) { m_ProgressUI = p; }
 	void SetNav(CGameObject* nav);
+
+	void SetDE(CGameObject* nav);
 	void NextRoad(float fTime);
 	void LoadNavigation();
 	vector<XMFLOAT3>* GetNavigationList() { return &m_xmNavigationVector; }

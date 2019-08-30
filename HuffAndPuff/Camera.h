@@ -56,7 +56,7 @@ public:
 	list<CUI*>					*m_UIList = NULL;
 	CBackgroundUI*					m_pOverUI = NULL;
 
-	void RotateUI(CUI* ui);
+	void RotateUI(CGameObject* ui);
 
 	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	virtual void ReleaseShaderVariables();

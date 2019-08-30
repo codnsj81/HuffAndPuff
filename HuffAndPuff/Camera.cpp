@@ -120,7 +120,7 @@ void CCamera::RegenerateViewMatrix()
 	m_xmf4x4View._43 = -Vector3::DotProduct(m_xmf3Position, m_xmf3Look);
 }
 
-void CCamera::RotateUI(CUI * ui)
+void CCamera::RotateUI(CGameObject * ui)
 {
 	ui->m_xmf4x4ToParent = m_xmf4x4Rotate;
 	ui->Rotate(90, 0, 0);

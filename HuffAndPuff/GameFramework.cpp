@@ -576,6 +576,13 @@ void CGameFramework::BuildPlayers()
 	CGameObject* Arrow = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), "Model/Arrow.bin", NULL,false);
 	Arrow->Rotate(0, 80, 0);
 	m_pPlayer->SetNav(Arrow);
+
+	CEffectShader* pShader = new CEffectShader();
+	pShader->CreateShader(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature());
+	pShader->CreateShaderVariables(m_pd3dDevice, m_pd3dCommandList);
+
+	Arrow = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), "Model/dashEffect.bin", pShader, false);
+	m_pPlayer->SetDE(Arrow);
 }
 
 void CGameFramework::BuildObjects()

@@ -447,5 +447,3 @@ VS_SHADOW_OUTPUT VSCircularShadow(VS_SHADOW_INPUT input)
 float4 PSCircularShadow(VS_SHADOW_OUTPUT input) : SV_Target{
 	return (gtxCircularShadow.Sample(gssCircularShadow, input.texCoord));
 }
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//

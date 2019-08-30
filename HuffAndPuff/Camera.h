@@ -15,7 +15,7 @@ struct VS_CB_CAMERA_INFO
 
 class CPlayer;
 class CUI;
-class CStartUI;
+class CBackgroundUI;
 
 class CCamera
 {
@@ -54,7 +54,7 @@ public:
 	int GetFrusumCurr(const BoundingSphere& b);
 
 	list<CUI*>					*m_UIList = NULL;
-	CStartUI*					m_pOverUI = NULL;
+	CBackgroundUI*					m_pOverUI = NULL;
 
 	void RotateUI(CUI* ui);
 

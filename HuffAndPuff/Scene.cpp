@@ -190,7 +190,6 @@ void CScene::ReleaseObjects()
 		}
 	
 		if (m_pFish) m_pFish->Release();
-		if (m_pSnake) delete m_pSnake; m_pSnake = NULL;
 		if (HoneyComb) HoneyComb->Release();
 		if (m_DamageUITex) m_DamageUITex->Release();
 		if (m_DamageUITexYellow) m_DamageUITexYellow->Release();
@@ -225,7 +224,7 @@ void CScene::Update(float fTime)
 			bCreatePDUI = false;
 		}
 		CTree* bone = m_TreeObjectslist.back();
-		bone->Rotate(0, fTime * 60, 0);
+		bone->Rotate(0, fTime * 100, 0);
 		TimeCount(fTime);
 }
 
@@ -1170,7 +1169,7 @@ void CScene::LoadStone(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd
 void CScene::LoadTrap(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList)
 {
 	CGameObject *pTrap = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/trap.bin", NULL, false);
-
+	CGameObject *pNet = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/fishtrap.bin", NULL, false);
 	fstream in("TrapData.txt", ios::in | ios::binary);
 	while (in)
 	{
@@ -1191,6 +1190,31 @@ void CScene::LoadTrap(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3
 		obj->SetPosition(iter->x, m_pTerrain->GetHeight(iter->x, iter->y), iter->y);
 		m_TrapList.push_back(obj);
 	}
+	CTrap* obj = new CTrap();
+	obj->SetChild(pNet, true);
+	obj->SetHitBox(XMFLOAT3(5,2,5));
+	obj->SetPosition(977,31,497);
+	m_TrapList.push_back(obj);
+
+	obj = new CTrap();
+	obj->SetChild(pNet, true);
+	obj->SetHitBox(XMFLOAT3(5, 2, 5));
+	obj->SetPosition(766, 31, 670);
+	m_TrapList.push_back(obj);
+
+
+	obj = new CTrap();
+	obj->SetChild(pNet, true);
+	obj->SetHitBox(XMFLOAT3(5, 2, 5));
+	obj->SetPosition(602, 31 , 852);
+	m_TrapList.push_back(obj);
+
+
+	obj = new CTrap();
+	obj->SetChild(pNet, true);
+	obj->SetHitBox(XMFLOAT3(5, 2, 5));
+	obj->SetPosition(795, 31, 879);
+	m_TrapList.push_back(obj);
 }
 
 void CScene::LoadGrass(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList)

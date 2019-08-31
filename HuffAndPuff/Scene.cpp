@@ -224,6 +224,8 @@ void CScene::Update(float fTime)
 			CreateDamageUIP(monDUIPos);
 			bCreatePDUI = false;
 		}
+		CTree* bone = m_TreeObjectslist.back();
+		bone->Rotate(0, fTime * 60, 0);
 		TimeCount(fTime);
 }
 
@@ -1317,6 +1319,14 @@ void CScene::LoadTree(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dC
 	obj->SetPosition(XMFLOAT3(717, 29, 877));
 	obj->SetHitBox(XMFLOAT3(15.f, 4.f, 6.f));
 	m_TreeObjectslist.push_back(obj);
+
+	pBoat = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/bone.bin", NULL, false);
+	obj = new CTree();
+	obj->SetChild(pBoat, true);
+	obj->Rotate(0, 90, 0);
+	obj->SetPosition(XMFLOAT3(1235, 107, 616));
+	//obj->SetPosition(XMFLOAT3(INITPOSITION_X, 40, INITPOSITION_Z));
+	m_TreeObjectslist.push_back(obj);
 }
 
 bool CScene::ProcessInput(UCHAR *pKeysBuffer)
@@ -1334,10 +1344,9 @@ void CScene::AnimateObjects(float fTimeElapsed)
 		{
 			m_pPlayer->PlusSkillGage(100);
 			m_pSnake->Next();
-			if (m_pSnake->GetIndex() == (MonsterDataList.size() - 1))
+			if (m_pSnake->GetIndex() == (MonsterDataList.size()))
 			{
-				m_pSnake->SetPosition(XMFLOAT3(0, 0, 0));
-
+				m_pSnake->ResetToNext(XMFLOAT3(0, 0, 0));
 			}
 			else 
 				m_pSnake->ResetToNext(MonsterDataList.at(m_pSnake->GetIndex()).m_pos);

@@ -527,6 +527,9 @@ public:
 	void Pulled(CPlayer* playet);
 	virtual int getCollision(CPlayer* player, bool physics = true);
 	bool GetSimpleCollision(CGameObject* Fish);
+	bool m_bFull = false;
+	float m_fTime = 0;
+	float m_fOriginY = 0;
 };
 
 

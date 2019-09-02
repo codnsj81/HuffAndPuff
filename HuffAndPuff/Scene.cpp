@@ -491,6 +491,57 @@ void CScene::ReleaseUploadBuffers()
 		n->ReleaseUploadBuffers();
 }
 
+void CScene::Fishing()
+{
+
+
+	list<CFish*> ::iterator fishiter = m_FishList.begin();
+	list<CFish*> ::iterator fishend = m_FishList.end();
+
+	list<CFishtrap* > ::iterator trapiter = m_FishTrapList.begin();
+	list<CFishtrap*> ::iterator trapend = m_FishTrapList.end();
+
+	for (trapiter; trapiter != trapend; trapiter++)
+	{
+		if ((*trapiter)->m_bFull == false)
+		{
+			if ((*trapiter)->getCollision(m_pPlayer, false) == COLLIDEY && !m_pPlayer->GetBackWalking())
+			{
+				(*trapiter)->Pulled(m_pPlayer);
+			}
+			for (fishiter; fishiter != fishend; fishiter++)
+			{
+				if ((*trapiter)->GetSimpleCollision(*fishiter))
+				{
+					(*fishiter)->m_xmf4x4ToParent = Matrix4x4::Identity();
+					(*fishiter)->SetPosition(0, -3, 6);
+					(*fishiter)->Rotate(0, 90, 0);
+					(*fishiter)->SetScale(0.7f, 0.7f, 0.7f);
+					(*trapiter)->m_bFull = true;
+					(*trapiter)->SetChild(*fishiter, false);
+					fishiter = m_FishList.erase(fishiter);
+					m_iStageTime -= 20;
+					break;
+				}
+			}
+		}
+		else
+		{
+			if ((*trapiter)->m_fTime < 1.5f)
+			{
+				(*trapiter)->m_fTime += m_fElapsedTime;
+				(*trapiter)->SetPosition((*trapiter)->GetPosition().x, (*trapiter)->m_fOriginY + (*trapiter)->m_fTime, (*trapiter)->GetPosition().z);
+				(*trapiter)->Rotate(0, 0, m_fElapsedTime * 200);
+			}
+			else
+			{
+				delete *trapiter;
+				m_FishTrapList.erase(trapiter); break;
+			}
+		}
+	}
+}
+
 void CScene::TimeCount(float time)
 {
 	if (!m_iClockMin && !m_iClockSec1 && !m_iClockSec2) return;
@@ -1250,6 +1301,7 @@ void CScene::LoadTrap(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3
 	}
 	CFishtrap* obj = new CFishtrap();
 	obj->SetChild(pNet, true);
+	obj->m_fOriginY = 31;
 	obj->SetHitBox(XMFLOAT3(5,2,5));
 	obj->SetPosition(977,31,497);
 	m_FishTrapList.push_back(obj);
@@ -1258,6 +1310,7 @@ void CScene::LoadTrap(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3
 	obj->SetChild(pNet, true);
 	obj->SetHitBox(XMFLOAT3(5, 2, 5));
 	obj->SetPosition(766, 31, 670);
+	obj->m_fOriginY = 31;
 	m_FishTrapList.push_back(obj);
 
 
@@ -1265,6 +1318,7 @@ void CScene::LoadTrap(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3
 	obj->SetChild(pNet, true);
 	obj->SetHitBox(XMFLOAT3(5, 2, 5));
 	obj->SetPosition(602, 31 , 852);
+	obj->m_fOriginY = 31;
 	m_FishTrapList.push_back(obj);
 
 
@@ -1272,6 +1326,7 @@ void CScene::LoadTrap(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3
 	obj->SetChild(pNet, true);
 	obj->SetHitBox(XMFLOAT3(5, 2, 5));
 	obj->SetPosition(795, 31, 879);
+	obj->m_fOriginY = 31;
 	m_FishTrapList.push_back(obj);
 }
 
@@ -1675,26 +1730,6 @@ void CScene::ObjectsCollides()
 			if (floatiter == floatend) break;
 		}
 	}
-
-
-	list<CFish*> ::iterator fishiter = m_FishList.begin();
-	list<CFish*> ::iterator fishend = m_FishList.end();
-
-	for (auto n: m_FishTrapList)
-	{
-		if (n->getCollision(m_pPlayer, false) == COLLIDEY && !m_pPlayer->GetBackWalking())
-		{
-			n->Pulled(m_pPlayer);
-		}
-		for (fishiter ; fishiter!= fishend; fishiter++)
-		{
-			if (n->GetSimpleCollision(*fishiter) )
-			{
-				fishiter = m_FishList.erase(fishiter);
-				m_iStageTime -= 20;
-					break;
-			}
-		}
-	}
+	Fishing();
 }
 

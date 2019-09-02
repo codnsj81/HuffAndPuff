@@ -89,6 +89,7 @@ public:
 	void ReleaseUploadBuffers();
 	CWater** GetWaters() { return m_ppWaters; }
 
+	void Fishing();
 	void TimeCount(float time);
 
 	bool bCreatePDUI = false;

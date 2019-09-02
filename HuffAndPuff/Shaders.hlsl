@@ -119,7 +119,7 @@ float4 PSEffect(VS_STANDARD_OUTPUT input) : SV_TARGET
 
 	float4 cColor;
 	if (gnTexturesMask & MATERIAL_ALBEDO_MAP) cColor = gtxtAlbedoTexture.Sample(gssWrap, input.uv);
-
+	cColor.a -= 0.3f;
 	return(cColor);
 }
 

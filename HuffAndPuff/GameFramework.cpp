@@ -431,6 +431,15 @@ LRESULT CALLBACK CGameFramework::OnProcessingWindowMessage(HWND hWnd, UINT nMess
 void CGameFramework::BuildUI()
 {
 	// SCENE ³» UI
+
+	
+	CUI*  BloodScreen = new CDashEffect(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 80,60, m_pCamera->GetRoatMatrix(), L"Model/Textures/DashEffect.tiff");
+	BloodScreen->SetWinpos(0, 0);
+	(BloodScreen)->bRender = false;
+	m_pPlayer->SetDE(BloodScreen);
+	m_UIList->emplace_back(BloodScreen);
+
+
 	CTexture *HPTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 	HPTexture->LoadTextureFromFile(m_pd3dDevice, m_pd3dCommandList, L"Model/Textures/HPBar.tiff", 0,false);
 	CScene::CreateShaderResourceViews(m_pd3dDevice, HPTexture, 3, false);
@@ -487,18 +496,16 @@ void CGameFramework::BuildUI()
 	m_UIList->emplace_back(pTemp);
 
 
-	CUI* BloodScreen = new CImageUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 400, 290, XMFLOAT3(1999, m_pScene->m_pTerrain->GetHeight(1999, 972), 972), L"Model/Textures/Red.tiff");
+	BloodScreen = new CImageUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 400, 290, XMFLOAT3(1999, m_pScene->m_pTerrain->GetHeight(1999, 972), 972), L"Model/Textures/Red.tiff");
 	BloodScreen->bRender = false;
 	BloodScreen->SetWinpos(-50, 0);
 	m_UIList->emplace_back(BloodScreen);
 	m_pScene->m_BloodScreen = BloodScreen;
 
 
-	m_pOverUI = new CBackgroundUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 20,17, m_pCamera->GetRoatMatrix(), L"Model/Textures/UI_Failed.tiff");
+	m_pOverUI = new CBackgroundUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 20, 17, m_pCamera->GetRoatMatrix(), L"Model/Textures/UI_Failed.tiff");
 	m_pOverUI->SetWinpos(0, 0);
-	m_pCamera->m_pOverUI = m_pOverUI;
 	(m_pOverUI)->bRender = false;
-
 
 	CCloud* cloud = new CCloud(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 25,15, m_pPlayer->GetPosition(), L"Model/Textures/Cloud.tiff");
 	cloud->bRender = false;
@@ -577,12 +584,7 @@ void CGameFramework::BuildPlayers()
 	Arrow->Rotate(0, 80, 0);
 	m_pPlayer->SetNav(Arrow);
 
-	CEffectShader* pShader = new CEffectShader();
-	pShader->CreateShader(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature());
-	pShader->CreateShaderVariables(m_pd3dDevice, m_pd3dCommandList);
 
-	Arrow = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), "Model/dashEffect.bin", pShader, false);
-	m_pPlayer->SetDE(Arrow);
 }
 
 void CGameFramework::BuildObjects()

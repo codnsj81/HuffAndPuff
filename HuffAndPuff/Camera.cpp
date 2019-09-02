@@ -329,22 +329,30 @@ void CThirdPersonCamera::SetLookAt(XMFLOAT3& xmf3LookAt)
 	{
 		for (auto t : *m_UIList)
 		{
-			t->m_xmf4x4ToParent = m_xmf4x4Rotate;
-			t->SetPosition(GetPosition());
-			t->MoveForward(t->m_fWinposz);
-			t->MoveStrafe(t->m_fWinposx);
-			t->MoveUp(t->m_fWinposy);
-			t->Rotate(90, 0, 0);
+			if (t->bRender)
+			{
+
+				t->m_xmf4x4ToParent = m_xmf4x4Rotate;
+				t->SetPosition(GetPosition());
+				t->MoveForward(t->m_fWinposz);
+				t->MoveStrafe(t->m_fWinposx);
+				t->MoveUp(t->m_fWinposy);
+				t->Rotate(90, 0, 0);
+			}
 		//	t->m_xmf4x4ToParent = Matrix4x4::OrthoFovLH(800, 600, 0, 1);
 		}
 	}
 	if (m_pOverUI)
 	{
-		m_pOverUI->m_xmf4x4ToParent = m_xmf4x4Rotate;
-		m_pOverUI->SetPosition(GetPosition());
-		m_pOverUI->MoveForward(20);
-		m_pOverUI->MoveStrafe(m_pOverUI->m_fWinposx);
-		m_pOverUI->MoveUp(m_pOverUI->m_fWinposy);
-		m_pOverUI->Rotate(90, 0, 0);
+		if (m_pOverUI->bRender)
+		{
+
+			m_pOverUI->m_xmf4x4ToParent = m_xmf4x4Rotate;
+			m_pOverUI->SetPosition(GetPosition());
+			m_pOverUI->MoveForward(20);
+			m_pOverUI->MoveStrafe(m_pOverUI->m_fWinposx);
+			m_pOverUI->MoveUp(m_pOverUI->m_fWinposy);
+			m_pOverUI->Rotate(90, 0, 0);
+		}
 	}
 }

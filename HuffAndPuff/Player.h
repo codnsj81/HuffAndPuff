@@ -71,7 +71,7 @@ protected:
 
 	vector<XMFLOAT3>				m_xmNavigationVector;
 	CGameObject*				m_NavGuide = NULL;
-	CGameObject*				m_DashEffect = NULL;
+	CUI*						m_DashEffect = NULL;
 	CUI*						m_ProgressUI = NULL;
 
 	int							m_navListSize;
@@ -89,7 +89,7 @@ public:
 	void SetProgressUI(CUI* p) { m_ProgressUI = p; }
 	void SetNav(CGameObject* nav);
 
-	void SetDE(CGameObject* nav);
+	void SetDE(CUI* nav);
 	void NextRoad(float fTime);
 	void LoadNavigation();
 	vector<XMFLOAT3>* GetNavigationList() { return &m_xmNavigationVector; }

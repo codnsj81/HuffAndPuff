@@ -191,6 +191,7 @@ public:
 	CTexture*							m_DamageUITexYellow = NULL;
 	CTexture*							m_HitAttackEffectTex = NULL;
 	CTexture*							m_ExplosionTex = NULL;
+	CShader*							m_pShader = NULL;
 
 	CGameObject* HoneyComb = NULL;
 	CTexture* PotionTex = NULL;
@@ -199,11 +200,11 @@ public:
 	list<CItemBox*>						m_ItemBoxList;
 	list<CFish*>						m_FishList;
 	list<CTree*>						m_TreeObjectslist;
-	list<CGameObject*>					m_StoneObjectslist;
-	list<CGameObject*>					m_GrassObjectlist;
+	list<CGameObject*>					m_Objectslist;
 	list<CHoneyComb*>					m_HoneyComblist;
 	list<CMushroom*>					m_Mushroomlist;
 	list<CDash*>						m_DashList;
+	list<CFishtrap*>					m_FishTrapList;
 	list<CTrap*>						m_TrapList;
 	list<CDamageUI*>					m_DamageUIList;
 	list<CFloatingItem*>				m_FloatingItemList;

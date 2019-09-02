@@ -68,6 +68,7 @@ public:
 
 private:
 
+
 	float						m_fReverseTime = 0;
 	bool						m_bReverseControl = false;
 	int							m_FLOWSTATE = SCENE_MAIN;

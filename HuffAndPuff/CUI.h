@@ -187,6 +187,10 @@ private:
 class CDashEffect : public CUI
 {
 public:
-	CDashEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, float nWidth, float nLength);
+	CDashEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, float nWidth, float nLength, XMFLOAT4X4 cameramat, wchar_t* pFilename);
 	~CDashEffect() {}
+
+	virtual void Update(float elapsed);
+	
+	float m_fScale =1.f;
 };

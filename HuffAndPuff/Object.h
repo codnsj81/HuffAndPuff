@@ -303,8 +303,9 @@ public:
 public:
 	char							m_pstrFrameName[64];
 
+	bool							m_bRender = false;
 	CMesh							*m_pMesh = NULL;
-
+	bool							m_bCollides = true;
 	int								m_nMaterials = 0;
 	CMaterial						**m_ppMaterials = NULL;
 
@@ -515,6 +516,12 @@ protected:
 	bool m_bDie = false;
 	float m_fElapsedTime = 0;
 
+};
+
+class CFishtrap : public CGameObject {
+public:
+	CFishtrap() {}
+	~CFishtrap() {}
 };
 class CMushroom : public CGameObject
 {

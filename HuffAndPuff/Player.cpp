@@ -77,7 +77,7 @@ void CPlayer::SetNav(CGameObject * nav)
 	m_NavGuide->SetPosition(GetPosition());
 }
 
-void CPlayer::SetDE(CGameObject* nav)
+void CPlayer::SetDE(CUI* nav)
 {
 	m_DashEffect = nav;
 }
@@ -551,16 +551,8 @@ void CPlayer::Update(float fTimeElapsed)
 			m_fSkillTime = 0;
 		}
 	}
-
-	if (m_bDash)
-	{
-		m_DashEffect->m_xmf4x4ToParent = m_xmf4x4ToParent;
-		m_DashEffect->SetScale(15,15,15);
-		m_DashEffect->MoveForward(10);
-		m_DashEffect->MoveUp(-5);
-		m_DashEffect->Rotate(0, 180, 0);
-	}
-	
+	if(m_DashEffect)
+		m_DashEffect->Update(fTimeElapsed);
 
 #ifdef _SAVENAV_MODE_
 	PlusNavigationList();
@@ -646,8 +638,10 @@ void CPlayer::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamer
 {
 	DWORD nCameraMode = (pCamera) ? pCamera->GetMode() : 0x00;
 	if (nCameraMode == THIRD_PERSON_CAMERA) CGameObject::Render(pd3dCommandList, pCamera);
-	if(m_bDash)
-	m_DashEffect->Render(pd3dCommandList, pCamera);
+	if (m_bDash)
+		m_DashEffect->bRender = true;
+	else
+		m_DashEffect->bRender = false;
 }
 
 

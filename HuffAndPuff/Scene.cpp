@@ -221,7 +221,7 @@ void CScene::Update(float fTime)
 			CreateDamageUIP(monDUIPos);
 			bCreatePDUI = false;
 		}
-		CTree* bone = m_TreeObjectslist.back();
+		CGameObject* bone = m_Objectslist.back();
 		bone->Rotate(0, fTime * 100, 0);
 		TimeCount(fTime);
 }
@@ -676,8 +676,8 @@ void CScene::BuildMushroomData(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandL
 		else if (treerand == 1)
 			obj->SetChild(Mushroom2, true);
 
-
-		obj->SetHitBox(XMFLOAT3(5,5,5));
+		obj->SetScale(2, 2, 2);
+		obj->SetHitBox(XMFLOAT3(10,10,10));
 		obj->SetPosition(iter->x, m_pTerrain->GetHeight(iter->x, iter->y), iter->y);
 	//	obj->Rotate(0, RandomRotate, 0);
 		m_Mushroomlist.push_back(obj);
@@ -1179,14 +1179,6 @@ void CScene::LoadStone(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd
 	pBoat->SetHitBox(XMFLOAT3(15.f, 4.f, 6.f));
 	m_Objectslist.push_back(pBoat);
 
-	pBoat = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/bone.bin", m_pShader, false);
-
-	pBoat->Rotate(0, 90, 0);
-	pBoat->SetPosition(XMFLOAT3(1235, 107, 616));
-	//obj->SetPosition(XMFLOAT3(INITPOSITION_X, 40, INITPOSITION_Z));
-	m_Objectslist.push_back(pBoat);
-
-
 
 	CGrasshader* pShader = new CGrasshader();
 
@@ -1218,6 +1210,16 @@ void CScene::LoadStone(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd
 		obj->m_bCollides = false;
 		m_Objectslist.push_back(obj);
 	}
+
+
+
+	pBoat = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/bone.bin", m_pShader, false);
+
+	pBoat->Rotate(0, 90, 0);
+	pBoat->SetPosition(XMFLOAT3(1235, 107, 616));
+	//obj->SetPosition(XMFLOAT3(INITPOSITION_X, 40, INITPOSITION_Z));
+	m_Objectslist.push_back(pBoat);
+
 
 
 }
@@ -1680,14 +1682,13 @@ void CScene::ObjectsCollides()
 
 	for (auto n: m_FishTrapList)
 	{
-		if (!n->m_bRender) continue;
 		if (n->getCollision(m_pPlayer, false) == COLLIDEY && !m_pPlayer->GetBackWalking())
 		{
 			n->Pulled(m_pPlayer);
 		}
 		for (fishiter ; fishiter!= fishend; fishiter++)
 		{
-			if (n->GetSimpleCollision(*fishiter) == COLLIDEY)
+			if (n->GetSimpleCollision(*fishiter) )
 			{
 				fishiter = m_FishList.erase(fishiter);
 				m_iStageTime -= 20;

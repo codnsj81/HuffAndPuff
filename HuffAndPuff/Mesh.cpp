@@ -1218,7 +1218,7 @@ void CExplosionMesh::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dComma
 	m_pxmf2TextureCoords0[2] = XMFLOAT2(x1, y1);
 	m_pxmf2TextureCoords0[3] = XMFLOAT2(x2, y1);
 
-	//m_pd3dTextureCoord0Buffer = ::CreateBufferResource(m_pd3dDevice, pd3dCommandList, m_pxmf2TextureCoords0, sizeof(XMFLOAT2) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dTextureCoord0UploadBuffer);
+	m_pd3dTextureCoord0Buffer = ::CreateBufferResource(m_pd3dDevice, pd3dCommandList, m_pxmf2TextureCoords0, sizeof(XMFLOAT2) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dTextureCoord0UploadBuffer);
 
 	m_d3dTextureCoord0BufferView.BufferLocation = m_pd3dTextureCoord0Buffer->GetGPUVirtualAddress();
 	m_d3dTextureCoord0BufferView.StrideInBytes = sizeof(XMFLOAT2);

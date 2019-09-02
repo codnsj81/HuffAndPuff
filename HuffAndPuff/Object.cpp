@@ -678,7 +678,7 @@ void CGameObject::Animate(float fTimeElapsed)
 void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
 {	
 	OnPrepareRender();
-	float distance = Vector3::Length(Vector3::Subtract(pCamera->GetPosition(), GetPosition()));
+	float distance = Vector3::Length(Vector3::Subtract(pCamera->GetPlayer()->GetPosition(), GetPosition()));
 	if (distance > 300)
 	{
 		m_bRender = false;
@@ -1602,8 +1602,8 @@ void CFishtrap::Pulled(CPlayer* playe)
 
 	m_xmf4x4ToParent = xmf4x4Rotate;
 	SetPosition(playe->GetPosition());
-	MoveForward(5);
-	MoveUp(3);
+	MoveForward(8);
+	MoveUp(2);
 
 }
 
@@ -1612,7 +1612,7 @@ int CFishtrap::getCollision(CPlayer* player, bool physics)
 	XMFLOAT3 pos1 = GetPosition();
 	XMFLOAT3 pos2 = player->GetPrecdictedPos();
 	float distance = Vector3::Length(Vector3::Subtract(pos1, pos2));
-	if (distance < 7) return COLLIDEY;
+	if (distance < 8) return COLLIDEY;
 }
 
 bool CFishtrap::GetSimpleCollision(CGameObject* Fish)
@@ -1620,5 +1620,6 @@ bool CFishtrap::GetSimpleCollision(CGameObject* Fish)
 	XMFLOAT3 pos1 = GetPosition();
 	XMFLOAT3 pos2 = Fish->GetPosition();
 	float distance = Vector3::Length(Vector3::Subtract(pos1, pos2));
-	if (distance < 7) return COLLIDEY;
+	if (distance < 8) return true;
+	else return false;
 }

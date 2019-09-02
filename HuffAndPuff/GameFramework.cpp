@@ -359,10 +359,10 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 					break;
 				case 't':
 				case 'T':
-					m_pScene->PlusBoxData();
+					m_pScene->PlusMushroomData();
 					break;
 				case 'Y':
-					m_pScene->SaveBoxhData();
+					m_pScene->SaveMushroomData();
 					break;
 				case 'O':
 				case 'o': // HP full, 카메라 위로

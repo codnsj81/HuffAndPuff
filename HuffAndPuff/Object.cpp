@@ -1587,3 +1587,38 @@ void CItemBox::Animate(float fTimeElapsed)
 	XMFLOAT3 pos = GetPosition();
 	SetPosition(pos.x, m_fOriginY + m_movingHeight, pos.z);
 }
+
+void CFishtrap::Pulled(CPlayer* playe)
+{
+	XMFLOAT4X4 xmf4x4Rotate = Matrix4x4::Identity();
+	XMFLOAT3 xmf3Right = playe->GetRightVector();
+	XMFLOAT3 xmf3Up = playe->GetUpVector();
+	XMFLOAT3 xmf3Look = playe->GetLookVector();
+
+	xmf4x4Rotate._11 = xmf3Right.x; xmf4x4Rotate._21 = xmf3Up.x; xmf4x4Rotate._31 = xmf3Look.x;
+	xmf4x4Rotate._12 = xmf3Right.y; xmf4x4Rotate._22 = xmf3Up.y; xmf4x4Rotate._32 = xmf3Look.y;
+	xmf4x4Rotate._13 = xmf3Right.z; xmf4x4Rotate._23 = xmf3Up.z; xmf4x4Rotate._33 = xmf3Look.z;
+
+
+	m_xmf4x4ToParent = xmf4x4Rotate;
+	SetPosition(playe->GetPosition());
+	MoveForward(5);
+	MoveUp(3);
+
+}
+
+int CFishtrap::getCollision(CPlayer* player, bool physics)
+{
+	XMFLOAT3 pos1 = GetPosition();
+	XMFLOAT3 pos2 = player->GetPrecdictedPos();
+	float distance = Vector3::Length(Vector3::Subtract(pos1, pos2));
+	if (distance < 7) return COLLIDEY;
+}
+
+bool CFishtrap::GetSimpleCollision(CGameObject* Fish)
+{
+	XMFLOAT3 pos1 = GetPosition();
+	XMFLOAT3 pos2 = Fish->GetPosition();
+	float distance = Vector3::Length(Vector3::Subtract(pos1, pos2));
+	if (distance < 7) return COLLIDEY;
+}

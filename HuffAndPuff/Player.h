@@ -50,7 +50,7 @@ protected:
 	CUI							*m_pHPUI = NULL;
 	bool						m_bInWater = false;
 	bool						m_bCheatmode = false;
-
+	bool						m_bBackWalking = false;
 	float						m_fAttTime = 0;
 	int							m_moveState = STATE_GROUND;
 	float						m_fTime = 0.f;
@@ -83,7 +83,7 @@ protected:
 public:
 	CPlayer();
 	virtual ~CPlayer();
-
+	bool GetBackWalking() { return m_bBackWalking; }
 	void SetOriginMatrix();
 	void Reset();
 	void SetProgressUI(CUI* p) { m_ProgressUI = p; }

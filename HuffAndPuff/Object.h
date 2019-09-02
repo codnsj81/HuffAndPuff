@@ -522,7 +522,14 @@ class CFishtrap : public CGameObject {
 public:
 	CFishtrap() {}
 	~CFishtrap() {}
+
+public:
+	void Pulled(CPlayer* playet);
+	virtual int getCollision(CPlayer* player, bool physics = true);
+	bool GetSimpleCollision(CGameObject* Fish);
 };
+
+
 class CMushroom : public CGameObject
 {
 public:

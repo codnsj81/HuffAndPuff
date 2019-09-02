@@ -227,12 +227,16 @@ void CPlayer::ReleaseShaderVariables()
 
 void CPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
 {
-
+	m_bBackWalking = false;
 	if (dwDirection && !m_bPop)
 	{
 		XMFLOAT3 xmf3Shift = XMFLOAT3(0, 0, 0);
 		if (dwDirection & DIR_FORWARD) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, m_fSpeed);
-		if (dwDirection & DIR_BACKWARD) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, -m_fSpeed);
+		if (dwDirection & DIR_BACKWARD)
+		{
+			m_bBackWalking = true;
+			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, -m_fSpeed);
+		}
 		if (dwDirection & DIR_RIGHT) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, m_fSpeed);
 		if (dwDirection & DIR_LEFT) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, -m_fSpeed);
 		if (dwDirection & DIR_UP) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, m_fSpeed);

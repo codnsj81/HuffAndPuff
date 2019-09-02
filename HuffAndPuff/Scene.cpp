@@ -1675,10 +1675,25 @@ void CScene::ObjectsCollides()
 	}
 
 
+	list<CFish*> ::iterator fishiter = m_FishList.begin();
+	list<CFish*> ::iterator fishend = m_FishList.end();
+
 	for (auto n: m_FishTrapList)
 	{
 		if (!n->m_bRender) continue;
-		if (n->getCollision(m_pPlayer)) break;
+		if (n->getCollision(m_pPlayer, false) == COLLIDEY && !m_pPlayer->GetBackWalking())
+		{
+			n->Pulled(m_pPlayer);
+		}
+		for (fishiter ; fishiter!= fishend; fishiter++)
+		{
+			if (n->GetSimpleCollision(*fishiter) == COLLIDEY)
+			{
+				fishiter = m_FishList.erase(fishiter);
+				m_iStageTime -= 20;
+					break;
+			}
+		}
 	}
 }
 

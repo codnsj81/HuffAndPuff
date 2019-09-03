@@ -438,9 +438,9 @@ void CGameFramework::BuildUI()
 	m_UIList->emplace_back(BloodScreen);
 
 
-	m_pControlEffect = new CBackgroundUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 20, 17, m_pCamera->GetRoatMatrix(), L"Model/Textures/controlEffect.tiff");
-	m_pControlEffect->bRender = true;
-	m_pControlEffect->SetWinpos(0, -1);
+	m_pControlEffect = new CBackgroundUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 8, 8, m_pCamera->GetRoatMatrix(), L"Model/Textures/controlEffect.tiff");
+	m_pControlEffect->bRender = false;
+	m_pControlEffect->SetWinpos(0, -2);
 	m_UIList->emplace_back(m_pControlEffect);
 
 	CTexture *HPTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
@@ -865,6 +865,28 @@ void CGameFramework::FrameAdvance()
 		if (m_FLOWSTATE == SCENE_STAGE1)
 			m_pScene->Update(m_GameTimer.GetTimeElapsed());
 		
+
+		if (m_bPlaying) {
+
+			if (m_pPlayer->GetHp() <= 0)
+			{
+				m_bPlaying = false;
+				m_FLOWSTATE = SCENE_OVER;
+				CSoundMgr::GetInstacne()->StopALL();
+			}
+		}
+		if (m_bReverseControl)
+		{
+			m_fReverseTime += m_GameTimer.GetTimeElapsed();
+			m_pControlEffect->Rotate(0, m_fReverseTime * 100, 0);
+			if (m_fReverseTime > 5)
+			{
+				m_pControlEffect->bRender = false;
+				m_bReverseControl = false;
+				m_fReverseTime = 0;
+			}
+		}
+
 		m_pScene->Render(m_pd3dCommandList, m_pCamera);
 
 		switch (m_FLOWSTATE)
@@ -914,25 +936,6 @@ void CGameFramework::FrameAdvance()
 		MoveToNextFrame();
 
 
-		if (m_bPlaying) {
-
-			if (m_pPlayer->GetHp() <= 0 )
-			{
-				m_bPlaying = false;
-				m_FLOWSTATE = SCENE_OVER;
-				CSoundMgr::GetInstacne()->StopALL();
-			}
-		}
-		if (m_bReverseControl)
-		{
-			m_fReverseTime += m_GameTimer.GetTimeElapsed();
-			if (m_fReverseTime > 5)
-			{
-				m_pControlEffect->bRender = false;
-				m_bReverseControl = false;
-				m_fReverseTime = 0;
-			}
-		}
 
 		CSoundMgr::GetInstacne()->Update();
 

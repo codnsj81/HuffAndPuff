@@ -186,8 +186,9 @@ public:
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUSrvDescriptorNextHandle() { return(m_d3dSrvCPUDescriptorNextHandle); }
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUSrvDescriptorNeLxtHandle() { return(m_d3dSrvGPUDescriptorNextHandle); }
 
-	int									m_nGameObjects = 0;
-	
+	int									m_ItemOrder = 0;
+
+	CTexture*							m_ClockTex = NULL;
 	CTexture*							m_DamageUITex = NULL;
 	CTexture*							m_DamageUITexYellow = NULL;
 	CTexture*							m_HitAttackEffectTex = NULL;

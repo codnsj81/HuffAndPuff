@@ -760,11 +760,12 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	m_pSkillTex = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 	m_pSkillTex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/doggy skill_Diff.tiff", 0, false);
 	CScene::CreateShaderResourceViews(pd3dDevice, m_pSkillTex, 3, false);
-
+	m_pSkillTex->AddRef();
 
 	m_pNomralTex = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 	m_pNomralTex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/doggy_Dif.tiff", 0, false);
 	CScene::CreateShaderResourceViews(pd3dDevice, m_pNomralTex, 3, false);
+	m_pNomralTex->AddRef();
 
 	pGameObject->m_pAnimationController->m_pAnimationSets[4].m_fSpeed = 0.6f;
 		pGameObject->m_pAnimationController->m_pAnimationSets[3].m_fSpeed = 0.8f;

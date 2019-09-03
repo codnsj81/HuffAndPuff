@@ -578,6 +578,7 @@ void CScene::SetBloodScreenState(bool b)
 
 void CScene::ResetObjects()
 {
+	m_ItemOrder = 0;
 	m_pPlayer->SetPosition(XMFLOAT3(INITPOSITION_X, 60, INITPOSITION_Z));
 	m_pPlayer->Reset();
 	m_pSnake->ResetToNext(MonsterDataList.front().m_pos);
@@ -1325,7 +1326,7 @@ void CScene::LoadStone(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd
 		CGameObject* obj = new CGameObject();
 		
 		obj->SetPosition(iter->m_pos.x, iter->m_pos.y+3, iter->m_pos.z);
-		obj->SetScale(iter->m_size.x, iter->m_size.y, iter->m_size.z);
+		obj->SetScale(3,3,3);
 		obj->m_bRender = true;
 		obj->m_bCollides = true;
 		obj->SetChild(pStone, true);
@@ -1471,6 +1472,10 @@ void CScene::BuildTextures(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 	m_DamageUITex = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 	m_DamageUITex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/number.tiff", 0, false);
 	CScene::CreateShaderResourceViews(pd3dDevice, m_DamageUITex, 3, false);
+
+	m_ClockTex = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	m_ClockTex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/Clock.tiff", 0, false);
+	CScene::CreateShaderResourceViews(pd3dDevice, m_ClockTex, 3, false);
 
 
 	m_HitAttackEffectTex = new CTexture(1, RESOURCE_TEXTURE2D, 0);
@@ -1683,7 +1688,83 @@ void CScene::ObjectsCollides()
 			n->getCollision(m_pPlayer);
 	}
 
+	list<CItemBox*> ::iterator iter = m_ItemBoxList.begin();
+	list<CItemBox*> ::iterator iter_end = m_ItemBoxList.end();
+	for (iter; iter != iter_end; iter++)
+	{
+		if (!(*iter)->m_bRender) continue;
+		if ((*iter)->getCollision(m_pPlayer))
+		{
+			int group = (*iter)->GetGruop();
+			m_ItemOrder++;
+			if (m_ItemOrder == 5) m_ItemOrder = 0;
+			CFloatingItem* temp;
+			switch (m_ItemOrder)
+			{
+			case 0:
+				temp = new CFloatingItem(m_pd3dDevice, m_pd3dCommandList, m_pd3dGraphicsRootSignature);
+				temp->SetPosition((*iter)->GetPosition());
+				temp->Rotate(90, 0, 0);
+				temp->SetTexture(PotionTex);
+				m_FloatingItemList.push_back(temp);
+
+				CSoundMgr::GetInstacne()->PlayEffectSound(_T("ItemGet"));
+				m_pPlayer->Damage(-10);
+				break;
+			case 1:
+				m_pCloud->CloudSwitch();
+				CSoundMgr::GetInstacne()->PlayEffectSound(_T("Spring"));
+				break;
+			case 2:
+				m_MainFramework->SetbReverseControlMode();
+				CSoundMgr::GetInstacne()->PlayEffectSound(_T("Spring"));
+				break;
+			case 3:
+				m_pPlayer->Dash(m_fElapsedTime * 50);
+				CSoundMgr::GetInstacne()->PlayEffectSound(_T("dash"));
+			case 4:
+
+				temp = new CFloatingItem(m_pd3dDevice, m_pd3dCommandList, m_pd3dGraphicsRootSignature);
+				temp->SetPosition((*iter)->GetPosition());
+				temp->Rotate(90, 0, 0);
+				temp->SetTexture(m_ClockTex);
+				m_FloatingItemList.push_back(temp);
+				m_iStageTime -= 10.f;
+				CSoundMgr::GetInstacne()->PlayEffectSound(_T("ItemGet"));
+				break;
+			}
+			while (!m_ItemBoxList.empty())
+			{
+				if (m_ItemBoxList.front()->GetGruop() <= group)
+				{
+					CreateExplosion(m_ItemBoxList.front()->GetPosition());
+					delete m_ItemBoxList.front();
+					m_ItemBoxList.pop_front();
+				}
+				else break;
+			}
+			break;
+		}
+	}
+
+
+	list<CFloatingItem*> ::iterator floatiter = m_FloatingItemList.begin();
+	list<CFloatingItem*> ::iterator floatend = m_FloatingItemList.end();
+	for (floatiter; floatiter != floatend; floatiter++)
+	{
+		if ((*floatiter)->GetbDie())
+		{
+			delete (*floatiter);
+			(*floatiter) = NULL;
+			floatiter = m_FloatingItemList.erase(floatiter);
+			if (floatiter == floatend) break;
+		}
+	}
+	if (m_pPlayer->GetInWater())
+		Fishing();
+
 	if (m_pPlayer->GetSkillState() == SKILL_USING) return;
+	////// 스킬 사용중이면 다음부터 무시
 
 	for (auto n : m_TreeObjectslist) {
 		if (!n->m_bRender) continue;
@@ -1711,56 +1792,6 @@ void CScene::ObjectsCollides()
 		}
 
 	}
-	list<CItemBox*> ::iterator iter = m_ItemBoxList.begin();
-	list<CItemBox*> ::iterator iter_end = m_ItemBoxList.end();
-	for (iter; iter!= iter_end; iter++)
-	{
-		if (!(*iter)->m_bRender) continue;
-		if((*iter)->getCollision(m_pPlayer))
-		{
-			int group = (*iter)->GetGruop();
-			int random = rand() % 4;
-			CFloatingItem* temp;
-			switch (random)
-			{
-			case 0:
-				temp = new CFloatingItem(m_pd3dDevice, m_pd3dCommandList, m_pd3dGraphicsRootSignature);
-				temp->SetPosition((*iter)->GetPosition());
-				temp->Rotate(90, 0, 0);
-				temp->SetTexture(PotionTex);
-				m_FloatingItemList.push_back(temp);
-
-				CSoundMgr::GetInstacne()->PlayEffectSound(_T("ItemGet"));
-				m_pPlayer->Damage(-10);
-				break;
-			case 1:
-				m_pCloud->CloudSwitch();
-				CSoundMgr::GetInstacne()->PlayEffectSound(_T("Spring"));
-				break;
-			case 2:
-				m_MainFramework->SetbReverseControlMode();
-				CSoundMgr::GetInstacne()->PlayEffectSound(_T("Spring"));
-				break;
-			case 3:
-				m_pPlayer->Dash(m_fElapsedTime * 50);
-				CSoundMgr::GetInstacne()->PlayEffectSound(_T("dash"));
-
-				break;
-			}
-			while(!m_ItemBoxList.empty())
-			{
-				if (m_ItemBoxList.front()->GetGruop() <= group)
-				{
-					CreateExplosion(m_ItemBoxList.front()->GetPosition());
-					delete m_ItemBoxList.front();
-					m_ItemBoxList.pop_front();
-				}
-				else break;
-			}
-			break;
-		}
-	}
-
 	if(m_pSnake)
 		m_pSnake->getCollision(m_pPlayer);
 
@@ -1840,19 +1871,5 @@ void CScene::ObjectsCollides()
 
 	}
 
-	list<CFloatingItem*> ::iterator floatiter = m_FloatingItemList.begin();
-	list<CFloatingItem*> ::iterator floatend = m_FloatingItemList.end();
-	for (floatiter; floatiter != floatend; floatiter++)
-	{
-		if ((*floatiter)->GetbDie())
-		{
-			delete (*floatiter);
-			(*floatiter) = NULL;
-			floatiter = m_FloatingItemList.erase(floatiter);
-			if (floatiter == floatend) break;
-		}
-	}
-	if(m_pPlayer->GetInWater())
-		Fishing();
 }
 

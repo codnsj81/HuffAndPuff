@@ -325,7 +325,7 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 			MouseClickInManual(m_ptOldCursorPos);
 		else if (m_FLOWSTATE == SCENE_CLEAR)
 			MouseClickInClear(m_ptOldCursorPos);
-		else if (m_FLOWSTATE == SCENE_OVER)
+		else if (m_FLOWSTATE == SCENE_OVER || m_FLOWSTATE == SCENE_OVERTIME)
 			MouseClickInOver(m_ptOldCursorPos);
 	}
 	else if (nMessageID == WM_LBUTTONUP)
@@ -514,7 +514,7 @@ void CGameFramework::BuildUI()
 	m_UIList->emplace_back(cloud);
 
 	//BackgrundUI Build
-	int buiCount = 2;
+	int buiCount = 4;
 	m_pBackUIArr = new CBackgroundUI* [buiCount];
 	CBackgroundUI* bui = new CBackgroundUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 400, 290, m_pCamera->GetRoatMatrix(), L"Model/Textures/UI_MAIN.tiff");
 	m_pBackUIArr[0] = bui;
@@ -522,6 +522,11 @@ void CGameFramework::BuildUI()
 	bui = new CBackgroundUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 230, 200, m_pCamera->GetRoatMatrix(), L"Model/Textures/UI_Manual.tiff");
 	m_pBackUIArr[1] = bui;
 
+	bui = new CBackgroundUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 230, 200, m_pCamera->GetRoatMatrix(), L"Model/Textures/UI_Failed.tiff");
+	m_pBackUIArr[2] = bui;
+
+	bui = new CBackgroundUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 230, 200, m_pCamera->GetRoatMatrix(), L"Model/Textures/UI_Failed2.tiff");
+	m_pBackUIArr[3] = bui;
 }
 
 void CGameFramework::SetbReverseControlMode()
@@ -581,7 +586,7 @@ void CGameFramework::BuildPlayers()
 	m_pCamera = m_pPlayer->GetCamera();
 	
 	CGameObject* Arrow = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), "Model/Arrow.bin", NULL,false);
-	Arrow->Rotate(0, 80, 0);
+	Arrow->Rotate(0, 0, 0);
 	m_pPlayer->SetNav(Arrow);
 
 
@@ -805,7 +810,7 @@ void CGameFramework::MouseClickInClear(POINT pos)
 
 void CGameFramework::MouseClickInOver(POINT pos)
 {
-	if (pos.x > 529 && pos.y > 493 && pos.y < 590 && pos.x < 744)
+	if (pos.x > 254 && pos.y > 493 && pos.y < 590 && pos.x < 469)
 	{
 		m_FLOWSTATE = SCENE_STAGE1;
 		m_bPlaying = true;
@@ -869,6 +874,13 @@ void CGameFramework::FrameAdvance()
 			m_pBackUIArr[1]->MoveToCamera(m_pCamera);
 			m_pBackUIArr[1]->Render(m_pd3dCommandList, m_pCamera);
 			break;
+		case SCENE_OVER:
+			m_pBackUIArr[2]->MoveToCamera(m_pCamera);
+			m_pBackUIArr[2]->Render(m_pd3dCommandList, m_pCamera);
+		case SCENE_OVERTIME:
+			m_pBackUIArr[3]->MoveToCamera(m_pCamera);
+			m_pBackUIArr[3]->Render(m_pd3dCommandList, m_pCamera);
+
 		}
 
 		//m_pSceneScreen->Render(m_pd3dCommandList, m_pCamera);
@@ -880,14 +892,6 @@ void CGameFramework::FrameAdvance()
 		//m_pPlayer->GetNavGuide()->Render(m_pd3dCommandList, m_pCamera);
 
 		//UI·»´õ
-
-		if (m_pOverUI)
-			if (m_pOverUI->bRender)
-			{
-				m_pOverUI->UpdateTransform(NULL);
-				m_pOverUI->Render(m_pd3dCommandList, m_pCamera);
-			}
-
 		d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
 		d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
 		d3dResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
@@ -911,8 +915,6 @@ void CGameFramework::FrameAdvance()
 			{
 				m_bPlaying = false;
 				m_FLOWSTATE = SCENE_OVER;
-				m_pOverUI->bRender = true;
-				m_pCamera->RotateUI(m_pOverUI);
 				CSoundMgr::GetInstacne()->StopALL();
 			}
 		}

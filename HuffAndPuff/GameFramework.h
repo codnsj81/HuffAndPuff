@@ -8,6 +8,7 @@
 #define SCENE_STAGE1		2
 #define SCENE_CLEAR			3
 #define SCENE_OVER			4
+#define SCENE_OVERTIME		5
 
 #include "../Headers/Include.h"
 #include "Timer.h"

@@ -496,12 +496,13 @@ void CGameObject::AddRef()
 	if (m_pChild) m_pChild->AddRef();
 }
 
-void CGameObject::Release() 
-{ 
+void CGameObject::Release()
+{
 	if (m_pChild) m_pChild->Release();
 	if (m_pSibling) m_pSibling->Release();
 
-	if (--m_nReferences <= 0) delete this;	
+	if (--m_nReferences <= 0)
+		delete this;
 }
 
 void CGameObject::SetChild(CGameObject *pChild, bool bReferenceUpdate)

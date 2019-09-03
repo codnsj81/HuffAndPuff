@@ -106,7 +106,7 @@ void CPlayer::NextRoad(float fTime)
 				dynamic_cast<CProgressUI*> (m_ProgressUI)->Progressing();
 		}
 	}
-	now.y += 7.f;
+	now.y += 6.f;
 	if (m_NavGuide)
 	{
 		m_NavGuide->SetPosition(now);
@@ -117,7 +117,7 @@ void CPlayer::NextRoad(float fTime)
 		float fAngle = ::IsEqual(fDotProduct, 1.0f) ? 0.0f : ((fDotProduct > 0.0f) ? XMConvertToDegrees(acos(fDotProduct)) : 90.0f);
 		XMFLOAT3 xmf3CrossProduct = Vector3::CrossProduct(xmf3Look, xmf3ToTarget);
 		//	if (fAngle != 0.0f) Rotate(0.0f, fAngle * fElapsedTime * ((xmf3CrossProduct.y > 0.0f) ? 1.0f : -1.0f), 0.0f);
-		m_NavGuide->Rotate(0.0f, fAngle * fTime * ((xmf3CrossProduct.y > 0.0f) ? 1.0f : -1.0f), 0.0f);
+		m_NavGuide->Rotate(0, fAngle * fTime * ((xmf3CrossProduct.y > 0.0f) ? 1.0f : -1.0f), 0.0f);
 	}
 }
 

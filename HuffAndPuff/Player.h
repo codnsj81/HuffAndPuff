@@ -95,7 +95,7 @@ public:
 	vector<XMFLOAT3>* GetNavigationList() { return &m_xmNavigationVector; }
 	int GetNavListSize() { return m_navListSize; }
 	void Attack();
-
+	bool GetInWater() { return m_bInWater; }
 	void PlusNavigationList();
 	void SetScene(CScene* p) { m_pScene = p; }
 	int	GetAtt() { return m_iAtt; }

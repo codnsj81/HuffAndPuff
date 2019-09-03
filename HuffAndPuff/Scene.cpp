@@ -519,6 +519,7 @@ void CScene::Fishing()
 					(*fishiter)->SetScale(0.7f, 0.7f, 0.7f);
 					(*trapiter)->m_bFull = true;
 					(*trapiter)->SetChild(*fishiter, false);
+					CSoundMgr::GetInstacne()->PlayEffectSound(_T("GetFish"));
 					fishiter = m_FishList.erase(fishiter);
 					m_iStageTime -= 20;
 					break;
@@ -558,6 +559,13 @@ void CScene::TimeCount(float time)
 		dynamic_cast<CClockUI*>(m_iClockSec1)->SetNum(Sec1);
 		dynamic_cast<CClockUI*>(m_iClockSec2)->SetNum(Sec2);
 		m_fStageTime = 0;
+
+		if (m_iStageTime > 180)
+		{
+			m_MainFramework->SetFlowState(SCENE_OVERTIME);
+			CSoundMgr::GetInstacne()->StopALL();
+
+		}
 	}
 }
 
@@ -571,7 +579,7 @@ void CScene::ResetObjects()
 	m_pPlayer->SetPosition(XMFLOAT3(INITPOSITION_X, 60, INITPOSITION_Z));
 	m_pPlayer->Reset();
 	m_pSnake->ResetToNext(MonsterDataList.front().m_pos);
-	m_fStageTime = 0;
+	m_iStageTime = 0;
 	dynamic_cast<CClockUI*>(m_iClockMin)->SetNum(0);
 	dynamic_cast<CClockUI*>(m_iClockSec1)->SetNum(0);
 	dynamic_cast<CClockUI*>(m_iClockSec2)->SetNum(0);
@@ -1507,6 +1515,7 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 		case SCENE_STAGE1:
 		case SCENE_CLEAR:
 		case SCENE_OVER:
+		case SCENE_OVERTIME:
 
 			list<CUI*>::iterator iter = m_UIList->begin();
 			list<CUI*>::iterator iter_end = m_UIList->end();
@@ -1635,7 +1644,7 @@ void CScene::ObjectsCollides()
 	}
 	for (auto n : m_Objectslist)
 	{
-		if(n->m_bCollides)	
+		if(n->m_bCollides && n->m_bRender)
 			n->getCollision(m_pPlayer);
 	}
 
@@ -1730,6 +1739,7 @@ void CScene::ObjectsCollides()
 			if (floatiter == floatend) break;
 		}
 	}
-	Fishing();
+	if(m_pPlayer->GetInWater())
+		Fishing();
 }
 

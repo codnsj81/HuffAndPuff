@@ -231,7 +231,7 @@ public:
 	LIGHTS								*m_pcbMappedLights = NULL;
 
 	float								m_fStageTime = 0;
-		int								m_iStageTime = 0;
+		int								m_iStageTime = 160;
 
 	list<XMFLOAT2> TrapDatalist;
 	list<XMFLOAT2> MushroomDatalist;

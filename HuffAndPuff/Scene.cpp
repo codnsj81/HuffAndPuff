@@ -934,7 +934,7 @@ void CScene::PlusBoxData()
 		dat.m_pos.x = playerPos.x;
 		dat.m_pos.y = playerPos.y;
 		dat.m_pos.z = playerPos.z;
-		dat.m_iType = 5;
+		dat.m_iType = 1;
 		BoxDataList.push_back(dat);
 		playerPos = Vector3::Add(playerPos, playerRight, 10);
 	}

@@ -230,9 +230,6 @@ void CSoundMgr::PlaySkillSound(TCHAR* pSoundKey)
 
 void CSoundMgr::PlayWaterSound(TCHAR* pSoundKey)
 {
-	bool playing = m_pWater->isPlaying(&playing);
-	if (m_pWater && playing) return;
-
 	map<TCHAR*, FMOD::Sound*>::iterator iter;
 
 	iter = find_if(m_mapSound.begin(), m_mapSound.end(), CStringCMP(pSoundKey));

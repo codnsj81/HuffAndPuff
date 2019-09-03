@@ -359,10 +359,10 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 					break;
 				case 't':
 				case 'T':
-					m_pScene->PlusMushroomData();
+					m_pScene->PlusStoneData();
 					break;
 				case 'Y':
-					m_pScene->SaveMushroomData();
+					m_pScene->SaveStoneData();
 					break;
 				case 'Q': // ½ºÅ³
 					m_pPlayer->UseSkill(); 
@@ -802,7 +802,7 @@ void CGameFramework::MouseClickInClear(POINT pos)
 {
 	if (pos.x > 393 && pos.y > 480 && pos.y < 575 && pos.x < 617)
 	{
-		m_FLOWSTATE = SCENE_STAGE1;
+		m_FLOWSTATE = SCENE_MAIN;
 		dynamic_cast<CEndUI*>(m_pClearUI)->Trigger = false;
 		dynamic_cast<CEndUI*>(m_pClearUI)->bEx = false;
 		m_pClearUI->bRender = false;
@@ -815,9 +815,16 @@ void CGameFramework::MouseClickInClear(POINT pos)
 
 void CGameFramework::MouseClickInOver(POINT pos)
 {
-	if (pos.x > 254 && pos.y > 493 && pos.y < 590 && pos.x < 469)
+	if (pos.y > 493 && pos.y < 590)
 	{
-		m_FLOWSTATE = SCENE_STAGE1;
+		if (pos.x > 532 && pos.x < 737)
+			m_FLOWSTATE = SCENE_MAIN;
+
+		else if (pos.x > 254 && pos.x < 469)
+			m_FLOWSTATE = SCENE_STAGE1;
+		else
+			return;
+
 		m_bPlaying = true;
 		m_pOverUI->bRender = false;
 		m_pScene->ResetObjects();
@@ -904,10 +911,11 @@ void CGameFramework::FrameAdvance()
 		case SCENE_OVER:
 			m_pBackUIArr[2]->MoveToCamera(m_pCamera);
 			m_pBackUIArr[2]->Render(m_pd3dCommandList, m_pCamera);
+			break;
 		case SCENE_OVERTIME:
 			m_pBackUIArr[3]->MoveToCamera(m_pCamera);
 			m_pBackUIArr[3]->Render(m_pd3dCommandList, m_pCamera);
-
+			break;
 		}
 
 		//m_pSceneScreen->Render(m_pd3dCommandList, m_pCamera);

@@ -25,6 +25,10 @@ class CPlayer : public CGameObject
 protected:
 
 	CShadow*					m_pShadow = NULL;
+
+	CTexture*					m_pNomralTex = NULL;
+	CTexture*					m_pSkillTex = NULL;
+
 	XMFLOAT3					m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	XMFLOAT3					m_xmf3Right = XMFLOAT3(1.0f, 0.0f, 0.0f);
 	XMFLOAT3					m_xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f);

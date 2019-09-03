@@ -348,7 +348,8 @@ public:
 
 	virtual void UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandList, XMFLOAT4X4 *pxmf4x4World);
 	virtual void UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandList, CMaterial *pMaterial);
-
+	
+	void ChangeTexture(CTexture* tex);
 	virtual void ReleaseUploadBuffers();
 
 	int BBCollision(float minX, float maxX, float minY, float maxY, float minZ, float maxZ,

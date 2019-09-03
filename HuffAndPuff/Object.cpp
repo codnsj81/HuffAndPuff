@@ -731,6 +731,13 @@ void CGameObject::ReleaseShaderVariables()
 {
 }
 
+void CGameObject::ChangeTexture(CTexture* tex)
+{
+	if (m_ppMaterials) m_ppMaterials[0]->SetTexture(tex, 1);
+	if (m_pSibling) m_pSibling->ChangeTexture(tex);
+	if (m_pChild) m_pChild->ChangeTexture(tex);
+}
+
 void CGameObject::ReleaseUploadBuffers()
 {
 	if (m_pMesh) m_pMesh->ReleaseUploadBuffers();

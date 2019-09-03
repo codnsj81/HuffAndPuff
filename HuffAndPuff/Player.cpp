@@ -39,6 +39,9 @@ CPlayer::CPlayer()
 	m_pCameraUpdatedContext = NULL;
 
 
+
+
+
 #ifdef _SAVENAV_MODE_
 	return;
 #else
@@ -190,6 +193,8 @@ void CPlayer::UseSkill()
 	if (m_eSkillState != SKILL_FULL) return;
 	m_eSkillState = SKILL_USING;
 	m_iSkillGage = 0;
+
+	m_pChild->ChangeTexture(m_pSkillTex);
 	SetCheatMode();
 }
 
@@ -547,7 +552,8 @@ void CPlayer::Update(float fTimeElapsed)
 		m_fSkillTime += fTimeElapsed;
 		if (m_fSkillTime > 5)
 		{
-			
+			m_fMaxVelocityXZ = 30;
+			m_pChild->ChangeTexture(m_pNomralTex);
 			m_eSkillState = SKILL_CHARGING;
 			m_fSkillTime = 0;
 		}
@@ -750,7 +756,15 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	m_pCamera = ChangeCamera(THIRD_PERSON_CAMERA, 0.0f);
 
 	CGameObject *pGameObject = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, name, NULL, banimation);
-	
+
+	m_pSkillTex = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	m_pSkillTex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/doggy skill_Diff.tiff", 0, false);
+	CScene::CreateShaderResourceViews(pd3dDevice, m_pSkillTex, 3, false);
+
+
+	m_pNomralTex = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	m_pNomralTex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/doggy_Dif.tiff", 0, false);
+	CScene::CreateShaderResourceViews(pd3dDevice, m_pNomralTex, 3, false);
 
 	pGameObject->m_pAnimationController->m_pAnimationSets[4].m_fSpeed = 0.6f;
 		pGameObject->m_pAnimationController->m_pAnimationSets[3].m_fSpeed = 0.8f;

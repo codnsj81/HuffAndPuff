@@ -367,7 +367,6 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 				case 'O':
 				case 'o': // HP full, 카메라 위로
 					m_pPlayer->UseSkill(); 
-					m_pPlayer->SetCheatMode();
 					m_pPlayer->SetFullHP();
 					break;
 				case 'l':
@@ -522,10 +521,10 @@ void CGameFramework::BuildUI()
 	bui = new CBackgroundUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 230, 200, m_pCamera->GetRoatMatrix(), L"Model/Textures/UI_Manual.tiff");
 	m_pBackUIArr[1] = bui;
 
-	bui = new CBackgroundUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 230, 200, m_pCamera->GetRoatMatrix(), L"Model/Textures/UI_Failed.tiff");
+	bui = new CBackgroundUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 230, 200, m_pCamera->GetRoatMatrix(), L"Model/Textures/UI_Failed2.tiff");
 	m_pBackUIArr[2] = bui;
 
-	bui = new CBackgroundUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 230, 200, m_pCamera->GetRoatMatrix(), L"Model/Textures/UI_Failed2.tiff");
+	bui = new CBackgroundUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 230, 200, m_pCamera->GetRoatMatrix(), L"Model/Textures/UI_Failed.tiff");
 	m_pBackUIArr[3] = bui;
 }
 
@@ -586,7 +585,7 @@ void CGameFramework::BuildPlayers()
 	m_pCamera = m_pPlayer->GetCamera();
 	
 	CGameObject* Arrow = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), "Model/Arrow.bin", NULL,false);
-	Arrow->Rotate(0, 0, 0);
+	Arrow->Rotate(0, 80, 0);
 	m_pPlayer->SetNav(Arrow);
 
 

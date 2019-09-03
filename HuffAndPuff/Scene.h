@@ -195,6 +195,7 @@ public:
 	CShader*							m_pShader = NULL;
 
 	CGameObject* HoneyComb = NULL;
+	CGameObject* m_pNet = NULL;
 	CTexture* PotionTex = NULL;
 
 	CGameObject							**m_ppGameObjects = NULL;
@@ -227,11 +228,12 @@ public:
 
 	XMFLOAT4							m_xmf4GlobalAmbient;
 
+	 
 	ID3D12Resource						*m_pd3dcbLights = NULL;
 	LIGHTS								*m_pcbMappedLights = NULL;
 
 	float								m_fStageTime = 0;
-		int								m_iStageTime = 160;
+		int								m_iStageTime = 0;
 
 	list<XMFLOAT2> TrapDatalist;
 	list<XMFLOAT2> MushroomDatalist;

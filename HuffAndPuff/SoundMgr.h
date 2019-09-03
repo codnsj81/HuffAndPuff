@@ -36,7 +36,7 @@ private:
 	FMOD::Channel*	m_pEffect;		//효과음 채널.
 	FMOD::Channel*	m_pMainBGM;		//배경음 채널.
 	FMOD::Channel*	m_pSkill;		//스킬 채널.
-	FMOD::Channel*	m_pMonster;		//몬스터 채널.
+	FMOD::Channel*	m_pWater;		//물 채널.
 
 
 	FMOD_RESULT		m_Result;		//Fmod 에러 체크.
@@ -54,8 +54,10 @@ public:
 	void PlayEffectSound(TCHAR* pSoundKey);
 	void PlayBGMSound(TCHAR* pSoundKey);
 	void PlaySkillSound(TCHAR* pSoundKey);
+	void PlayWaterSound(TCHAR* pSoundKey);
 
 	void StopBGM(void);
+	void StopWater(void);
 	void StopALL(void);
 
 public:

@@ -105,7 +105,7 @@ private:
 public:
 	CProgressUI(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, float nWidth, float nLength, float winPosx, float winPosy, wchar_t* pFilename);
 	~CProgressUI() {} 
-	void Progressing();
+	void Progressing(int num);
 	void SetProgressWidth(float width) { ProgressWidth = width; }
 };
 

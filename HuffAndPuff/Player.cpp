@@ -68,6 +68,7 @@ void CPlayer::Reset()
 	m_iSkillGage = 0;
 	m_navIndex = 0;
 	m_navProcess = 0;
+	PointingPos = m_xmNavigationVector.front();
 	m_pCamera->SetPosition(Vector3::Add(m_xmf3Position, m_pCamera->GetOffset()));
 }
 
@@ -103,7 +104,7 @@ void CPlayer::NextRoad(float fTime)
 		{
 			m_navProcess++;
 			if(m_ProgressUI)
-				dynamic_cast<CProgressUI*> (m_ProgressUI)->Progressing();
+				dynamic_cast<CProgressUI*> (m_ProgressUI)->Progressing(m_navIndex);
 		}
 	}
 	now.y += 6.f;
@@ -181,8 +182,7 @@ void CPlayer::SetRightVector(XMFLOAT3 xmf3Right)
 
 void CPlayer::SetCheatMode()
 {
-
-	m_moveState = STATE_CHEAT;
+	m_fMaxVelocityXZ = 70;
 }
 
 void CPlayer::UseSkill()
@@ -190,6 +190,7 @@ void CPlayer::UseSkill()
 	if (m_eSkillState != SKILL_FULL) return;
 	m_eSkillState = SKILL_USING;
 	m_iSkillGage = 0;
+	SetCheatMode();
 }
 
 void CPlayer::Damage(int d)
@@ -272,6 +273,7 @@ bool CPlayer::CheckInWater(XMFLOAT3 pos, CHeightMapTerrain *pTerrain)
 			float terrainheihgt = pTerrain->GetHeight(pos.x, pos.z, true) + 0.0f;
 			if ((waterheight - terrainheihgt) > 3 && m_xmf3Position.y + 3 < waterheight)
 			{
+				if (m_moveState == STATE_FALLING) CSoundMgr::GetInstacne()->PlayWaterSound(_T("InWater"));
 				m_xmf3Position.y = waterheight - 3;
 				m_moveState = STATE_GROUND;
 				m_iJumpnum = 0;
@@ -303,11 +305,6 @@ void CPlayer::Move( XMFLOAT3 xmf3Shift, bool bUpdateVelocity)
 		float fHeight = pTerrain->GetHeight(m_predictedPos.x, m_predictedPos.z, bReverseQuad) + 0.0f;
 
 
-		if (m_moveState == STATE_CHEAT)
-		{
-			m_xmf3Position = Vector3::Add(m_xmf3Position, xmf3Shift);
-			m_pCamera->Move(xmf3Shift);
-		}
 
 		if (pTerrain && m_fPreHeight != 0)
 		{
@@ -440,9 +437,8 @@ void CPlayer::OnObject(float fy)
 
 void CPlayer::Update(float fTimeElapsed)
 {
-
 	float fDistance = 0;
-	if (m_moveState != STATE_CHEAT && m_moveState != STATE_GROUND && m_moveState != STATE_ONOBJECTS && m_moveState != STATE_STUN && m_moveState != STATE_ATTACK )
+	if (m_moveState != STATE_GROUND && m_moveState != STATE_ONOBJECTS && m_moveState != STATE_STUN && m_moveState != STATE_ATTACK )
 	{
 		m_fTime += fTimeElapsed;
 		fDistance = 30.f - 90.f * m_fTime ;
@@ -551,6 +547,7 @@ void CPlayer::Update(float fTimeElapsed)
 		m_fSkillTime += fTimeElapsed;
 		if (m_fSkillTime > 5)
 		{
+			
 			m_eSkillState = SKILL_CHARGING;
 			m_fSkillTime = 0;
 		}
@@ -807,7 +804,7 @@ CCamera *CTerrainPlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 			break;
 		case THIRD_PERSON_CAMERA:
 			SetFriction(100.0f);
-			SetGravity(XMFLOAT3(0.0f, -200.f, 0.0f));
+			SetGravity(XMFLOAT3(0.0f, -300.f, 0.0f));
 			SetMaxVelocityXZ(30.0f);
 			SetMaxVelocityY(25.0f);
 			m_pCamera = OnChangeCamera(THIRD_PERSON_CAMERA, nCurrentCameraMode);
@@ -844,11 +841,12 @@ void CTerrainPlayer::OnPlayerUpdateCallback(float fTimeElapsed)
 	if (xmf3PlayerPosition.y < fHeight)
 	{
 		m_fTime = 0;
-		if (m_moveState != STATE_GROUND && m_moveState != STATE_STUN && m_moveState != STATE_CHEAT
+		if (m_moveState != STATE_GROUND && m_moveState != STATE_STUN 
 			&& m_moveState != STATE_ATTACK)
 		{
 			m_iJumpnum = 0;
 			m_moveState = STATE_GROUND;
+			if (m_bInWater) CSoundMgr::GetInstacne()->PlayWaterSound(_T("InWater"));
 		}
 
 		XMFLOAT3 xmf3PlayerVelocity = GetVelocity();
@@ -859,12 +857,11 @@ void CTerrainPlayer::OnPlayerUpdateCallback(float fTimeElapsed)
 
 		SetPosition(xmf3PlayerPosition);
 	}
-	if (m_moveState == STATE_GROUND || m_moveState == STATE_FALLING )
+	if (m_moveState == STATE_GROUND || m_moveState == STATE_FALLING)
 	{
 		m_bInWater = CheckInWater(xmf3PlayerPosition, pTerrain);
 	}
 	m_fPreHeight = fHeight;
-
 }
 
 void CTerrainPlayer::OnCameraUpdateCallback(float fTimeElapsed)
@@ -893,6 +890,4 @@ void CTerrainPlayer::OnCameraUpdateCallback(float fTimeElapsed)
 				p3rdPersonCamera->SetLookAt(pos);
 		}
 	}
-	if (m_bCheatmode) // 치트시 카메라 이동
-		m_pCamera->SetPosition(XMFLOAT3(xmf3CameraPosition.x, 1500, xmf3CameraPosition.z));
 }

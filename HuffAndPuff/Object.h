@@ -287,7 +287,7 @@ public:
 //
 class CGameObject
 {
-private:
+public:
 	int								m_nReferences = 0;
 
 public:
@@ -303,7 +303,7 @@ public:
 public:
 	char							m_pstrFrameName[64];
 
-	bool							m_bRender = false;
+	bool							m_bRender = true;
 	CMesh							*m_pMesh = NULL;
 	bool							m_bCollides = true;
 	int								m_nMaterials = 0;

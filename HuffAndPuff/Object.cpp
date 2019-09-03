@@ -679,14 +679,13 @@ void CGameObject::Animate(float fTimeElapsed)
 void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
 {	
 	OnPrepareRender();
-	float distance = Vector3::Length(Vector3::Subtract(pCamera->GetPlayer()->GetPosition(), GetPosition()));
+	float distance = Vector3::Length(Vector3::Subtract(pCamera->GetPosition(), GetPosition()));
 	if (distance > 300)
 	{
 		m_bRender = false;
 		return;
 	}
-	else
-		m_bRender = true;
+	else m_bRender = true;
 
 
 	UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);

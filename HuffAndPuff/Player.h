@@ -49,7 +49,6 @@ protected:
 	CCamera						*m_pCamera = NULL;
 	CUI							*m_pHPUI = NULL;
 	bool						m_bInWater = false;
-	bool						m_bCheatmode = false;
 	bool						m_bBackWalking = false;
 	float						m_fAttTime = 0;
 	int							m_moveState = STATE_GROUND;
@@ -81,6 +80,7 @@ protected:
 	XMFLOAT4X4					m_originmat;
 	int							m_navIndex = 0;
 public:
+	SkillState GetSkillState() { return m_eSkillState; }
 	CPlayer();
 	virtual ~CPlayer();
 	bool GetBackWalking() { return m_bBackWalking; }
@@ -114,7 +114,6 @@ public:
 	void SetCheatMode();
 	int GetSkillGage() { return m_iSkillGage; }
 	void UseSkill();
-	
 	float	GetHp() { return m_iHP; }
 	void Damage(int d); 
 	void PlusSkillGage(int d);
@@ -188,7 +187,6 @@ public:
 	float						m_fDamagingTime = 0.f;
 	bool						m_bDash = false;
 	bool						m_bPop = false;
-
 };
 
 class CAirplanePlayer : public CPlayer

@@ -10,7 +10,7 @@ CSoundMgr::CSoundMgr(void)
 	m_pEffect	= NULL;	
 	m_pMainBGM	= NULL;
 	m_pSkill	= NULL;	
-	m_pMonster	= NULL;
+	m_pWater	= NULL;
 
 	m_iVersion = 0;
 
@@ -160,7 +160,6 @@ void CSoundMgr::LoadSoundFile(void)
 	if (m_Result == FMOD_OK)
 	{
 		m_mapSound.insert(make_pair(pName, pSound));
-		m_mapSound.insert(make_pair(pName, pSound));
 	}
 
 	m_Result = m_pSystem->createSound("SoundFile/GetFish.mp3", FMOD_DEFAULT, 0, &pSound);
@@ -168,9 +167,15 @@ void CSoundMgr::LoadSoundFile(void)
 	if (m_Result == FMOD_OK)
 	{
 		m_mapSound.insert(make_pair(pName, pSound));
-		m_mapSound.insert(make_pair(pName, pSound));
 	}
 
+
+	m_Result = m_pSystem->createSound("SoundFile/Inwater.mp3", FMOD_DEFAULT, 0, &pSound);
+	pName = _T("InWater");
+	if (m_Result == FMOD_OK)
+	{
+		m_mapSound.insert(make_pair(pName, pSound));
+	}
 
 	m_Result = m_pSystem->createSound("SoundFile/Spring.mp3", FMOD_DEFAULT, 0, &pSound);
 	pName = _T("Spring");
@@ -223,9 +228,31 @@ void CSoundMgr::PlaySkillSound(TCHAR* pSoundKey)
 	ErrorCheck(m_Result);
 }
 
+void CSoundMgr::PlayWaterSound(TCHAR* pSoundKey)
+{
+	bool playing = m_pWater->isPlaying(&playing);
+	if (m_pWater && playing) return;
+
+	map<TCHAR*, FMOD::Sound*>::iterator iter;
+
+	iter = find_if(m_mapSound.begin(), m_mapSound.end(), CStringCMP(pSoundKey));
+
+	if(iter == m_mapSound.end())
+		return;
+
+	m_Result = m_pSystem->playSound((*iter).second, 0, false, &m_pWater);
+	ErrorCheck(m_Result);
+}
+
 void CSoundMgr::StopBGM(void)
 {
 	m_Result = m_pMainBGM->stop();
+	ErrorCheck(m_Result);
+}
+
+void CSoundMgr::StopWater(void)
+{
+	m_Result = m_pWater->stop();
 	ErrorCheck(m_Result);
 }
 
@@ -240,7 +267,7 @@ void CSoundMgr::StopALL(void)
 	m_Result = m_pSkill->stop();
 	ErrorCheck(m_Result);
 
-	m_Result = m_pMonster->stop();
+	m_Result = m_pWater->stop();
 	ErrorCheck(m_Result);
 }
 

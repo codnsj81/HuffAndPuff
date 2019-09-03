@@ -1024,7 +1024,7 @@ void CScene::BuildMonsterList(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLi
 	m_pFish->m_nReferences++;
 
 	pFish->SetChild(m_pFish, true);
-	pFish->SetPosition(XMFLOAT3(1019, 28, 536));
+	pFish->SetPosition(XMFLOAT3(1019, 26, 536));
 	pFish->Rotate(0, 90, 0);
 	pFish->SetHitBox(XMFLOAT3(3, 3, 3));
 	m_FishList.emplace_back(pFish);
@@ -1032,7 +1032,7 @@ void CScene::BuildMonsterList(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLi
 	pFish = new CFish();
 
 	pFish->SetChild(m_pFish, true);
-	pFish->SetPosition(XMFLOAT3(920, 28, 517));
+	pFish->SetPosition(XMFLOAT3(920, 26, 517));
 	pFish->Rotate(0, 90, 0);	
 	pFish->SetHitBox(XMFLOAT3(3, 3, 3));
 	pFish->RotateDir = -1;
@@ -1042,7 +1042,8 @@ void CScene::BuildMonsterList(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLi
 
 	pFish->SetChild(m_pFish, true);
 	pFish->SetPosition(XMFLOAT3(838, 26, 723));
-	pFish->Rotate(0, 90, 0);	pFish->SetHitBox(XMFLOAT3(3, 3, 3));
+	pFish->Rotate(0, 90, 0);	
+	pFish->SetHitBox(XMFLOAT3(3, 3, 3));
 	m_FishList.emplace_back(pFish);
 
 
@@ -1050,7 +1051,8 @@ void CScene::BuildMonsterList(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLi
 
 	pFish->SetChild(m_pFish, true);
 	pFish->SetPosition(XMFLOAT3(543, 26, 849));
-	pFish->Rotate(0, 90, 0);	pFish->SetHitBox(XMFLOAT3(3, 3, 3));
+	pFish->Rotate(0, 90, 0);	
+	pFish->SetHitBox(XMFLOAT3(3, 3, 3));
 	m_FishList.emplace_back(pFish);
 
 
@@ -1068,7 +1070,8 @@ void CScene::BuildMonsterList(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLi
 
 	pFish->SetChild(m_pFish, true);
 	pFish->SetPosition(XMFLOAT3(760, 26, 857));
-	pFish->Rotate(0, 90, 0);	pFish->SetHitBox(XMFLOAT3(3, 3, 3));
+	pFish->Rotate(0, 90, 0);	
+	pFish->SetHitBox(XMFLOAT3(3, 3, 3));
 	m_FishList.emplace_back(pFish);
 
 

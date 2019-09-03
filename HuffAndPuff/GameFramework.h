@@ -70,6 +70,7 @@ public:
 private:
 
 
+	CUI*						 m_pControlEffect = NULL;
 	float						m_fReverseTime = 0;
 	bool						m_bReverseControl = false;
 	int							m_FLOWSTATE = SCENE_MAIN;

@@ -1603,7 +1603,6 @@ void CFishtrap::Pulled(CPlayer* playe)
 	m_xmf4x4ToParent = xmf4x4Rotate;
 	SetPosition(playe->GetPosition());
 	MoveForward(8);
-	MoveUp(2);
 
 }
 

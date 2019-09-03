@@ -134,7 +134,7 @@ void CPlayer::LoadNavigation()
 		m_xmNavigationVector.emplace_back(dat);
 	}
 	PointingPos = m_xmNavigationVector.front();
-	m_navListSize = m_xmNavigationVector.size();
+	m_navListSize = m_xmNavigationVector.size()-2;
 	m_navProcess = 0;
 }
 

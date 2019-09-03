@@ -99,7 +99,7 @@ class CProgressUI : public CImageUI
 {
 private:
 	int m_iProgress = 0;
-	float ProgressWidth = 16.5f;
+	float ProgressWidth = 27.f;
 	float OriginPosx;
 	
 public:

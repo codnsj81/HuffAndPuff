@@ -364,8 +364,7 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 				case 'Y':
 					m_pScene->SaveMushroomData();
 					break;
-				case 'O':
-				case 'o': // HP full, 카메라 위로
+				case 'Q': // 스킬
 					m_pPlayer->UseSkill(); 
 					m_pPlayer->SetFullHP();
 					break;
@@ -439,6 +438,11 @@ void CGameFramework::BuildUI()
 	m_UIList->emplace_back(BloodScreen);
 
 
+	m_pControlEffect = new CBackgroundUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 20, 17, m_pCamera->GetRoatMatrix(), L"Model/Textures/controlEffect.tiff");
+	m_pControlEffect->bRender = true;
+	m_pControlEffect->SetWinpos(0, -1);
+	m_UIList->emplace_back(m_pControlEffect);
+
 	CTexture *HPTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 	HPTexture->LoadTextureFromFile(m_pd3dDevice, m_pd3dCommandList, L"Model/Textures/HPBar.tiff", 0,false);
 	CScene::CreateShaderResourceViews(m_pd3dDevice, HPTexture, 3, false);
@@ -489,7 +493,7 @@ void CGameFramework::BuildUI()
 	m_UIList->emplace_back(pTemp);
 
 	pTemp = new CProgressUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 1, 1, - 4.25f, -5, L"Model/Textures/DoggyUI2.tiff");
-	dynamic_cast<CProgressUI*> (pTemp)->SetProgressWidth(8.5f / (m_pPlayer->GetNavListSize() + 1));
+	dynamic_cast<CProgressUI*> (pTemp)->SetProgressWidth(8.5f / (m_pPlayer->GetNavListSize() - 1));
 	m_pPlayer->SetProgressUI(pTemp);
 
 	m_UIList->emplace_back(pTemp);
@@ -512,6 +516,7 @@ void CGameFramework::BuildUI()
 	m_pScene->m_pCloud = cloud;
 	m_UIList->emplace_back(cloud);
 
+
 	//BackgrundUI Build
 	int buiCount = 4;
 	m_pBackUIArr = new CBackgroundUI* [buiCount];
@@ -521,15 +526,16 @@ void CGameFramework::BuildUI()
 	bui = new CBackgroundUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 230, 200, m_pCamera->GetRoatMatrix(), L"Model/Textures/UI_Manual.tiff");
 	m_pBackUIArr[1] = bui;
 
-	bui = new CBackgroundUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 230, 200, m_pCamera->GetRoatMatrix(), L"Model/Textures/UI_Failed2.tiff");
+	bui = new CBackgroundUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 230, 200, m_pCamera->GetRoatMatrix(), L"Model/Textures/UI_Failed.tiff");
 	m_pBackUIArr[2] = bui;
 
-	bui = new CBackgroundUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 230, 200, m_pCamera->GetRoatMatrix(), L"Model/Textures/UI_Failed.tiff");
+	bui = new CBackgroundUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 230, 200, m_pCamera->GetRoatMatrix(), L"Model/Textures/UI_Failed2.tiff");
 	m_pBackUIArr[3] = bui;
 }
 
 void CGameFramework::SetbReverseControlMode()
 {
+	m_pControlEffect->bRender = true;
 	m_bReverseControl = true;
 }
 
@@ -922,6 +928,7 @@ void CGameFramework::FrameAdvance()
 			m_fReverseTime += m_GameTimer.GetTimeElapsed();
 			if (m_fReverseTime > 5)
 			{
+				m_pControlEffect->bRender = false;
 				m_bReverseControl = false;
 				m_fReverseTime = 0;
 			}

@@ -562,7 +562,7 @@ void CScene::TimeCount(float time)
 		dynamic_cast<CClockUI*>(m_iClockSec2)->SetNum(Sec2);
 		m_fStageTime = 0;
 
-		if (m_iStageTime > 180)
+		if (m_iStageTime > 300)
 		{
 			m_MainFramework->SetFlowState(SCENE_OVERTIME);
 			CSoundMgr::GetInstacne()->StopALL();
@@ -581,6 +581,7 @@ void CScene::ResetObjects()
 	m_ItemOrder = 0;
 	m_pPlayer->SetPosition(XMFLOAT3(INITPOSITION_X, 60, INITPOSITION_Z));
 	m_pPlayer->Reset();
+	m_pPlayer->SetCheatmode(false);
 	m_pSnake->ResetToNext(MonsterDataList.front().m_pos);
 	m_iStageTime = 0;
 	dynamic_cast<CClockUI*>(m_iClockMin)->SetNum(0);
@@ -1309,11 +1310,11 @@ void CScene::LoadStone(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd
 
 		
 		in >> dat.m_size.x;
-		if (dat.m_size.x > 4) dat.m_size.x = 5;
+		 dat.m_size.x = 3;
 		in >> dat.m_size.y;
-		if (dat.m_size.y > 4) dat.m_size.y = 4;
+		 dat.m_size.y = 3;
 		in >> dat.m_size.z;
-		if (dat.m_size.z > 4) dat.m_size.z = 5;
+		dat.m_size.z = 3;
 		StoneDataList.emplace_back(dat);
 	}
 
@@ -1581,7 +1582,8 @@ void CScene::AnimateObjects(float fTimeElapsed)
 
 	for (auto h : m_FishList)
 	{
-		h->Animate(fTimeElapsed);
+		if(h->m_bRender)
+			h->Animate(fTimeElapsed);
 	}
 
 	for (auto h : m_HoneyComblist)
@@ -1594,15 +1596,20 @@ void CScene::AnimateObjects(float fTimeElapsed)
 	}
 	for (auto h : m_Mushroomlist)
 	{
-		h->Animate(fTimeElapsed);
+		if(h->m_bRender)
+			h->Animate(fTimeElapsed);
 	}
 	for (auto h : m_TrapList)
 	{
-		h->Animate(fTimeElapsed);
+		if(h->m_bRender)
+			h->Animate(fTimeElapsed);
 	}
 
 	for (auto h : m_ItemBoxList)
+	{
+		if(h->m_bRender)
 		h->Animate(fTimeElapsed);
+	}
 
 	for (auto h : m_DamageUIList)
 	{
@@ -1680,6 +1687,8 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 
 void CScene::ObjectsCollides()
 {
+
+	if (m_pPlayer->m_bCheatmode) return;
 
 	m_pPlayer->m_CollideState = 1;
 	for (auto n : m_Objectslist)

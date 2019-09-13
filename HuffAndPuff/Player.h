@@ -92,7 +92,7 @@ public:
 	void Reset();
 	void SetProgressUI(CUI* p) { m_ProgressUI = p; }
 	void SetNav(CGameObject* nav);
-
+	
 	void SetDE(CUI* nav);
 	void NextRoad(float fTime);
 	void LoadNavigation();
@@ -115,13 +115,14 @@ public:
 
 	
 	int GetMoveState() { return m_moveState; }
-	void SetCheatMode();
+	void SetSkillMode();
 	int GetSkillGage() { return m_iSkillGage; }
 	void UseSkill();
 	float	GetHp() { return m_iHP; }
 	void Damage(int d); 
 	void PlusSkillGage(int d);
 
+	void SetCheatmode(bool b);
 	CGameObject* GetNavGuide() { return m_NavGuide; }
 
 	void SetFriction(float fFriction) { m_fFriction = fFriction; }
@@ -183,7 +184,7 @@ public:
 
 
 	int							m_CollideState = COLLIDEN;
-
+	bool						m_bCheatmode = false;
 
 
 	//

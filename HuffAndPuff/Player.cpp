@@ -183,7 +183,7 @@ void CPlayer::SetRightVector(XMFLOAT3 xmf3Right)
 	m_xmf3Right = xmf3Right;
 }
 
-void CPlayer::SetCheatMode()
+void CPlayer::SetSkillMode()
 {
 	m_fMaxVelocityXZ = 70;
 }
@@ -195,7 +195,7 @@ void CPlayer::UseSkill()
 	m_iSkillGage = 0;
 
 	m_pChild->ChangeTexture(m_pSkillTex);
-	SetCheatMode();
+	SetSkillMode();
 }
 
 void CPlayer::Damage(int d)
@@ -214,6 +214,21 @@ void CPlayer::PlusSkillGage(int d)
 	{
 		m_iSkillGage = 100;
 		m_eSkillState = SKILL_FULL;
+	}
+}
+
+void CPlayer::SetCheatmode(bool b)
+{
+	if (b)
+	{
+		m_bCheatmode = true;
+		SetMaxVelocityXZ(100);
+	}
+	else
+	{
+
+		m_bCheatmode = false;
+		SetMaxVelocityXZ(30);
 	}
 }
 
@@ -319,7 +334,7 @@ void CPlayer::Move( XMFLOAT3 xmf3Shift, bool bUpdateVelocity)
 			}
 			float minus = fHeight - m_fPreHeight;
 			float degree;
-			if (minus == 0) degree = 0;
+			if (minus == 0 || m_bCheatmode) degree = 0;
 			else
 				degree = minus / (xmf3Shift.x * xmf3Shift.x + minus * minus);
 
@@ -853,7 +868,7 @@ void CTerrainPlayer::OnPlayerUpdateCallback(float fTimeElapsed)
 		fHeight = pTerrain->GetHeight(xmf3PlayerPosition.x, xmf3PlayerPosition.z, bReverseQuad) + 0.0f;
 	else
 		fHeight = m_ObjectHeight;
-	if (xmf3PlayerPosition.y < fHeight)
+	if (xmf3PlayerPosition.y < fHeight )
 	{
 		m_fTime = 0;
 		if (m_moveState != STATE_GROUND && m_moveState != STATE_STUN 

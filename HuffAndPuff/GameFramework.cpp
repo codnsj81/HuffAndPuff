@@ -39,7 +39,7 @@ CGameFramework::CGameFramework()
 	m_pPlayer = NULL;
 
 	CSoundMgr::GetInstacne()->LoadSoundFile();
-	_tcscpy_s(m_pszFrameRate, _T("HuffAndPuff("));
+	_tcscpy_s(m_pszFrameRate, _T("HuffAndPuff-"));
 }
 
 CGameFramework::~CGameFramework()
@@ -359,10 +359,11 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 					break;
 				case 't':
 				case 'T':
-					m_pScene->PlusStoneData();
+					m_pPlayer->SetPosition(XMFLOAT3(1202, 63, 681));
 					break;
+				case 'y':
 				case 'Y':
-					m_pScene->SaveStoneData();
+					m_pPlayer->SetCheatmode(true);
 					break;
 				case 'Q': // ½ºÅ³
 					m_pPlayer->UseSkill(); 
@@ -943,16 +944,17 @@ void CGameFramework::FrameAdvance()
 		m_nSwapChainBufferIndex = m_pdxgiSwapChain->GetCurrentBackBufferIndex();
 		MoveToNextFrame();
 
+		m_GameTimer.GetFrameRate(m_pszFrameRate + 12, 37);
+		size_t nLength = _tcslen(m_pszFrameRate);
+		XMFLOAT3 xmf3Position = m_pPlayer->GetPosition();
+		XMFLOAT3 xmf3Look = m_pPlayer->GetLookVector();
+		XMFLOAT3 xmf3Right = m_pPlayer->GetRightVector();
+		_stprintf_s(m_pszFrameRate + nLength, 70 - nLength, _T("(%4f, %4f, %4f)"), xmf3Position.x, xmf3Position.y, xmf3Position.z);
+		::SetWindowText(m_hWnd, m_pszFrameRate);
 
 
 		CSoundMgr::GetInstacne()->Update();
 
-	m_GameTimer.GetFrameRate(m_pszFrameRate + 12, 37);
-	size_t nLength = _tcslen(m_pszFrameRate);
-	XMFLOAT3 xmf3Position = m_pPlayer->GetPosition();
-	XMFLOAT3 xmf3Look = m_pPlayer->GetLookVector();
-	XMFLOAT3 xmf3Right = m_pPlayer->GetRightVector();
-	_stprintf_s(m_pszFrameRate + nLength, 70 - nLength, _T("(%4f, %4f, %4f)"), xmf3Position.x, xmf3Position.y, xmf3Position.z);
 	::SetWindowText(m_hWnd, m_pszFrameRate);
 
 }

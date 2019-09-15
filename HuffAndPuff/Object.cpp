@@ -26,7 +26,7 @@ int CGameObject::BBCollision(float minX, float maxX, float minY, float maxY, flo
 
 	if ((maxY - minY1) < 0.6f && (maxY - minY1) >= 0.f)
 		return COLLIDE_ON;
-	if (maxY1 <= minY)
+	if ((maxY1 - minY) < 0.6f && (maxY1 - minY) >= 0.f )
 		return COLLIDE_UNDER;
 	return COLLIDE_SIDE;
 }
@@ -627,7 +627,7 @@ int CGameObject::getCollision(CPlayer * player, bool physics)
 	pY = m_xmf4x4World._42;
 	pZ = m_xmf4x4World._43;
 	sX = m_Hitbox.x ;
-	sY = m_Hitbox.y;
+	sY = m_Hitbox.y ;
 	sZ = m_Hitbox.z;
 
 	minX = pX - sX / 2.f; maxX = pX + sX / 2.f;
@@ -646,13 +646,14 @@ int CGameObject::getCollision(CPlayer * player, bool physics)
 	minX1 = pX - sX / 2.f; maxX1 = pX + sX / 2.f;
 	minY1 = pY ; maxY1 = pY + sY;
 	minZ1 = pZ ; maxZ1 = pZ + sZ ;
-	int result =  BBCollision(minX, maxX, minY, maxY, minZ, maxZ,minX1, maxX1, minY1, maxY1, minZ1, maxZ1);
+	int result =  BBCollision(minX, maxX, minY, maxY +2, minZ, maxZ,minX1, maxX1, minY1, maxY1, minZ1, maxZ1);
 	if (!physics)
 		return result;
 	switch (result)
 	{
 	case COLLIDE_ON:
-		player->OnObject(maxY);
+		if(player->GetMoveState() == STATE_FALLING)
+			player->OnObject(maxY, this);
 		break;
 	case COLLIDE_UNDER:
 		player->SetState(STATE_FALLING);

@@ -48,10 +48,10 @@ protected:
 
 	LPVOID						m_pPlayerUpdatedContext = NULL;
 	LPVOID						m_pCameraUpdatedContext = NULL;
-
+	
 	CPlayer*					m_pPartner = NULL;
 	CCamera						*m_pCamera = NULL;
-	CUI							*m_pHPUI = NULL;
+	CGameObject					*m_pOnStone = NULL;
 	bool						m_bInWater = false;
 	bool						m_bBackWalking = false;
 	float						m_fAttTime = 0;
@@ -146,8 +146,8 @@ public:
 	void SetWaters(CWater** waters) { m_ppWaters = waters; }
 	void SetnWaters(int n) { m_nWater = n; }
 
-	void SetState(int state) { m_moveState = state; }
-	bool CheckInWater(XMFLOAT3 pos, CHeightMapTerrain *pTerrain);
+	void SetState(int state);
+	bool CheckInWater(XMFLOAT3 pos, CHeightMapTerrain* pTerrain);
 
 	void Move(ULONG nDirection, float fDistance, bool bVelocity = false);
 	void Move( XMFLOAT3 xmf3Shift, bool bVelocity = false);
@@ -162,7 +162,7 @@ public:
 
 	void SetFullHP() { m_iHP = 100; }
 
-	void OnObject(float fy);
+	void OnObject(float fy , CGameObject* stone);
 	void Update(float fTimeElapsed);
 
 	virtual void OnPlayerUpdateCallback(float fTimeElapsed) { }

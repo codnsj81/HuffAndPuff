@@ -562,7 +562,7 @@ void CScene::TimeCount(float time)
 		dynamic_cast<CClockUI*>(m_iClockSec2)->SetNum(Sec2);
 		m_fStageTime = 0;
 
-		if (m_iStageTime > 300)
+		if (m_iStageTime > 180)
 		{
 			m_MainFramework->SetFlowState(SCENE_OVERTIME);
 			CSoundMgr::GetInstacne()->StopALL();
@@ -1694,9 +1694,11 @@ void CScene::ObjectsCollides()
 	for (auto n : m_Objectslist)
 	{
 		if (n->m_bCollides && n->m_bRender)
-			n->getCollision(m_pPlayer);
+		{
+			if (n->getCollision(m_pPlayer) != COLLIDE_NONE)
+				break;
+		}
 	}
-
 	list<CItemBox*> ::iterator iter = m_ItemBoxList.begin();
 	list<CItemBox*> ::iterator iter_end = m_ItemBoxList.end();
 	for (iter; iter != iter_end; iter++)

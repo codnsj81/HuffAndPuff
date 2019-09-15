@@ -273,6 +273,12 @@ void CPlayer::CollideSide()
 	m_CollideState = COLLIDEY;
 }
 
+void CPlayer::SetState(int state)
+{
+	if (state == STATE_FALLING) m_fTime = 0.444f;
+	m_moveState = state;
+}
+
 bool CPlayer::CheckInWater(XMFLOAT3 pos, CHeightMapTerrain *pTerrain)
 {
 	if (m_moveState == STATE_JUMPING || m_moveState == STATE_ONOBJECTS) return false;
@@ -448,8 +454,9 @@ void CPlayer::SetStun()
 	m_bDamaging = true;
 }
 
-void CPlayer::OnObject(float fy)
+void CPlayer::OnObject(float fy, CGameObject* stone)
 {
+	m_pOnStone = stone;
 	m_moveState = STATE_ONOBJECTS;
 	m_ObjectHeight = fy;
 	m_iJumpnum = 0;
@@ -461,16 +468,19 @@ void CPlayer::Update(float fTimeElapsed)
 	if (m_moveState != STATE_GROUND && m_moveState != STATE_ONOBJECTS && m_moveState != STATE_STUN && m_moveState != STATE_ATTACK )
 	{
 		m_fTime += fTimeElapsed;
-		fDistance = 35.f - 100.f * m_fTime ;
+		fDistance = 50.f - 100.f * m_fTime ;
 		if (fDistance < 0)
+		{
 			m_moveState = STATE_FALLING;
+			if (fDistance < -35)
+				fDistance = -35.f;
+		}
 
 		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Up, fDistance);
 	}
-
 	//if (fDistance >= 0)
 	XMFLOAT3 gravity = XMFLOAT3(0, m_xmf3Gravity.y * fTimeElapsed, 0.f);
-	if(m_moveState!=STATE_FALLING)	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, gravity);
+	if(m_moveState!=STATE_FALLING && m_moveState != STATE_JUMPING)	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, gravity);
 
 	float fLength = sqrtf(m_xmf3Velocity.x * m_xmf3Velocity.x + m_xmf3Velocity.z * m_xmf3Velocity.z);
 	float fMaxVelocityXZ = m_fMaxVelocityXZ;
@@ -528,7 +538,7 @@ void CPlayer::Update(float fTimeElapsed)
 
 	if (m_pAnimationController) m_pAnimationController->SetLoop(true);
 
-	if (m_moveState == STATE_GROUND)
+	if (m_moveState == STATE_GROUND || m_moveState == STATE_ONOBJECTS)
 	{
 		if(m_bInWater) SetAnimationSet(3);
 		else if (Vector3::IsZero(m_xmf3Velocity))
@@ -836,7 +846,7 @@ CCamera *CTerrainPlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 			SetFriction(100.0f);
 			SetGravity(XMFLOAT3(0.0f, -100.f, 0.0f));
 			SetMaxVelocityXZ(30.0f);
-			SetMaxVelocityY(70.0f);
+			SetMaxVelocityY(45.0f);
 			m_pCamera = OnChangeCamera(THIRD_PERSON_CAMERA, nCurrentCameraMode);
 			m_pCamera->SetTimeLag(0.25f);
 			m_pCamera->SetOffset(XMFLOAT3(0.0f, 10.0f, -25.0f));
@@ -867,11 +877,14 @@ void CTerrainPlayer::OnPlayerUpdateCallback(float fTimeElapsed)
 	if (m_moveState != STATE_ONOBJECTS)
 		fHeight = pTerrain->GetHeight(xmf3PlayerPosition.x, xmf3PlayerPosition.z, bReverseQuad) + 0.0f;
 	else
+	{
 		fHeight = m_ObjectHeight;
+	
+	}
 	if (xmf3PlayerPosition.y < fHeight )
 	{
 		m_fTime = 0;
-		if (m_moveState != STATE_GROUND && m_moveState != STATE_STUN 
+		if (m_moveState != STATE_GROUND && m_moveState != STATE_STUN  && m_moveState != STATE_ONOBJECTS
 			&& m_moveState != STATE_ATTACK)
 		{
 			m_iJumpnum = 0;
@@ -881,7 +894,6 @@ void CTerrainPlayer::OnPlayerUpdateCallback(float fTimeElapsed)
 
 		XMFLOAT3 xmf3PlayerVelocity = GetVelocity();
 		xmf3PlayerVelocity.y = 0.0f;
-		
 		SetVelocity(xmf3PlayerVelocity);
 		xmf3PlayerPosition.y = fHeight;
 
@@ -890,6 +902,22 @@ void CTerrainPlayer::OnPlayerUpdateCallback(float fTimeElapsed)
 	if (m_moveState == STATE_GROUND || m_moveState == STATE_FALLING)
 	{
 		m_bInWater = CheckInWater(xmf3PlayerPosition, pTerrain);
+	}
+	if (m_moveState == STATE_ONOBJECTS)
+	{
+		float maxX = m_pOnStone->GetPosition().x + m_pOnStone->GetHitBox().x / 2;
+		float maxZ = m_pOnStone->GetPosition().z + m_pOnStone->GetHitBox().z / 2;
+		float maxX1 = GetPosition().x + GetHitBox().x / 2;
+		float maxZ1 = GetPosition().z + GetHitBox().z / 2;
+		float minX = m_pOnStone->GetPosition().x - m_pOnStone->GetHitBox().x / 2;
+		float minZ = m_pOnStone->GetPosition().z - m_pOnStone->GetHitBox().z / 2;
+		float minX1 = GetPosition().x - GetHitBox().x / 2;
+		float minZ1 = GetPosition().z - GetHitBox().z / 2;
+
+		if (maxX < minX1 || maxZ < minZ1 ||
+			maxX1 < minX || maxZ1 < minZ)
+			SetState(STATE_FALLING);
+
 	}
 	m_fPreHeight = fHeight;
 }

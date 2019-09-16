@@ -329,16 +329,21 @@ public:
 
 class CFontMesh : public CUIMesh
 {
+
 public:
 	CFontMesh();
 	CFontMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, int num, float nWidth = 5.f, float nLength = 5.f);
 	~CFontMesh();
 
+	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
 	void SetNumber(int num) { m_iNumber = num; }
 protected:
 	ID3D12Device* m_pd3dDevice = NULL;
 	int		m_iNumber;
+	XMFLOAT2	m_fTranslate;
+	
+	ID3D12Resource* m_pTranslate = NULL;
 };
 
 class CExplosionMesh : public CFontMesh

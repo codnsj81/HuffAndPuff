@@ -190,7 +190,6 @@ VS_STANDARD_OUTPUT VSSkinnedAnimationStandard(VS_SKINNED_STANDARD_INPUT input)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-Texture2D gtxtTerrainBaseTexture : register(t1);
 Texture2D gtxtTerrainDetailTexture : register(t2);
 Texture2D gtxtTerrainDetailTexture2 : register(t3);
 
@@ -227,7 +226,7 @@ float4 PSTerrain(VS_TERRAIN_OUTPUT input) : SV_TARGET
 {
 	float4 cColor;
 	float4 cBaseTexColor = gtxtSpecularTexture.Sample(gssWrap, input.uv0);
-	float4 cDetailTexColor = gtxtTerrainDetailTexture.Sample(gssWrap, input.uv1);
+	float4 cDetailTexColor = gtxtMetallicTexture.Sample(gssWrap, input.uv1);
 	cDetailTexColor = saturate(float4(0.f, 0.2f, 0.f, 1) + (cDetailTexColor * 0.6f));
 	float4 cDetailTexColor2 = gtxtAlbedoTexture.Sample(gssWrap, input.uv1) ;
 	cDetailTexColor2 = saturate(float4(0.1f, 0.09f, 0.f, 1) + (cDetailTexColor2 * 0.6f));
@@ -270,13 +269,6 @@ float4 PSSkyBox(VS_SKYBOX_CUBEMAP_OUTPUT input) : SV_TARGET
 }
 
 ////////////////////////////////////////////
-
-
-cbuffer waterbuffer
-{
-	float watertranslation;
-
-};
 
 cbuffer MatrixBuffer
 {
@@ -336,6 +328,11 @@ float4 PSWater(VS_WATER_OUTPUT input) : SV_TARGET
 
 //////////////////
 
+cbuffer Texbuffer : register(b9)
+{
+	float2 translation = 0 ;
+};
+
 
 
 struct VS_UI_INPUT
@@ -365,9 +362,27 @@ VS_UI_OUTPUT VSUI(VS_UI_INPUT input)
 
 	output.color = input.color;
 	output.uv = input.uv;
-
 	return(output);
 }
+
+
+VS_UI_OUTPUT VSFontUI(VS_UI_INPUT input)
+{
+	VS_UI_OUTPUT output;
+	//output.positionW = mul(float4(input.position, 1.0f), gmtxGameObject).xyz;
+	//output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
+
+
+	output.positionW = mul(float4(input.position, 1.0f), gmtxGameObject).xyz;
+	output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
+
+	output.color = input.color;
+	output.uv = input.uv;
+	output.uv.y = input.uv.y + translation.y;
+	output.uv.x = input.uv.x + translation.x;
+	return(output);
+}
+
 
 float4 PSUI(VS_UI_OUTPUT input) : SV_TARGET
 {

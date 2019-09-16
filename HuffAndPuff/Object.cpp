@@ -1238,9 +1238,6 @@ CHeightMapTerrain::CHeightMapTerrain(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 	SetMesh(pMesh);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
-	CTexture *pTerrainBaseTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pTerrainBaseTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Terrain/terrainTex3.tif", 0,false);
-
 
 	CTexture *pTerrainBaseTexture2 = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 	pTerrainBaseTexture2->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Terrain/terrainTex3.tif", 0, false);
@@ -1259,18 +1256,17 @@ CHeightMapTerrain::CHeightMapTerrain(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 	pTerrainShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	pTerrainShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
-	CScene::CreateShaderResourceViews(pd3dDevice, pTerrainBaseTexture, 13, false);
-	CScene::CreateShaderResourceViews(pd3dDevice, pTerrainDetailTexture, 14, false);
+	//CScene::CreateShaderResourceViews(pd3dDevice, pTerrainBaseTexture, 13, false);
+	CScene::CreateShaderResourceViews(pd3dDevice, pTerrainDetailTexture, 6, false);
 	CScene::CreateShaderResourceViews(pd3dDevice, pTerrainDetailTexture2, 3, false);
 	CScene::CreateShaderResourceViews(pd3dDevice, pTerrainBaseTexture2, 4, false);
 	CScene::CreateShaderResourceViews(pd3dDevice, pTerrainDetailTexture3, 5, false);
 
-	CMaterial *pTerrainMaterial = new CMaterial(5);
-	pTerrainMaterial->SetTexture(pTerrainBaseTexture, 0);
-	pTerrainMaterial->SetTexture(pTerrainDetailTexture, 1);
-	pTerrainMaterial->SetTexture(pTerrainDetailTexture2, 2);
-	pTerrainMaterial->SetTexture(pTerrainBaseTexture2, 3);
-	pTerrainMaterial->SetTexture(pTerrainDetailTexture3, 4);
+	CMaterial *pTerrainMaterial = new CMaterial(4);
+	pTerrainMaterial->SetTexture(pTerrainDetailTexture, 0);
+	pTerrainMaterial->SetTexture(pTerrainDetailTexture2, 1);
+	pTerrainMaterial->SetTexture(pTerrainBaseTexture2, 2);
+	pTerrainMaterial->SetTexture(pTerrainDetailTexture3, 3);
 	pTerrainMaterial->SetShader(pTerrainShader);
 
 	SetMaterial(0, pTerrainMaterial);

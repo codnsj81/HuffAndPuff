@@ -339,7 +339,7 @@ CClockUI::CClockUI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComm
 	CMesh* pMesh = new CFontMesh(pd3dDevice, pd3dCommandList, nWidth, nLength);
 	SetMesh(pMesh);
 
-	CShader* pShader = new CUIShader();
+	CShader* pShader = new CFontShader();
 	pShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	pShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
@@ -531,9 +531,10 @@ CExplosion::CExplosion(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd
 		m_ppMaterials[i] = NULL;
 
 	CMesh* pMesh = new CExplosionMesh(pd3dDevice, pd3dCommandList, nWidth, nLength);
+	pMesh->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	SetMesh(pMesh);
 
-	CShader* pShader = new CUIShader();
+	CShader* pShader = new CFontShader();
 	pShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	pShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 

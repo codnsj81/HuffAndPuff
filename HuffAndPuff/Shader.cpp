@@ -778,3 +778,9 @@ D3D12_SHADER_BYTECODE CEffectShader::CreatePixelShader()
 	return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "PSEffect", "ps_5_1", &m_pd3dPixelShaderBlob));
 
 }
+
+D3D12_SHADER_BYTECODE CFontShader::CreateVertexShader()
+{
+	return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "VSFontUI", "vs_5_1", &m_pd3dVertexShaderBlob));
+
+}

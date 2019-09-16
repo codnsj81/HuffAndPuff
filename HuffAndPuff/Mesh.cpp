@@ -1041,15 +1041,16 @@ CFontMesh::CFontMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCo
 
 	m_pxmf2TextureCoords0 = new XMFLOAT2[m_nVertices];
 	m_pxmf2TextureCoords0[0] = XMFLOAT2(0, 1);
-	m_pxmf2TextureCoords0[1] = XMFLOAT2(1/11, 1);
+	m_pxmf2TextureCoords0[1] = XMFLOAT2(1.f/11.f, 1);
 	m_pxmf2TextureCoords0[2] = XMFLOAT2(0, 0);
-	m_pxmf2TextureCoords0[3] = XMFLOAT2(1/11, 0);
+	m_pxmf2TextureCoords0[3] = XMFLOAT2(1.f/11.f, 0);
 
 	m_pd3dTextureCoord0Buffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_pxmf2TextureCoords0, sizeof(XMFLOAT2) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dTextureCoord0UploadBuffer);
 
 	m_d3dTextureCoord0BufferView.BufferLocation = m_pd3dTextureCoord0Buffer->GetGPUVirtualAddress();
 	m_d3dTextureCoord0BufferView.StrideInBytes = sizeof(XMFLOAT2);
 	m_d3dTextureCoord0BufferView.SizeInBytes = sizeof(XMFLOAT2) * m_nVertices;
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
 }
 
@@ -1057,9 +1058,29 @@ CFontMesh::~CFontMesh()
 {
 }
 
+void CFontMesh::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
+{
+	m_fTranslate = XMFLOAT2(0, 0);
+	UINT ncbElementBytes = sizeof(XMFLOAT2) ; //256의 배수
+	m_pTranslate = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+
+
+}
+
 void CFontMesh::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
 
+	m_fTranslate.x = m_iNumber * 1/11.f;
+	m_pTranslate = ::CreateBufferResource(m_pd3dDevice, pd3dCommandList, &m_fTranslate, sizeof(XMFLOAT2), D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+
+	D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pTranslate->GetGPUVirtualAddress();
+	pd3dCommandList->SetGraphicsRootConstantBufferView(13, d3dGpuVirtualAddress); //Skinned Bone Offsets
+	
+																				  //m_pTranslate->Map(0, NULL, (void**)& m_fTranslate);
+	//::memcpy(m_pTranslate, &m_fTranslate, sizeof(float));
+	//D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pTranslate->GetGPUVirtualAddress();
+//	pd3dCommandList->SetGraphicsRootConstantBufferView(13, d3dGpuVirtualAddress); //Skinned Bone Offsets
+/*
 	m_pxmf2TextureCoords0[0] = XMFLOAT2(m_iNumber * 1/11.f, 1);
 	m_pxmf2TextureCoords0[1] = XMFLOAT2((m_iNumber + 1 ) * 1/11.f, 1);
 	m_pxmf2TextureCoords0[2] = XMFLOAT2(m_iNumber * 1 / 11.f, 0);
@@ -1077,7 +1098,8 @@ void CFontMesh::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList
 	m_d3dTextureCoord0BufferView.StrideInBytes = sizeof(XMFLOAT2);
 	m_d3dTextureCoord0BufferView.SizeInBytes = sizeof(XMFLOAT2) * m_nVertices;
 
-	pd3dCommandList->IASetVertexBuffers(m_nSlot, 1, &m_d3dTextureCoord0BufferView);
+	pd3dCommandList->IASetVertexBuffers(m_nSlot, 1, &m_d3dTextureCoord0BufferView);*/
+
 }
 
 CScreenMesh::CScreenMesh()
@@ -1187,10 +1209,10 @@ CExplosionMesh::CExplosionMesh(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandL
 	m_d3dColorBufferView.SizeInBytes = sizeof(XMFLOAT4) * m_nVertices;
 
 	m_pxmf2TextureCoords0 = new XMFLOAT2[m_nVertices];
-	m_pxmf2TextureCoords0[0] = XMFLOAT2(0, 1);
-	m_pxmf2TextureCoords0[1] = XMFLOAT2(1 / 11, 1);
+	m_pxmf2TextureCoords0[0] = XMFLOAT2(0, 1.f/4.f);
+	m_pxmf2TextureCoords0[1] = XMFLOAT2(1.f / 4.f, 1.f/4.f);
 	m_pxmf2TextureCoords0[2] = XMFLOAT2(0, 0);
-	m_pxmf2TextureCoords0[3] = XMFLOAT2(1 / 11, 0);
+	m_pxmf2TextureCoords0[3] = XMFLOAT2(1.f / 4.f, 0);
 
 	m_pd3dTextureCoord0Buffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_pxmf2TextureCoords0, sizeof(XMFLOAT2) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dTextureCoord0UploadBuffer);
 
@@ -1201,8 +1223,11 @@ CExplosionMesh::CExplosionMesh(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandL
 
 void CExplosionMesh::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
 {
+	m_fTranslate = XMFLOAT2(0, 0);
+	UINT ncbElementBytes = sizeof(XMFLOAT2); //256의 배수
+	m_pTranslate = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+	m_pTranslate->Map(0, NULL, (void**)& m_fTranslate);
 
-	m_pd3dTextureCoord0Buffer->Map(0, NULL, (void **)&m_pxmf2TextureCoords0);
 
 }
 
@@ -1214,14 +1239,12 @@ void CExplosionMesh::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dComma
 	x2 = x1 + 1.f / 4.f;
 	y1 = int(m_iNumber / 4) * (1.f/4.f);
 	y2 = y1 + (1.f / 4.f);
-	m_pxmf2TextureCoords0[0] = XMFLOAT2(x1, y2);
-	m_pxmf2TextureCoords0[1] = XMFLOAT2(x2, y2);
-	m_pxmf2TextureCoords0[2] = XMFLOAT2(x1, y1);
-	m_pxmf2TextureCoords0[3] = XMFLOAT2(x2, y1);
 
-	m_pd3dTextureCoord0Buffer = ::CreateBufferResource(m_pd3dDevice, pd3dCommandList, m_pxmf2TextureCoords0, sizeof(XMFLOAT2) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dTextureCoord0UploadBuffer);
+	m_fTranslate.x = float((m_iNumber - 1) % 4) / 4.f;
+	m_fTranslate.y = int(m_iNumber / 4) * (1.f / 4.f);
+	m_pTranslate = ::CreateBufferResource(m_pd3dDevice, pd3dCommandList, &m_fTranslate, sizeof(XMFLOAT2), D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 
-	m_d3dTextureCoord0BufferView.BufferLocation = m_pd3dTextureCoord0Buffer->GetGPUVirtualAddress();
-	m_d3dTextureCoord0BufferView.StrideInBytes = sizeof(XMFLOAT2);
-	m_d3dTextureCoord0BufferView.SizeInBytes = sizeof(XMFLOAT2) * m_nVertices;
+	D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pTranslate->GetGPUVirtualAddress();
+	pd3dCommandList->SetGraphicsRootConstantBufferView(13, d3dGpuVirtualAddress); //Skinned Bone Offsets
+
 }

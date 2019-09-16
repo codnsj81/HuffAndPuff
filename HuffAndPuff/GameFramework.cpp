@@ -636,7 +636,7 @@ void CGameFramework::BuildObjects()
 		if (m_pPlayer) m_pPlayer->ReleaseUploadBuffers();
 
 		TCHAR* pName = _T("LogoBGM");
-		CSoundMgr::GetInstacne()->PlayBGMSound(pName);
+		//CSoundMgr::GetInstacne()->PlayBGMSound(pName);
 
 		m_GameTimer.Reset();
 
@@ -789,8 +789,7 @@ void CGameFramework::MouseClickInMain(POINT pos)
 	{
 		m_FLOWSTATE = SCENE_STAGE1;
 		CSoundMgr::GetInstacne()->StopALL();
-		TCHAR* pName = _T("InGame");
-		CSoundMgr::GetInstacne()->PlayBGMSound(pName);
+		//CSoundMgr::GetInstacne()->PlayBGMSound(_T("InGame"));
 		CSoundMgr::GetInstacne()->PlayEffectSound(_T("Button"));
 	}
 	else if(pos.x >377 && pos.y > 546 && pos.y < 649 && pos.x < 647)

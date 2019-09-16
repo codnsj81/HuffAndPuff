@@ -20,6 +20,11 @@ cbuffer cbGameObjectInfo : register(b2)
 	uint					gnTexturesMask : packoffset(c8);
 };
 
+cbuffer Texbuffer : register(b9)
+{
+	float2 translation = 0;
+};
+
 #include "Light.hlsl"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -306,6 +311,7 @@ VS_WATER_OUTPUT VSWater(VS_WATER_INPUT input)
 	output.bitangentW = (float3)mul(float4(input.bitangent, 1.0f), gmtxGameObject);
 	output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
 	output.uv = input.uv;
+	output.uv.y += translation.x;
 
 	return(output);
 }
@@ -313,7 +319,7 @@ VS_WATER_OUTPUT VSWater(VS_WATER_INPUT input)
 float4 PSWater(VS_WATER_OUTPUT input) : SV_TARGET
 {
 
-	float4 cColor = float4(0.0f, 1.f, 1.f, 0.1f);
+	float4 cColor = float4(0.0f, 1.f, 1.f, 0.2f);
 	float3x3 TBN = float3x3(normalize(input.tangentW), normalize(input.bitangentW), normalize(input.normalW));
 	float4 cNormal;
 	cNormal = gtxtAlbedoTexture.Sample(gssClamp, input.uv);
@@ -321,17 +327,12 @@ float4 PSWater(VS_WATER_OUTPUT input) : SV_TARGET
 
 	float4 cIllumination = Lighting(input.positionW, normalize(mul(vNormal, TBN)));
 
-	return(lerp(cColor, cIllumination, 0.3f));
+	return(lerp(cColor, cIllumination, 0.5f));
 	//return cNormal;
 
 }
 
 //////////////////
-
-cbuffer Texbuffer : register(b9)
-{
-	float2 translation = 0 ;
-};
 
 
 

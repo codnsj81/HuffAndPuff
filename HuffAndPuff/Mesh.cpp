@@ -10,6 +10,26 @@ void CWaterMesh::CalculateTriangleListTBNs(int nVertices, XMFLOAT3 *pxmf3Positio
 {
 	
 }
+void CWaterMesh::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
+{
+
+	m_fTranslate = new XMFLOAT2(0, 0);
+	UINT ncbElementBytes = sizeof(XMFLOAT2); //256의 배수
+	m_pTranslate = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+
+	m_pTranslate->Map(0, NULL, (void**)& m_fTranslate);
+
+}
+void CWaterMesh::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
+{
+
+	m_fTranslate->x += m_fTimeElapsed / 30.f;
+	//m_pTranslate = ::CreateBufferResource(m_pd3dDevice, pd3dCommandList, &m_fTranslate, sizeof(XMFLOAT2), D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+
+	D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pTranslate->GetGPUVirtualAddress();
+	pd3dCommandList->SetGraphicsRootConstantBufferView(13, d3dGpuVirtualAddress); //Skinned Bone Offsets
+
+}
 CMesh::CMesh()
 {
 }
@@ -844,7 +864,7 @@ CWaterMesh::CWaterMesh(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd
 	m_d3dBiTangentBufferView.BufferLocation = m_pd3dBiTangentBuffer->GetGPUVirtualAddress();
 	m_d3dBiTangentBufferView.StrideInBytes = sizeof(XMFLOAT3);
 	m_d3dBiTangentBufferView.SizeInBytes = sizeof(XMFLOAT3) * m_nVertices;
-
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 
 CWaterMesh::~CWaterMesh()
@@ -1060,19 +1080,18 @@ CFontMesh::~CFontMesh()
 
 void CFontMesh::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	m_fTranslate = XMFLOAT2(0, 0);
+	m_fTranslate = new XMFLOAT2(0, 0);
 	UINT ncbElementBytes = sizeof(XMFLOAT2) ; //256의 배수
-	m_pTranslate = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+	m_pTranslate = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 
+	m_pTranslate->Map(0, NULL, (void**)& m_fTranslate);
 
 }
 
 void CFontMesh::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
 
-	m_fTranslate.x = m_iNumber * 1/11.f;
-	m_pTranslate = ::CreateBufferResource(m_pd3dDevice, pd3dCommandList, &m_fTranslate, sizeof(XMFLOAT2), D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
-
+	m_fTranslate->x = m_iNumber * 1/11.f;
 	D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pTranslate->GetGPUVirtualAddress();
 	pd3dCommandList->SetGraphicsRootConstantBufferView(13, d3dGpuVirtualAddress); //Skinned Bone Offsets
 	
@@ -1223,9 +1242,10 @@ CExplosionMesh::CExplosionMesh(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandL
 
 void CExplosionMesh::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
 {
-	m_fTranslate = XMFLOAT2(0, 0);
+	m_fTranslate = new XMFLOAT2(0, 0);
 	UINT ncbElementBytes = sizeof(XMFLOAT2); //256의 배수
-	m_pTranslate = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+	m_pTranslate = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+
 	m_pTranslate->Map(0, NULL, (void**)& m_fTranslate);
 
 
@@ -1240,9 +1260,9 @@ void CExplosionMesh::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dComma
 	y1 = int(m_iNumber / 4) * (1.f/4.f);
 	y2 = y1 + (1.f / 4.f);
 
-	m_fTranslate.x = float((m_iNumber - 1) % 4) / 4.f;
-	m_fTranslate.y = int(m_iNumber / 4) * (1.f / 4.f);
-	m_pTranslate = ::CreateBufferResource(m_pd3dDevice, pd3dCommandList, &m_fTranslate, sizeof(XMFLOAT2), D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+	m_fTranslate->x = float((m_iNumber - 1) % 4) / 4.f;
+	m_fTranslate->y = int(m_iNumber / 4) * (1.f / 4.f);
+	//m_pTranslate = ::CreateBufferResource(m_pd3dDevice, pd3dCommandList, &m_fTranslate, sizeof(XMFLOAT2), D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 
 	D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pTranslate->GetGPUVirtualAddress();
 	pd3dCommandList->SetGraphicsRootConstantBufferView(13, d3dGpuVirtualAddress); //Skinned Bone Offsets

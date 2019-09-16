@@ -543,6 +543,7 @@ public:
 	void SetCollided(bool b) { m_bcollided = b; }
 
 	virtual void Animate(float fTimeElapsed);
+
 protected:
 	float m_fTime = 0.f;
 	bool m_bcollided = false;

@@ -264,11 +264,14 @@ public:
 	virtual ~CWaterMesh();
 	void CalculateTriangleListTBNs(int nVertices, XMFLOAT3 *pxmf3Positions, XMFLOAT2 *pxmf2TexCoords, XMFLOAT3 *pxmf3Tangents, XMFLOAT3 *pxmf3BiTangents, XMFLOAT3 *pxmf3Normals);
 
+	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
 	void setTimeElapsed(float time) { m_fTimeElapsed = time; }
 protected:	
 	int								m_nWidth;
 	int								m_nLength;
 	UINT							m_nStride = 0;
+
 	UINT							m_nOffset = 0;
 
 	UINT							m_nIndices = 0;
@@ -276,6 +279,11 @@ protected:
 	int								m_nBaseVertex = 0;
 	ID3D12Device*					m_pd3dDevice = NULL;
 	float							m_fTimeElapsed;
+
+	XMFLOAT2*	m_fTranslate;
+
+	ID3D12Resource* m_pTranslate = NULL;
+
 };
 
 
@@ -341,9 +349,10 @@ public:
 protected:
 	ID3D12Device* m_pd3dDevice = NULL;
 	int		m_iNumber;
-	XMFLOAT2	m_fTranslate;
+	XMFLOAT2*	m_fTranslate = NULL;
 	
 	ID3D12Resource* m_pTranslate = NULL;
+	ID3D12Resource* m_pUploadTranslate = NULL;
 };
 
 class CExplosionMesh : public CFontMesh

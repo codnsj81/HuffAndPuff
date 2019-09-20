@@ -1314,9 +1314,9 @@ CWater::CWater(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dComman
 	CWaterMesh *pMesh = new CWaterMesh(pd3dDevice, pd3dCommandList, nWidth, nLength);
 	SetMesh(pMesh);
 	
-	CWaterShader *pShader = new CWaterShader();
-	pShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	pShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	//CWaterShader *pShader = new CWaterShader();
+	//pShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//pShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
 	CTexture *pWaterNormalTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 	pWaterNormalTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/waternormal.tiff", 0, false);
@@ -1327,7 +1327,7 @@ CWater::CWater(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dComman
 	CMaterial *pMaterial = new CMaterial(1);
 	pMaterial->SetTexture(pWaterNormalTexture,0);
 	pMaterial->SetMaterialType(MATERIAL_NORMAL_MAP);
-	pMaterial->SetShader(pShader);
+	//pMaterial->SetShader(pShader);
 
 	SetMaterial(0, pMaterial);
 	SetPosition(xmfPosition);

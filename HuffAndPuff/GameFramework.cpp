@@ -894,7 +894,7 @@ void CGameFramework::FrameAdvance()
 			}
 		}
 
-		m_pScene->Render(m_pd3dCommandList, m_pCamera);
+		m_pScene->Render(m_pd3dCommandList, d3dDsvCPUDescriptorHandle,  m_pCamera);
 
 		switch (m_FLOWSTATE)
 		{

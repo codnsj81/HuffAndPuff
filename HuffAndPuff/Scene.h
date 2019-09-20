@@ -84,7 +84,7 @@ public:
 	void LoadTree(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	bool ProcessInput(UCHAR *pKeysBuffer);
     void AnimateObjects(float fTimeElapsed);
-    void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera=NULL);
+    void Render(ID3D12GraphicsCommandList *pd3dCommandList, D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle, CCamera *pCamera=NULL);
 	void ObjectsCollides();
 	void ReleaseUploadBuffers();
 	CWater** GetWaters() { return m_ppWaters; }
@@ -107,6 +107,7 @@ public:
 	CPlayer								*m_pPlayer = NULL;
 	CSnake*								m_pSnake = NULL;
 	CGameObject*								m_pFish = NULL;
+	CWaterShader* m_pWaterShader = NULL;
 
 	ID3D12Device*						m_pd3dDevice = NULL;
 	ID3D12GraphicsCommandList*			m_pd3dCommandList = NULL;

@@ -79,6 +79,10 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 
 		m_ppWaters[1] = new CWater(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 500, 350, XMFLOAT3(714, 30.f, 803.f));
 		
+		m_pWaterShader = new CWaterShader();
+		m_pWaterShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+		m_pWaterShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+		m_pWaterShader->GetWater(m_ppWaters);
 
 		HoneyComb = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Honey.bin", m_pShader, false);
 		BuildMonsterList(pd3dDevice, pd3dCommandList);
@@ -1148,7 +1152,7 @@ void CScene::RenderStage1(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* p
 	}
 
 	if (m_pPlayer) m_pPlayer->Render(m_pd3dCommandList, pCamera);
-
+/*
 	for (int i = 0; i < 2; i++)
 	{
 		if (m_ppWaters[i])
@@ -1156,7 +1160,7 @@ void CScene::RenderStage1(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* p
 			m_ppWaters[i]->Render(m_pd3dCommandList, pCamera);
 
 		}
-	}
+	}*/
 
 }
 
@@ -1624,7 +1628,7 @@ void CScene::AnimateObjects(float fTimeElapsed)
 	
 }
 
-void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
+void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle, CCamera *pCamera)
 {
 
 		if (m_pd3dGraphicsRootSignature) pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
@@ -1650,11 +1654,13 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 			list<CUI*>::iterator iter_end = m_UIList->end();
 
 			RenderStage1(pd3dCommandList, pCamera);
-			for (int i = 0; i < 2; i++)
-			{
-				m_ppWaters[i]->UpdateTransform(NULL);
-				m_ppWaters[i]->Render(m_pd3dCommandList, pCamera);
-			}
+			//for (int i = 0; i < 2; i++)
+			//{
+			//	m_ppWaters[i]->UpdateTransform(NULL);
+			//	m_ppWaters[i]->Render(m_pd3dCommandList, pCamera);
+			//}
+			if(m_pWaterShader)
+				m_pWaterShader->Render(pd3dCommandList, dsvHandle, pCamera);
 
 			m_pPlayer->GetNavGuide()->Render(m_pd3dCommandList, pCamera);
 			for (iter; iter!= iter_end ; iter++)

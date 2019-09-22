@@ -6,6 +6,8 @@
 
 #include "Object.h"
 #include "Camera.h"
+#include "Scene.h"
+class CScene;
 
 class CShader
 {
@@ -39,7 +41,9 @@ public:
 
 	virtual void UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandList, XMFLOAT4X4 *pxmf4x4World) { }
 
-	virtual void OnPrepareRender(ID3D12GraphicsCommandList *pd3dCommandList, int nPipelineState=0);
+	virtual void OnPrepareRender(ID3D12GraphicsCommandList *pd3dCommandList, int n
+		
+		=0);
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera);
 
 	virtual void ReleaseUploadBuffers() { }
@@ -168,12 +172,13 @@ private:
 	int m_nPipelineStates = 4;
 	ID3D12PipelineState** m_ppd3dPipelineState;
 	CWater** m_ppWater;
+	CScene* m_pScene;
 
 public:
 	CWaterShader();
 	void GetWater(CWater** waters) { m_ppWater = waters; }
 	virtual ~CWaterShader();
-
+	void GetScene(CScene* p) { m_pScene = p; }
 	virtual void CreateShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 
 

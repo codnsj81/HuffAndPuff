@@ -693,7 +693,8 @@ namespace
             }
 
             // While pre-multiplied alpha isn't directly supported by the DXGI formats,
-            // they are basically the same as these BC formats so they can be mapped
+            // they are basically the same as these BC formats so they can be 
+
             if (MAKEFOURCC( 'D', 'X', 'T', '2' ) == ddpf.fourCC)
             {
                 return DXGI_FORMAT_BC2_UNORM;

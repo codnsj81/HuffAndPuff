@@ -22,6 +22,7 @@ class CGameFramework;
 class CItemBox;
 class CSceneScreen;
 class CCloud;
+class CWaterShader;
 
 struct DashInfo
 {

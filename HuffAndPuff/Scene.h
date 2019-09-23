@@ -22,7 +22,7 @@ class CGameFramework;
 class CItemBox;
 class CSceneScreen;
 class CCloud;
-class CWaterShader;
+class CMirrorShader;
 
 struct DashInfo
 {
@@ -108,7 +108,7 @@ public:
 	CPlayer								*m_pPlayer = NULL;
 	CSnake*								m_pSnake = NULL;
 	CGameObject*								m_pFish = NULL;
-	CWaterShader* m_pWaterShader = NULL;
+	CMirrorShader* m_pWaterShader = NULL;
 
 	ID3D12Device*						m_pd3dDevice = NULL;
 	ID3D12GraphicsCommandList*			m_pd3dCommandList = NULL;

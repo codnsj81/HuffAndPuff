@@ -65,6 +65,9 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 		CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 		BuildDefaultLightsAndMaterials();
 
+		m_pWaterShader = new CMirrorShader();
+		m_pWaterShader->Initialize();
+
 		XMFLOAT3 xmf3Scale(5.0f, 3.0f, 5.0f); // -> 나중에 크기 6,3,6으로 바꾸기
 		XMFLOAT4 xmf4Color(0.3f, 0.3f, 0.3f, 0.0f);
 		
@@ -79,11 +82,6 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 
 		m_ppWaters[1] = new CWater(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 500, 350, XMFLOAT3(714, 30.f, 803.f));
 		
-		m_pWaterShader = new CWaterShader();
-		m_pWaterShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
-		m_pWaterShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
-		m_pWaterShader->GetWater(m_ppWaters);
-
 		HoneyComb = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Honey.bin", m_pShader, false);
 		BuildMonsterList(pd3dDevice, pd3dCommandList);
 
@@ -97,6 +95,14 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 		LoadDash(pd3dDevice, pd3dCommandList);
 		BuildMushroomData(pd3dDevice, pd3dCommandList);
 		CreateShaderVariables(pd3dDevice, pd3dCommandList);
+
+		m_pWaterShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+		m_pWaterShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+		m_pWaterShader->GetWater(m_ppWaters);
+		m_pWaterShader->GetScene(this);
+		m_pWaterShader->m_FishList = &m_FishList;
+		m_pWaterShader->m_FishTrapList = &m_FishTrapList;
+		m_pWaterShader->m_ItemBoxList = &m_ItemBoxList;
 
 }
 
@@ -1092,7 +1098,6 @@ void CScene::BuildMonsterList(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLi
 void CScene::RenderStage1(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
 {
 	if (m_pSkyBox) m_pSkyBox->Render(pd3dCommandList, pCamera);
-	if (m_pTerrain) m_pTerrain->Render(pd3dCommandList, pCamera);
 
 	for (auto p : m_TreeObjectslist)
 	{
@@ -1151,16 +1156,7 @@ void CScene::RenderStage1(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* p
 		p->Render(pd3dCommandList, pCamera);
 	}
 
-	if (m_pPlayer) m_pPlayer->Render(m_pd3dCommandList, pCamera);
-/*
-	for (int i = 0; i < 2; i++)
-	{
-		if (m_ppWaters[i])
-		{
-			m_ppWaters[i]->Render(m_pd3dCommandList, pCamera);
 
-		}
-	}*/
 
 }
 
@@ -1353,12 +1349,14 @@ void CScene::LoadStone(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd
 	pBoat->SetChild(pObj, true);
 	pBoat->SetPosition(XMFLOAT3(1066, 29, 496));
 	pBoat->SetHitBox(XMFLOAT3(15.f, 4.f, 6.f));
+	m_pWaterShader->Boats[0] = pBoat;
 	m_Objectslist.push_back(pBoat);
 
 	pBoat = new CGameObject();
 	pBoat->SetChild(pObj, true);
 	pBoat->SetPosition(XMFLOAT3(717, 29, 877));
 	pBoat->SetHitBox(XMFLOAT3(15.f, 4.f, 6.f));
+	m_pWaterShader->Boats[1] = pBoat;
 	m_Objectslist.push_back(pBoat);
 
 
@@ -1654,15 +1652,23 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, D3D12_CPU_DESCRI
 			list<CUI*>::iterator iter_end = m_UIList->end();
 
 			RenderStage1(pd3dCommandList, pCamera);
+			if (m_pTerrain) m_pTerrain->Render(pd3dCommandList, pCamera);
+			if (m_pPlayer) m_pPlayer->Render(m_pd3dCommandList, pCamera);
 			//for (int i = 0; i < 2; i++)
 			//{
 			//	m_ppWaters[i]->UpdateTransform(NULL);
 			//	m_ppWaters[i]->Render(m_pd3dCommandList, pCamera);
 			//}
-			if(m_pWaterShader)
-				m_pWaterShader->Render(pd3dCommandList, dsvHandle, pCamera);
 
 			m_pPlayer->GetNavGuide()->Render(m_pd3dCommandList, pCamera);
+
+			if (m_pWaterShader)
+				m_pWaterShader->Render(pd3dCommandList, dsvHandle, pCamera);
+
+
+			m_ppWaters[0]->Render(m_pd3dCommandList, pCamera, true);
+			m_ppWaters[1]->Render(m_pd3dCommandList, pCamera, true);
+
 			for (iter; iter!= iter_end ; iter++)
 			{
 				if ((*iter)->bRender)
@@ -1693,6 +1699,7 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, D3D12_CPU_DESCRI
 				}
 					
 			}
+
 		}
 
 }

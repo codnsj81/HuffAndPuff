@@ -92,7 +92,6 @@ public:
 	void Reset();
 	void SetProgressUI(CUI* p) { m_ProgressUI = p; }
 	void SetNav(CGameObject* nav);
-	
 	void SetDE(CUI* nav);
 	void NextRoad(float fTime);
 	void LoadNavigation();
@@ -180,7 +179,7 @@ public:
 	virtual	void Jump();
 	virtual CCamera *ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed) { return(NULL); }
 	virtual void OnPrepareRender();
-	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera = NULL);
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera = NULL, bool bPrepre = true);
 
 
 	int							m_CollideState = COLLIDEN;

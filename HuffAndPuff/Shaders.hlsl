@@ -232,7 +232,7 @@ float4 PSTerrain(VS_TERRAIN_OUTPUT input) : SV_TARGET
 	float4 cColor;
 	float4 cBaseTexColor = gtxtSpecularTexture.Sample(gssWrap, input.uv0);
 	float4 cDetailTexColor = gtxtMetallicTexture.Sample(gssWrap, input.uv1);
-	cDetailTexColor = saturate(float4(0.f, 0.2f, 0.f, 1) + (cDetailTexColor * 0.6f));
+	cDetailTexColor = saturate(float4(0.f, 0.1f, 0.f, 1) + (cDetailTexColor * 0.6f));
 	float4 cDetailTexColor2 = gtxtAlbedoTexture.Sample(gssWrap, input.uv1) ;
 	cDetailTexColor2 = saturate(float4(0.1f, 0.09f, 0.f, 1) + (cDetailTexColor2 * 0.6f));
 	//cDetailTexColor2 = saturate(float4(0.0f, 0.00f, 0.f, 1) + (cDetailTexColor2 * 0.6f));

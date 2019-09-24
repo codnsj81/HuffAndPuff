@@ -1129,17 +1129,20 @@ void CScene::BuildHouses()
 	while (true)
 	{
 		CGameObject* pobj = new CGameObject();
-		pobj->SetPosition(startPoint);
 		random = rand() % 2;
 		switch (random)
 		{
 		case 0:
+			startPoint.x += 30;
 			pobj->SetChild(m_HouseObj1);
-			startPoint.x += 40;
+			pobj->SetPosition(startPoint);
+			startPoint.x += 30;
 			break;
 		case 1:
+			startPoint.x += 15;
 			pobj->SetChild(m_HouseObj2);
-			startPoint.x += 30;
+			pobj->SetPosition(startPoint);
+			startPoint.x += 15;
 			break;
 		}
 		pobj->UpdateTransform();

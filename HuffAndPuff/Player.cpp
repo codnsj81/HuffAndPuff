@@ -469,7 +469,7 @@ void CPlayer::Update(float fTimeElapsed)
 	if (m_moveState != STATE_GROUND && m_moveState != STATE_ONOBJECTS && m_moveState != STATE_STUN && m_moveState != STATE_ATTACK )
 	{
 		m_fTime += fTimeElapsed;
-		fDistance = 50.f - 100.f * m_fTime ;
+		fDistance = 50.f - 90.f * m_fTime ;
 		if (fDistance < 0)
 		{
 			m_moveState = STATE_FALLING;
@@ -847,7 +847,7 @@ CCamera *CTerrainPlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 			SetFriction(100.0f);
 			SetGravity(XMFLOAT3(0.0f, -100.f, 0.0f));
 			SetMaxVelocityXZ(30.0f);
-			SetMaxVelocityY(45.0f);
+			SetMaxVelocityY(40.0f);
 			m_pCamera = OnChangeCamera(THIRD_PERSON_CAMERA, nCurrentCameraMode);
 			m_pCamera->SetTimeLag(0.25f);
 			m_pCamera->SetOffset(XMFLOAT3(0.0f, 10.0f, -25.0f));

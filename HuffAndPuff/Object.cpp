@@ -1273,7 +1273,7 @@ CHeightMapTerrain::CHeightMapTerrain(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 		pTerrainDetailTexture2->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Terrain/load1.dds", 0);
 	
 		pTerrainDetailTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0); // Ç®
-		pTerrainDetailTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Terrain/Detail_Texture_6.dds", 0);
+		pTerrainDetailTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Terrain/load2.dds", 0);
 
 		pTerrainDetailTexture3 = new CTexture(1, RESOURCE_TEXTURE2D, 0); // µ¹
 		pTerrainDetailTexture3->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Terrain/load1.dds", 0);
@@ -1343,14 +1343,14 @@ CWater::CWater(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dComman
 	
 	CWaterShader *pShader = new CWaterShader();
 	pShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	pShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	//pShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
 	CTexture *pWaterNormalTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 	pWaterNormalTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/waternormal.tiff", 0, false);
 	pWaterNormalTexture->AddRef();
 
 	CScene::CreateShaderResourceViews(pd3dDevice, pWaterNormalTexture, 3, false);
-
+	
 	CMaterial *pMaterial = new CMaterial(1);
 	pMaterial->SetTexture(pWaterNormalTexture,0);
 	pMaterial->SetMaterialType(MATERIAL_NORMAL_MAP);
@@ -1392,8 +1392,8 @@ void CWater::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 					m_ppMaterials[i]->UpdateShaderVariable(pd3dCommandList);
 				}
 
-				if (m_pMesh) m_pMesh->Render(pd3dCommandList, i);
 			}
+			if (m_pMesh) m_pMesh->Render(pd3dCommandList, 0);
 		}
 	}
 	else

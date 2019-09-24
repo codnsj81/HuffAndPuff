@@ -530,17 +530,6 @@ void CMirrorShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 
 	HRESULT hResult = pd3dDevice->CreateGraphicsPipelineState(&d3dPipelineStateDesc, IID_PPV_ARGS(&m_ppd3dPipelineState[0]));
 	
-	//pipeline2
-	D3D12_DEPTH_STENCIL_DESC d3dReflectDepthStencilDesc;
-	d3dReflectDepthStencilDesc.DepthEnable = true;
-	d3dReflectDepthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
-	d3dReflectDepthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
-	d3dReflectDepthStencilDesc.StencilEnable = true;
-	d3dReflectDepthStencilDesc.StencilReadMask = d3dReflectDepthStencilDesc.StencilWriteMask = 0xff;
-	d3dReflectDepthStencilDesc.FrontFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
-	d3dReflectDepthStencilDesc.FrontFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
-	d3dReflectDepthStencilDesc.FrontFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
-	d3dReflectDepthStencilDesc.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_EQUAL;
 
 	D3D12_RASTERIZER_DESC d3dCWCullRasterizerDesc;
 	::ZeroMemory(&d3dCWCullRasterizerDesc, sizeof(D3D12_RASTERIZER_DESC));
@@ -551,7 +540,9 @@ void CMirrorShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC d3dPipelineStateDesc1 = d3dPipelineStateDesc;
 	d3dPipelineStateDesc1.RasterizerState = d3dCWCullRasterizerDesc;
-	//d3dPipelineStateDesc1.DepthStencilState = d3dReflectDepthStencilDesc;
+	d3dPipelineStateDesc1.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+	d3dPipelineStateDesc1.DepthStencilState.FrontFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
+	d3dPipelineStateDesc1.DepthStencilState.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_EQUAL;
 
 
 	hResult = pd3dDevice->CreateGraphicsPipelineState(&d3dPipelineStateDesc1, IID_PPV_ARGS(&m_ppd3dPipelineState[1]));
@@ -594,38 +585,6 @@ void CMirrorShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 
 
 }
-
-//
-//D3D12_INPUT_LAYOUT_DESC CMirrorShader::CreateInputLayout()
-//{
-//	
-//	UINT nInputElementDescs = 5;
-//	D3D12_INPUT_ELEMENT_DESC *pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
-//
-//	pd3dInputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-//	pd3dInputElementDescs[1] = { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 1, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-//	pd3dInputElementDescs[2] = { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 2, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-//	pd3dInputElementDescs[3] = { "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 3, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-//	pd3dInputElementDescs[4] = { "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 4, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-//
-//	D3D12_INPUT_LAYOUT_DESC d3dInputLayoutDesc;
-//	d3dInputLayoutDesc.pInputElementDescs = pd3dInputElementDescs;
-//	d3dInputLayoutDesc.NumElements = nInputElementDescs;
-//
-//	return(d3dInputLayoutDesc);
-//
-//}
-//
-//D3D12_SHADER_BYTECODE CMirrorShader::CreateVertexShader()
-//{
-//	return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "VSWater", "vs_5_1", &m_pd3dVertexShaderBlob));
-//}
-//
-//D3D12_SHADER_BYTECODE CMirrorShader::CreatePixelShader()
-//{
-//	return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "PSWater", "ps_5_1", &m_pd3dPixelShaderBlob));
-//}
-
 void CMirrorShader::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, int nPipelineState)
 {
 }
@@ -643,7 +602,7 @@ void CMirrorShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, D3D12_CPU
 
 	pd3dCommandList->OMSetStencilRef(1);
 	pd3dCommandList->SetPipelineState(m_ppd3dPipelineState[1]);
-
+	m_pScene->m_pShader->SetPipelineState(NULL);
 
 	if (m_pScene) // π›ªÁµ» ∞¥√º ∑ª¥ı∏µ
 	{
@@ -673,7 +632,9 @@ void CMirrorShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, D3D12_CPU
 	}
 
 	pd3dCommandList->OMSetStencilRef(0);
-	pd3dCommandList->SetPipelineState(m_ppd3dPipelineState[2]);
+	pd3dCommandList->SetPipelineState(m_ppd3dPipelineState[2]);;
+	m_ppWater[0]->Render(pd3dCommandList, pCamera, true);// ∞≈øÔ¿ª Ω∫≈ƒΩ« πˆ∆€∑Œ ∑ª¥ı∏µ
+	m_ppWater[1]->Render(pd3dCommandList, pCamera, true);
 }
 
 D3D12_BLEND_DESC CMirrorShader::CreateBlendState()
@@ -783,6 +744,25 @@ D3D12_SHADER_BYTECODE CWaterShader::CreatePixelShader()
 
 D3D12_BLEND_DESC CWaterShader::CreateBlendState()
 {
+
+	//D3D12_BLEND_DESC d3dBlendDesc;
+	//::ZeroMemory(&d3dBlendDesc, sizeof(D3D12_BLEND_DESC));
+	//d3dBlendDesc.AlphaToCoverageEnable = true;
+	//d3dBlendDesc.IndependentBlendEnable = FALSE;
+	//d3dBlendDesc.RenderTarget[0].BlendEnable = false;
+	//d3dBlendDesc.RenderTarget[0].LogicOpEnable = FALSE;
+	//d3dBlendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_ONE;
+	//d3dBlendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_ZERO;
+	//d3dBlendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+	//d3dBlendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
+	//d3dBlendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
+	//d3dBlendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+	//d3dBlendDesc.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_NOOP;
+	//d3dBlendDesc.RenderTarget[0].RenderTargetWriteMask = 0;// ∑ª¥ı≈∏∞Ÿ ∫Ø∞Ê«œ¡ˆ æ ¿Ω 
+
+	//return(d3dBlendDesc);
+
+	
 	D3D12_BLEND_DESC d3dBlendDesc;
 	::ZeroMemory(&d3dBlendDesc, sizeof(D3D12_BLEND_DESC));
 	d3dBlendDesc.AlphaToCoverageEnable = FALSE;
@@ -821,6 +801,7 @@ D3D12_DEPTH_STENCIL_DESC CWaterShader::CreateDepthStencilState()
 	d3dDepthStencilDesc.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;
 
 	return(d3dDepthStencilDesc);
+
 }
 
 

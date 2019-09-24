@@ -142,6 +142,7 @@ public:
 	void PlusBoxData();
 	void SaveBoxhData();
 	void LoadBoxData(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+	void InitStage();
 
 	void SaveNavigation();
 	void BuildTextures(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
@@ -150,7 +151,9 @@ public:
 	void CreateDamageUIP(const XMFLOAT3 & pos);
 	void CreateDamageDEF(const XMFLOAT3& pos);
 	void BuildMonsterList(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList);
+	void BuildHouses();
 
+	void RenderStage2(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera);
 	void RenderStage1(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera);
 	
 	void SetMainFrame(CGameFramework* frame) { m_MainFramework = frame; }
@@ -189,6 +192,7 @@ public:
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUSrvDescriptorNeLxtHandle() { return(m_d3dSrvGPUDescriptorNextHandle); }
 
 	int									m_ItemOrder = 0;
+	int									m_Stage = 1;
 
 	CTexture*							m_ClockTex = NULL;
 	CTexture*							m_DamageUITex = NULL;
@@ -213,6 +217,7 @@ public:
 	list<CTrap*>						m_TrapList;
 	list<CDamageUI*>					m_DamageUIList;
 	list<CFloatingItem*>				m_FloatingItemList;
+	list<CGameObject*>					m_HouseList;
 
 	list<CUI*>* m_UIList;
 
@@ -224,6 +229,7 @@ public:
 
 	CSkyBox								*m_pSkyBox = NULL;
 	CHeightMapTerrain					*m_pTerrain = NULL;
+	CHeightMapTerrain*					m_pTerrain2 = NULL;
 	CSceneScreen* m_pSceneScreen = NULL;
 
 	LIGHT								*m_pLights = NULL;
@@ -231,7 +237,8 @@ public:
 
 	XMFLOAT4							m_xmf4GlobalAmbient;
 
-	 
+	CGameObject* m_HouseObj1 = NULL;
+	CGameObject * m_HouseObj2 = NULL;
 	ID3D12Resource						*m_pd3dcbLights = NULL;
 	LIGHTS								*m_pcbMappedLights = NULL;
 

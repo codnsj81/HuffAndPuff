@@ -215,8 +215,8 @@ void CMaterial::LoadTextureFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsComm
 		
 		bDuplicated = (pstrTextureName[0] == '@');
 		strcpy_s(pstrFilePath + 15, 64 - 15, (bDuplicated) ? (pstrTextureName+1) : pstrTextureName);
-		strcpy_s(pstrFilePath + 15 + ((bDuplicated) ? (nStrLength - 1) : nStrLength), 64 - 15 - ((bDuplicated) ? (nStrLength - 1) : nStrLength), ".tiff");
-
+		if(bDDS) strcpy_s(pstrFilePath + 15 + ((bDuplicated) ? (nStrLength - 1) : nStrLength), 64 - 15 - ((bDuplicated) ? (nStrLength - 1) : nStrLength), ".dds");
+		else  strcpy_s(pstrFilePath + 15 + ((bDuplicated) ? (nStrLength - 1) : nStrLength), 64 - 15 - ((bDuplicated) ? (nStrLength - 1) : nStrLength), ".tiff");
 		size_t nConverted = 0;
 		mbstowcs_s(&nConverted, pwstrTextureName, 64, pstrFilePath, _TRUNCATE);
 
@@ -1245,21 +1245,40 @@ CHeightMapTerrain::CHeightMapTerrain(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 	CHeightMapGridMesh *pMesh = new CHeightMapGridMesh(pd3dDevice, pd3dCommandList, 0, 0, nWidth, nLength, xmf3Scale, xmf4Color, m_pHeightMapImage);
 	SetMesh(pMesh);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	CTexture* pTerrainBaseTexture2;
+	CTexture* pTerrainDetailTexture2;
+	CTexture* pTerrainDetailTexture;
+	CTexture* pTerrainDetailTexture3;
+	if (m_nLength == 257)
+	{
+		 pTerrainBaseTexture2 = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+		pTerrainBaseTexture2->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Terrain/terrainTex3.tif", 0, false);
 
+		 pTerrainDetailTexture2 = new CTexture(1, RESOURCE_TEXTURE2D, 0); //¶¥
+		pTerrainDetailTexture2->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Terrain/Detail_Texture_7.dds", 0);
 
-	CTexture *pTerrainBaseTexture2 = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pTerrainBaseTexture2->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Terrain/terrainTex3.tif", 0, false);
+		pTerrainDetailTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0); // Ç®
+		pTerrainDetailTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Terrain/Detail_Texture_6.dds", 0);
 
+		 pTerrainDetailTexture3 = new CTexture(1, RESOURCE_TEXTURE2D, 0); // µ¹
+		pTerrainDetailTexture3->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Terrain/Detail_Texture_8.dds", 0);
 
-	CTexture *pTerrainDetailTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0); // Ç®
-	pTerrainDetailTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Terrain/Detail_Texture_6.dds", 0);
+	}
+	else
+	{
+		pTerrainBaseTexture2 = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+		pTerrainBaseTexture2->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Terrain/Stage2RGB.tiff", 0, false);
 
-	CTexture *pTerrainDetailTexture2 = new CTexture(1, RESOURCE_TEXTURE2D, 0); //¶¥
-	pTerrainDetailTexture2->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Terrain/Detail_Texture_7.dds", 0);
+		pTerrainDetailTexture2 = new CTexture(1, RESOURCE_TEXTURE2D, 0); //¶¥
+		pTerrainDetailTexture2->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Terrain/load1.dds", 0);
 	
-	CTexture *pTerrainDetailTexture3 = new CTexture(1, RESOURCE_TEXTURE2D, 0); // µ¹
-	pTerrainDetailTexture3->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Terrain/Detail_Texture_8.dds", 0);
+		pTerrainDetailTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0); // Ç®
+		pTerrainDetailTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Terrain/Detail_Texture_6.dds", 0);
 
+		pTerrainDetailTexture3 = new CTexture(1, RESOURCE_TEXTURE2D, 0); // µ¹
+		pTerrainDetailTexture3->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Terrain/load1.dds", 0);
+
+	}
 	CTerrainShader *pTerrainShader = new CTerrainShader();
 	pTerrainShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	pTerrainShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);

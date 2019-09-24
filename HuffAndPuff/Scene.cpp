@@ -70,7 +70,8 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 
 		XMFLOAT3 xmf3Scale(5.0f, 3.0f, 5.0f); // -> 나중에 크기 6,3,6으로 바꾸기
 		XMFLOAT4 xmf4Color(0.3f, 0.3f, 0.3f, 0.0f);
-		
+		m_pTerrain2 = new CHeightMapTerrain(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, _T("Terrain/Stage2.raw"), 550, 50, xmf3Scale, xmf4Color);
+
 		m_pTerrain = new CHeightMapTerrain(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, _T("Terrain/terrain.raw"), 257, 257, xmf3Scale, xmf4Color);
 		m_pSkyBox = new CSkyBox(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 		m_pShader = new CShader();
@@ -83,14 +84,16 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 		m_ppWaters[1] = new CWater(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 500, 350, XMFLOAT3(714, 30.f, 803.f));
 		
 		HoneyComb = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Honey.bin", m_pShader, false);
+		m_HouseObj1 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/house1.bin", NULL, false, true);
+		m_HouseObj2 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/house2.bin", NULL, false, true);
+
+		
 		BuildMonsterList(pd3dDevice, pd3dCommandList);
-
-
-
 		BuildTextures(pd3dDevice, pd3dCommandList);
 		LoadStone(pd3dDevice, pd3dCommandList);
 		LoadTree(pd3dDevice, pd3dCommandList);
 		LoadTrap(pd3dDevice, pd3dCommandList);
+		BuildHouses();
 		LoadBoxData(pd3dDevice, pd3dCommandList);
 		LoadDash(pd3dDevice, pd3dCommandList);
 		BuildMushroomData(pd3dDevice, pd3dCommandList);
@@ -210,7 +213,7 @@ void CScene::ReleaseObjects()
 void CScene::Update(float fTime)
 {
 
-		ObjectsCollides();
+		if(m_Stage == 1) ObjectsCollides();
 		for (auto a : *m_UIList)
 		{
 			(a)->Update(fTime);
@@ -1004,6 +1007,30 @@ void CScene::LoadBoxData(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd
 
 }
 
+void CScene::InitStage()
+{
+	if (m_Stage == 1)
+	{
+		m_pPlayer->SetPlayerUpdatedContext(m_pTerrain);
+		m_pPlayer->SetCameraUpdatedContext(m_pTerrain);
+		m_pPlayer->SetPosition(XMFLOAT3(INITPOSITION_X,
+			m_pTerrain->GetHeight(INITPOSITION_X, INITPOSITION_Z), INITPOSITION_Z));
+		m_pPlayer->SetOriginMatrix();
+		m_pPlayer->SetnWaters(2);
+	}
+	else
+	{
+
+		m_pPlayer->SetPlayerUpdatedContext(m_pTerrain2);
+		m_pPlayer->SetCameraUpdatedContext(m_pTerrain2);
+		m_pPlayer->SetPosition(XMFLOAT3(45,
+			m_pTerrain2->GetHeight(45, 130), 130));
+		m_pPlayer->Rotate(0, -10, 0);
+		m_pPlayer->SetOriginMatrix();
+		m_pPlayer->SetnWaters(0);
+	}
+}
+
 void CScene::BuildMonsterList(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList)
 {
 	StoneInfo dat;
@@ -1093,6 +1120,70 @@ void CScene::BuildMonsterList(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLi
 	m_FishList.emplace_back(pFish);
 
 
+}
+
+void CScene::BuildHouses()
+{
+	XMFLOAT3 startPoint = XMFLOAT3(45,0,77);
+	int random;
+	while (true)
+	{
+		CGameObject* pobj = new CGameObject();
+		pobj->SetPosition(startPoint);
+		random = rand() % 2;
+		switch (random)
+		{
+		case 0:
+			pobj->SetChild(m_HouseObj1);
+			startPoint.x += 40;
+			break;
+		case 1:
+			pobj->SetChild(m_HouseObj2);
+			startPoint.x += 30;
+			break;
+		}
+		pobj->UpdateTransform();
+		m_HouseList.push_back(pobj);
+		if (startPoint.x > 2600) break;
+
+	}
+	startPoint = XMFLOAT3(45, 0, 180);
+	
+	while (true)
+	{
+		CGameObject* pobj = new CGameObject();
+		pobj->Rotate(0, 180, 0);
+		pobj->SetPosition(startPoint);
+		random = rand() % 2;
+		switch (random)
+		{
+		case 0:
+			startPoint.x += 20.f;
+			pobj->SetChild(m_HouseObj1);
+			startPoint.x += 20;
+			break;
+		case 1:
+			startPoint.x += 15;
+			pobj->SetChild(m_HouseObj2);
+			startPoint.x += 15;
+			break;
+		}
+		pobj->UpdateTransform();
+		m_HouseList.push_back(pobj);
+		if (startPoint.x > 2600) break;
+
+	}
+
+}
+
+void CScene::RenderStage2(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
+{
+	//if (m_pSkyBox) m_pSkyBox->Render(pd3dCommandList, pCamera);
+	for (auto p : m_HouseList)
+	{
+		p->UpdateTransform(NULL);
+		p->Render(pd3dCommandList, pCamera);
+	}
 }
 
 void CScene::RenderStage1(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
@@ -1644,30 +1735,39 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, D3D12_CPU_DESCRI
 		switch (m_MainFramework->GetFlowState())
 		{
 		case SCENE_STAGE1:
+		case SCENE_STAGE2:
 		case SCENE_CLEAR:
 		case SCENE_OVER:
 		case SCENE_OVERTIME:
 
+
+			if (m_Stage == 1)
+			{
+				RenderStage1(pd3dCommandList, pCamera);
+				if (m_pTerrain) m_pTerrain->Render(pd3dCommandList, pCamera);
+
+				if (m_pPlayer) m_pPlayer->Render(m_pd3dCommandList, pCamera);
+
+				m_pPlayer->GetNavGuide()->Render(m_pd3dCommandList, pCamera);
+
+				if (m_pWaterShader)
+					m_pWaterShader->Render(pd3dCommandList, dsvHandle, pCamera);
+
+				m_ppWaters[0]->Render(m_pd3dCommandList, pCamera, true);
+				m_ppWaters[1]->Render(m_pd3dCommandList, pCamera, true);
+			}
+			else
+			{
+				RenderStage2(m_pd3dCommandList, pCamera);
+				if (m_pTerrain2) m_pTerrain2->Render(pd3dCommandList, pCamera);
+
+				if (m_pPlayer) m_pPlayer->Render(m_pd3dCommandList, pCamera);
+
+				m_pPlayer->GetNavGuide()->Render(m_pd3dCommandList, pCamera);
+			}
+
 			list<CUI*>::iterator iter = m_UIList->begin();
 			list<CUI*>::iterator iter_end = m_UIList->end();
-
-			RenderStage1(pd3dCommandList, pCamera);
-			if (m_pTerrain) m_pTerrain->Render(pd3dCommandList, pCamera);
-			if (m_pPlayer) m_pPlayer->Render(m_pd3dCommandList, pCamera);
-			//for (int i = 0; i < 2; i++)
-			//{
-			//	m_ppWaters[i]->UpdateTransform(NULL);
-			//	m_ppWaters[i]->Render(m_pd3dCommandList, pCamera);
-			//}
-
-			m_pPlayer->GetNavGuide()->Render(m_pd3dCommandList, pCamera);
-
-			if (m_pWaterShader)
-				m_pWaterShader->Render(pd3dCommandList, dsvHandle, pCamera);
-
-
-			m_ppWaters[0]->Render(m_pd3dCommandList, pCamera, true);
-			m_ppWaters[1]->Render(m_pd3dCommandList, pCamera, true);
 
 			for (iter; iter!= iter_end ; iter++)
 			{

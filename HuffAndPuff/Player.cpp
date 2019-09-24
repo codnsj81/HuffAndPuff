@@ -61,12 +61,12 @@ CPlayer::~CPlayer()
 
 void CPlayer::SetOriginMatrix()
 {
-	m_originmat = m_xmf4x4World;
+	m_originmat = m_xmf4x4ToParent;
 }
 
 void CPlayer::Reset()
 {
-	m_xmf4x4World = m_originmat;
+	m_xmf4x4ToParent = m_originmat;
 	m_iHP = 100;
 	m_iSkillGage = 0;
 	m_navIndex = 0;
@@ -872,6 +872,14 @@ void CTerrainPlayer::OnPlayerUpdateCallback(float fTimeElapsed)
 	XMFLOAT3 xmf3PlayerPosition = GetPosition();
 	int z = (int)(xmf3PlayerPosition.z / xmf3Scale.z);
 
+	if (m_pScene->m_Stage == 2)
+	{
+		if (xmf3PlayerPosition.z > 160)
+			xmf3PlayerPosition.z = 160;
+		else if (xmf3PlayerPosition.z < 90)
+			xmf3PlayerPosition.z = 90;
+
+	}
 	m_pShadow->SetPosition(xmf3PlayerPosition.x, pTerrain->GetHeight(xmf3PlayerPosition.x, xmf3PlayerPosition.y) + 1, xmf3PlayerPosition.z);
 	bool bReverseQuad = ((z % 2) != 0);
 	float fHeight;

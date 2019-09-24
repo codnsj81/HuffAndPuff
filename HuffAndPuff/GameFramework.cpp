@@ -293,7 +293,7 @@ void CGameFramework::ChangeSwapChainState()
 void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
 	if (m_pScene) m_pScene->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
-	if (m_FLOWSTATE == SCENE_STAGE1)
+	if (m_FLOWSTATE == SCENE_STAGE1 || m_FLOWSTATE == SCENE_STAGE2)
 	{
 		switch (nMessageID)
 		{
@@ -481,7 +481,7 @@ void CGameFramework::BuildUI()
 	pTemp->m_pPlayer = m_pPlayer;
 	m_UIList->emplace_back(pTemp);
 
-	pTemp = new CEndUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(),20,17, XMFLOAT3(1235, m_pScene->m_pTerrain->GetHeight(1235, 616), 616), L"Model/Textures/UI_Success.tiff", this);
+	pTemp = new CEndUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(),20,17, XMFLOAT3(1235, m_pScene->m_pTerrain->GetHeight(1235, 616), 616), L"Model/Textures/UI_Clear_Stage1.tif", this);
 	pTemp->SetWinpos(0, 0);
 	pTemp->m_pPlayer = m_pPlayer;
 	m_pClearUI = pTemp;
@@ -578,8 +578,6 @@ void CGameFramework::BuildPlayers()
 
 	m_pPlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), "Model/doggy.bin", PLAYER_KIND_DOGGY, true, m_pScene->m_pTerrain);
 
-	m_pPlayer->SetPosition(XMFLOAT3(INITPOSITION_X,
-		m_pScene->m_pTerrain->GetHeight(INITPOSITION_X, INITPOSITION_Z), INITPOSITION_Z)); //시작위치
 	//m_pDoggy->SetPosition(XMFLOAT3(1394, m_pScene->m_pTerrain->GetHeight(1394,1363 ), 1363)); //물 확인용
 	m_pPlayer->SetHitBox(XMFLOAT3(5.f, 5.f, 5.f));
 	m_pPlayer->SetScale(XMFLOAT3(4.f, 4.f, 4.f));
@@ -672,7 +670,7 @@ void CGameFramework::ProcessInput()
 	bool bProcessedByScene = false;
 	if (GetKeyboardState(pKeysBuffer) && m_pScene)
 		bProcessedByScene = m_pScene->ProcessInput(pKeysBuffer);
-	if (!bProcessedByScene && m_FLOWSTATE == SCENE_STAGE1)
+	if (!bProcessedByScene && ( m_FLOWSTATE == SCENE_STAGE2 || m_FLOWSTATE == SCENE_STAGE1))
 	{
 		bool ismove = false;
 		DWORD dwDirection = 0;
@@ -788,6 +786,8 @@ void CGameFramework::MouseClickInMain(POINT pos)
 	if (pos.x > 324 && pos.x < 681 && pos.y>334 && pos.y < 445)
 	{
 		m_FLOWSTATE = SCENE_STAGE1;
+		m_pScene->m_Stage = 1;
+		m_pScene->InitStage();
 		CSoundMgr::GetInstacne()->StopALL();
 		//CSoundMgr::GetInstacne()->PlayBGMSound(_T("InGame"));
 		CSoundMgr::GetInstacne()->PlayEffectSound(_T("Button"));
@@ -800,17 +800,30 @@ void CGameFramework::MouseClickInMain(POINT pos)
 }
 void CGameFramework::MouseClickInClear(POINT pos)
 {
-	if (pos.x > 393 && pos.y > 480 && pos.y < 575 && pos.x < 617)
+
+	if (pos.y > 493 && pos.y < 590)
 	{
-		m_FLOWSTATE = SCENE_MAIN;
+		if (pos.x > 532 && pos.x < 737)
+			m_FLOWSTATE = SCENE_MAIN;
+
+		else if (pos.x > 254 && pos.x < 469)
+		{
+			m_FLOWSTATE = SCENE_STAGE2;
+			m_pScene->m_Stage = 2;
+			CSoundMgr::GetInstacne()->StopALL();
+			CSoundMgr::GetInstacne()->PlayBGMSound(_T("InGame"));
+		}
+		else
+			return;
+
+		m_pScene->ResetObjects();
+		m_pScene->InitStage();
+		m_pClearUI->bRender = false;
 		dynamic_cast<CEndUI*>(m_pClearUI)->Trigger = false;
 		dynamic_cast<CEndUI*>(m_pClearUI)->bEx = false;
-		m_pClearUI->bRender = false;
-		m_pScene->ResetObjects();
 		CSoundMgr::GetInstacne()->PlayEffectSound(_T("Button"));
-		TCHAR* pName = _T("InGame");
-		CSoundMgr::GetInstacne()->PlayBGMSound(pName);
 	}
+
 }
 
 void CGameFramework::MouseClickInOver(POINT pos)
@@ -821,7 +834,9 @@ void CGameFramework::MouseClickInOver(POINT pos)
 			m_FLOWSTATE = SCENE_MAIN;
 
 		else if (pos.x > 254 && pos.x < 469)
+		{
 			m_FLOWSTATE = SCENE_STAGE1;
+		}
 		else
 			return;
 
@@ -868,7 +883,7 @@ void CGameFramework::FrameAdvance()
 		m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
 		m_pd3dCommandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, TRUE, &d3dDsvCPUDescriptorHandle);
 		
-		if (m_FLOWSTATE == SCENE_STAGE1)
+		if (m_FLOWSTATE == SCENE_STAGE1 || m_FLOWSTATE == SCENE_STAGE2)
 			m_pScene->Update(m_GameTimer.GetTimeElapsed());
 		
 

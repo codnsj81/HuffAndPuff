@@ -25,6 +25,24 @@ cbuffer Texbuffer : register(b9)
 	float2 translation = 0;
 };
 
+
+cbuffer cbShadow :register(b5) {
+	matrix gmtxShadowTransform : packoffset(c0);
+}
+
+static matrix gmtxProjectionToTexture = { 0.5f, 0.f, 0.f, 0.f, 0.f, -0.5f, 0.f, 0.f,0.f,0.f, 1.f, 0.f,0.5f,0.5f,0.f, 1.f };
+Texture2D gtxtShadowMap  : register(t32);
+
+//////////////
+
+//원형 그림자
+//
+Texture2D gtxCircularShadow : register(t14);
+SamplerState gssProjection : register(s2);
+SamplerState gssShadowMap : register(s6);
+SamplerState gssDepth : register(s2);
+
+
 #include "Light.hlsl"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -113,7 +131,6 @@ float4 PSStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
 	}
 	float4 cIllumination = Lighting(input.positionW, normalW);
 	cColor = lerp(cColor, cIllumination, 0.4f);
-	if (input.colornum == 1) cColor += float4(0.3f, 0.f, 0.f, 0.f);
 
 	return(cColor);
 }
@@ -204,6 +221,7 @@ struct VS_TERRAIN_INPUT
 	float4 color : COLOR;
 	float2 uv0 : TEXCOORD0;
 	float2 uv1 : TEXCOORD1;
+	float3 normal : NORMAL;
 };
 
 struct VS_TERRAIN_OUTPUT
@@ -212,6 +230,7 @@ struct VS_TERRAIN_OUTPUT
 	float4 color : COLOR;
 	float2 uv0 : TEXCOORD0;
 	float2 uv1 : TEXCOORD1;
+	float3 normal : NORMAL;
 	float4 shadowPosition : TEXCOORD3;
 };
 
@@ -223,6 +242,9 @@ VS_TERRAIN_OUTPUT VSTerrain(VS_TERRAIN_INPUT input)
 	output.color = input.color;
 	output.uv0 = input.uv0;
 	output.uv1 = input.uv1;
+	output.normal = input.normal;
+	matrix shadowProject = mul(mul(gmtxView, gmtxShadowTransform), gmtxProjectionToTexture);
+	output.shadowPosition = mul(float4(input.position, 1.f), shadowProject);
 
 	return(output);
 }
@@ -237,9 +259,15 @@ float4 PSTerrain(VS_TERRAIN_OUTPUT input) : SV_TARGET
 	cDetailTexColor2 = saturate(float4(0.1f, 0.09f, 0.f, 1) + (cDetailTexColor2 * 0.6f));
 	//cDetailTexColor2 = saturate(float4(0.0f, 0.00f, 0.f, 1) + (cDetailTexColor2 * 0.6f));
 	float4 cDetailTexColor3 = gtxtNormalTexture.Sample(gssWrap, input.uv1);
-
+	input.shadowPosition.xyz /= input.shadowPosition.w;
+	float fShadowFactor = 0.3f, fBias = 0.006f;
+	float fsDepth = gtxtShadowMap.Sample(gssWrap, input.shadowPosition.xy).r;
+	if (input.shadowPosition.z <= (fsDepth + fBias))fShadowFactor = 1.f;
+	input.normal = normalize(input.normal);
+//	float4 cIllumination = Lighting(input.position, input.normal, fShadowFactor);
 	cColor = input.color * (cDetailTexColor3 * cBaseTexColor.y + cDetailTexColor * cBaseTexColor.x
 					+ cDetailTexColor2 * cBaseTexColor.z);
+//	cColor += cIllumination;
 	return(cColor);
 }
 struct VS_SKYBOX_CUBEMAP_INPUT
@@ -275,10 +303,6 @@ float4 PSSkyBox(VS_SKYBOX_CUBEMAP_OUTPUT input) : SV_TARGET
 
 ////////////////////////////////////////////
 
-cbuffer MatrixBuffer
-{
-	matrix worldMatrix; matrix viewMatrix; matrix projectionMatrix;
-};
 cbuffer ReflectionBuffer { matrix reflectionMatrix; };
 
 
@@ -326,8 +350,9 @@ float4 PSWater(VS_WATER_OUTPUT input) : SV_TARGET
 	float3 vNormal = normalize(cNormal.rgb * 2.0f - 1.0f); //[0, 1] → [-1, 1]
 
 	float4 cIllumination = Lighting(input.positionW, normalize(mul(vNormal, TBN)));
-
-	return(lerp(cColor, cIllumination, 0.5f));
+	cColor = lerp(cColor, cIllumination, 0.2f);
+	cColor.w = 0.2f;
+	return(cColor);
 	//return cNormal;
 
 }
@@ -396,79 +421,121 @@ float4 PSUI(VS_UI_OUTPUT input) : SV_TARGET
 
 
 
-///////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////
+//
+//struct VS_INPUT {
+//	float3 position : POSITION;
+//	float4 shadow : INSTANCEPOS;
+//};
+//
+//struct VS_OUTPUT {
+//	float3 position : POSITION;
+//	float size : SIZE;
+//};
+//struct VS_SHADOW_INPUT {
+//	float3 position: POSITION;
+//	float2 texCoord : TEXCOORD;
+//	float4 shadow : INSTANCEPOS;
+//};
+//
+//struct VS_SHADOW_OUTPUT {
+//	float4 position: SV_POSITION;
+//	float2 texCoord : TEXCOORD0;
+//};
+//
+//VS_OUTPUT VSShadow(VS_INPUT input) {
+//	VS_OUTPUT output = (VS_OUTPUT)0;
+//	output.size = 0.3f * (input.shadow.y - input.shadow.w);
+//	output.position = input.shadow.xyz - float3(0.0f, output.size * 2.5f, 0);
+//	return (output);
+//}
+//
+//struct GS_OUTPUT {
+//	float4 position : SV_POSITION;
+//	float4 color : COLOR;
+//	float2 texCoord : TEXCOORD0;
+//};
+//
+//float4 PSShadow(GS_OUTPUT input) : SV_Target{
+//	return(gtxCircularShadow.Sample(gssCircularShadow, input.texCoord) * input.color);
+//}
+//
+//
+//[maxvertexcount(4)]
+//void GSShadow(point VS_OUTPUT input[1], inout TriangleStream<GS_OUTPUT> outStream) {
+//	GS_OUTPUT output;
+//	float3 vCorners[4];
+//	vCorners[0] = float3(input[0].position.x - input[0].size, input[0].position.y, input[0].position.z - input[0].size);
+//	vCorners[1] = float3(input[0].position.x - input[0].size, input[0].position.y, input[0].position.z + input[0].size);
+//	vCorners[2] = float3(input[0].position.x + input[0].size, input[0].position.y, input[0].position.z - input[0].size);
+//	vCorners[3] = float3(input[0].position.x + input[0].size, input[0].position.y, input[0].position.z + input[0].size);
+//	float2 vTexCoords[4] = { float2(0,1), float2(0,0), float2(1,1), float2(1,0) };
+//	float fColor = min(1, max(0, (100 + 155 * (90 - input[0].size)) / 255.0f));
+//	for (int i = 0; i < 4; i++)
+//	{
+//		output.position = mul(mul(float4(vCorners[i], 1), gmtxView), gmtxProjection);
+//		output.texCoord = vTexCoords[i];
+//		output.color = float4(fColor, fColor, fColor, 0);
+//		outStream.Append(output);
+//	}
+//}
+//VS_SHADOW_OUTPUT VSCircularShadow(VS_SHADOW_INPUT input)
+//{
+//	VS_SHADOW_OUTPUT output = (VS_SHADOW_OUTPUT)0;
+//	output.texCoord = input.texCoord;
+//	float3 position = input.position + input.shadow.xyz;
+//	position.y -= (input.shadow.y - input.shadow.w) * 0.7f;
+//	output.position = mul(mul(float4(position, 1.0f), gmtxView), gmtxProjection);
+//	return (output);
+//}
+//
+//float4 PSCircularShadow(VS_SHADOW_OUTPUT input) : SV_Target{
+//	return (gtxCircularShadow.Sample(gssCircularShadow, input.texCoord));
+//}
+/////// 투영 텍스쳐 매핑
 
-//원형 그림자
-
-Texture2D gtxCircularShadow : register(t14);
-SamplerState gssCircularShadow : register(s2);
 
 struct VS_INPUT {
 	float3 position : POSITION;
-	float4 shadow : INSTANCEPOS;
+	float3 normal : NORMAL;
 };
 
 struct VS_OUTPUT {
-	float3 position : POSITION;
-	float size : SIZE;
-};
-struct VS_SHADOW_INPUT {
-	float3 position: POSITION;
-	float2 texCoord : TEXCOORD;
-	float4 shadow : INSTANCEPOS;
-};
-
-struct VS_SHADOW_OUTPUT {
-	float4 position: SV_POSITION;
-	float2 texCoord : TEXCOORD0;
-};
-
-VS_OUTPUT VSShadow(VS_INPUT input) {
-	VS_OUTPUT output = (VS_OUTPUT)0;
-	output.size = 0.3f * (input.shadow.y - input.shadow.w);
-	output.position = input.shadow.xyz - float3(0.0f, output.size * 2.5f, 0);
-	return (output);
-}
-
-struct GS_OUTPUT {
 	float4 position : SV_POSITION;
-	float4 color : COLOR;
-	float2 texCoord : TEXCOORD0;
+	float4 positionW : POSITION;
+	float3 normalW  : NORMAL;
+	float4 texCoord : TEXCOORD0;
+	float3 toProjectorW :TEXCOORD1;
 };
 
-float4 PSShadow(GS_OUTPUT input) : SV_Target{
-	return(gtxCircularShadow.Sample(gssCircularShadow, input.texCoord) * input.color);
+cbuffer cbTextureProjection : register(b5) {
+	matrix gmtxProjectionView : packoffset(c0);
+	matrix gmtxProjectProjection : packoffset(c4);
+	float4 gvProjectorPosition : packoffset(c8);
 }
-
-
-[maxvertexcount(4)]
-void GSShadow(point VS_OUTPUT input[1], inout TriangleStream<GS_OUTPUT> outStream) {
-	GS_OUTPUT output;
-	float3 vCorners[4];
-	vCorners[0] = float3(input[0].position.x - input[0].size, input[0].position.y, input[0].position.z - input[0].size);
-	vCorners[1] = float3(input[0].position.x - input[0].size, input[0].position.y, input[0].position.z + input[0].size);
-	vCorners[2] = float3(input[0].position.x + input[0].size, input[0].position.y, input[0].position.z - input[0].size);
-	vCorners[3] = float3(input[0].position.x + input[0].size, input[0].position.y, input[0].position.z + input[0].size);
-	float2 vTexCoords[4] = { float2(0,1), float2(0,0), float2(1,1), float2(1,0) };
-	float fColor = min(1, max(0, (100 + 155 * (90 - input[0].size)) / 255.0f));
-	for (int i = 0; i < 4; i++)
-	{
-		output.position = mul(mul(float4(vCorners[i], 1), gmtxView), gmtxProjection);
-		output.texCoord = vTexCoords[i];
-		output.color = float4(fColor, fColor, fColor, 0);
-		outStream.Append(output);
-	}
-}
-VS_SHADOW_OUTPUT VSCircularShadow(VS_SHADOW_INPUT input)
+VS_OUTPUT VSTextureProjection(VS_INPUT input)
 {
-	VS_SHADOW_OUTPUT output = (VS_SHADOW_OUTPUT)0;
-	output.texCoord = input.texCoord;
-	float3 position = input.position + input.shadow.xyz;
-	position.y -= (input.shadow.y - input.shadow.w) * 0.7f;
-	output.position = mul(mul(float4(position, 1.0f), gmtxView), gmtxProjection);
+	VS_OUTPUT output = (VS_OUTPUT)0;
+	output.positionW = mul(float4(input.position,1.0f), gmtxView);
+	output.position = mul(mul(output.positionW, gmtxView), gmtxProjection);
+	output.normalW = normalize(mul(float4(input.normal, 1), gmtxView)).xyz;
+	output.texCoord = mul(mul(output.positionW, mul(gmtxProjectionView, gmtxProjectProjection)), gmtxProjectionToTexture);
+	output.toProjectorW = normalize(gvProjectorPosition.xyz - output.positionW.xyz);
 	return (output);
 }
 
-float4 PSCircularShadow(VS_SHADOW_OUTPUT input) : SV_Target{
-	return (gtxCircularShadow.Sample(gssCircularShadow, input.texCoord));
+Texture2D gtxtProjection : register(t6);
+Texture2D<float> gtxtDepth : register(t7);
+static float gfDepthBias = 0.005f;
+
+float4 PSTextureProjection(VS_OUTPUT input) : SV_Target{
+	float4 cIllumination = Lighting(input.positionW.xyz, input.normalW);
+	if (dot(input.toProjectorW, input.normalW) <= 0.0f) return (cIllumination);
+	if (input.texCoord.w <= 0.0) return (cIllumination);
+	float fProjectorToPixel = input.texCoord.z / input.texCoord.w;
+	input.texCoord.xy /= input.texCoord.ww;
+	float fDepth = gtxtDepth.Sample(gssDepth, input.texCoord.xy).x + gfDepthBias;
+	if (fProjectorToPixel > fDepth) return (cIllumination);
+	return (gtxtProjection.Sample(gssProjection, input.texCoord.xy) * cIllumination);
+
 }

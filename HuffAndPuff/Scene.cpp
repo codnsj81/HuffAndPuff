@@ -38,7 +38,7 @@ void CScene::BuildDefaultLightsAndMaterials()
 	m_pLights = new LIGHT[m_nLights];
 	::ZeroMemory(m_pLights, sizeof(LIGHT) * m_nLights);
 
-	m_xmf4GlobalAmbient = XMFLOAT4(0.3f, 0.3f, 0.3f,0.0f);
+	m_xmf4GlobalAmbient = XMFLOAT4(0.1f, 0.1f, 0.1f,1.0f);
 
 	m_pLights[0].m_bEnable = true;
 	m_pLights[0].m_nType = DIRECTIONAL_LIGHT;
@@ -61,7 +61,7 @@ void CScene::BuildDefaultLightsAndMaterials()
 void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
 {
 		m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
-		CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 60); //SuperCobra(17), Gunship(2), Player:Mi24(1), Angrybot()
+		CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 70); //SuperCobra(17), Gunship(2), Player:Mi24(1), Angrybot()
 		CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 		BuildDefaultLightsAndMaterials();
 
@@ -84,8 +84,14 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 		m_ppWaters[1] = new CWater(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 500, 350, XMFLOAT3(714, 30.f, 803.f));
 		
 		HoneyComb = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Honey.bin", m_pShader, false);
-		m_HouseObj1 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/house1.bin", NULL, false, true);
-		m_HouseObj2 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/house2.bin", NULL, false, true);
+		m_HouseObj = new CGameObject * [5];
+		m_HouseObj[0]= CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/house1.bin", NULL, false, true);
+		m_HouseObj[1] = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/house2.bin", NULL, false, true);
+		m_HouseObj[2] = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/building3.bin", NULL, false, false);
+		m_HouseObj[3] = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/building5.bin", NULL, false, false);
+		m_HouseObj[4] = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/building6.bin", NULL, false, false);
+
+		m_Lamp = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/street.bin", NULL, false);
 
 		
 		BuildMonsterList(pd3dDevice, pd3dCommandList);
@@ -157,6 +163,12 @@ void CScene::ReleaseObjects()
 				n->Release();
 			}
 		}
+		if (m_LampList.size() != 0)
+		{
+			for (auto n : m_LampList) {
+				n->Release();
+			}
+		}
 		if (m_ItemBoxList.size() != 0)
 		{
 			for (auto n : m_ItemBoxList) {
@@ -200,6 +212,11 @@ void CScene::ReleaseObjects()
 			for (int i = 0; i < m_nWaters; i++) if (m_ppWaters[i]) m_ppWaters[i]->Release();
 			delete[] m_ppWaters;
 		}
+		for (int i = 0; i<5; i++)
+		{
+			m_HouseObj[i]->Release();
+		}
+		delete[]  m_HouseObj;
 
 		if (m_pSnake) m_pSnake->Release();
 		if (m_DamageUITex) m_DamageUITex->Release();
@@ -322,7 +339,7 @@ ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 	pd3dDescriptorRanges[9].RegisterSpace = 0;
 	pd3dDescriptorRanges[9].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	D3D12_ROOT_PARAMETER pd3dRootParameters[16];
+	D3D12_ROOT_PARAMETER pd3dRootParameters[17];
 
 	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	pd3dRootParameters[0].Descriptor.ShaderRegister = 1; //Camera
@@ -339,6 +356,7 @@ ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 	pd3dRootParameters[2].Descriptor.ShaderRegister = 4; //Lights
 	pd3dRootParameters[2].Descriptor.RegisterSpace = 0;
 	pd3dRootParameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+
 
 	pd3dRootParameters[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	pd3dRootParameters[3].DescriptorTable.NumDescriptorRanges = 1;
@@ -406,7 +424,14 @@ ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 	pd3dRootParameters[15].DescriptorTable.pDescriptorRanges = &(pd3dDescriptorRanges[9]);
 	pd3dRootParameters[15].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
-	D3D12_STATIC_SAMPLER_DESC pd3dSamplerDescs[2];
+
+	pd3dRootParameters[16].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	pd3dRootParameters[16].Descriptor.ShaderRegister =5; //SHWDOW
+	pd3dRootParameters[16].Descriptor.RegisterSpace = 0;
+	pd3dRootParameters[16].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+
+
+	D3D12_STATIC_SAMPLER_DESC pd3dSamplerDescs[4];
 
 	pd3dSamplerDescs[0].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
 	pd3dSamplerDescs[0].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
@@ -433,6 +458,34 @@ ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 	pd3dSamplerDescs[1].ShaderRegister = 1;
 	pd3dSamplerDescs[1].RegisterSpace = 0;
 	pd3dSamplerDescs[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+
+
+	pd3dSamplerDescs[2].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+	pd3dSamplerDescs[2].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	pd3dSamplerDescs[2].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	pd3dSamplerDescs[2].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	pd3dSamplerDescs[2].MipLODBias = 0;
+	pd3dSamplerDescs[2].MaxAnisotropy = 1;
+	pd3dSamplerDescs[2].ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+	pd3dSamplerDescs[2].MinLOD = 0;
+	pd3dSamplerDescs[2].MaxLOD = D3D12_FLOAT32_MAX;
+	pd3dSamplerDescs[2].ShaderRegister = 6;
+	pd3dSamplerDescs[2].RegisterSpace = 0;
+	pd3dSamplerDescs[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+
+	pd3dSamplerDescs[3].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+	pd3dSamplerDescs[3].AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+	pd3dSamplerDescs[3].AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+	pd3dSamplerDescs[3].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	pd3dSamplerDescs[3].MipLODBias = 0;
+	pd3dSamplerDescs[3].MaxAnisotropy = 1;
+	pd3dSamplerDescs[3].ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+	pd3dSamplerDescs[3].MinLOD = 0;
+	pd3dSamplerDescs[3].BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE;
+	pd3dSamplerDescs[3].MaxLOD = D3D12_FLOAT32_MAX;
+	pd3dSamplerDescs[3].ShaderRegister = 2;
+	pd3dSamplerDescs[3].RegisterSpace = 0;
+	pd3dSamplerDescs[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
 	D3D12_ROOT_SIGNATURE_FLAGS d3dRootSignatureFlags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT | D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS | D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS | D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
 	D3D12_ROOT_SIGNATURE_DESC d3dRootSignatureDesc;
@@ -1021,6 +1074,7 @@ void CScene::InitStage()
 	else
 	{
 
+		m_xmf4GlobalAmbient = XMFLOAT4(0.1f, 0.3f, 0.3f, 0.0f);
 		m_pPlayer->SetPlayerUpdatedContext(m_pTerrain2);
 		m_pPlayer->SetCameraUpdatedContext(m_pTerrain2);
 		m_pPlayer->SetPosition(XMFLOAT3(45,
@@ -1124,27 +1178,42 @@ void CScene::BuildMonsterList(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLi
 
 void CScene::BuildHouses()
 {
+
 	XMFLOAT3 startPoint = XMFLOAT3(45,0,77);
 	int random;
 	while (true)
 	{
 		CGameObject* pobj = new CGameObject();
-		random = rand() % 2;
+		random = rand() % 5;
 		switch (random)
 		{
 		case 0:
 			startPoint.x += 30;
-			pobj->SetChild(m_HouseObj1);
 			pobj->SetPosition(startPoint);
 			startPoint.x += 30;
 			break;
 		case 1:
 			startPoint.x += 15;
-			pobj->SetChild(m_HouseObj2);
 			pobj->SetPosition(startPoint);
 			startPoint.x += 15;
 			break;
+		case 2:
+			startPoint.x += 15;
+			pobj->SetPosition(startPoint);
+			startPoint.x += 15;
+			break;
+		case 3:
+			startPoint.x += 17;
+			pobj->SetPosition(startPoint);
+			startPoint.x += 17;
+			break;
+		case 4:
+			startPoint.x += 50;
+			pobj->SetPosition(startPoint);
+			startPoint.x += 10;
+			break;
 		}
+		pobj->SetChild(m_HouseObj[random]);
 		pobj->UpdateTransform();
 		m_HouseList.push_back(pobj);
 		if (startPoint.x > 2600) break;
@@ -1155,24 +1224,61 @@ void CScene::BuildHouses()
 	while (true)
 	{
 		CGameObject* pobj = new CGameObject();
-		pobj->Rotate(0, 180, 0);
 		pobj->SetPosition(startPoint);
 		random = rand() % 2;
 		switch (random)
 		{
 		case 0:
-			startPoint.x += 20.f;
-			pobj->SetChild(m_HouseObj1);
-			startPoint.x += 20;
+			startPoint.x += 30;
+			pobj->SetPosition(startPoint);
+			startPoint.x += 30;
 			break;
 		case 1:
 			startPoint.x += 15;
-			pobj->SetChild(m_HouseObj2);
+			pobj->SetPosition(startPoint);
 			startPoint.x += 15;
 			break;
+		case 2:
+			startPoint.x += 15;
+			pobj->SetPosition(startPoint);
+			startPoint.x += 15;
+			break;
+		case 3:
+			startPoint.x += 17;
+			pobj->SetPosition(startPoint);
+			startPoint.x += 17;
+			break;
+		case 4:
+			startPoint.x += 50;
+			pobj->SetPosition(startPoint);
+			startPoint.x += 10;
+			break;
 		}
+		pobj->SetChild(m_HouseObj[random]);
 		pobj->UpdateTransform();
 		m_HouseList.push_back(pobj);
+		if (startPoint.x > 2600) break;
+
+	}
+
+	startPoint = XMFLOAT3(45, 0, 130);
+
+	while (true)
+	{
+		CGameObject* pobj = new CGameObject();
+		pobj->SetPosition(startPoint.x, 0, startPoint.z - 20.f);
+		startPoint.x += 30;
+		pobj->SetChild(m_Lamp);
+		pobj->UpdateTransform();
+		m_LampList.push_back(pobj);
+
+
+		pobj = new CGameObject();
+		pobj->SetPosition(startPoint.x, 0, startPoint.z + 20.f);
+		startPoint.x += 30;
+		pobj->SetChild(m_Lamp);
+		pobj->UpdateTransform();
+		m_LampList.push_back(pobj);
 		if (startPoint.x > 2600) break;
 
 	}
@@ -1183,6 +1289,11 @@ void CScene::RenderStage2(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* p
 {
 	//if (m_pSkyBox) m_pSkyBox->Render(pd3dCommandList, pCamera);
 	for (auto p : m_HouseList)
+	{
+		p->UpdateTransform(NULL);
+		p->Render(pd3dCommandList, pCamera);
+	}
+	for (auto p : m_LampList)
 	{
 		p->UpdateTransform(NULL);
 		p->Render(pd3dCommandList, pCamera);
@@ -1756,8 +1867,8 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, D3D12_CPU_DESCRI
 				if (m_pWaterShader)
 					m_pWaterShader->Render(pd3dCommandList, dsvHandle, pCamera);
 
-				m_ppWaters[0]->Render(m_pd3dCommandList, pCamera, true);
-				m_ppWaters[1]->Render(m_pd3dCommandList, pCamera, true);
+				//m_ppWaters[0]->Render(m_pd3dCommandList, pCamera, true);
+				//m_ppWaters[1]->Render(m_pd3dCommandList, pCamera, true);
 			}
 			else
 			{

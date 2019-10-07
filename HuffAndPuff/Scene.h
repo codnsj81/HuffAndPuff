@@ -203,6 +203,7 @@ public:
 
 	CGameObject* HoneyComb = NULL;
 	CGameObject* m_pNet = NULL;
+	CGameObject* m_Lamp = NULL;
 	CTexture* PotionTex = NULL;
 
 	CGameObject							**m_ppGameObjects = NULL;
@@ -218,6 +219,7 @@ public:
 	list<CDamageUI*>					m_DamageUIList;
 	list<CFloatingItem*>				m_FloatingItemList;
 	list<CGameObject*>					m_HouseList;
+	list<CGameObject*>					m_LampList;
 
 	list<CUI*>* m_UIList;
 
@@ -237,8 +239,7 @@ public:
 
 	XMFLOAT4							m_xmf4GlobalAmbient;
 
-	CGameObject* m_HouseObj1 = NULL;
-	CGameObject * m_HouseObj2 = NULL;
+	CGameObject** m_HouseObj = NULL;
 	ID3D12Resource						*m_pd3dcbLights = NULL;
 	LIGHTS								*m_pcbMappedLights = NULL;
 

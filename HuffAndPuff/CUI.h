@@ -62,6 +62,12 @@ public :
 	float TimeElapsed = 0.f;
 };
 
+class CNavUI : public CUI
+{
+public:
+	CNavUI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, float nWidth, float nLength, XMFLOAT3 xmfPosition, wchar_t* pFilename);
+	~CNavUI() {}
+};
 class CEndUI : public CStartUI
 {
 public:

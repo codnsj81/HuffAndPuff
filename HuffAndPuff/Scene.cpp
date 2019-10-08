@@ -65,6 +65,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 		CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 		BuildDefaultLightsAndMaterials();
 
+
 		m_pWaterShader = new CMirrorShader();
 		m_pWaterShader->Initialize();
 
@@ -231,6 +232,8 @@ void CScene::Update(float fTime)
 {
 
 		if(m_Stage == 1) ObjectsCollides();
+		else ObjectsCollides2();
+
 		for (auto a : *m_UIList)
 		{
 			(a)->Update(fTime);
@@ -848,20 +851,38 @@ void CScene::SaveGrassData()
 	}
 }
 
-void CScene::LoadDash(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList)
+void CScene::LoadDash(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int stage)
 {
-	CGameObject* pOBJ = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Dash.bin", NULL, false);
-
 	fstream in("DashData.txt", ios::in | ios::binary);
-	while (in)
+	fstream in2("DashData2.txt", ios::in | ios::binary);
+	if (stage == 1)
 	{
-		DashInfo dat;
-		in >> dat.m_pos.x;
-		in >> dat.m_pos.y;
-		in >> dat.m_pos.z;
-		in >> dat.m_rot;
+		m_dashobj = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Dash.bin", NULL, false);
+		m_dashobj->m_ppMaterials[0]->m_xmf4AmbientColor = XMFLOAT4(0, 0, 0, 1);
+		while (in)
+		{
+			DashInfo dat;
+			in >> dat.m_pos.x;
+			in >> dat.m_pos.y;
+			in >> dat.m_pos.z;
+			in >> dat.m_rot;
 
-		DashDataList.emplace_back(dat);
+			DashDataList.emplace_back(dat);
+		}
+	}
+	else
+	{
+
+		while (in2)
+		{
+			DashInfo dat;
+			in2 >> dat.m_pos.x;
+			in2 >> dat.m_pos.y;
+			in2 >> dat.m_pos.z;
+			in2 >> dat.m_rot;
+
+			DashDataList.emplace_back(dat);
+		}
 	}
 
 	list<DashInfo>::iterator iter = DashDataList.begin();
@@ -870,7 +891,7 @@ void CScene::LoadDash(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3
 	for (iter; iter != end; iter++)
 	{
 		CDash* obj = new CDash();
-		obj->SetChild(pOBJ, true);
+		obj->SetChild(m_dashobj, true);
 		obj->SetHitBox(XMFLOAT3(4,4,4));
 		obj->SetPosition(iter->m_pos.x, iter->m_pos.y, iter->m_pos.z);
 		//Vector3::Normalize(iter->m_rot);
@@ -967,7 +988,7 @@ void CScene::PlusDashData()
 
 void CScene::SaveDashData()
 {
-	fstream out("DashData.txt", ios::out | ios::binary);
+	fstream out("DashData2.txt", ios::out | ios::binary);
 	for (auto n : DashDataList)
 	{
 		out << n.m_pos.x << " " << n.m_pos.y + 0.1f << " " << n.m_pos.z << " "
@@ -1018,7 +1039,7 @@ void CScene::PlusBoxData()
 void CScene::SaveBoxhData()
 {
 
-	fstream out("BoxData.txt", ios::out | ios::binary);
+	fstream out("BoxData2.txt", ios::out | ios::binary);
 	for (auto n : BoxDataList)
 	{
 		out << n.m_iType << " " << n.m_pos.x << " " << n.m_pos.y << " " << n.m_pos.z << " " << "\n";
@@ -1060,6 +1081,41 @@ void CScene::LoadBoxData(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd
 
 }
 
+void CScene::LoadBoxData2()
+{
+	BoxDataList.clear();
+
+	fstream in("BoxData2.txt", ios::in | ios::binary);
+	StoneInfo dat;
+	while (in)
+	{
+		in >> dat.m_iType;
+		in >> dat.m_pos.x;
+		in >> dat.m_pos.y;
+		in >> dat.m_pos.z;
+
+		BoxDataList.emplace_back(dat);
+	}
+
+	list<StoneInfo>::iterator iter = BoxDataList.begin();
+	list<StoneInfo>::iterator iter_end = BoxDataList.end();
+
+	for (iter; iter != iter_end; iter++)
+	{
+
+		CItemBox* obj = new CItemBox();
+		obj->SetChild(m_pBox, true);
+		obj->SetHitBox(XMFLOAT3(7, 7, 7));
+		obj->SetOriginY(iter->m_pos.y + 7);
+		obj->SetGroup(iter->m_iType);
+		obj->SetPosition(iter->m_pos.x, iter->m_pos.y + 7, iter->m_pos.z);
+		obj->Rotate(30, 30, 30);
+		//Vector3::Normalize(iter->m_rot);
+		m_ItemBoxList.push_back(obj);
+	}
+
+}
+
 void CScene::InitStage()
 {
 	if (m_Stage == 1)
@@ -1074,7 +1130,8 @@ void CScene::InitStage()
 	else
 	{
 
-		m_xmf4GlobalAmbient = XMFLOAT4(0.1f, 0.3f, 0.3f, 0.0f);
+		m_xmf4GlobalAmbient = XMFLOAT4(0.1f, 0.2f, 0.2f, 0.0f);
+
 		m_pPlayer->SetPlayerUpdatedContext(m_pTerrain2);
 		m_pPlayer->SetCameraUpdatedContext(m_pTerrain2);
 		m_pPlayer->SetPosition(XMFLOAT3(45,
@@ -1082,6 +1139,21 @@ void CScene::InitStage()
 		m_pPlayer->Rotate(0, -10, 0);
 		m_pPlayer->SetOriginMatrix();
 		m_pPlayer->SetnWaters(0);
+
+		for (auto n : m_ItemBoxList)
+			n->Release();
+		m_ItemBoxList.clear();
+
+		m_DashList.front()->m_pChild->AddRef();
+		for (auto n : m_DashList)
+			n->Release();
+
+		m_DashList.clear();
+		DashDataList.clear();
+
+		LoadBoxData2();
+		LoadDash(m_pd3dDevice, m_pd3dCommandList, 2);
+		
 	}
 }
 
@@ -1294,6 +1366,18 @@ void CScene::RenderStage2(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* p
 		p->Render(pd3dCommandList, pCamera);
 	}
 	for (auto p : m_LampList)
+	{
+		p->UpdateTransform(NULL);
+		p->Render(pd3dCommandList, pCamera);
+	}
+
+	for (auto p : m_ItemBoxList)
+	{
+		p->UpdateTransform(NULL);
+		p->Render(pd3dCommandList, pCamera);
+	}
+
+	for (auto p : m_DashList)
 	{
 		p->UpdateTransform(NULL);
 		p->Render(pd3dCommandList, pCamera);
@@ -2117,3 +2201,127 @@ void CScene::ObjectsCollides()
 
 }
 
+void CScene::ObjectsCollides2()
+{
+
+	if (m_pPlayer->m_bCheatmode) return;
+
+	m_pPlayer->m_CollideState = 1;
+	for (auto n : m_Objectslist)
+	{
+		if (n->m_bCollides && n->m_bRender)
+		{
+			if (n->getCollision(m_pPlayer) != COLLIDE_NONE)
+				break;
+		}
+	}
+	list<CItemBox*> ::iterator iter = m_ItemBoxList.begin();
+	list<CItemBox*> ::iterator iter_end = m_ItemBoxList.end();
+	for (iter; iter != iter_end; iter++)
+	{
+		if (!(*iter)->m_bRender) continue;
+		if ((*iter)->getCollision(m_pPlayer))
+		{
+			int group = (*iter)->GetGruop();
+			m_ItemOrder++;
+			if (m_ItemOrder == 5) m_ItemOrder = 0;
+			CFloatingItem* temp;
+			switch (m_ItemOrder)
+			{
+			case 0:
+				temp = new CFloatingItem(m_pd3dDevice, m_pd3dCommandList, m_pd3dGraphicsRootSignature);
+				temp->SetPosition((*iter)->GetPosition());
+				temp->Rotate(90, 0, 0);
+				temp->SetTexture(PotionTex);
+				m_FloatingItemList.push_back(temp);
+
+				CSoundMgr::GetInstacne()->PlayEffectSound(_T("ItemGet"));
+				m_pPlayer->Damage(-10);
+				break;
+			case 1:
+				m_pCloud->CloudSwitch();
+				CSoundMgr::GetInstacne()->PlayEffectSound(_T("Spring"));
+				break;
+			case 2:
+				m_MainFramework->SetbReverseControlMode();
+				CSoundMgr::GetInstacne()->PlayEffectSound(_T("Spring"));
+				break;
+			case 3:
+				m_pPlayer->Dash(m_fElapsedTime * 50);
+				CSoundMgr::GetInstacne()->PlayEffectSound(_T("dash"));
+			case 4:
+
+				temp = new CFloatingItem(m_pd3dDevice, m_pd3dCommandList, m_pd3dGraphicsRootSignature);
+				temp->SetPosition((*iter)->GetPosition());
+				temp->Rotate(90, 0, 0);
+				temp->SetTexture(m_ClockTex);
+				m_FloatingItemList.push_back(temp);
+				m_iStageTime -= 10.f;
+				CSoundMgr::GetInstacne()->PlayEffectSound(_T("ItemGet"));
+				break;
+			}
+			while (!m_ItemBoxList.empty())
+			{
+				if (m_ItemBoxList.front()->GetGruop() <= group)
+				{
+					CreateExplosion(m_ItemBoxList.front()->GetPosition());
+					delete m_ItemBoxList.front();
+					m_ItemBoxList.pop_front();
+				}
+				else break;
+			}
+			break;
+		}
+	}
+
+
+	list<CFloatingItem*> ::iterator floatiter = m_FloatingItemList.begin();
+	list<CFloatingItem*> ::iterator floatend = m_FloatingItemList.end();
+	for (floatiter; floatiter != floatend; floatiter++)
+	{
+		if ((*floatiter)->GetbDie())
+		{
+			delete (*floatiter);
+			(*floatiter) = NULL;
+			floatiter = m_FloatingItemList.erase(floatiter);
+			if (floatiter == floatend) break;
+		}
+	}
+
+	if (m_pPlayer->GetSkillState() == SKILL_USING) return;
+	////// 스킬 사용중이면 다음부터 무시
+
+	if (m_pSnake)
+		m_pSnake->getCollision(m_pPlayer);
+
+
+	for (auto n : m_TrapList)
+	{
+		if (!n->m_bRender) continue;
+		if (n->getCollision(m_pPlayer, false) != COLLIDE_NONE)
+		{
+			if (!n->GetCollided())
+			{
+
+				CreateDamageUI(3);
+				m_pPlayer->SetStun();
+				m_pPlayer->Damage(3);
+				CSoundMgr::GetInstacne()->PlayEffectSound(_T("Trap"));
+				n->SetCollided(true);
+				m_BloodScreen->bRender = true;
+			}
+		}
+
+	}
+	for (auto n : m_DashList)
+	{
+		if (!n->m_bRender) continue;
+		if (n->getCollision(m_pPlayer, false) != COLLIDE_NONE)
+		{
+			CSoundMgr::GetInstacne()->PlayEffectSound(_T("dash"));
+			m_pPlayer->Dash(m_fElapsedTime * 50);
+		}
+
+	}
+
+}

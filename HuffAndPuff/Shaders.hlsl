@@ -130,11 +130,15 @@ float4 PSStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
 		normalW = normalize(input.normalW);
 	}
 	float4 cIllumination = Lighting(input.positionW, normalW);
-	cColor = lerp(cColor, cIllumination, 0.4f);
+	if (gcGlobalAmbientLight.g == 0.2f)
+		cColor = lerp(cColor, cIllumination, 0.8f);
+	else
+		cColor = lerp(cColor, cIllumination, 0.4f);
+
+	if (cAlbedoColor.a == 0)cColor.a = 0;
 
 	return(cColor);
 }
-
 
 float4 PSEffect(VS_STANDARD_OUTPUT input) : SV_TARGET
 {

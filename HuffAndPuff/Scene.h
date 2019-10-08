@@ -86,7 +86,8 @@ public:
 	bool ProcessInput(UCHAR *pKeysBuffer);
     void AnimateObjects(float fTimeElapsed);
     void Render(ID3D12GraphicsCommandList *pd3dCommandList, D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle, CCamera *pCamera=NULL);
-	void ObjectsCollides();
+	void ObjectsCollides();	
+	void ObjectsCollides2();
 	void ReleaseUploadBuffers();
 	CWater** GetWaters() { return m_ppWaters; }
 
@@ -109,9 +110,11 @@ public:
 	CSnake*								m_pSnake = NULL;
 	CGameObject*								m_pFish = NULL;
 	CMirrorShader* m_pWaterShader = NULL;
+	ID3D12Resource* m_pIstage = NULL;
 
 	ID3D12Device*						m_pd3dDevice = NULL;
 	ID3D12GraphicsCommandList*			m_pd3dCommandList = NULL;
+	CGameObject* m_dashobj;
 
 	void ResetObjects();
 	void PlusTreeData();
@@ -122,7 +125,7 @@ public:
 
 	void PlusGrassData();
 	void SaveGrassData();
-	void LoadDash(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList);
+	void LoadDash(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int stage = 1);
 
 	void PlusMushroomData();
 	void SaveMushroomData();
@@ -142,6 +145,8 @@ public:
 	void PlusBoxData();
 	void SaveBoxhData();
 	void LoadBoxData(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+	void LoadBoxData2();
+
 	void InitStage();
 
 	void SaveNavigation();
@@ -193,6 +198,7 @@ public:
 
 	int									m_ItemOrder = 0;
 	int									m_Stage = 1;
+	XMFLOAT2* m_pStageNum;
 
 	CTexture*							m_ClockTex = NULL;
 	CTexture*							m_DamageUITex = NULL;

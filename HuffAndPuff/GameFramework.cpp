@@ -355,7 +355,7 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 					ChangeSwapChainState();
 					break;
 				case '3': // 네이베게이션 저장
-					m_pScene->SaveNavigation();
+					m_pScene->SaveDashData();
 					break;
 				case 't':
 				case 'T':
@@ -363,7 +363,7 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 					break;
 				case 'y':
 				case 'Y':
-					m_pPlayer->SetCheatmode(true);
+					m_pScene->PlusDashData();
 					break;
 				case 'Q': // 스킬
 					m_pPlayer->UseSkill(); 
@@ -589,8 +589,8 @@ void CGameFramework::BuildPlayers()
 	m_pScene->m_pPlayer = m_pPlayer = m_pPlayer;
 	m_pCamera = m_pPlayer->GetCamera();
 	
-	CGameObject* Arrow = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), "Model/Arrow.bin", NULL,false);
-	Arrow->Rotate(0, 80, 0);
+	CGameObject* Arrow = new CNavUI(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 4, 4, XMFLOAT3(0, 0, 0), L"Model/Textures/Pointing.tiff");
+		//Arrow->Rotate(0, 80, 0);
 	m_pPlayer->SetNav(Arrow);
 
 

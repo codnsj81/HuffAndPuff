@@ -76,6 +76,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 		m_pTerrain = new CHeightMapTerrain(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, _T("Terrain/terrain.raw"), 257, 257, xmf3Scale, xmf4Color);
 		m_pSkyBox = new CSkyBox(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 		m_pShader = new CShader();
+		m_pShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 
 		m_nWaters = 2;
 		m_ppWaters = new CWater * [m_nWaters];
@@ -1929,7 +1930,6 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, D3D12_CPU_DESCRI
 		D3D12_GPU_VIRTUAL_ADDRESS d3dcbLightsGpuVirtualAddress = m_pd3dcbLights->GetGPUVirtualAddress();
 		pd3dCommandList->SetGraphicsRootConstantBufferView(2, d3dcbLightsGpuVirtualAddress); //Lights
 
-
 		switch (m_MainFramework->GetFlowState())
 		{
 		case SCENE_STAGE1:
@@ -1944,15 +1944,24 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, D3D12_CPU_DESCRI
 				RenderStage1(pd3dCommandList, pCamera);
 				if (m_pTerrain) m_pTerrain->Render(pd3dCommandList, pCamera);
 
-				if (m_pPlayer) m_pPlayer->Render(m_pd3dCommandList, pCamera);
+				m_pPlayer->UpdateTransform(NULL);
+				if (m_pPlayer) m_pPlayer->Render(m_pd3dCommandList, pCamera,true);
 
 				m_pPlayer->GetNavGuide()->Render(m_pd3dCommandList, pCamera);
+/*
+				XMFLOAT4 xmf4Light(1.f, 1.f, 0, 0);
+				XMFLOAT4 xmf4Plane(0, m_pPlayer->GetPosition().y, 0, 1);
+				XMFLOAT4X4 originMat = m_pPlayer->m_xmf4x4ToParent;
+				XMMATRIX xmmtxPlanar = XMMatrixShadow(XMLoadFloat4(&xmf4Plane), XMLoadFloat4(&xmf4Light));
+				m_pPlayer->m_xmf4x4ToParent = Matrix4x4::Multiply( xmmtxPlanar, m_pPlayer->m_xmf4x4ToParent);
+				m_pPlayer->UpdateTransform(NULL);
+				m_pPlayer->Render(pd3dCommandList, pCamera, false, 0);
+				m_pPlayer->m_xmf4x4ToParent = originMat;
+				m_pPlayer->UpdateTransform(NULL);*/
 
 				if (m_pWaterShader)
 					m_pWaterShader->Render(pd3dCommandList, dsvHandle, pCamera);
 
-				//m_ppWaters[0]->Render(m_pd3dCommandList, pCamera, true);
-				//m_ppWaters[1]->Render(m_pd3dCommandList, pCamera, true);
 			}
 			else
 			{
@@ -1960,6 +1969,16 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, D3D12_CPU_DESCRI
 				if (m_pTerrain2) m_pTerrain2->Render(pd3dCommandList, pCamera);
 
 				if (m_pPlayer) m_pPlayer->Render(m_pd3dCommandList, pCamera);
+
+				XMFLOAT4 xmf4Light(1.f, 1.f, 0, 0);
+				XMFLOAT4 xmf4Plane(0, m_pPlayer->GetPosition().y, 0, 1);
+				XMFLOAT4X4 originMat = m_pPlayer->m_xmf4x4ToParent;
+				XMMATRIX xmmtxPlanar = XMMatrixShadow(XMLoadFloat4(&xmf4Plane), XMLoadFloat4(&xmf4Light));
+				XMStoreFloat4x4(&m_pPlayer->m_xmf4x4ToParent, xmmtxPlanar);
+				m_pPlayer->m_xmf4x4ToParent = Matrix4x4::Multiply(xmmtxPlanar, m_pPlayer->m_xmf4x4ToParent);
+				m_pPlayer->UpdateTransform(NULL);
+				m_pPlayer->Render(pd3dCommandList, pCamera, false, 0);
+				m_pPlayer->m_xmf4x4ToParent = originMat;
 
 				m_pPlayer->GetNavGuide()->Render(m_pd3dCommandList, pCamera);
 			}

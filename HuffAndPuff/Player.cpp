@@ -666,15 +666,17 @@ void CPlayer::OnPrepareRender()
 	UpdateTransform(NULL);
 }
 
-void CPlayer::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, bool bPrepare)
+void CPlayer::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, bool bPrepare, int i)
 {
 	DWORD nCameraMode = (pCamera) ? pCamera->GetMode() : 0x00;
 
-	if (nCameraMode == THIRD_PERSON_CAMERA) CGameObject::Render(pd3dCommandList, pCamera, bPrepare);
+	if (nCameraMode == THIRD_PERSON_CAMERA) CGameObject::Render(pd3dCommandList, pCamera, bPrepare, i);
 	if (m_bDash)
 		m_DashEffect->bRender = true;
 	else
 		m_DashEffect->bRender = false;
+	
+
 }
 
 

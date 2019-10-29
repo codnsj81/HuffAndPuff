@@ -685,7 +685,7 @@ void CGameObject::Animate(float fTimeElapsed)
 	if (m_pChild) m_pChild->Animate(fTimeElapsed);
 }
 
-void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, bool bPrepare)
+void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, bool bPrepare, int nPipelineState)
 {	
 	if(bPrepare) OnPrepareRender();
 	float distance = Vector3::Length(Vector3::Subtract(pCamera->GetPosition(), GetPosition()));
@@ -705,7 +705,7 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pC
 		{
 			if(m_ppMaterials[i])
 			{
-				if(m_ppMaterials[i]->m_pShader) m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera);
+				if(m_ppMaterials[i]->m_pShader) m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera, nPipelineState);
 				m_ppMaterials[i]->UpdateShaderVariable(pd3dCommandList);
 			}
 
@@ -713,8 +713,8 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pC
 		}
 	}
 
-	if (m_pSibling) m_pSibling->Render(pd3dCommandList, pCamera, bPrepare);
-	if (m_pChild) m_pChild->Render(pd3dCommandList, pCamera, bPrepare);
+	if (m_pSibling) m_pSibling->Render(pd3dCommandList, pCamera, bPrepare, nPipelineState);
+	if (m_pChild) m_pChild->Render(pd3dCommandList, pCamera, bPrepare, nPipelineState);
 }
 
 void CGameObject::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
@@ -1368,7 +1368,7 @@ void CWater::Animate(float fTimeElapsed)
 {
 	dynamic_cast<CWaterMesh*>(m_pMesh)->setTimeElapsed(fTimeElapsed);
 }
-void CWater::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, bool Cover)
+void CWater::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, bool Cover, int iPipeline)
 {
 	float distance = Vector3::Length(Vector3::Subtract(pCamera->GetPosition(), GetPosition()));
 		if (distance > 300)
@@ -1388,7 +1388,7 @@ void CWater::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 			{
 				if (m_ppMaterials[i])
 				{
-					if (m_ppMaterials[i]->m_pShader) m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera);
+					if (m_ppMaterials[i]->m_pShader) m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera,iPipeline);
 					m_ppMaterials[i]->UpdateShaderVariable(pd3dCommandList);
 				}
 
@@ -1574,13 +1574,14 @@ CShadow::CShadow(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComman
 	CShadowMesh* pMesh = new CShadowMesh(pd3dDevice, pd3dCommandList, nWidth, nLength);
 	SetMesh(pMesh);
 
-	CShader* pShader = new CUIShader();
+	CShader* pShader = new CShadowShader();
 	pShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	pShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
 	CTexture* pWaterNormalTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 	pWaterNormalTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/Shadow.tiff", 0, false);
 	pWaterNormalTexture->AddRef();
+
 
 	CScene::CreateShaderResourceViews(pd3dDevice, pWaterNormalTexture, 3, false);
 

@@ -386,4 +386,7 @@ public:
 	CShadowMesh();
 	CShadowMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float nWidth = 5.f, float nLength = 5.f, float uvX = 1, float uvY = 1);
 	~CShadowMesh();
+
+	virtual void OnPreRender(ID3D12GraphicsCommandList* pd3dCommandList, void* pContext);
+
 };

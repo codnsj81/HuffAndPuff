@@ -179,7 +179,7 @@ public:
 	virtual	void Jump();
 	virtual CCamera *ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed) { return(NULL); }
 	virtual void OnPrepareRender();
-	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera = NULL, bool bPrepre = true);
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera = NULL, bool bPrepre = true, int i =0 );
 
 
 	int							m_CollideState = COLLIDEN;

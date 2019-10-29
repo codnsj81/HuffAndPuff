@@ -341,7 +341,7 @@ public:
 	virtual void Animate(float fTimeElapsed);
 
 	virtual void OnPrepareRender() { }
-	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera=NULL, bool bPrepare = true);
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera=NULL, bool bPrepare = true, int nPipelineState = 0);
 
 	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList);
@@ -457,7 +457,7 @@ public:
 	void SetCbvGPUDescriptorHandlePtr(UINT64 nCbvGPUDescriptorHandlePtr) { m_d3dCbvGPUDescriptorHandle.ptr = nCbvGPUDescriptorHandlePtr; }
 
 	virtual void Animate(float fTimeElapsed);
-	void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, bool Cover);
+	void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, bool Cover, int iPipeline=0);
 public:
 	int							m_nWidth;
 	int							m_nLength;

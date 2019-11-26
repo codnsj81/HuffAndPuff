@@ -1571,27 +1571,49 @@ CShadow::CShadow(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComman
 	for (int i = 0; i < m_nMaterials; i++)
 		m_ppMaterials[i] = NULL;
 
-	CShadowMesh* pMesh = new CShadowMesh(pd3dDevice, pd3dCommandList, nWidth, nLength);
-	SetMesh(pMesh);
-
 	CShader* pShader = new CShadowShader();
 	pShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	pShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
-	CTexture* pWaterNormalTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pWaterNormalTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/Shadow.tiff", 0, false);
-	pWaterNormalTexture->AddRef();
+	CTexture* shadowTex = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	shadowTex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/Rock-Texture-Surface.tiff", 0, false);
+	shadowTex->AddRef();
 
 
-	CScene::CreateShaderResourceViews(pd3dDevice, pWaterNormalTexture, 3, false);
+	CMesh* pMesh = new CShadowMesh(pd3dDevice, pd3dCommandList, 5, 5);
+	SetMesh(pMesh);
+
+	CScene::CreateShaderResourceViews(pd3dDevice, shadowTex, 3, false);
 
 	CMaterial* pMaterial = new CMaterial(1);
-	pMaterial->SetTexture(pWaterNormalTexture, 0);
+	pMaterial->SetTexture(shadowTex, 0);
 	pMaterial->SetMaterialType(MATERIAL_ALBEDO_MAP);
 	pMaterial->SetShader(pShader);
 
 	SetMaterial(0, pMaterial);
 	SetPosition(xmfPosition);
+}
+
+void CShadow::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, bool bPrepare, int nPipelineState)
+{
+	UpdateTransform(NULL);
+	OnPrepareRender();
+	UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
+
+	if (m_nMaterials > 0)
+	{
+		for (int i = 0; i < m_nMaterials; i++)
+		{
+			if (m_ppMaterials[i])
+			{
+				if (m_ppMaterials[i]->m_pShader) m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera, nPipelineState);
+				m_ppMaterials[i]->UpdateShaderVariable(pd3dCommandList);
+			}
+
+			if (m_pMesh) m_pMesh->Render(pd3dCommandList, i);
+		}
+	}
+
 }
 
 CShadow::~CShadow()

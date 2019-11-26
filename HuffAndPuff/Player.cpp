@@ -675,7 +675,7 @@ void CPlayer::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamer
 		m_DashEffect->bRender = true;
 	else
 		m_DashEffect->bRender = false;
-	
+	m_pShadow->Render(pd3dCommandList, m_pCamera, true);
 
 }
 

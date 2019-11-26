@@ -1,0 +1,9 @@
+diff a/HuffAndPuff/Player.cpp b/HuffAndPuff/Player.cpp	(rejected hunks)
+@@ -834,6 +834,7 @@
+ 			break;
+ 		case THIRD_PERSON_CAMERA:
+ 			SetFriction(100.0f);
++			SetGravity(XMFLOAT3(0.0f, -100.f, 0.0f));
+ 			SetMaxVelocityXZ(30.0f);
+ 			SetMaxVelocityY(70.0f);
+ 			m_pCamera = OnChangeCamera(THIRD_PERSON_CAMERA, nCurrentCameraMode);

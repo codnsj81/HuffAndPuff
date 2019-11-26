@@ -81,6 +81,9 @@
     <ClInclude Include="..\..\..\temp10\trunk\DuckyDoggyClient\Scene.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="SoundMgr.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp">
@@ -125,6 +128,9 @@
     <ClCompile Include="CMonster.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="SoundMgr.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LabProject07-9-5(Animation).rc">
@@ -154,6 +160,9 @@
   <ItemGroup>
     <None Include="Shaders.hlsl" />
     <None Include="Light.hlsl" />
+    <None Include="Shadow.hlsli">
+      <Filter>헤더 파일</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Sound\ref.txt" />

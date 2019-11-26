@@ -389,4 +389,18 @@ public:
 
 	virtual void OnPreRender(ID3D12GraphicsCommandList* pd3dCommandList, void* pContext);
 
+
+	ID3D12Resource* m_pd3dPositionBuffer = NULL;
+	ID3D12Resource* m_pd3dPositionUploadBuffer = NULL;
+	D3D12_VERTEX_BUFFER_VIEW		m_d3dPositionBufferView;
+
+	ID3D12Resource* m_pd3dTexBuffer = NULL;
+	ID3D12Resource* m_pd3dTexUploadBuffer = NULL;
+	D3D12_VERTEX_BUFFER_VIEW		m_d3dTexBufferView;
+
+	ID3D12Resource* m_pd3dInstanceBuffer = NULL;
+	ID3D12Resource* m_pd3dInstanceUploadBuffer = NULL;
+	D3D12_VERTEX_BUFFER_VIEW		m_d3dInstanceBufferView;
+
+
 };

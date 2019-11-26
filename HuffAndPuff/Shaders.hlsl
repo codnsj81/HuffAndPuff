@@ -467,22 +467,13 @@ float4 PSUI(VS_UI_OUTPUT input) : SV_TARGET
 
 /////////////////////////////////////////////////
 
-struct VS_INPUT {
-	float3 position : POSITION;
-};
-
-struct VS_OUTPUT {
-	float4 position : SV_POSITION;
-};
-
 struct VS_SHADOW_INPUT {
-	float3 position: POSITION;
-	float2 texCoord : TEXCOORD;
-	float4 shadow : INSTANCEPOS;
+	float3 position : POSITION;
+	float2 texCoord : TEXCOORD0;
 };
 
 struct VS_SHADOW_OUTPUT {
-	float4 position: SV_POSITION;
+	float4 position : SV_POSITION;
 	float2 texCoord : TEXCOORD0;
 };
 
@@ -492,29 +483,38 @@ struct GS_OUTPUT {
 	float2 texCoord : TEXCOORD0;
 };
 
-//float4 PSShadow(GS_OUTPUT input) : SV_Target{
-//	return(gtxCircularShadow.Sample(gssCircularShadow, input.texCoord) * input.color);
-//}
-
+VS_SHADOW_OUTPUT VSShadow(VS_SHADOW_INPUT input) {
+	VS_SHADOW_OUTPUT output = (VS_SHADOW_OUTPUT)0;
+	output.texCoord = input.texCoord;
+	float3 position = input.position;
+	//position.y -= (input.shadow.y - input.shadow.w) * 0.7f;
+	output.position = mul(mul(float4(position, 1.0f), gmtxView), gmtxProjection);
+	return (output);
+}
+float4 PSShadow(VS_SHADOW_OUTPUT input) : SV_Target{
+	return(gtxtAlbedoTexture.Sample(gssClamp, input.texCoord) );
+}
 //
-//[maxvertexcount(4)]
-//void GSShadow(point VS_OUTPUT input[1], inout TriangleStream<GS_OUTPUT> outStream) {
-//	GS_OUTPUT output;
-//	float3 vCorners[4];
-//	vCorners[0] = float3(input[0].position.x - input[0].size, input[0].position.y, input[0].position.z - input[0].size);
-//	vCorners[1] = float3(input[0].position.x - input[0].size, input[0].position.y, input[0].position.z + input[0].size);
-//	vCorners[2] = float3(input[0].position.x + input[0].size, input[0].position.y, input[0].position.z - input[0].size);
-//	vCorners[3] = float3(input[0].position.x + input[0].size, input[0].position.y, input[0].position.z + input[0].size);
-//	float2 vTexCoords[4] = { float2(0,1), float2(0,0), float2(1,1), float2(1,0) };
-//	float fColor = min(1, max(0, (100 + 155 * (90 - input[0].size)) / 255.0f));
-//	for (int i = 0; i < 4; i++)
-//	{
-//		output.position = mul(mul(float4(vCorners[i], 1), gmtxView), gmtxProjection);
-//		output.texCoord = vTexCoords[i];
-//		output.color = float4(fColor, fColor, fColor, 0);
-//		outStream.Append(output);
-//	}
-//}
+//
+/*
+[maxvertexcount(4)]
+void GSShadow(point VS_SHADOW_OUTPUT input[1], inout TriangleStream<GS_OUTPUT> outStream) {
+	GS_OUTPUT output;
+	float3 vCorners[4];
+	vCorners[0] = float3(input[0].position.x - input[0].size, input[0].position.y, input[0].position.z - input[0].size);
+	vCorners[1] = float3(input[0].position.x - input[0].size, input[0].position.y, input[0].position.z + input[0].size);
+	vCorners[2] = float3(input[0].position.x + input[0].size, input[0].position.y, input[0].position.z - input[0].size);
+	vCorners[3] = float3(input[0].position.x + input[0].size, input[0].position.y, input[0].position.z + input[0].size);
+	float2 vTexCoords[4] = { float2(0,1), float2(0,0), float2(1,1), float2(1,0) };
+	float fColor = min(1, max(0, (100 + 155 * (90 - input[0].size)) / 255.0f));
+	for (int i = 0; i < 4; i++)
+	{
+		output.position = mul(mul(float4(vCorners[i], 1), gmtxView), gmtxProjection);
+		output.texCoord = vTexCoords[i];
+		output.color = float4(fColor, fColor, fColor, 0);
+		outStream.Append(output);
+	}
+}*/
 //VS_SHADOW_OUTPUT VSCircularShadow(VS_SHADOW_INPUT input)
 //{
 //	VS_SHADOW_OUTPUT output = (VS_SHADOW_OUTPUT)0;
@@ -528,16 +528,16 @@ struct GS_OUTPUT {
 //float4 PSCircularShadow(VS_SHADOW_OUTPUT input) : SV_Target{
 //	return (gtxCircularShadow.Sample(gssShadowMap, input.texCoord));
 //}
-
-VS_OUTPUT VSPlanarShadow(VS_INPUT input) {
-	VS_OUTPUT output = (VS_OUTPUT)0;
-	output.position = mul(float4(input.position, 1.f), mul(mul(gmtxGameObject, gmtxView), gmtxProjection));
-	return(output);
-}
-
-float4 PSPlanarShadow(VS_OUTPUT input) : SV_Target{
-	return (float4(0.6,0.6,0.6,1));
-}
+//
+//VS_OUTPUT VSPlanarShadow(VS_INPUT input) {
+//	VS_OUTPUT output = (VS_OUTPUT)0;
+//	output.position = mul(float4(input.position, 1.f), mul(mul(gmtxGameObject, gmtxView), gmtxProjection));
+//	return(output);
+//}
+//
+//float4 PSPlanarShadow(VS_OUTPUT input) : SV_Target{
+//	return (float4(0.6,0.6,0.6,1));
+//}
 
 /////// 투영 텍스쳐 매핑
 
